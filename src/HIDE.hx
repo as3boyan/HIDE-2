@@ -1,5 +1,6 @@
 package ;
 import haxe.ds.StringMap.StringMap;
+import haxe.Timer;
 import js.Browser;
 import js.html.KeyboardEvent;
 import js.html.LinkElement;
@@ -37,6 +38,40 @@ import js.html.ScriptElement;
 		link.type = "text/css";
 		link.rel = "stylesheet";
 		Browser.document.head.appendChild(link);
+	}
+	
+	public static function waitForDependentPluginsToBeLoaded(plugins:Array<String>, onLoaded:Dynamic):Void
+	{
+		var time:Int = 0;
+		
+		var timer:Timer = new Timer(100);
+		timer.run = function ():Void
+		{
+			var pluginsLoaded:Bool = Lambda.foreach(plugins, function (plugin:String):Bool
+			{
+				return Lambda.has(HIDE.plugins, plugin);
+			}
+			);
+			
+			if (pluginsLoaded)
+			{
+				onLoaded();
+				timer.stop();
+			}
+			else 
+			{
+				//Check if loading dependent plugins takes too long
+				if (time < 3000)
+				{
+					time += 100;
+				}
+				else 
+				{
+					trace("can't load plugin, required plugins is not found");
+					timer.stop();
+				}
+			}
+		};
 	}
 	
 	public static function registerHotkey(hotkey:String, functionName:String):Void

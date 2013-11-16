@@ -20,6 +20,22 @@ HIDE.loadCSS = function(url) {
 	link.rel = "stylesheet";
 	window.document.head.appendChild(link);
 };
+HIDE.waitForDependentPluginsToBeLoaded = function(plugins,onLoaded) {
+	var time = 0;
+	var timer = new haxe.Timer(100);
+	timer.run = function() {
+		var pluginsLoaded = Lambda.foreach(plugins,function(plugin) {
+			return Lambda.has(HIDE.plugins,plugin);
+		});
+		if(pluginsLoaded) {
+			onLoaded();
+			timer.stop();
+		} else if(time < 3000) time += 100; else {
+			console.log("can't load plugin, required plugins is not found");
+			timer.stop();
+		}
+	};
+};
 HIDE.registerHotkey = function(hotkey,functionName) {
 };
 HIDE.registerHotkeyByKeyCode = function(code,functionName) {
@@ -43,6 +59,30 @@ HxOverrides.substr = function(s,pos,len) {
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
 };
+HxOverrides.iter = function(a) {
+	return { cur : 0, arr : a, hasNext : function() {
+		return this.cur < this.arr.length;
+	}, next : function() {
+		return this.arr[this.cur++];
+	}};
+};
+var Lambda = function() { };
+Lambda.has = function(it,elt) {
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(x == elt) return true;
+	}
+	return false;
+};
+Lambda.foreach = function(it,f) {
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(!f(x)) return false;
+	}
+	return true;
+};
 var Main = function() { };
 Main.main = function() {
 	js.Node.require("nw.gui").Window.get().showDevTools();
@@ -52,10 +92,10 @@ Main.main = function() {
 		js.Node.require("fs").readdir(pathToPlugins,function(error,folders) {
 			var _g = 0;
 			while(_g < folders.length) {
-				var folder = folders[_g];
+				var folder = [folders[_g]];
 				++_g;
-				var path = [js.Node.require("path").join(pathToPlugins,folder)];
-				js.Node.require("fs").readdir(path[0],(function(path) {
+				var path = [js.Node.require("path").join(pathToPlugins,folder[0])];
+				js.Node.require("fs").readdir(path[0],(function(path,folder) {
 					return function(error1,subfolders) {
 						var _g1 = 0;
 						while(_g1 < subfolders.length) {
@@ -69,17 +109,18 @@ Main.main = function() {
 									console.log(pathToPlugin[0] + " stderr: " + data);
 								};
 							})(pathToPlugin));
-							haxeCompilerProcess.on("close",(function(subfolder,path) {
+							haxeCompilerProcess.on("close",(function(subfolder,path,folder) {
 								return function(code) {
-									console.log(code);
-									var pathToMain = js.Node.require("path").join(path[0],subfolder[0],"bin");
-									pathToMain = js.Node.require("path").join(pathToMain,"Main.js");
-									HIDE.loadJS(pathToMain);
+									if(code == 0) {
+										var pathToMain = js.Node.require("path").join(path[0],subfolder[0],"bin");
+										pathToMain = js.Node.require("path").join(pathToMain,"Main.js");
+										HIDE.loadJS(pathToMain);
+									} else console.log("can't load " + folder[0] + "." + subfolder[0] + " plugin, compilation failed");
 								};
-							})(subfolder,path));
+							})(subfolder,path,folder));
 						}
 					};
-				})(path));
+				})(path,folder));
 			}
 		});
 	};
@@ -91,8 +132,27 @@ Std.parseInt = function(x) {
 	if(isNaN(v)) return null;
 	return v;
 };
+var haxe = {};
+haxe.Timer = function(time_ms) {
+	var me = this;
+	this.id = setInterval(function() {
+		me.run();
+	},time_ms);
+};
+haxe.Timer.prototype = {
+	stop: function() {
+		if(this.id == null) return;
+		clearInterval(this.id);
+		this.id = null;
+	}
+	,run: function() {
+	}
+};
 var js = {};
 js.Node = function() { };
+function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
+var $_, $fid = 0;
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 if(Array.prototype.map == null) Array.prototype.map = function(f) {
 	var a = [];
 	var _g1 = 0;

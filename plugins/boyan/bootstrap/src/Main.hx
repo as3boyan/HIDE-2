@@ -20,31 +20,8 @@ class Main
 		//<!-- Bootstrap 3 -->
 		//<script src="../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js"></script>	
 		
-		var time:Int = 0;
-		
-		var timer:Timer = new Timer(100);
-		timer.run = function ():Void
-		{
-			//Bootstrap requires JQuery, so it will not start loading Boostrap until boyan.jquery plugin is loaded
-			if (Lambda.has(HIDE.plugins, "boyan.jquery"))
-			{
-				loadBootstrap();
-				timer.stop();
-			}
-			else 
-			{
-				//Check if loading dependent plugins takes too long
-				if (time < 3000)
-				{
-					time += 100;
-				}
-				else 
-				{
-					trace("can't load plugin, required plugins is not found");
-					timer.stop();
-				}
-			}
-		};
+		//Bootstrap requires JQuery, so it will not start loading Boostrap until boyan.jquery plugin is loaded
+		HIDE.waitForDependentPluginsToBeLoaded(["boyan.jquery"], loadBootstrap);
 		
 		//<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
 		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap.min.css");
@@ -100,7 +77,7 @@ class Main
 			
 			Browser.document.body.appendChild(navbar);
 			
-			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin(like Bootstrap) can start load themselves
+			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
 			HIDE.plugins.push("boyan.bootstrap");
 		}
 		);
