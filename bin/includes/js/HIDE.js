@@ -19,25 +19,8 @@ var Main = function() { }
 Main.main = function() {
 	js.Node.require("nw.gui").Window.get().showDevTools();
 	window.onload = function(e) {
+		js.Node.require("nw.gui").Window.get().show();
 	};
-}
-Main.loadJS = function(url) {
-	$.getScript(url,function(data,status,jqXhr) {
-		console.log(data);
-		console.log(status);
-		console.log(jqXhr.status);
-	});
-}
-Main.loadCSS = function(url) {
-	var link;
-	var _this = window.document;
-	link = _this.createElement("link");
-	link.href = url;
-	link.type = "text/css";
-	link.rel = "stylesheet";
-	window.document.head.appendChild(link);
-}
-Main.registerHotkey = function(hotkey,functionName) {
 }
 var Std = function() { }
 Std.parseInt = function(x) {
