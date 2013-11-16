@@ -1,0 +1,40 @@
+<!doctype html>
+<head>
+	<title>HIDE - an Haxe IDE written using Haxe</title>
+	<meta charset="utf-8">
+	
+	<!--- jQuery -->
+	<script type="text/javascript" src="./includes/js/jquery/jquery-2.0.3.min.js"></script>
+
+	<!-- bootstrap -->
+	<script src="./includes/js/bootstrap/bootstrap.min.js"></script>	
+	<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="./includes/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
+
+	<!-- Code generated using Haxe -->
+	<script type="text/javascript" src="./includes/js/HIDE.js"></script>
+</head>
+
+<body style="overflow: hidden;">
+	<div id="haxe:trace"></div>
+	
+	<div style="position: absolute; top: 50px; left: 0px; width: 100%; z-index: 1000;" id='notify_position'></div>
+
+	<div class="navbar navbar-default navbar-inverse navbar-fixed-top" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none;">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">HIDE</a>
+		</div>
+		
+		<div class="navbar-collapse collapse">
+			<ul id="position-navbar" class="nav navbar-nav">
+			</ul>
+		</div>
+	</div>
+
+	<div id='modal_position'>
+	</div>
+
+	<div id='style_override'>
+	</div>
+
+</body>
