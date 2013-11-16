@@ -14,8 +14,8 @@ class Main
 		//This line is equivalent to adding <script type="text/javascript" src="../plugins/boyan/jquery/bin/includes/js/jquery/jquery-2.0.3.min.js"></script> to bin/index.html head element
 		HIDE.loadJS("../plugins/boyan/jquery/bin/includes/js/jquery/jquery-2.0.3.min.js", function ():Void
 		{
-			//trace("jQuery loaded");
-			
+			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin(like Bootstrap) can start load themselves
+			HIDE.plugins.push("boyan.jquery");
 		});
 	}
 	

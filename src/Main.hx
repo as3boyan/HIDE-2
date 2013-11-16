@@ -44,10 +44,16 @@ class Main
 							
 							haxeCompilerProcess.on("close", function (code:Int):Void
 							{
-								trace(code);
-								var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
-								pathToMain = js.Node.path.join(pathToMain, "Main.js");
-								HIDE.loadJS(pathToMain);
+								if (code == 0)
+								{
+									var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
+									pathToMain = js.Node.path.join(pathToMain, "Main.js");
+									HIDE.loadJS(pathToMain);
+								}
+								else 
+								{
+									trace("can't load " + folder + "." + subfolder + " plugin, compilation failed");
+								}
 							}
 							);
 						}

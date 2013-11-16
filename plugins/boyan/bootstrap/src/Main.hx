@@ -1,4 +1,5 @@
 package ;
+import haxe.Timer;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
@@ -18,6 +19,43 @@ class Main
 		
 		//<!-- Bootstrap 3 -->
 		//<script src="../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js"></script>	
+		
+		var time:Int = 0;
+		
+		var timer:Timer = new Timer(100);
+		timer.run = function ():Void
+		{
+			//Bootstrap requires JQuery, so it will not start loading Boostrap until boyan.jquery plugin is loaded
+			if (Lambda.has(HIDE.plugins, "boyan.jquery"))
+			{
+				loadBootstrap();
+				timer.stop();
+			}
+			else 
+			{
+				//Check if loading dependent plugins takes too long
+				if (time < 3000)
+				{
+					time += 100;
+				}
+				else 
+				{
+					trace("can't load plugin, required plugins is not found");
+					timer.stop();
+				}
+			}
+		};
+		
+		//<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap.min.css");
+		
+		//<!-- Bootstrap 3 Glyphicons http://getbootstrap.com/components/#glyphicons -->
+		//<link href="./includes/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
+		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap-glyphicons.css");
+	}
+	
+	public static function loadBootstrap():Void
+	{
 		HIDE.loadJS("../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js", function ():Void
 		{
 			//<!-- Bootstrap 3 Navbar http://getbootstrap.com/components/#navbar -->
@@ -61,15 +99,10 @@ class Main
 			navbar.appendChild(div);
 			
 			Browser.document.body.appendChild(navbar);
+			
+			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin(like Bootstrap) can start load themselves
+			HIDE.plugins.push("boyan.bootstrap");
 		}
 		);
-		
-		//<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
-		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap.min.css");
-		
-		//<!-- Bootstrap 3 Glyphicons http://getbootstrap.com/components/#glyphicons -->
-		//<link href="./includes/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
-		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap-glyphicons.css");
 	}
-	
 }

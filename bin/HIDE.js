@@ -120,6 +120,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+HIDE.plugins = new Array();
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

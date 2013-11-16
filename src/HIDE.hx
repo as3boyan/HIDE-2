@@ -1,4 +1,5 @@
 package ;
+import haxe.ds.StringMap.StringMap;
 import js.Browser;
 import js.html.KeyboardEvent;
 import js.html.LinkElement;
@@ -11,6 +12,8 @@ import js.html.ScriptElement;
  
 @:keepSub @:expose class HIDE
 {	
+	public static var plugins:Array<String> = new Array();
+	
 	public static function loadJS(url:String, ?onLoad:Dynamic):Void
 	{
 		var script:ScriptElement = Browser.document.createScriptElement();
