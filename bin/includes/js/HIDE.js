@@ -326,3 +326,5 @@ js.NodeC.FILE_READWRITE = "a";
 js.NodeC.FILE_READWRITE_APPEND = "a+";
 Main.main();
 })();
+
+//# sourceMappingURL=HIDE.js.map
