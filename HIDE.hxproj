@@ -4,7 +4,7 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="bin\includes\js\HIDE.js" />
+    <movie path="./bin/HIDE.js" />
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />
@@ -24,7 +24,7 @@
     <option noInlineOnDebug="False" />
     <option mainClass="Main" />
     <option enabledebug="False" />
-    <option additional="-cp externs/nodejs-std/src&#xA;-cp externs/json" />
+    <option additional="-cp externs/nodejs-std/src" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

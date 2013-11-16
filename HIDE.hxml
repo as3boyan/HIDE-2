@@ -1,6 +1,5 @@
 -lib jQueryExtern
 -cp src
--js bin/includes/js/HIDE.js
+-js ./bin/HIDE.js
 -main Main
 -cp externs/nodejs-std/src
--cp externs/json

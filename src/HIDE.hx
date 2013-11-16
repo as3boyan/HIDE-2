@@ -33,14 +33,16 @@ package ;
 		
 	}
 	
-	public static function registerHotkeyByCode(code:Int, functionName:String):Void
+	public static function registerHotkeyByKeyCode(code:Int, functionName:String):Void
 	{
-		Browser.document.addEventListener("keyup", function (e:KeyboardEvent)
+		Browser.window.addEventListener("keyup", function (e:KeyboardEvent)
 		{
 			if (e.keyCode == code)
 			{
 				new JQuery().triggerHandler(functionName);
 			}
+			
+			trace(e.keyCode);
 		}
 		);
 	}
