@@ -2,7 +2,7 @@
 var Main = function() { };
 Main.main = function() {
 	window.document.body.style.overflow = "hidden";
-	HIDE.waitForDependentPluginsToBeLoaded(["boyan.jquery"],Main.loadBootstrap);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.dependencies,Main.loadBootstrap);
 	HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap.min.css");
 	HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap-glyphicons.css");
 };
@@ -36,8 +36,10 @@ Main.loadBootstrap = function() {
 		div.appendChild(ul);
 		navbar.appendChild(div);
 		window.document.body.appendChild(navbar);
-		HIDE.plugins.push("boyan.bootstrap");
+		HIDE.plugins.push(Main.$name);
 	});
 };
+Main.$name = "boyan.bootstrap";
+Main.dependencies = ["boyan.jquery"];
 Main.main();
 })();

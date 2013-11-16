@@ -11,6 +11,9 @@ import js.html.UListElement;
  */
 class Main
 {
+	public static var name:String = "boyan.bootstrap";
+	public static var dependencies:Array<String> = ["boyan.jquery"];
+	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
 	{
@@ -21,7 +24,7 @@ class Main
 		//<script src="../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js"></script>	
 		
 		//Bootstrap requires JQuery, so it will not start loading Boostrap until boyan.jquery plugin is loaded
-		HIDE.waitForDependentPluginsToBeLoaded(["boyan.jquery"], loadBootstrap);
+		HIDE.waitForDependentPluginsToBeLoaded(dependencies, loadBootstrap);
 		
 		//<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
 		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap.min.css");
@@ -31,6 +34,7 @@ class Main
 		HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap-glyphicons.css");
 	}
 	
+	//This function gets called only when all dependent plugins loaded
 	public static function loadBootstrap():Void
 	{
 		HIDE.loadJS("../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js", function ():Void
@@ -78,7 +82,7 @@ class Main
 			Browser.document.body.appendChild(navbar);
 			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
-			HIDE.plugins.push("boyan.bootstrap");
+			HIDE.plugins.push(name);
 		}
 		);
 	}
