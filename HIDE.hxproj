@@ -24,11 +24,11 @@
     <option noInlineOnDebug="False" />
     <option mainClass="Main" />
     <option enabledebug="False" />
-    <option additional="-cp externs/nodejs-std/src" />
+    <option additional="-cp externs/nodejs-std/src&#xA;-dce full" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
-    <library name="jQueryExtern" />
+    <!-- example: <library name="..." /> -->
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>

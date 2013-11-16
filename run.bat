@@ -1,1 +1,1 @@
-start C:\node-webkit-v0.7.5-win-ia32\nw bin
+start C:\node-webkit-v0.8.0-win-ia32\nw bin

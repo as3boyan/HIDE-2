@@ -1,21 +1,30 @@
 package ;
+import js.Browser;
+import js.html.KeyboardEvent;
+import js.html.LinkElement;
+import js.html.ScriptElement;
 
 /**
  * ...
  * @author AS3Boyan
  */
  
-@keepSub @expose class HIDE
+@:keepSub @:expose class HIDE
 {	
-	public static function loadJS(url:String):Void
+	public static function loadJS(url:String, ?onLoad:Dynamic):Void
 	{
-		JQueryStatic.getScript(url, function (data, status, jqXhr)
+		var script:ScriptElement = Browser.document.createScriptElement();
+		script.src = url;
+		script.onload = function (e)
 		{
-			trace(data);
-			trace(status);
-			trace(jqXhr.status);
-		}
-		);
+			trace(url + " loaded");
+			
+			if (onLoad != null)
+			{
+				onLoad();
+			}
+		};
+		Browser.document.head.appendChild(script);
 	}
 	
 	public static function loadCSS(url:String):Void
@@ -24,7 +33,6 @@ package ;
 		link.href = url;
 		link.type = "text/css";
 		link.rel = "stylesheet";
-		
 		Browser.document.head.appendChild(link);
 	}
 	
@@ -39,10 +47,10 @@ package ;
 		{
 			if (e.keyCode == code)
 			{
-				new JQuery().triggerHandler(functionName);
+				//new JQuery().triggerHandler(functionName);
 			}
 			
-			trace(e.keyCode);
+			//trace(e.keyCode);
 		}
 		);
 	}

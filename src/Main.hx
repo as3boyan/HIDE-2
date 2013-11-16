@@ -1,7 +1,5 @@
 package ;
 
-import jQuery.JQuery;
-import jQuery.JQueryStatic;
 import js.Browser;
 import js.html.KeyboardEvent;
 import js.html.LinkElement;
@@ -29,9 +27,30 @@ class Main
 			{				
 				for (folder in folders)
 				{
-					js.Node.fs.readdir(js.Node.path.join(pathToPlugins, folder), function (error:js.Node.NodeErr, subfolders:Array<String>)
+					var path:String = js.Node.path.join(pathToPlugins, folder);
+					
+					js.Node.fs.readdir(path, function (error:js.Node.NodeErr, subfolders:Array<String>)
 					{
-						trace(subfolders);
+						for (subfolder in subfolders)
+						{
+							var pathToPlugin:String = js.Node.path.join(path, subfolder);
+							pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
+							
+							var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
+							
+							haxeCompilerProcess.stderr.on('data', function (data:String):Void {
+								trace(pathToPlugin + ' stderr: ' + data);
+							});
+							
+							haxeCompilerProcess.on("close", function (code:Int):Void
+							{
+								trace(code);
+								var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
+								pathToMain = js.Node.path.join(pathToMain, "Main.js");
+								HIDE.loadJS(pathToMain);
+							}
+							);
+						}
 					}
 					);
 				}
