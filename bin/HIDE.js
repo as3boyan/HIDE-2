@@ -88,42 +88,45 @@ Main.main = function() {
 	js.Node.require("nw.gui").Window.get().showDevTools();
 	window.onload = function(e) {
 		js.Node.require("nw.gui").Window.get().show();
-		var pathToPlugins = js.Node.require("path").join("..","plugins");
-		js.Node.require("fs").readdir(pathToPlugins,function(error,folders) {
-			var _g = 0;
-			while(_g < folders.length) {
-				var folder = [folders[_g]];
-				++_g;
-				var path = [js.Node.require("path").join(pathToPlugins,folder[0])];
-				js.Node.require("fs").readdir(path[0],(function(path,folder) {
-					return function(error1,subfolders) {
-						var _g1 = 0;
-						while(_g1 < subfolders.length) {
-							var subfolder = [subfolders[_g1]];
-							++_g1;
-							var pathToPlugin = [js.Node.require("path").join(path[0],subfolder[0])];
-							pathToPlugin[0] = js.Node.require("path").resolve(pathToPlugin[0]);
-							var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin[0],"plugin.hxml"]);
-							haxeCompilerProcess.stderr.on("data",(function(pathToPlugin) {
-								return function(data) {
-									console.log(pathToPlugin[0] + " stderr: " + data);
-								};
-							})(pathToPlugin));
-							haxeCompilerProcess.on("close",(function(subfolder,path,folder) {
-								return function(code) {
-									if(code == 0) {
-										var pathToMain = js.Node.require("path").join(path[0],subfolder[0],"bin");
-										pathToMain = js.Node.require("path").join(pathToMain,"Main.js");
-										HIDE.loadJS(pathToMain);
-									} else console.log("can't load " + folder[0] + "." + subfolder[0] + " plugin, compilation failed");
-								};
-							})(subfolder,path,folder));
-						}
-					};
-				})(path,folder));
-			}
-		});
+		Main.loadPlugins();
 	};
+};
+Main.loadPlugins = function() {
+	var pathToPlugins = js.Node.require("path").join("..","plugins");
+	js.Node.require("fs").readdir(pathToPlugins,function(error,folders) {
+		var _g = 0;
+		while(_g < folders.length) {
+			var folder = [folders[_g]];
+			++_g;
+			var path = [js.Node.require("path").join(pathToPlugins,folder[0])];
+			js.Node.require("fs").readdir(path[0],(function(path,folder) {
+				return function(error1,subfolders) {
+					var _g1 = 0;
+					while(_g1 < subfolders.length) {
+						var subfolder = subfolders[_g1];
+						++_g1;
+						var pathToPlugin = js.Node.require("path").join(path[0],subfolder);
+						pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
+						Main.compilePlugin(folder[0],subfolder,path[0],pathToPlugin,Main.loadPlugin);
+					}
+				};
+			})(path,folder));
+		}
+	});
+};
+Main.loadPlugin = function(folder,subfolder,path,pathToPlugin) {
+	var pathToMain = js.Node.require("path").join(path,subfolder,"bin");
+	pathToMain = js.Node.require("path").join(pathToMain,"Main.js");
+	HIDE.loadJS(pathToMain);
+};
+Main.compilePlugin = function(folder,subfolder,path,pathToPlugin,onSuccess) {
+	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
+	haxeCompilerProcess.stderr.on("data",function(data) {
+		console.log(pathToPlugin + " stderr: " + data);
+	});
+	haxeCompilerProcess.on("close",function(code) {
+		if(code == 0) onSuccess(folder,subfolder,path,pathToPlugin); else console.log("can't load " + folder + "." + subfolder + " plugin, compilation failed");
+	});
 };
 var Std = function() { };
 Std.parseInt = function(x) {

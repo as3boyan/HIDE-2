@@ -21,48 +21,63 @@ class Main
 		{
 			js.Node.require('nw.gui').Window.get().show();
 			
-			var pathToPlugins:String = js.Node.path.join("..", "plugins");
-			
-			js.Node.fs.readdir(pathToPlugins, function (error:js.Node.NodeErr, folders:Array<String>)
-			{				
-				for (folder in folders)
-				{
-					var path:String = js.Node.path.join(pathToPlugins, folder);
-					
-					js.Node.fs.readdir(path, function (error:js.Node.NodeErr, subfolders:Array<String>)
-					{
-						for (subfolder in subfolders)
-						{
-							var pathToPlugin:String = js.Node.path.join(path, subfolder);
-							pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
-							
-							var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
-							
-							haxeCompilerProcess.stderr.on('data', function (data:String):Void {
-								trace(pathToPlugin + ' stderr: ' + data);
-							});
-							
-							haxeCompilerProcess.on("close", function (code:Int):Void
-							{
-								if (code == 0)
-								{
-									var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
-									pathToMain = js.Node.path.join(pathToMain, "Main.js");
-									HIDE.loadJS(pathToMain);
-								}
-								else 
-								{
-									trace("can't load " + folder + "." + subfolder + " plugin, compilation failed");
-								}
-							}
-							);
-						}
-					}
-					);
-				}
-			}
-			);
+			loadPlugins();
 		};
+	}
+	
+	private static function loadPlugins():Void
+	{
+		var pathToPlugins:String = js.Node.path.join("..", "plugins");
+			
+		js.Node.fs.readdir(pathToPlugins, function (error:js.Node.NodeErr, folders:Array<String>)
+		{				
+			for (folder in folders)
+			{
+				var path:String = js.Node.path.join(pathToPlugins, folder);
+				
+				js.Node.fs.readdir(path, function (error:js.Node.NodeErr, subfolders:Array<String>)
+				{
+					for (subfolder in subfolders)
+					{
+						var pathToPlugin:String = js.Node.path.join(path, subfolder);
+						pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
+						
+						compilePlugin(folder, subfolder, path, pathToPlugin, loadPlugin);
+					}
+				}
+				);
+			}
+		}
+		);
+	}
+	
+	private static function loadPlugin(folder:String, subfolder:String, path:String, pathToPlugin:String):Void
+	{
+		var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
+		pathToMain = js.Node.path.join(pathToMain, "Main.js");
+		HIDE.loadJS(pathToMain);
+	}
+	
+	private static function compilePlugin(folder:String, subfolder:String, path:String, pathToPlugin:String, onSuccess:Dynamic):Void
+	{
+		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
+						
+		haxeCompilerProcess.stderr.on('data', function (data:String):Void {
+			trace(pathToPlugin + ' stderr: ' + data);
+		});
+		
+		haxeCompilerProcess.on("close", function (code:Int):Void
+		{
+			if (code == 0)
+			{
+				onSuccess(folder, subfolder, path, pathToPlugin);
+			}
+			else 
+			{
+				trace("can't load " + folder + "." + subfolder + " plugin, compilation failed");
+			}
+		}
+		);
 	}
 	
 }
