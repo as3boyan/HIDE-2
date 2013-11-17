@@ -1,16 +1,24 @@
 package ;
+import haxe.ds.StringMap.StringMap;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
 import js.html.UListElement;
+import ui.menu.basic.Menu;
 
 /**
  * ...
  * @author AS3Boyan
  */
 
+//@:expose makes this class available in global scope
+//@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
+//more info about meta tags can be obtained at Haxe website: 
+//http://haxe.org/manual/tips_and_tricks
 @:keepSub @:expose class BootstrapMenu
 {
+	private static var menus:StringMap<Dynamic> = new StringMap();
+	
 	public static function createMenuBar():Void
 	{
 		//We use overflow: hidden; to hide window scrollbars
@@ -57,5 +65,17 @@ import js.html.UListElement;
 		navbar.appendChild(div);
 		
 		Browser.document.body.appendChild(navbar);
+	}
+	
+	public static function getMenu(name:String):Menu
+	{
+		if (!menus.exists(name))
+		{
+			var menu:Menu = new Menu(name);
+			menu.addToDocument();
+			menus.set(name, menu);
+		}
+		
+		return menus.get(name);
 	}
 }

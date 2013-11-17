@@ -1,5 +1,6 @@
 package ;
 import js.Browser;
+import ui.menu.basic.Menu;
 
 /**
  * ...
@@ -21,6 +22,14 @@ class Main
 	{
 		//Create menubar(navbar) using Bootstrap
 		BootstrapMenu.createMenuBar();
+		
+		//Example on how to create menu
+		//BootstrapMenu.getMenu(name:String) function will create menu if it doesn't exists or return existing one
+		//You can add menu items to menu using addMenuItem function:
+		//menu.addMenuItem(_text:String, _onClickFunction:Void->Void, ?_hotkey:String):Void 
+		
+		//var fileMenu:Menu = BootstrapMenu.getMenu("File");
+		//fileMenu.addMenuItem("New Project...", null, "Ctrl-Shift-N");
 		
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 		HIDE.plugins.push(name);

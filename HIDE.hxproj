@@ -4,7 +4,7 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="./bin/HIDE.js" />
+    <movie path=".\bin\HIDE.js" />
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />

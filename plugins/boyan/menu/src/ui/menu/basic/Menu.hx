@@ -1,5 +1,4 @@
 package ui.menu.basic;
-import jQuery.JQuery;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
@@ -20,12 +19,16 @@ interface MenuItem
 {
 	public function getElement():Element;
 }
- 
-class MenuButtonItem implements MenuItem
+
+//@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
+//alternatively you can just remove -dce full flag from plugin.hxml
+//more info about meta tags can be obtained at Haxe website: 
+//http://haxe.org/manual/tips_and_tricks
+@:keepSub class MenuButtonItem implements MenuItem
 {	
 	var li:LIElement;
 	
-	public function new(_text:String, _onClickFunctionName:String, _onClickFunction:Void->Void, ?_hotkey:String)
+	public function new(_text:String, _onClickFunction:Void->Void, ?_hotkey:String)
 	{		
 		var span:SpanElement = null;
 		
@@ -49,7 +52,7 @@ class MenuButtonItem implements MenuItem
 			{
 				if (li.className != "disabled")
 				{
-					new JQuery(js.Browser.document).triggerHandler(_onClickFunctionName);
+					//new JQuery(js.Browser.document).triggerHandler(_onClickFunctionName);
 				}
 			};
 		}
@@ -63,7 +66,7 @@ class MenuButtonItem implements MenuItem
 		
 		li.appendChild(a);
 		
-		registerEvent(_onClickFunctionName, _onClickFunction);
+		//registerEvent(_onClickFunctionName, _onClickFunction);
 	}
 	
 	public function getElement():LIElement
@@ -71,16 +74,17 @@ class MenuButtonItem implements MenuItem
 		return li;
 	}
 	
-	public function registerEvent(_onClickFunctionName, _onClickFunction:Dynamic):Void
-	{
-		if (_onClickFunction != null) 
-		{
-			new JQuery(js.Browser.document).on(_onClickFunctionName, _onClickFunction);
-		}
-	}
+	//public function registerEvent(_onClickFunctionName, _onClickFunction:Dynamic):Void
+	//{
+		//if (_onClickFunction != null) 
+		//{
+			//new JQuery(js.Browser.document).on(_onClickFunctionName, _onClickFunction);
+		//}
+	//}
 }
 
-class Separator implements MenuItem
+//@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
+@:keepSub class Separator implements MenuItem
 {
 	var li:LIElement;
 	
@@ -96,7 +100,9 @@ class Separator implements MenuItem
 	}
 }
  
-class Menu
+//@:expose makes this class available in global scope
+//@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
+@:keepSub @:expose class Menu
 {
 	var li:LIElement;
 	var ul:UListElement;
@@ -115,6 +121,7 @@ class Menu
 		
 		ul = Browser.document.createUListElement();
 		ul.className = "dropdown-menu";
+		ul.style.minWidth = "300px";
 		
 		if (_headerText != null)
 		{
@@ -127,9 +134,9 @@ class Menu
 		li.appendChild(ul);
 	}
 	
-	public function addMenuItem(_text:String, _onClickFunctionName:String, _onClickFunction:Void->Void, ?_hotkey:String):Void
+	public function addMenuItem(_text:String, _onClickFunction:Void->Void, ?_hotkey:String):Void
 	{
-		ul.appendChild(new MenuButtonItem(_text, _onClickFunctionName, _onClickFunction, _hotkey).getElement());
+		ul.appendChild(new MenuButtonItem(_text, _onClickFunction, _hotkey).getElement());
 	}
 	
 	public function addSeparator():Void
@@ -143,7 +150,7 @@ class Menu
 		div.appendChild(li);
 	}
 	
-public function setDisabled(menuItemNames:Array<String>):Void
+	public function setDisabled(menuItemNames:Array<String>):Void
 	{
 		var childNodes:NodeList = ul.childNodes;
 		
