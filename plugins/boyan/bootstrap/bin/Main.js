@@ -1,41 +1,12 @@
 (function () { "use strict";
 var Main = function() { };
 Main.main = function() {
-	window.document.body.style.overflow = "hidden";
 	HIDE.waitForDependentPluginsToBeLoaded(Main.dependencies,Main.loadBootstrap);
 	HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap.min.css");
 	HIDE.loadCSS("../plugins/boyan/bootstrap/bin/includes/css/bootstrap-glyphicons.css");
 };
 Main.loadBootstrap = function() {
 	HIDE.loadJS("../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js",function() {
-		var navbar;
-		var _this = window.document;
-		navbar = _this.createElement("div");
-		navbar.className = "navbar navbar-default navbar-inverse navbar-fixed-top";
-		var navbarHeader;
-		var _this = window.document;
-		navbarHeader = _this.createElement("div");
-		navbarHeader.className = "navbar-header";
-		navbar.appendChild(navbarHeader);
-		var a;
-		var _this = window.document;
-		a = _this.createElement("a");
-		a.className = "navbar-brand";
-		a.href = "#";
-		a.innerText = "HIDE";
-		navbarHeader.appendChild(a);
-		var div;
-		var _this = window.document;
-		div = _this.createElement("div");
-		div.className = "navbar-collapse collapse";
-		var ul;
-		var _this = window.document;
-		ul = _this.createElement("ul");
-		ul.id = "position-navbar";
-		ul.className = "nav navbar-nav";
-		div.appendChild(ul);
-		navbar.appendChild(div);
-		window.document.body.appendChild(navbar);
 		HIDE.plugins.push(Main.$name);
 	});
 };
@@ -43,3 +14,5 @@ Main.$name = "boyan.bootstrap";
 Main.dependencies = ["boyan.jquery"];
 Main.main();
 })();
+
+//# sourceMappingURL=Main.js.map

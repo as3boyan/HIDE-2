@@ -2,3 +2,5 @@
 -cp ../../../externs/hide
 -main Main
 -js bin/Main.js
+-dce full
+-debug

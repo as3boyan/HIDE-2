@@ -23,4 +23,4 @@
 
 Main.js -diff
 HIDE.js -diff
-HIDE.js.map -diff
+*.js.map -diff

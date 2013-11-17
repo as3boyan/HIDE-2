@@ -6,6 +6,7 @@ Main.main = function() {
 	});
 };
 Main.$name = "boyan.jquery";
-Main.dependencies = [];
 Main.main();
 })();
+
+//# sourceMappingURL=Main.js.map

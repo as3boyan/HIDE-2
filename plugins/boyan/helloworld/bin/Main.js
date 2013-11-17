@@ -5,6 +5,7 @@ Main.main = function() {
 	HIDE.plugins.push(Main.$name);
 };
 Main.$name = "boyan.helloworld";
-Main.dependencies = [];
 Main.main();
 })();
+
+//# sourceMappingURL=Main.js.map

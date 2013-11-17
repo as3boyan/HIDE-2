@@ -1,5 +1,4 @@
 package ;
-import js.Browser;
 
 /**
  * ...
