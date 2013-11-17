@@ -16,7 +16,7 @@ class Main
 	static function main() 
 	{
 		js.Node.require('nw.gui').Window.get().showDevTools();
-		
+				
 		Browser.window.onload = function (e)
 		{
 			js.Node.require('nw.gui').Window.get().show();
