@@ -10,6 +10,10 @@ before_script:
     - haxelib setup ~/.haxe/lib
     - git clone git://github.com/as3boyan/HIDE
     - haxelib install jQueryExtern
+    - cd bin
+    - wget https://s3.amazonaws.com/node-webkit/v0.8.0/node-webkit-v0.8.0-linux-x64.tar.gz
+    - tar -xvzf node-webkit-v0.8.0-linux-x64.tar.gz
+    - nw test
 
 script:
     - haxe HIDE.hxml
