@@ -15,4 +15,4 @@ before_script:
 
 script:
     - haxe HIDE.hxml
-    - ./nw bin test
+    - node-webkit-v0.8.0-linux-x64/nw bin test
