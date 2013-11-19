@@ -1,5 +1,5 @@
 language: node_js
-node_js: ["0.8", "0.10"]
+node_js: ["0.8"]
 
 # Install Haxe
 before_script:
@@ -10,9 +10,6 @@ before_script:
     - haxelib setup ~/.haxe/lib
     - git clone git://github.com/as3boyan/HIDE
     - haxelib install jQueryExtern
-    - wget https://s3.amazonaws.com/node-webkit/v0.8.0/node-webkit-v0.8.0-linux-x64.tar.gz
-    - tar -xvzf node-webkit-v0.8.0-linux-x64.tar.gz
 
 script:
     - haxe HIDE.hxml
-    - node-webkit-v0.8.0-linux-x64/nw bin test
