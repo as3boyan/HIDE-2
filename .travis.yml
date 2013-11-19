@@ -13,10 +13,24 @@ before_script:
 
 script:
     - haxe HIDE.hxml
-    - haxe --cwd plugins/boyan/bootstrap plugin.hxml
-    - haxe --cwd plugins/boyan/filetree plugin.hxml
-    - haxe --cwd plugins/boyan/helloworld plugin.hxml
-    - haxe --cwd plugins/boyan/jquery plugin.hxml
-    - haxe --cwd plugins/boyan/menu plugin.hxml
-    - haxe --cwd plugins/boyan/split-pane plugin.hxml
-    - haxe --cwd plugins/boyan/tabmanager plugin.hxml
+    - cd plugins/boyan/bootstrap
+    - haxe plugin.hxml
+    - cd ../../..
+    - cd plugins/boyan/filetree
+    - haxe plugin.hxml
+    - cd ../../..
+    - cd plugins/boyan/helloworld
+    - haxe plugin.hxml
+    - cd ../../..
+    - cd plugins/boyan/jquery
+    - haxe plugin.hxml
+    - cd ../../..
+    - cd plugins/boyan/menu
+    - haxe plugin.hxml
+    - cd ../../..
+    - cd plugins/boyan/split-pane
+    - haxe plugin.hxml
+    - cd ../../..
+    - cd plugins/boyan/tabmanager
+    - haxe plugin.hxml
+    - cd ../../..
