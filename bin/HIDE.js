@@ -1,6 +1,22 @@
 (function ($hx_exports) { "use strict";
+var IMap = function() { };
+var haxe = {};
+haxe.ds = {};
+haxe.ds.StringMap = function() {
+	this.h = { };
+};
+haxe.ds.StringMap.__interfaces__ = [IMap];
+haxe.ds.StringMap.prototype = {
+	set: function(key,value) {
+		this.h["$" + key] = value;
+	}
+	,get: function(key) {
+		return this.h["$" + key];
+	}
+};
 var HIDE = $hx_exports.HIDE = function() { };
-HIDE.loadJS = function(url,onLoad) {
+HIDE.loadJS = function(name,url,onLoad) {
+	if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
 	var script;
 	var _this = window.document;
 	script = _this.createElement("script");
@@ -11,7 +27,8 @@ HIDE.loadJS = function(url,onLoad) {
 	};
 	window.document.head.appendChild(script);
 };
-HIDE.loadCSS = function(url) {
+HIDE.loadCSS = function(name,url) {
+	if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
 	var link;
 	var _this = window.document;
 	link = _this.createElement("link");
@@ -106,6 +123,7 @@ Main.loadPlugins = function() {
 						var subfolder = subfolders[_g1];
 						++_g1;
 						var pathToPlugin = js.Node.require("path").join(path[0],subfolder);
+						HIDE.pathToPlugins.set(folder[0] + "." + subfolder,pathToPlugin);
 						pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
 						Main.compilePlugin(folder[0],subfolder,path[0],pathToPlugin,Main.loadPlugin);
 					}
@@ -117,7 +135,7 @@ Main.loadPlugins = function() {
 Main.loadPlugin = function(folder,subfolder,path,pathToPlugin) {
 	var pathToMain = js.Node.require("path").join(path,subfolder,"bin");
 	pathToMain = js.Node.require("path").join(pathToMain,"Main.js");
-	HIDE.loadJS(pathToMain);
+	HIDE.loadJS(null,pathToMain);
 };
 Main.compilePlugin = function(folder,subfolder,path,pathToPlugin,onSuccess) {
 	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
@@ -135,7 +153,6 @@ Std.parseInt = function(x) {
 	if(isNaN(v)) return null;
 	return v;
 };
-var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;
 	this.id = setInterval(function() {
@@ -184,6 +201,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 HIDE.plugins = new Array();
+HIDE.pathToPlugins = new haxe.ds.StringMap();
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

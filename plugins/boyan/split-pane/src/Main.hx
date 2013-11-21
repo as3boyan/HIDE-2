@@ -21,13 +21,13 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(dependencies, load);
 		
 		//CSS doesn't depend on plugins and can be loaded anytime
-		HIDE.loadCSS("../plugins/boyan/split-pane/bin/includes/css/split-pane.css");
+		HIDE.loadCSS(name, "bin/includes/css/split-pane.css");
 	}
 	
 	private static function load():Void
 	{
 		//Load split-pane
-		HIDE.loadJS("../plugins/boyan/split-pane/bin/includes/js/split-pane.js", function ():Void
+		HIDE.loadJS(name, "bin/includes/js/split-pane.js", function ():Void
 		{
 			//split-pane should be ready to use
 			

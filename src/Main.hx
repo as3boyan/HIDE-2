@@ -40,6 +40,7 @@ class Main
 					for (subfolder in subfolders)
 					{
 						var pathToPlugin:String = js.Node.path.join(path, subfolder);
+						HIDE.pathToPlugins.set(folder + "." + subfolder, pathToPlugin);
 						pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
 						
 						compilePlugin(folder, subfolder, path, pathToPlugin, loadPlugin);
@@ -55,7 +56,7 @@ class Main
 	{
 		var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
 		pathToMain = js.Node.path.join(pathToMain, "Main.js");
-		HIDE.loadJS(pathToMain);
+		HIDE.loadJS(null, pathToMain);
 	}
 	
 	private static function compilePlugin(folder:String, subfolder:String, path:String, pathToPlugin:String, onSuccess:Dynamic):Void

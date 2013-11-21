@@ -14,9 +14,15 @@ import js.html.ScriptElement;
 @:keepSub @:expose class HIDE
 {	
 	public static var plugins:Array<String> = new Array();
+	public static var pathToPlugins:StringMap<String> = new StringMap();
 	
-	public static function loadJS(url:String, ?onLoad:Dynamic):Void
+	public static function loadJS(name:String, url:String, ?onLoad:Dynamic):Void
 	{
+		if (name != null)
+		{
+			url = js.Node.path.join(pathToPlugins.get(name), url);
+		}
+		
 		var script:ScriptElement = Browser.document.createScriptElement();
 		script.src = url;
 		script.onload = function (e)
@@ -31,8 +37,13 @@ import js.html.ScriptElement;
 		Browser.document.head.appendChild(script);
 	}
 	
-	public static function loadCSS(url:String):Void
+	public static function loadCSS(name:String, url:String):Void
 	{
+		if (name != null)
+		{
+			url = js.Node.path.join(pathToPlugins.get(name), url);
+		}
+		
 		var link:LinkElement = Browser.document.createLinkElement();
 		link.href = url;
 		link.type = "text/css";

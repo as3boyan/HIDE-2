@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/bootstrap/src/Main.hx"],
+"sources":["C:/HIDE/plugins/boyan/bootstrap/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAc;CAGrD,AAAa;CAIb,AAAa;;qBAIA,VAIb;CAAY,AAAyE,UAGpF;CAAkB;;;aAzBY;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAc;CAGrD,AAAa,AAAM;CAInB,AAAa,AAAM;;qBAIN,VAIb;CAAY,AAAM,AAA8C,UAG/D;CAAkB;;;aAzBY;oBACe,nBAAC;;;;"
 }
