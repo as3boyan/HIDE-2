@@ -51,7 +51,7 @@ import js.html.ScriptElement;
 		Browser.document.head.appendChild(link);
 	}
 	
-	public static function waitForDependentPluginsToBeLoaded(plugins:Array<String>, onLoaded:Dynamic):Void
+	public static function waitForDependentPluginsToBeLoaded(plugins:Array<String>, onLoaded:Void->Void):Void
 	{
 		var time:Int = 0;
 		

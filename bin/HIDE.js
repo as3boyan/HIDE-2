@@ -114,7 +114,8 @@ Main.loadPlugins = function() {
 		var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 		var relativePathToPlugin = js.Node.require("path").join(path,pathToPlugin);
 		HIDE.pathToPlugins.set(pluginName,relativePathToPlugin);
-		Main.compilePlugin(pluginName,js.Node.require("path").resolve(relativePathToPlugin),Main.loadPlugin);
+		var absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
+		Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin);
 	});
 };
 Main.readDir = function(path,pathToPlugin,onLoad) {

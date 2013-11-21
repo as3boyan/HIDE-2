@@ -16,11 +16,10 @@ class Main
 	static function main() 
 	{
 		js.Node.require('nw.gui').Window.get().showDevTools();
-				
+		
 		Browser.window.onload = function (e)
 		{
 			js.Node.require('nw.gui').Window.get().show();
-			
 			loadPlugins();
 		};
 	}
@@ -35,9 +34,21 @@ class Main
 			
 			var relativePathToPlugin:String = js.Node.path.join(path, pathToPlugin);
 			
+			//Store path to plugin, so we can load scripts by specifying path relative to plugin's directory
 			HIDE.pathToPlugins.set(pluginName, relativePathToPlugin);
 			
-			compilePlugin(pluginName, js.Node.require("path").resolve(relativePathToPlugin), loadPlugin);
+			var absolutePathToPlugin:String = js.Node.require("path").resolve(relativePathToPlugin);
+			
+			if (true)
+			{
+				//Compile each plugin and load
+				compilePlugin(pluginName, absolutePathToPlugin, loadPlugin);	
+			}
+			else 
+			{
+				//Load plugin
+				loadPlugin(absolutePathToPlugin);
+			}
 		});
 	}
 	

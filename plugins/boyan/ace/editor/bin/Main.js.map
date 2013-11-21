@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"Main.js",
+"sourceRoot":"file://",
+"sources":["C:/HIDE/plugins/boyan/ace/editor/src/Main.hx"],
+"names":[],
+"mappings":";;YAcc,DACd;CACC,AAAuC,AAAc,UACrD;EACqB;;;EACpB,CAAS;EAET,DAAqB,AAAe;EAEpC,DAAY,AAAM,AAA0B,UAC5C;GAC8B,FAAS;GACtC,FAAgB;GAChB,FAA4B;;;CAO9B,AAAkB;;aAxBa;oBACe,nBAAC,AAA2B;;;;"
+}
