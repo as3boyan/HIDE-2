@@ -110,40 +110,45 @@ Main.main = function() {
 };
 Main.loadPlugins = function() {
 	var pathToPlugins = js.Node.require("path").join("..","plugins");
-	js.Node.require("fs").readdir(pathToPlugins,function(error,folders) {
-		var _g = 0;
-		while(_g < folders.length) {
-			var folder = [folders[_g]];
-			++_g;
-			var path = [js.Node.require("path").join(pathToPlugins,folder[0])];
-			js.Node.require("fs").readdir(path[0],(function(path,folder) {
-				return function(error1,subfolders) {
-					var _g1 = 0;
-					while(_g1 < subfolders.length) {
-						var subfolder = subfolders[_g1];
-						++_g1;
-						var pathToPlugin = js.Node.require("path").join(path[0],subfolder);
-						HIDE.pathToPlugins.set(folder[0] + "." + subfolder,pathToPlugin);
-						pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
-						Main.compilePlugin(folder[0],subfolder,path[0],pathToPlugin,Main.loadPlugin);
-					}
-				};
-			})(path,folder));
+	Main.readDir(pathToPlugins,"",function(path,pathToPlugin) {
+		var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
+		var relativePathToPlugin = js.Node.require("path").join(path,pathToPlugin);
+		HIDE.pathToPlugins.set(pluginName,relativePathToPlugin);
+		Main.compilePlugin(pluginName,js.Node.require("path").resolve(relativePathToPlugin),Main.loadPlugin);
+	});
+};
+Main.readDir = function(path,pathToPlugin,onLoad) {
+	var pathToFolder;
+	js.Node.require("fs").readdir(js.Node.require("path").join(path,pathToPlugin),function(error,folders) {
+		if(error != null) console.log(error); else {
+			var _g = 0;
+			while(_g < folders.length) {
+				var item = [folders[_g]];
+				++_g;
+				pathToFolder = js.Node.require("path").join(path,pathToPlugin,item[0]);
+				js.Node.require("fs").stat(pathToFolder,(function(item) {
+					return function(error1,stat) {
+						if(error1 != null) console.log(error1); else if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml") {
+							onLoad(path,pathToPlugin);
+							return;
+						}
+					};
+				})(item));
+			}
 		}
 	});
 };
-Main.loadPlugin = function(folder,subfolder,path,pathToPlugin) {
-	var pathToMain = js.Node.require("path").join(path,subfolder,"bin");
-	pathToMain = js.Node.require("path").join(pathToMain,"Main.js");
+Main.loadPlugin = function(pathToPlugin) {
+	var pathToMain = js.Node.require("path").join(pathToPlugin,"bin","Main.js");
 	HIDE.loadJS(null,pathToMain);
 };
-Main.compilePlugin = function(folder,subfolder,path,pathToPlugin,onSuccess) {
+Main.compilePlugin = function(name,pathToPlugin,onSuccess) {
 	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
 	haxeCompilerProcess.stderr.on("data",function(data) {
 		console.log(pathToPlugin + " stderr: " + data);
 	});
 	haxeCompilerProcess.on("close",function(code) {
-		if(code == 0) onSuccess(folder,subfolder,path,pathToPlugin); else console.log("can't load " + folder + "." + subfolder + " plugin, compilation failed");
+		if(code == 0) onSuccess(pathToPlugin); else console.log("can't load " + name + " plugin, compilation failed");
 	});
 };
 var Std = function() { };
@@ -152,6 +157,10 @@ Std.parseInt = function(x) {
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
+};
+var StringTools = function() { };
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
 };
 haxe.Timer = function(time_ms) {
 	var me = this;

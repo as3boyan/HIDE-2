@@ -29,37 +29,67 @@ class Main
 	{
 		var pathToPlugins:String = js.Node.path.join("..", "plugins");
 			
-		js.Node.fs.readdir(pathToPlugins, function (error:js.Node.NodeErr, folders:Array<String>)
-		{				
-			for (folder in folders)
+		readDir(pathToPlugins, "", function (path:String, pathToPlugin:String):Void
+		{
+			var pluginName:String = StringTools.replace(pathToPlugin, js.Node.path.sep, ".");
+			
+			var relativePathToPlugin:String = js.Node.path.join(path, pathToPlugin);
+			
+			HIDE.pathToPlugins.set(pluginName, relativePathToPlugin);
+			
+			compilePlugin(pluginName, js.Node.require("path").resolve(relativePathToPlugin), loadPlugin);
+		});
+	}
+	
+	private static function readDir(path:String, pathToPlugin:String, onLoad:Dynamic):Void
+	{		
+		var pathToFolder:String;
+		
+		js.Node.fs.readdir(js.Node.path.join(path, pathToPlugin), function (error:js.Node.NodeErr, folders:Array<String>):Void
+		{
+			if (error != null)
 			{
-				var path:String = js.Node.path.join(pathToPlugins, folder);
-				
-				js.Node.fs.readdir(path, function (error:js.Node.NodeErr, subfolders:Array<String>)
+				trace(error);
+			}
+			else 
+			{
+				for (item in folders)
 				{
-					for (subfolder in subfolders)
+					pathToFolder = js.Node.path.join(path, pathToPlugin, item);
+					
+					js.Node.fs.stat(pathToFolder, function (error:js.Node.NodeErr, stat:js.Node.NodeStat)
 					{
-						var pathToPlugin:String = js.Node.path.join(path, subfolder);
-						HIDE.pathToPlugins.set(folder + "." + subfolder, pathToPlugin);
-						pathToPlugin = js.Node.require("path").resolve(pathToPlugin);
-						
-						compilePlugin(folder, subfolder, path, pathToPlugin, loadPlugin);
+						if (error != null)
+						{
+							trace(error);
+						}
+						else 
+						{						
+							if (stat.isDirectory())
+							{
+								readDir(path, js.Node.path.join(pathToPlugin,item), onLoad);
+							}
+							else if (item == "plugin.hxml")
+							{
+								onLoad(path, pathToPlugin);
+								return;
+							}
+						}
 					}
+					);
 				}
-				);
 			}
 		}
 		);
 	}
 	
-	private static function loadPlugin(folder:String, subfolder:String, path:String, pathToPlugin:String):Void
+	private static function loadPlugin(pathToPlugin:String):Void
 	{
-		var pathToMain:String = js.Node.path.join(path, subfolder, "bin");
-		pathToMain = js.Node.path.join(pathToMain, "Main.js");
+		var pathToMain:String = js.Node.path.join(pathToPlugin, "bin", "Main.js");
 		HIDE.loadJS(null, pathToMain);
 	}
 	
-	private static function compilePlugin(folder:String, subfolder:String, path:String, pathToPlugin:String, onSuccess:Dynamic):Void
+	private static function compilePlugin(name:String, pathToPlugin:String, onSuccess:Dynamic):Void
 	{
 		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
 						
@@ -71,11 +101,11 @@ class Main
 		{
 			if (code == 0)
 			{
-				onSuccess(folder, subfolder, path, pathToPlugin);
+				onSuccess(pathToPlugin);
 			}
 			else 
 			{
-				trace("can't load " + folder + "." + subfolder + " plugin, compilation failed");
+				trace("can't load " + name + " plugin, compilation failed");
 			}
 		}
 		);
