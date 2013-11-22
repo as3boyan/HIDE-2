@@ -13,27 +13,14 @@ before_script:
 
 script:
     - haxe HIDE.hxml
-    - cd plugins/boyan/bootstrap
-    - haxe plugin.hxml
-    - cd ../../..
-    - cd plugins/boyan/filetree
-    - haxe plugin.hxml
-    - cd ../../..
-    - cd plugins/boyan/helloworld
-    - haxe plugin.hxml
-    - cd ../../..
-    - cd plugins/boyan/jquery
-    - haxe plugin.hxml
-    - cd ../../..
-    - cd plugins/boyan/menu
-    - haxe plugin.hxml
-    - cd ../../..
-    - cd plugins/boyan/split-pane
-    - haxe plugin.hxml
-    - cd ../../..
-    - cd plugins/boyan/tabmanager
-    - haxe plugin.hxml
-    - cd ../../..
-	
+    - pushd plugins/boyan/ace/editor && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/script && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/filetree && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/menu && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/tabmanager && haxe plugin.hxml && popd
+    - pushd plugins/boyan/jquery/script && haxe plugin.hxml && popd
+    - pushd plugins/boyan/jquery/split-pane && haxe plugin.hxml && popd
+    - pushd plugins/boyan/samples/helloworld && haxe plugin.hxml && popd
+
 notifications:
     email: false

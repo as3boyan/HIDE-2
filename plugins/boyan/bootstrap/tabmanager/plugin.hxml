@@ -1,6 +1,6 @@
 -cp src
 -cp ../../../../externs/plugins/hide
--cp ../../../../externs/plugins/boyan/split-pane
+-cp ../../../../externs/plugins/boyan/jquery/split-pane
 -main Main
 -js bin/Main.js
 -dce full
