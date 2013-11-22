@@ -7,11 +7,12 @@ Main.main = function() {
 		pre = _this.createElement("pre");
 		pre.id = "editor";
 		Splitpane.components[1].appendChild(pre);
-		HIDE.loadJS(Main.$name,"bin/includes/js/ace.js",function() {
+		HIDE.loadJS(Main.$name,["bin/includes/js/ace.js"],function() {
 			var editor = ace.edit("editor");
-			editor.setTheme("ace/theme/monokai");
+			editor.setTheme("ace/theme/textmate");
 			editor.getSession().setMode("ace/mode/haxe");
 		});
+		HIDE.loadCSS(Main.$name,["bin/includes/css/editor.css"]);
 	});
 	HIDE.plugins.push(Main.$name);
 };

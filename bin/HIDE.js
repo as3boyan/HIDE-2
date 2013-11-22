@@ -15,27 +15,31 @@ haxe.ds.StringMap.prototype = {
 	}
 };
 var HIDE = $hx_exports.HIDE = function() { };
-HIDE.loadJS = function(name,url,onLoad) {
-	if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
-	var script;
-	var _this = window.document;
-	script = _this.createElement("script");
-	script.src = url;
-	script.onload = function(e) {
-		console.log(url + " loaded");
-		if(onLoad != null) onLoad();
-	};
-	window.document.head.appendChild(script);
+HIDE.loadJS = function(name,urls,onLoad) {
+	if(name != null) {
+		var _g1 = 0;
+		var _g = urls.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			urls[i] = js.Node.require("path").join(HIDE.pathToPlugins.get(name),urls[i]);
+		}
+	}
+	HIDE.loadJSAsync(urls,onLoad);
 };
-HIDE.loadCSS = function(name,url) {
-	if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
-	var link;
-	var _this = window.document;
-	link = _this.createElement("link");
-	link.href = url;
-	link.type = "text/css";
-	link.rel = "stylesheet";
-	window.document.head.appendChild(link);
+HIDE.loadCSS = function(name,urls) {
+	var _g = 0;
+	while(_g < urls.length) {
+		var url = urls[_g];
+		++_g;
+		if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
+		var link;
+		var _this = window.document;
+		link = _this.createElement("link");
+		link.href = url;
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		window.document.head.appendChild(link);
+	}
 };
 HIDE.waitForDependentPluginsToBeLoaded = function(plugins,onLoaded) {
 	var time = 0;
@@ -52,6 +56,17 @@ HIDE.waitForDependentPluginsToBeLoaded = function(plugins,onLoaded) {
 			timer.stop();
 		}
 	};
+};
+HIDE.loadJSAsync = function(urls,onLoad) {
+	var script;
+	var _this = window.document;
+	script = _this.createElement("script");
+	script.src = urls.splice(0,1)[0];
+	script.onload = function(e) {
+		console.log(script.src + " loaded");
+		if(urls.length > 0) HIDE.loadJSAsync(urls,onLoad); else if(onLoad != null) onLoad();
+	};
+	window.document.head.appendChild(script);
 };
 HIDE.registerHotkey = function(hotkey,functionName) {
 };
@@ -126,22 +141,24 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 			while(_g < folders.length) {
 				var item = [folders[_g]];
 				++_g;
-				pathToFolder = js.Node.require("path").join(path,pathToPlugin,item[0]);
-				js.Node.require("fs").stat(pathToFolder,(function(item) {
-					return function(error1,stat) {
-						if(error1 != null) console.log(error1); else if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml") {
-							onLoad(path,pathToPlugin);
-							return;
-						}
-					};
-				})(item));
+				if(item[0] != "inactive") {
+					pathToFolder = js.Node.require("path").join(path,pathToPlugin,item[0]);
+					js.Node.require("fs").stat(pathToFolder,(function(item) {
+						return function(error1,stat) {
+							if(error1 != null) console.log(error1); else if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml") {
+								onLoad(path,pathToPlugin);
+								return;
+							}
+						};
+					})(item));
+				}
 			}
 		}
 	});
 };
 Main.loadPlugin = function(pathToPlugin) {
 	var pathToMain = js.Node.require("path").join(pathToPlugin,"bin","Main.js");
-	HIDE.loadJS(null,pathToMain);
+	HIDE.loadJS(null,[pathToMain]);
 };
 Main.compilePlugin = function(name,pathToPlugin,onSuccess) {
 	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
@@ -212,6 +229,7 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
+HIDE.pathToInactivePlugins = new Array();
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

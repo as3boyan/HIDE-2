@@ -16,11 +16,11 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(dependencies, loadBootstrap);
 		
 		//<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
-		HIDE.loadCSS(name, "bin/includes/css/bootstrap.min.css");
+		HIDE.loadCSS(name, ["bin/includes/css/bootstrap.min.css"]);
 		
 		//<!-- Bootstrap 3 Glyphicons http://getbootstrap.com/components/#glyphicons -->
 		//<link href="./includes/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
-		HIDE.loadCSS(name, "bin/includes/css/bootstrap-glyphicons.css");
+		HIDE.loadCSS(name, ["bin/includes/css/bootstrap-glyphicons.css"]);
 	}
 	
 	//This function gets called only when all dependent plugins loaded
@@ -28,7 +28,7 @@ class Main
 	{
 		//<!-- Bootstrap 3 -->
 		//<script src="../plugins/boyan/bootstrap/bin/includes/js/bootstrap/bootstrap.min.js"></script>	
-		HIDE.loadJS(name, "bin/includes/js/bootstrap/bootstrap.min.js", function ():Void
+		HIDE.loadJS(name, ["bin/includes/js/bootstrap/bootstrap.min.js"], function ():Void
 		{			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
 			HIDE.plugins.push(name);

@@ -16,7 +16,7 @@ class Main
 	public static function main():Void
 	{	
 		//Load CSS for tab styling
-		HIDE.loadCSS(name, "bin/includes/css/tabs.css");
+		HIDE.loadCSS(name, ["bin/includes/css/tabs.css"]);
 		
 		//Will wait for dependent plugins
 		HIDE.waitForDependentPluginsToBeLoaded(dependencies, load);

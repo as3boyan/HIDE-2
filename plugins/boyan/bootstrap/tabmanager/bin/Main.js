@@ -2,7 +2,7 @@
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	HIDE.loadCSS(Main.$name,"bin/includes/css/tabs.css");
+	HIDE.loadCSS(Main.$name,["bin/includes/css/tabs.css"]);
 	HIDE.waitForDependentPluginsToBeLoaded(Main.dependencies,Main.load);
 };
 Main.load = function() {

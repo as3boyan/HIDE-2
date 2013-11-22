@@ -66,28 +66,31 @@ class Main
 			{
 				for (item in folders)
 				{
-					pathToFolder = js.Node.path.join(path, pathToPlugin, item);
-					
-					js.Node.fs.stat(pathToFolder, function (error:js.Node.NodeErr, stat:js.Node.NodeStat)
+					if (item != "inactive")
 					{
-						if (error != null)
+						pathToFolder = js.Node.path.join(path, pathToPlugin, item);
+					
+						js.Node.fs.stat(pathToFolder, function (error:js.Node.NodeErr, stat:js.Node.NodeStat)
 						{
-							trace(error);
-						}
-						else 
-						{						
-							if (stat.isDirectory())
+							if (error != null)
 							{
-								readDir(path, js.Node.path.join(pathToPlugin,item), onLoad);
+								trace(error);
 							}
-							else if (item == "plugin.hxml")
-							{
-								onLoad(path, pathToPlugin);
-								return;
+							else 
+							{						
+								if (stat.isDirectory())
+								{
+									readDir(path, js.Node.path.join(pathToPlugin,item), onLoad);
+								}
+								else if (item == "plugin.hxml")
+								{
+									onLoad(path, pathToPlugin);
+									return;
+								}
 							}
 						}
+						);
 					}
-					);
 				}
 			}
 		}
@@ -97,7 +100,7 @@ class Main
 	private static function loadPlugin(pathToPlugin:String):Void
 	{
 		var pathToMain:String = js.Node.path.join(pathToPlugin, "bin", "Main.js");
-		HIDE.loadJS(null, pathToMain);
+		HIDE.loadJS(null, [pathToMain]);
 	}
 	
 	private static function compilePlugin(name:String, pathToPlugin:String, onSuccess:Dynamic):Void

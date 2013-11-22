@@ -21,13 +21,15 @@ class Main
 			
 			Splitpane.components[1].appendChild(pre);
 			
-			HIDE.loadJS(name, "bin/includes/js/ace.js", function ():Void
+			HIDE.loadJS(name, ["bin/includes/js/ace.js"], function ():Void
 			{
 				var editor:Dynamic = untyped ace.edit("editor");
-				editor.setTheme("ace/theme/monokai");
+				editor.setTheme("ace/theme/textmate");
 				editor.getSession().setMode("ace/mode/haxe");
 			}
 			);
+			
+			HIDE.loadCSS(name, ["bin/includes/css/editor.css"]);
 		}
 		);
 		

@@ -3,10 +3,10 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.dependencies,Main.load);
-	HIDE.loadCSS(Main.$name,"bin/includes/css/split-pane.css");
+	HIDE.loadCSS(Main.$name,["bin/includes/css/split-pane.css"]);
 };
 Main.load = function() {
-	HIDE.loadJS(Main.$name,"bin/includes/js/split-pane.js",function() {
+	HIDE.loadJS(Main.$name,["bin/includes/js/split-pane.js"],function() {
 		var htmlElement;
 		htmlElement = js.Boot.__cast(window.document.documentElement , HTMLHtmlElement);
 		htmlElement.style.height = "100%";
