@@ -138,7 +138,7 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	HIDE.waitForDependentPluginsToBeLoaded(Main.dependencies,Main.load);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
 };
 Main.load = function() {
 	FileTree.init();

@@ -13,7 +13,7 @@ class Main
 	public static function main():Void
 	{
 		//Will wait for boyan.bootstrap plugin
-		HIDE.waitForDependentPluginsToBeLoaded(dependencies, load);
+		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
 	}
 	
 	private static function load():Void

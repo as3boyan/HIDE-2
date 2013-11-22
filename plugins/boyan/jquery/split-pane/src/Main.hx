@@ -18,7 +18,7 @@ class Main
 	public static function main():Void
 	{	
 		//Will wait for boyan.jquery plugin
-		HIDE.waitForDependentPluginsToBeLoaded(dependencies, load);
+		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
 		
 		//CSS doesn't depend on plugins and can be loaded anytime
 		HIDE.loadCSS(name, ["bin/includes/css/split-pane.css"]);

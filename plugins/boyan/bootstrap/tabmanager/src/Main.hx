@@ -19,7 +19,7 @@ class Main
 		HIDE.loadCSS(name, ["bin/includes/css/tabs.css"]);
 		
 		//Will wait for dependent plugins
-		HIDE.waitForDependentPluginsToBeLoaded(dependencies, load);
+		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
 	}
 	
 	private static function load():Void

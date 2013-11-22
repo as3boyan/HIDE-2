@@ -41,18 +41,23 @@ HIDE.loadCSS = function(name,urls) {
 		window.document.head.appendChild(link);
 	}
 };
-HIDE.waitForDependentPluginsToBeLoaded = function(plugins,onLoaded) {
+HIDE.waitForDependentPluginsToBeLoaded = function(name,plugins,onLoaded,callOnLoadWhenAtLeastOnePluginLoaded) {
+	if(callOnLoadWhenAtLeastOnePluginLoaded == null) callOnLoadWhenAtLeastOnePluginLoaded = false;
 	var time = 0;
 	var timer = new haxe.Timer(100);
 	timer.run = function() {
-		var pluginsLoaded = Lambda.foreach(plugins,function(plugin) {
+		var pluginsLoaded;
+		if(callOnLoadWhenAtLeastOnePluginLoaded == false) pluginsLoaded = Lambda.foreach(plugins,function(plugin) {
 			return Lambda.has(HIDE.plugins,plugin);
+		}); else pluginsLoaded = !Lambda.foreach(plugins,function(plugin) {
+			return !Lambda.has(HIDE.plugins,plugin);
 		});
 		if(pluginsLoaded) {
 			onLoaded();
 			timer.stop();
 		} else if(time < 3000) time += 100; else {
-			console.log("can't load plugin, required plugins is not found");
+			console.log(name + ": can't load plugin, required plugins are not found");
+			console.log(plugins);
 			timer.stop();
 		}
 	};
@@ -145,7 +150,7 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 					pathToFolder = js.Node.require("path").join(path,pathToPlugin,item[0]);
 					js.Node.require("fs").stat(pathToFolder,(function(item) {
 						return function(error1,stat) {
-							if(error1 != null) console.log(error1); else if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml") {
+							if(error1 != null) console.log(error1); else if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,StringTools.replace(pathToPlugin,js.Node.require("path").sep,"."))) {
 								onLoad(path,pathToPlugin);
 								return;
 							}
@@ -229,7 +234,7 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
-HIDE.pathToInactivePlugins = new Array();
+HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane"];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

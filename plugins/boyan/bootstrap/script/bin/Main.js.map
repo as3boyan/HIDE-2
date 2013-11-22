@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/HIDE/plugins/boyan/bootstrap/script/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAc;CAGrD,AAAa,AAAM,AAAC;CAIpB,AAAa,AAAM,AAAC;;qBAIP,VAIb;CAAY,AAAM,AAAC,AAA+C,UAGjE;CAAkB;;;aAzBY;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAM,AAAc;CAG3D,AAAa,AAAM,AAAC;CAIpB,AAAa,AAAM,AAAC;;qBAIP,VAIb;CAAY,AAAM,AAAC,AAAqC,UAGvD;CAAkB;;;aAzBY;oBACe,nBAAC;;;;"
 }

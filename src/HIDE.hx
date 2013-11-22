@@ -15,7 +15,7 @@ import js.html.ScriptElement;
 {	
 	public static var plugins:Array<String> = new Array();
 	public static var pathToPlugins:StringMap<String> = new StringMap();
-	public static var pathToInactivePlugins:Array<String> = new Array();
+	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.split-pane"];
 	
 	//Loads JS scripts in specified order and calls onLoad function when last item of urls array was loaded
 	public static function loadJS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
@@ -49,18 +49,31 @@ import js.html.ScriptElement;
 		}
 	}
 	
-	public static function waitForDependentPluginsToBeLoaded(plugins:Array<String>, onLoaded:Void->Void):Void
+	public static function waitForDependentPluginsToBeLoaded(name:String, plugins:Array<String>, onLoaded:Void->Void, ?callOnLoadWhenAtLeastOnePluginLoaded:Bool = false):Void
 	{
 		var time:Int = 0;
 		
 		var timer:Timer = new Timer(100);
 		timer.run = function ():Void
 		{
-			var pluginsLoaded:Bool = Lambda.foreach(plugins, function (plugin:String):Bool
+			var pluginsLoaded:Bool;
+			
+			if (callOnLoadWhenAtLeastOnePluginLoaded == false)
 			{
-				return Lambda.has(HIDE.plugins, plugin);
+				pluginsLoaded = Lambda.foreach(plugins, function (plugin:String):Bool
+				{
+					return Lambda.has(HIDE.plugins, plugin);
+				}
+				);
 			}
-			);
+			else 
+			{
+				pluginsLoaded = !Lambda.foreach(plugins, function (plugin:String):Bool
+				{
+					return !Lambda.has(HIDE.plugins, plugin);
+				}
+				);
+			}
 			
 			if (pluginsLoaded)
 			{
@@ -76,7 +89,8 @@ import js.html.ScriptElement;
 				}
 				else 
 				{
-					trace("can't load plugin, required plugins is not found");
+					trace(name + ": can't load plugin, required plugins are not found");
+					trace(plugins);
 					timer.stop();
 				}
 			}

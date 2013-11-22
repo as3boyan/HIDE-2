@@ -15,7 +15,7 @@ class Main
 	public static function main():Void
 	{	
 		//Will create menu bar when Bootstrap plugin is loaded
-		HIDE.waitForDependentPluginsToBeLoaded(dependencies, load);
+		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
 	}
 	
 	private static function load():Void

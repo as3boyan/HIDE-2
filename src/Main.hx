@@ -82,7 +82,7 @@ class Main
 								{
 									readDir(path, js.Node.path.join(pathToPlugin,item), onLoad);
 								}
-								else if (item == "plugin.hxml")
+								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, StringTools.replace(pathToPlugin, js.Node.path.sep, ".")))
 								{
 									onLoad(path, pathToPlugin);
 									return;
