@@ -13,9 +13,10 @@ import js.Lib;
 
 class Main 
 {
+	public static var currentTime:Float = Date.now().getTime();
 	
 	static function main() 
-	{
+	{		
 		js.Node.require('nw.gui').Window.get().showDevTools();
 		
 		loadPlugins();

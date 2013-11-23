@@ -12,7 +12,7 @@ import js.html.ScriptElement;
  */
  
  //This class is a global HIDE API for plugins
- //Plugins can load JS and CSS scripts in specified order using this HIDE API
+ //Using this API plugins can load JS and CSS scripts in specified order 
  //To use it in plugins you may need to add path to externs for this class, they are located at externs/plugins/hide
  
 typedef PluginDependenciesData =
@@ -79,45 +79,52 @@ typedef PluginDependenciesData =
 	
 	private static function checkRequiredPluginsData():Void
 	{				
-		var pluginData:PluginDependenciesData;
-		
-		var j:Int = 0;
-		while (j < requestedPluginsData.length)
+		if (requestedPluginsData.length > 0)
 		{
-			pluginData = requestedPluginsData[j];
-			
-			var pluginsLoaded:Bool;
-			
-			if (pluginData.callOnLoadWhenAtLeastOnePluginLoaded == false)
+			var pluginData:PluginDependenciesData;
+		
+			var j:Int = 0;
+			while (j < requestedPluginsData.length)
 			{
-				pluginsLoaded = Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
+				pluginData = requestedPluginsData[j];
+				
+				var pluginsLoaded:Bool;
+				
+				if (pluginData.callOnLoadWhenAtLeastOnePluginLoaded == false)
 				{
-					return Lambda.has(HIDE.plugins, plugin);
+					pluginsLoaded = Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
+					{
+						return Lambda.has(HIDE.plugins, plugin);
+					}
+					);
 				}
-				);
-			}
-			else 
-			{
-				pluginsLoaded = !Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
+				else 
 				{
-					return !Lambda.has(HIDE.plugins, plugin);
+					pluginsLoaded = !Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
+					{
+						return !Lambda.has(HIDE.plugins, plugin);
+					}
+					);
 				}
-				);
+				
+				if (pluginsLoaded)
+				{
+					requestedPluginsData.splice(j, 1);
+					pluginData.onLoaded();
+				}
+				else 
+				{
+					j++;
+				}
 			}
-			
-			if (pluginsLoaded)
-			{
-				requestedPluginsData.splice(j, 1);
-				pluginData.onLoaded();
-			}
-			else 
-			{
-				j++;
-			}
-
+		
 			if (Lambda.count(pathToPlugins) == plugins.length)
 			{
 				trace("all plugins loaded");
+				
+				var delta:Float = Date.now().getTime() - Main.currentTime;
+				
+				trace("Loading took: " + Std.string(delta) + " ms");
 			}
 		}
 	}

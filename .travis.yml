@@ -12,18 +12,18 @@ before_script:
     - haxelib install jQueryExtern
 
 script:
-    - haxe HIDE.hxml
-    - pushd plugins/boyan/ace/editor && haxe plugin.hxml && popd
-    - pushd plugins/boyan/bootstrap/script && haxe plugin.hxml && popd
-    - pushd plugins/boyan/bootstrap/filetree && haxe plugin.hxml && popd
-    - pushd plugins/boyan/bootstrap/menu && haxe plugin.hxml && popd
-    - pushd plugins/boyan/bootstrap/tabmanager && haxe plugin.hxml && popd
-    - pushd plugins/boyan/bootstrap/alerts && haxe plugin.hxml && popd
-    - pushd plugins/boyan/jquery/script && haxe plugin.hxml && popd
-    - pushd plugins/boyan/jquery/ui && haxe plugin.hxml && popd
-    - pushd plugins/boyan/jquery/layout && haxe plugin.hxml && popd
-    - pushd plugins/boyan/jquery/split-pane && haxe plugin.hxml && popd
-    - pushd plugins/boyan/samples/helloworld && haxe plugin.hxml && popd
+    - haxe HIDE.hxml &
+    - pushd plugins/boyan/ace/editor && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/bootstrap/script && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/bootstrap/filetree && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/bootstrap/menu && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/bootstrap/tabmanager && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/bootstrap/alerts && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/jquery/script && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/jquery/ui && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/jquery/layout && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/jquery/split-pane && haxe plugin.hxml && popd &
+    - pushd plugins/boyan/samples/helloworld && haxe plugin.hxml && popd &
 
 notifications:
     email: false
