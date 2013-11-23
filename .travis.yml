@@ -18,6 +18,7 @@ script:
     - pushd plugins/boyan/bootstrap/filetree && haxe plugin.hxml && popd
     - pushd plugins/boyan/bootstrap/menu && haxe plugin.hxml && popd
     - pushd plugins/boyan/bootstrap/tabmanager && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/alerts && haxe plugin.hxml && popd
     - pushd plugins/boyan/jquery/script && haxe plugin.hxml && popd
     - pushd plugins/boyan/jquery/ui && haxe plugin.hxml && popd
     - pushd plugins/boyan/jquery/layout && haxe plugin.hxml && popd

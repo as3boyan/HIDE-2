@@ -1,5 +1,6 @@
 package ;
 
+import haxe.Timer;
 import js.Browser;
 import js.html.KeyboardEvent;
 import js.html.LinkElement;
@@ -17,11 +18,13 @@ class Main
 	{
 		js.Node.require('nw.gui').Window.get().showDevTools();
 		
-		Browser.window.onload = function (e)
+		loadPlugins();
+		
+		Browser.window.addEventListener("load", function (e)
 		{
 			js.Node.require('nw.gui').Window.get().show();
-			loadPlugins();
-		};
+		}
+		);
 	}
 	
 	private static function loadPlugins():Void
@@ -50,6 +53,16 @@ class Main
 				loadPlugin(absolutePathToPlugin);
 			}
 		});
+		
+		Timer.delay(function ():Void
+		{
+			for (pluginData in HIDE.requestedPluginsData)
+			{
+				trace(pluginData.name + ": can't load plugin, required plugins are not found");
+				trace(pluginData.plugins);
+			}
+		}
+		, 10000);
 	}
 	
 	private static function readDir(path:String, pathToPlugin:String, onLoad:Dynamic):Void
@@ -78,11 +91,14 @@ class Main
 							}
 							else 
 							{						
+								var pluginName:String = StringTools.replace(pathToPlugin, js.Node.path.sep, ".");
+								
 								if (stat.isDirectory())
 								{
 									readDir(path, js.Node.path.join(pathToPlugin,item), onLoad);
 								}
-								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, StringTools.replace(pathToPlugin, js.Node.path.sep, ".")))
+								//&& !Lambda.has(HIDE.conflictingPlugins, pluginName)
+								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, pluginName))
 								{
 									onLoad(path, pathToPlugin);
 									return;

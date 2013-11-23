@@ -3,11 +3,11 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.loadCSS(Main.$name,["bin/includes/css/tabs.css"]);
-	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.split-pane","boyan.jquery.layout"],Main.load,true);
 };
 Main.load = function() {
 	TabManager.init();
-	HIDE.plugins.push(Main.$name);
+	HIDE.notifyLoadingComplete(Main.$name);
 };
 var Std = function() { };
 Std.__name__ = true;
@@ -193,7 +193,6 @@ Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
 Main.$name = "boyan.bootstrap.tabmanager";
-Main.dependencies = ["boyan.jquery.split-pane"];
 Main.main();
 })();
 

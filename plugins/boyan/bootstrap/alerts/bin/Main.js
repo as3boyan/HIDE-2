@@ -1,7 +1,7 @@
 (function () { "use strict";
 var Main = function() { };
 Main.main = function() {
-	HIDE.plugins.push(Main.$name);
+	HIDE.notifyLoadingComplete(Main.$name);
 };
 Main.$name = "boyan.bootstrap.alerts";
 Main.main();

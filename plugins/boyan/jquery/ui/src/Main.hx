@@ -17,7 +17,7 @@ class Main
 			HIDE.loadJS(name, ["bin/includes/js/jquery-ui-1.9.2.custom.min.js"], function ():Void
 			{
 				//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin(like Bootstrap) can start load themselves
-				HIDE.plugins.push(name);
+				HIDE.notifyLoadingComplete(name);
 			});
 		}
 		);

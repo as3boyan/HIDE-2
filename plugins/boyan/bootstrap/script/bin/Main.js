@@ -7,7 +7,7 @@ Main.main = function() {
 };
 Main.loadBootstrap = function() {
 	HIDE.loadJS(Main.$name,["bin/includes/js/bootstrap.min.js"],function() {
-		HIDE.plugins.push(Main.$name);
+		HIDE.notifyLoadingComplete(Main.$name);
 	});
 };
 Main.$name = "boyan.bootstrap.script";

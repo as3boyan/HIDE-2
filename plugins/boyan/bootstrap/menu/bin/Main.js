@@ -90,7 +90,7 @@ Main.main = function() {
 };
 Main.load = function() {
 	BootstrapMenu.createMenuBar();
-	HIDE.plugins.push(Main.$name);
+	HIDE.notifyLoadingComplete(Main.$name);
 };
 var Std = function() { };
 Std.__name__ = true;

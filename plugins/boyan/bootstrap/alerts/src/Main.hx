@@ -13,6 +13,6 @@ class Main
 	public static function main():Void
 	{
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
-		HIDE.plugins.push(name);
+		HIDE.notifyLoadingComplete(name);
 	}
 }

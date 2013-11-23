@@ -2,7 +2,7 @@
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	HIDE.waitForDependentPluginsToBeLoaded(Main.dependencies,Main.load);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
 	HIDE.loadCSS(Main.$name,["bin/includes/css/split-pane.css"]);
 };
 Main.load = function() {
@@ -25,7 +25,7 @@ Main.load = function() {
 		splitPane.appendChild(rightComponent);
 		window.document.body.appendChild(splitPane);
 		$('div.split-pane').splitPane();
-		HIDE.plugins.push(Main.$name);
+		HIDE.notifyLoadingComplete(Main.$name);
 	});
 };
 var Splitpane = $hx_exports.Splitpane = function() { };

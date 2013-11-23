@@ -138,11 +138,13 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
+		HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout","boyan.jquery.split-pane"],Main.load,true);
+	});
 };
 Main.load = function() {
 	FileTree.init();
-	HIDE.plugins.push(Main.$name);
+	HIDE.notifyLoadingComplete(Main.$name);
 };
 var Std = function() { };
 Std.__name__ = true;
@@ -323,7 +325,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.bootstrap.filetree";
-Main.dependencies = ["boyan.bootstrap.script","boyan.jquery.split-pane"];
+Main.dependencies = ["boyan.bootstrap.script"];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

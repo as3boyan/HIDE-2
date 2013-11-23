@@ -11,15 +11,30 @@ import js.html.ScriptElement;
  * @author AS3Boyan
  */
  
+ //This class is a global HIDE API for plugins
+ //Plugins can load JS and CSS scripts in specified order using this HIDE API
+ //To use it in plugins you may need to add path to externs for this class, they are located at externs/plugins/hide
+ 
+typedef PluginDependenciesData =
+{
+	var name:String;
+	var plugins:Array<String>;
+	var onLoaded:Void->Void;
+	var callOnLoadWhenAtLeastOnePluginLoaded:Bool;
+}
+ 
 @:keepSub @:expose class HIDE
 {	
 	public static var plugins:Array<String> = new Array();
 	public static var pathToPlugins:StringMap<String> = new StringMap();
-	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.split-pane"];
+	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.layout"];
+	//public static var conflictingPlugins:Array<String> = [];
+	
+	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
 	
 	//Loads JS scripts in specified order and calls onLoad function when last item of urls array was loaded
 	public static function loadJS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
-	{
+	{		
 		if (name != null)
 		{
 			for (i in 0...urls.length)
@@ -50,17 +65,32 @@ import js.html.ScriptElement;
 	}
 	
 	public static function waitForDependentPluginsToBeLoaded(name:String, plugins:Array<String>, onLoaded:Void->Void, ?callOnLoadWhenAtLeastOnePluginLoaded:Bool = false):Void
+	{	
+		var data:PluginDependenciesData = { name:name, plugins:plugins, onLoaded:onLoaded, callOnLoadWhenAtLeastOnePluginLoaded:callOnLoadWhenAtLeastOnePluginLoaded };
+		requestedPluginsData.push(data);
+		checkRequiredPluginsData();
+	}
+	
+	public static function notifyLoadingComplete(name:String):Void
 	{
-		var time:Int = 0;
+		plugins.push(name);
+		checkRequiredPluginsData();
+	}
+	
+	private static function checkRequiredPluginsData():Void
+	{				
+		var pluginData:PluginDependenciesData;
 		
-		var timer:Timer = new Timer(100);
-		timer.run = function ():Void
+		var j:Int = 0;
+		while (j < requestedPluginsData.length)
 		{
+			pluginData = requestedPluginsData[j];
+			
 			var pluginsLoaded:Bool;
 			
-			if (callOnLoadWhenAtLeastOnePluginLoaded == false)
+			if (pluginData.callOnLoadWhenAtLeastOnePluginLoaded == false)
 			{
-				pluginsLoaded = Lambda.foreach(plugins, function (plugin:String):Bool
+				pluginsLoaded = Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
 				{
 					return Lambda.has(HIDE.plugins, plugin);
 				}
@@ -68,7 +98,7 @@ import js.html.ScriptElement;
 			}
 			else 
 			{
-				pluginsLoaded = !Lambda.foreach(plugins, function (plugin:String):Bool
+				pluginsLoaded = !Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
 				{
 					return !Lambda.has(HIDE.plugins, plugin);
 				}
@@ -77,24 +107,19 @@ import js.html.ScriptElement;
 			
 			if (pluginsLoaded)
 			{
-				onLoaded();
-				timer.stop();
+				requestedPluginsData.splice(j, 1);
+				pluginData.onLoaded();
 			}
 			else 
 			{
-				//Check if loading dependent plugins takes too long
-				if (time < 3000)
-				{
-					time += 100;
-				}
-				else 
-				{
-					trace(name + ": can't load plugin, required plugins are not found");
-					trace(plugins);
-					timer.stop();
-				}
+				j++;
 			}
-		};
+
+			if (Lambda.count(pathToPlugins) == plugins.length)
+			{
+				trace("all plugins loaded");
+			}
+		}
 	}
 	
 	//Private function which loads JS scripts in strict order

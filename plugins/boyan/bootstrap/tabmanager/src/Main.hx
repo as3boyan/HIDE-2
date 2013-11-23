@@ -10,7 +10,7 @@ import js.html.UListElement;
 class Main
 {
 	public static var name:String = "boyan.bootstrap.tabmanager";
-	public static var dependencies:Array<String> = ["boyan.jquery.split-pane"];
+	public static var dependencies:Array<String> = [];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -19,7 +19,7 @@ class Main
 		HIDE.loadCSS(name, ["bin/includes/css/tabs.css"]);
 		
 		//Will wait for dependent plugins
-		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.split-pane", "boyan.jquery.layout"], load, true);
 	}
 	
 	private static function load():Void
@@ -27,6 +27,6 @@ class Main
 		TabManager.init();
 		
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
-		HIDE.plugins.push(name);
+		HIDE.notifyLoadingComplete(name);
 	}
 }

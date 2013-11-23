@@ -2,7 +2,7 @@
 var Main = function() { };
 Main.main = function() {
 	console.log("Hello World");
-	HIDE.plugins.push(Main.$name);
+	HIDE.notifyLoadingComplete(Main.$name);
 };
 Main.$name = "boyan.samples.helloworld";
 Main.main();

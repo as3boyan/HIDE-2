@@ -22,6 +22,9 @@ class Main
 		
 		//CSS doesn't depend on plugins and can be loaded anytime
 		HIDE.loadCSS(name, ["bin/includes/css/split-pane.css"]);
+		
+		//Notify HIDE to skip boyan.jquery.layout plugin loading, because this plugin creates Splitpanes too
+		//HIDE.conflictingPlugins.push("boyan.jquery.layout");
 	}
 	
 	private static function load():Void
@@ -71,7 +74,7 @@ class Main
 			untyped __js__("$('div.split-pane').splitPane()");
 			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
-			HIDE.plugins.push(name);
+			HIDE.notifyLoadingComplete(name);
 		}
 		);
 	}

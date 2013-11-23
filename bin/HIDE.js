@@ -13,6 +13,21 @@ haxe.ds.StringMap.prototype = {
 	,get: function(key) {
 		return this.h["$" + key];
 	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) a.push(key.substr(1));
+		}
+		return HxOverrides.iter(a);
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref["$" + i];
+		}};
+	}
 };
 var HIDE = $hx_exports.HIDE = function() { };
 HIDE.loadJS = function(name,urls,onLoad) {
@@ -43,24 +58,31 @@ HIDE.loadCSS = function(name,urls) {
 };
 HIDE.waitForDependentPluginsToBeLoaded = function(name,plugins,onLoaded,callOnLoadWhenAtLeastOnePluginLoaded) {
 	if(callOnLoadWhenAtLeastOnePluginLoaded == null) callOnLoadWhenAtLeastOnePluginLoaded = false;
-	var time = 0;
-	var timer = new haxe.Timer(100);
-	timer.run = function() {
+	var data = { name : name, plugins : plugins, onLoaded : onLoaded, callOnLoadWhenAtLeastOnePluginLoaded : callOnLoadWhenAtLeastOnePluginLoaded};
+	HIDE.requestedPluginsData.push(data);
+	HIDE.checkRequiredPluginsData();
+};
+HIDE.notifyLoadingComplete = function(name) {
+	HIDE.plugins.push(name);
+	HIDE.checkRequiredPluginsData();
+};
+HIDE.checkRequiredPluginsData = function() {
+	var pluginData;
+	var j = 0;
+	while(j < HIDE.requestedPluginsData.length) {
+		pluginData = HIDE.requestedPluginsData[j];
 		var pluginsLoaded;
-		if(callOnLoadWhenAtLeastOnePluginLoaded == false) pluginsLoaded = Lambda.foreach(plugins,function(plugin) {
+		if(pluginData.callOnLoadWhenAtLeastOnePluginLoaded == false) pluginsLoaded = Lambda.foreach(pluginData.plugins,function(plugin) {
 			return Lambda.has(HIDE.plugins,plugin);
-		}); else pluginsLoaded = !Lambda.foreach(plugins,function(plugin) {
+		}); else pluginsLoaded = !Lambda.foreach(pluginData.plugins,function(plugin) {
 			return !Lambda.has(HIDE.plugins,plugin);
 		});
 		if(pluginsLoaded) {
-			onLoaded();
-			timer.stop();
-		} else if(time < 3000) time += 100; else {
-			console.log(name + ": can't load plugin, required plugins are not found");
-			console.log(plugins);
-			timer.stop();
-		}
-	};
+			HIDE.requestedPluginsData.splice(j,1);
+			pluginData.onLoaded();
+		} else j++;
+		if(Lambda.count(HIDE.pathToPlugins) == HIDE.plugins.length) console.log("all plugins loaded");
+	}
 };
 HIDE.loadJSAsync = function(urls,onLoad) {
 	var script;
@@ -120,13 +142,30 @@ Lambda.foreach = function(it,f) {
 	}
 	return true;
 };
+Lambda.count = function(it,pred) {
+	var n = 0;
+	if(pred == null) {
+		var $it0 = $iterator(it)();
+		while( $it0.hasNext() ) {
+			var _ = $it0.next();
+			n++;
+		}
+	} else {
+		var $it1 = $iterator(it)();
+		while( $it1.hasNext() ) {
+			var x = $it1.next();
+			if(pred(x)) n++;
+		}
+	}
+	return n;
+};
 var Main = function() { };
 Main.main = function() {
 	js.Node.require("nw.gui").Window.get().showDevTools();
-	window.onload = function(e) {
+	Main.loadPlugins();
+	window.addEventListener("load",function(e) {
 		js.Node.require("nw.gui").Window.get().show();
-		Main.loadPlugins();
-	};
+	});
 };
 Main.loadPlugins = function() {
 	var pathToPlugins = js.Node.require("path").join("..","plugins");
@@ -137,6 +176,16 @@ Main.loadPlugins = function() {
 		var absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
 		Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin);
 	});
+	haxe.Timer.delay(function() {
+		var _g = 0;
+		var _g1 = HIDE.requestedPluginsData;
+		while(_g < _g1.length) {
+			var pluginData = _g1[_g];
+			++_g;
+			console.log(pluginData.name + ": can't load plugin, required plugins are not found");
+			console.log(pluginData.plugins);
+		}
+	},10000);
 };
 Main.readDir = function(path,pathToPlugin,onLoad) {
 	var pathToFolder;
@@ -150,9 +199,12 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 					pathToFolder = js.Node.require("path").join(path,pathToPlugin,item[0]);
 					js.Node.require("fs").stat(pathToFolder,(function(item) {
 						return function(error1,stat) {
-							if(error1 != null) console.log(error1); else if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,StringTools.replace(pathToPlugin,js.Node.require("path").sep,"."))) {
-								onLoad(path,pathToPlugin);
-								return;
+							if(error1 != null) console.log(error1); else {
+								var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
+								if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,pluginName)) {
+									onLoad(path,pathToPlugin);
+									return;
+								}
 							}
 						};
 					})(item));
@@ -190,6 +242,14 @@ haxe.Timer = function(time_ms) {
 	this.id = setInterval(function() {
 		me.run();
 	},time_ms);
+};
+haxe.Timer.delay = function(f,time_ms) {
+	var t = new haxe.Timer(time_ms);
+	t.run = function() {
+		t.stop();
+		f();
+	};
+	return t;
 };
 haxe.Timer.prototype = {
 	stop: function() {
@@ -234,7 +294,8 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
-HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane"];
+HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.layout"];
+HIDE.requestedPluginsData = new Array();
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

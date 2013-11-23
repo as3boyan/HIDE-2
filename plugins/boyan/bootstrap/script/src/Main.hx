@@ -31,7 +31,7 @@ class Main
 		HIDE.loadJS(name, ["bin/includes/js/bootstrap.min.js"], function ():Void
 		{			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
-			HIDE.plugins.push(name);
+			HIDE.notifyLoadingComplete(name);
 		}
 		);
 	}

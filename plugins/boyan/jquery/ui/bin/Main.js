@@ -3,7 +3,7 @@ var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		HIDE.loadJS(Main.$name,["bin/includes/js/jquery-ui-1.9.2.custom.min.js"],function() {
-			HIDE.plugins.push(Main.$name);
+			HIDE.notifyLoadingComplete(Main.$name);
 		});
 	});
 	HIDE.loadCSS(Main.$name,["bin/includes/css/jquery-ui-1.9.2.custom.min.css"]);
