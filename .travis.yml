@@ -24,6 +24,8 @@ script:
     - pushd plugins/boyan/jquery/layout && haxe plugin.hxml && popd &
     - pushd plugins/boyan/jquery/split-pane && haxe plugin.hxml && popd &
     - pushd plugins/boyan/samples/helloworld && haxe plugin.hxml && popd &
+    - wait
+    - phantomjs bin/HIDE.js
 
 notifications:
     email: false
