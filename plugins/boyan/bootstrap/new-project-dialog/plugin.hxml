@@ -1,5 +1,7 @@
 -cp src
 -cp ../../../../externs/plugins/hide
+-cp ../../../../externs/nodejs-std/src
+-lib jQueryExtern
 -main Main
 -js bin/Main.js
 -dce full
