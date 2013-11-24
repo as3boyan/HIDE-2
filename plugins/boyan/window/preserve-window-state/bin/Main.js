@@ -45,7 +45,7 @@ PreserveWindowState.init = function() {
 	PreserveWindowState.window.on("restore",function() {
 		PreserveWindowState.currWinMode = "normal";
 	});
-	PreserveWindowState.window.on("resize",function(e) {
+	PreserveWindowState.window.window.addEventListener("resize",function(e) {
 		if(PreserveWindowState.resizeTimeout != null) PreserveWindowState.resizeTimeout.stop();
 		PreserveWindowState.resizeTimeout = new haxe.Timer(500);
 		PreserveWindowState.resizeTimeout.run = function() {

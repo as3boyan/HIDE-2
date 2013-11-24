@@ -50,6 +50,7 @@ Splitpane.createSplitPane = function() {
 	Splitpane.panel.appendChild(outerWestPanel);
 	Splitpane.components.push(outerWestPanel);
 	Splitpane.components.push(middleCenterPanelContent);
+	Splitpane.components.push(middleSouthPanelContent);
 	window.document.body.appendChild(Splitpane.panel);
 };
 Splitpane.activateSplitpane = function() {

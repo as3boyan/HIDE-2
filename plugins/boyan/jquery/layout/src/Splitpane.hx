@@ -60,13 +60,13 @@ import jQuery.JQuery;
 		
 		var middleSouthPanelContent:DivElement = createContent();
 		middleSouthPanel.appendChild(middleSouthPanelContent);
-		//components.push(middleSouthPanelContent);
 		
 		var outerWestPanel:DivElement = createComponent("outer", "west");
 		panel.appendChild(outerWestPanel);
 		
 		components.push(outerWestPanel);
 		components.push(middleCenterPanelContent);
+		components.push(middleSouthPanelContent);
 		
 		Browser.document.body.appendChild(panel);
 	}

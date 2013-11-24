@@ -45,7 +45,7 @@ class PreserveWindowState
 				currWinMode = 'normal';
 		});
 		
-		window.on('resize', function (e) 
+		window.window.addEventListener('resize', function (e) 
 		{
 			// resize event is fired many times on one resize action,
 			// this hack with setTiemout forces it to fire only once
