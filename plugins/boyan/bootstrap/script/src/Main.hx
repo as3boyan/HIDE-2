@@ -17,10 +17,6 @@ class Main
 		
 		//<link href="./includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
 		HIDE.loadCSS(name, ["bin/includes/css/bootstrap.min.css"]);
-		
-		//<!-- Bootstrap 3 Glyphicons http://getbootstrap.com/components/#glyphicons -->
-		//<link href="./includes/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
-		HIDE.loadCSS(name, ["bin/includes/css/bootstrap-glyphicons.css"]);
 	}
 	
 	//This function gets called only when all dependent plugins loaded

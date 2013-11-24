@@ -74,10 +74,7 @@ HIDE.traceScriptLoadingInfo = function(name,url) {
 };
 HIDE.getPluginPath = function(name) {
 	var pathToPlugin = HIDE.pathToPlugins.get(name);
-	if(pathToPlugin == null) {
-		console.log("HIDE can't find path for plugin: " + name);
-		console.log("Please check that folder structure of plugin corresponds to it's 'name'");
-	}
+	if(pathToPlugin == null) console.log("HIDE can't find path for plugin: " + name + "\nPlease check that folder structure of plugin corresponds to it's 'name'");
 	return pathToPlugin;
 };
 HIDE.waitForDependentPluginsToBeLoaded = function(name,plugins,onLoaded,callOnLoadWhenAtLeastOnePluginLoaded) {

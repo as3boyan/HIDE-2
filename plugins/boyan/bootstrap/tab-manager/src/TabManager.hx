@@ -18,7 +18,7 @@ class TabManager
 		//<ul class="tabs" id="docs" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none;"></ul>
 		
 		tabs = Browser.document.createUListElement();
-		tabs.className = "tabs";
+		tabs.className = "tabs no-select";
 		
 		tabs.onclick = function(e):Void
 		{

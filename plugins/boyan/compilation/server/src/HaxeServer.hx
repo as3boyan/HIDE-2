@@ -4,7 +4,7 @@ package ;
  * ...
  * @author AS3Boyan
  */
-class Server
+class HaxeServer
 {
 	public static function start():Void
 	{

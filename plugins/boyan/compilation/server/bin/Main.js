@@ -1,4 +1,21 @@
 (function () { "use strict";
+var HaxeServer = function() { };
+HaxeServer.start = function() {
+	var haxeCompletionServer = js.Node.require("child_process").spawn("haxe",["--wait","6001"]);
+	haxeCompletionServer.stdout.setEncoding("utf8");
+	haxeCompletionServer.stdout.on("data",function(data) {
+		console.log("stdout: " + data);
+	});
+	haxeCompletionServer.stderr.setEncoding("utf8");
+	haxeCompletionServer.stderr.on("data",function(data) {
+		var str = data.toString();
+		var lines = str.split("\n");
+		console.log("ERROR: " + lines.join(""));
+	});
+	haxeCompletionServer.on("close",function(code) {
+		console.log("haxeCompletionServer process exit code " + code);
+	});
+};
 var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
@@ -16,25 +33,8 @@ HxOverrides.substr = function(s,pos,len) {
 };
 var Main = function() { };
 Main.main = function() {
-	Server.start();
+	HaxeServer.start();
 	HIDE.notifyLoadingComplete(Main.$name);
-};
-var Server = function() { };
-Server.start = function() {
-	var haxeCompletionServer = js.Node.require("child_process").spawn("haxe",["--wait","6001"]);
-	haxeCompletionServer.stdout.setEncoding("utf8");
-	haxeCompletionServer.stdout.on("data",function(data) {
-		console.log("stdout: " + data);
-	});
-	haxeCompletionServer.stderr.setEncoding("utf8");
-	haxeCompletionServer.stderr.on("data",function(data) {
-		var str = data.toString();
-		var lines = str.split("\n");
-		console.log("ERROR: " + lines.join(""));
-	});
-	haxeCompletionServer.on("close",function(code) {
-		console.log("haxeCompletionServer process exit code " + code);
-	});
 };
 var Std = function() { };
 Std.parseInt = function(x) {
