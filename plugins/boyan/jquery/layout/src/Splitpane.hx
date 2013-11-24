@@ -11,7 +11,8 @@ import jQuery.JQuery;
 @:keepSub @:expose class Splitpane
 {
 	public static var components:Array<DivElement> = new Array();
-	private static var layout:Dynamic;
+	public static var layout:Dynamic;
+	private static var panel:DivElement;
 	
 	public static function createSplitPane():Void
 	{
@@ -39,7 +40,7 @@ import jQuery.JQuery;
 			//</div>
 		//</div>
 		
-		var panel:DivElement = Browser.document.createDivElement();
+		panel = Browser.document.createDivElement();
 		panel.id = "panel";
 		panel.className = "ui-layout-container";
 		panel.style.position = "absolute";
@@ -68,40 +69,48 @@ import jQuery.JQuery;
 		components.push(middleCenterPanelContent);
 		
 		Browser.document.body.appendChild(panel);
-		
-		//Browser.document.addEventListener("load", function (e)
-		//{
-		Timer.delay(function ():Void
-		{
-			
-			Splitpane.activateSplitpane();
-		}
-		,10000);
-		//}
-		//);
 	}
 	
 	public static function activateSplitpane():Void
+	{		
+		var layoutSettings = {
+		center__paneSelector:        ".outer-center",
+		west__paneSelector:                ".outer-west",
+		west__size:                                120,
+		spacing_open:                        8,  // ALL panes
+		spacing_closed:                        12, // ALL panes
+		
+		center__childOptions: {
+				center__paneSelector:        ".middle-center",
+				south__paneSelector:        ".middle-south",
+				south__size:                        100,
+				spacing_open:                        8,  // ALL panes
+				spacing_closed:                        12 // ALL panes
+		}
+		};
+		
+		layout = untyped JQuery("#panel").layout(layoutSettings);
+	}
+	
+	public static function activateStatePreserving():Void
 	{
-		layout = untyped new JQuery("#panel").layout(
+		var localStorage = Browser.getLocalStorage();
+        
+        var window = js.Node.require('nw.gui').Window.get();
+		
+		window.on("close", function (e):Void
 		{
-			center__paneSelector:        ".outer-center",
-			west__paneSelector:                ".outer-west",
-			west__size:                                120,
-			spacing_open:                        8,  // ALL panes
-			spacing_closed:                        12, // ALL panes
-			
-			center__childOptions: {
-					center__paneSelector:        ".middle-center",
-					south__paneSelector:        ".middle-south",
-					south__size:                        100,
-					spacing_open:                        8,  // ALL panes
-					spacing_closed:                        12 // ALL panes
-			},
-			
-			animatePaneSizing:                        true,
-			stateManagement__enabled:        true
+			var stateString = js.Node.stringify(layout.readState());
+			localStorage.setItem("state", stateString);
+			window.close(true);
 		});
+		
+		var state = localStorage.getItem("state");
+		
+		if (state != null)
+		{
+			layout.loadState(js.Node.parse(state));
+		}
 	}
 	
 	public static function createComponent(layout:String, side:String):DivElement

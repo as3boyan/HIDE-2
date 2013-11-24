@@ -13,17 +13,17 @@ import js.Lib;
 
 class Main 
 {
-	public static var currentTime:Float = Date.now().getTime();
+	public static var currentTime:Float;
 	
 	static function main() 
-	{		
+	{				
 		js.Node.require('nw.gui').Window.get().showDevTools();
 		
-		loadPlugins();
-		
 		Browser.window.addEventListener("load", function (e)
-		{
+		{			
 			js.Node.require('nw.gui').Window.get().show();
+			currentTime = Date.now().getTime();
+			loadPlugins();
 		}
 		);
 	}
@@ -57,10 +57,15 @@ class Main
 		
 		Timer.delay(function ():Void
 		{
-			for (pluginData in HIDE.requestedPluginsData)
+			if (HIDE.requestedPluginsData.length > 0)
 			{
-				trace(pluginData.name + ": can't load plugin, required plugins are not found");
-				trace(pluginData.plugins);
+				trace("still not loaded plugins: ");
+			
+				for (pluginData in HIDE.requestedPluginsData)
+				{
+					trace(pluginData.name + ": can't load plugin, required plugins are not found");
+					trace(pluginData.plugins);
+				}
 			}
 		}
 		, 10000);

@@ -16,7 +16,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
 		
-		HIDE.loadCSS(name, ["bin/includes/css/layout-default-latest.css"]);
+		HIDE.loadCSS(name, ["bin/includes/css/panel.css"]);
 		
 		//Notify HIDE to ignore this plugin
 		//HIDE.conflictingPlugins.push("boyan.jquery.split-pane");
@@ -27,6 +27,14 @@ class Main
 		HIDE.loadJS(name, ["bin/includes/js/jquery.layout-latest.min.js"], function ():Void
 		{				
 			Splitpane.createSplitPane();			
+			
+			//Waits for all CSS
+			HIDE.loadCSS(name, ["bin/includes/css/layout-default-latest.css"], function ():Void
+			{
+				Splitpane.activateSplitpane();
+				//Splitpane.activateStatePreserving();
+			}
+			);
 			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
 			HIDE.notifyLoadingComplete(name);

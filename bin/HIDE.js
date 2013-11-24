@@ -44,11 +44,13 @@ HIDE.loadJS = function(name,urls,onLoad) {
 	}
 	HIDE.loadJSAsync(urls,onLoad);
 };
-HIDE.loadCSS = function(name,urls) {
-	var _g = 0;
-	while(_g < urls.length) {
-		var url = urls[_g];
-		++_g;
+HIDE.loadCSS = function(name,urls,onLoad) {
+	var url;
+	var _g1 = 0;
+	var _g = urls.length;
+	while(_g1 < _g) {
+		var i = [_g1++];
+		url = urls[i[0]];
 		if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
 		var link;
 		var _this = window.document;
@@ -56,6 +58,12 @@ HIDE.loadCSS = function(name,urls) {
 		link.href = url;
 		link.type = "text/css";
 		link.rel = "stylesheet";
+		link.onload = (function(i) {
+			return function(e) {
+				console.log(url + " loaded");
+				if(i[0] == urls.length - 1 && onLoad != null) onLoad();
+			};
+		})(i);
 		window.document.head.appendChild(link);
 	}
 };
@@ -102,7 +110,7 @@ HIDE.loadJSAsync = function(urls,onLoad) {
 		console.log(script.src + " loaded");
 		if(urls.length > 0) HIDE.loadJSAsync(urls,onLoad); else if(onLoad != null) onLoad();
 	};
-	window.document.head.appendChild(script);
+	window.document.body.appendChild(script);
 };
 HIDE.registerHotkey = function(hotkey,functionName) {
 };
@@ -174,9 +182,10 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	js.Node.require("nw.gui").Window.get().showDevTools();
-	Main.loadPlugins();
 	window.addEventListener("load",function(e) {
 		js.Node.require("nw.gui").Window.get().show();
+		Main.currentTime = new Date().getTime();
+		Main.loadPlugins();
 	});
 };
 Main.loadPlugins = function() {
@@ -189,13 +198,16 @@ Main.loadPlugins = function() {
 		Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin);
 	});
 	haxe.Timer.delay(function() {
-		var _g = 0;
-		var _g1 = HIDE.requestedPluginsData;
-		while(_g < _g1.length) {
-			var pluginData = _g1[_g];
-			++_g;
-			console.log(pluginData.name + ": can't load plugin, required plugins are not found");
-			console.log(pluginData.plugins);
+		if(HIDE.requestedPluginsData.length > 0) {
+			console.log("still not loaded plugins: ");
+			var _g = 0;
+			var _g1 = HIDE.requestedPluginsData;
+			while(_g < _g1.length) {
+				var pluginData = _g1[_g];
+				++_g;
+				console.log(pluginData.name + ": can't load plugin, required plugins are not found");
+				console.log(pluginData.plugins);
+			}
 		}
 	},10000);
 };
@@ -385,9 +397,8 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
-HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.layout"];
+HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane","boyan.samples.helloworld"];
 HIDE.requestedPluginsData = new Array();
-Main.currentTime = new Date().getTime();
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

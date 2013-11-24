@@ -27,7 +27,8 @@ typedef PluginDependenciesData =
 {	
 	public static var plugins:Array<String> = new Array();
 	public static var pathToPlugins:StringMap<String> = new StringMap();
-	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.layout"];
+	//"boyan.bootstrap.script"
+	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.split-pane", "boyan.samples.helloworld"];
 	//public static var conflictingPlugins:Array<String> = [];
 	
 	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
@@ -47,10 +48,14 @@ typedef PluginDependenciesData =
 	}
 	
 	//Asynchronously loads multiple CSS scripts
-	public static function loadCSS(name:String, urls:Array<String>):Void
+	public static function loadCSS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{
-		for (url in urls)
-		{
+		var url:String;
+		
+		for (i in 0...urls.length)
+		{			
+			url = urls[i];
+			
 			if (name != null)
 			{
 				url = js.Node.path.join(pathToPlugins.get(name), url);
@@ -60,6 +65,15 @@ typedef PluginDependenciesData =
 			link.href = url;
 			link.type = "text/css";
 			link.rel = "stylesheet";
+			link.onload = function (e)
+			{
+				trace(url + " loaded");
+				
+				if (i == urls.length - 1 && onLoad != null)
+				{
+					onLoad();
+				}
+			};
 			Browser.document.head.appendChild(link);
 		}
 	}
@@ -148,7 +162,7 @@ typedef PluginDependenciesData =
 			}
 		};
 		
-		Browser.document.head.appendChild(script);
+		Browser.document.body.appendChild(script);
 	}
 	
 	public static function registerHotkey(hotkey:String, functionName:String):Void
