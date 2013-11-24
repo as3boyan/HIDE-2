@@ -39,10 +39,10 @@ HIDE.loadJS = function(name,urls,onLoad) {
 		var _g = urls.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			urls[i] = js.Node.require("path").join(HIDE.pathToPlugins.get(name),urls[i]);
+			urls[i] = js.Node.require("path").join(HIDE.getPluginPath(name),urls[i]);
 		}
 	}
-	HIDE.loadJSAsync(urls,onLoad);
+	HIDE.loadJSAsync(name,urls,onLoad);
 };
 HIDE.loadCSS = function(name,urls,onLoad) {
 	var url;
@@ -51,7 +51,7 @@ HIDE.loadCSS = function(name,urls,onLoad) {
 	while(_g1 < _g) {
 		var i = [_g1++];
 		url = urls[i[0]];
-		if(name != null) url = js.Node.require("path").join(HIDE.pathToPlugins.get(name),url);
+		if(name != null) url = js.Node.require("path").join(HIDE.getPluginPath(name),url);
 		var link;
 		var _this = window.document;
 		link = _this.createElement("link");
@@ -60,12 +60,25 @@ HIDE.loadCSS = function(name,urls,onLoad) {
 		link.rel = "stylesheet";
 		link.onload = (function(i) {
 			return function(e) {
-				console.log(url + " loaded");
+				HIDE.traceScriptLoadingInfo(name,url);
 				if(i[0] == urls.length - 1 && onLoad != null) onLoad();
 			};
 		})(i);
 		window.document.head.appendChild(link);
 	}
+};
+HIDE.traceScriptLoadingInfo = function(name,url) {
+	var str;
+	if(name != null) str = "\n" + name + ":\n" + url + "\n"; else str = url + " loaded";
+	console.log(str);
+};
+HIDE.getPluginPath = function(name) {
+	var pathToPlugin = HIDE.pathToPlugins.get(name);
+	if(pathToPlugin == null) {
+		console.log("HIDE can't find path for plugin: " + name);
+		console.log("Please check that folder structure of plugin corresponds to it's 'name'");
+	}
+	return pathToPlugin;
 };
 HIDE.waitForDependentPluginsToBeLoaded = function(name,plugins,onLoaded,callOnLoadWhenAtLeastOnePluginLoaded) {
 	if(callOnLoadWhenAtLeastOnePluginLoaded == null) callOnLoadWhenAtLeastOnePluginLoaded = false;
@@ -101,14 +114,14 @@ HIDE.checkRequiredPluginsData = function() {
 		}
 	}
 };
-HIDE.loadJSAsync = function(urls,onLoad) {
+HIDE.loadJSAsync = function(name,urls,onLoad) {
 	var script;
 	var _this = window.document;
 	script = _this.createElement("script");
 	script.src = urls.splice(0,1)[0];
 	script.onload = function(e) {
-		console.log(script.src + " loaded");
-		if(urls.length > 0) HIDE.loadJSAsync(urls,onLoad); else if(onLoad != null) onLoad();
+		HIDE.traceScriptLoadingInfo(name,script.src);
+		if(urls.length > 0) HIDE.loadJSAsync(name,urls,onLoad); else if(onLoad != null) onLoad();
 	};
 	window.document.body.appendChild(script);
 };
@@ -239,7 +252,9 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 };
 Main.loadPlugin = function(pathToPlugin) {
 	var pathToMain = js.Node.require("path").join(pathToPlugin,"bin","Main.js");
-	HIDE.loadJS(null,[pathToMain]);
+	js.Node.require("fs").exists(pathToMain,function(exists) {
+		if(exists) HIDE.loadJS(null,[pathToMain]); else console.log(pathToMain + " is not found/nPlease compile " + pathToPlugin + " plugin");
+	});
 };
 Main.compilePlugin = function(name,pathToPlugin,onSuccess) {
 	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);

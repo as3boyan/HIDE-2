@@ -122,7 +122,19 @@ class Main
 	private static function loadPlugin(pathToPlugin:String):Void
 	{
 		var pathToMain:String = js.Node.path.join(pathToPlugin, "bin", "Main.js");
-		HIDE.loadJS(null, [pathToMain]);
+		
+		js.Node.fs.exists(pathToMain, function (exists:Bool)
+		{
+			if (exists)
+			{
+				HIDE.loadJS(null, [pathToMain]);
+			}
+			else 
+			{
+				trace(pathToMain + " is not found/nPlease compile " + pathToPlugin + " plugin");
+			}
+		}
+		);
 	}
 	
 	private static function compilePlugin(name:String, pathToPlugin:String, onSuccess:Dynamic):Void

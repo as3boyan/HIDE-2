@@ -40,11 +40,11 @@ typedef PluginDependenciesData =
 		{
 			for (i in 0...urls.length)
 			{
-				urls[i] = js.Node.path.join(pathToPlugins.get(name), urls[i]);
+				urls[i] = js.Node.path.join(getPluginPath(name), urls[i]);
 			}
 		}
 
-		loadJSAsync(urls, onLoad);
+		loadJSAsync(name, urls, onLoad);
 	}
 	
 	//Asynchronously loads multiple CSS scripts
@@ -58,7 +58,7 @@ typedef PluginDependenciesData =
 			
 			if (name != null)
 			{
-				url = js.Node.path.join(pathToPlugins.get(name), url);
+				url = js.Node.path.join(getPluginPath(name), url);
 			}
 			
 			var link:LinkElement = Browser.document.createLinkElement();
@@ -67,7 +67,7 @@ typedef PluginDependenciesData =
 			link.rel = "stylesheet";
 			link.onload = function (e)
 			{
-				trace(url + " loaded");
+				traceScriptLoadingInfo(name, url);
 				
 				if (i == urls.length - 1 && onLoad != null)
 				{
@@ -76,6 +76,34 @@ typedef PluginDependenciesData =
 			};
 			Browser.document.head.appendChild(link);
 		}
+	}
+	
+	private static function traceScriptLoadingInfo(name:String, url:String):Void
+	{
+		var str:String;
+				
+		if (name != null)
+		{
+			str = "\n" + name + ":\n" + url + "\n";
+		}
+		else 
+		{
+			str = url + " loaded";
+		}
+		
+		trace(str);
+	}
+	
+	private static function getPluginPath(name):String
+	{
+		var pathToPlugin:String = pathToPlugins.get(name);
+				
+		if (pathToPlugin == null)
+		{
+			trace("HIDE can't find path for plugin: " + name + "\nPlease check that folder structure of plugin corresponds to it's 'name'");
+		}
+		
+		return pathToPlugin;
 	}
 	
 	public static function waitForDependentPluginsToBeLoaded(name:String, plugins:Array<String>, onLoaded:Void->Void, ?callOnLoadWhenAtLeastOnePluginLoaded:Bool = false):Void
@@ -144,17 +172,17 @@ typedef PluginDependenciesData =
 	}
 	
 	//Private function which loads JS scripts in strict order
-	private static function loadJSAsync(urls:Array<String>, ?onLoad:Dynamic):Void
+	private static function loadJSAsync(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{
 		var script:ScriptElement = Browser.document.createScriptElement();
 		script.src = urls.splice(0, 1)[0];
 		script.onload = function (e)
-		{
-			trace(script.src + " loaded");
+		{			
+			traceScriptLoadingInfo(name, script.src);
 			
 			if (urls.length > 0)
 			{
-				loadJSAsync(urls, onLoad);
+				loadJSAsync(name, urls, onLoad);
 			}
 			else if (onLoad != null)
 			{
