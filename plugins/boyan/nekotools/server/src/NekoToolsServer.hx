@@ -46,7 +46,5 @@ package ;
 			}
 		}
 		);
-		
-		trace(nekoToolsClient);
 	}
 }

@@ -20,7 +20,6 @@ Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
-		NewProjectDialog.show();
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
@@ -271,10 +270,6 @@ NewProjectDialog.generateProjectName = function(onGenerated) {
 		if(onGenerated != null) onGenerated();
 	}
 	if(NewProjectDialog.selectedCategory != "Haxe") NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "none"; else NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "block";
-};
-NewProjectDialog.show = function() {
-	if(NewProjectDialog.page1.style.display == "none") NewProjectDialog.backButton.click();
-	new $(NewProjectDialog.modal).modal("show");
 };
 NewProjectDialog.hide = function() {
 	new $(NewProjectDialog.modal).modal("hide");
