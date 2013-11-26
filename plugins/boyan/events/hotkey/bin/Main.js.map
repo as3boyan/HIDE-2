@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"Main.js",
+"sourceRoot":"file://",
+"sources":["C:/HIDE/plugins/boyan/events/hotkey/src/Hotkeys.hx","C:/HIDE/plugins/boyan/events/hotkey/src/Main.hx"],
+"names":[],
+"mappings":";;kBAqBc,PAEb;CAAgC,AAAW,WAE1C;;EAAe;EAAf,CAAe,FACf;GADA,AAAe,FAAf;;GAEC,DAAI,EAAkB,AAAa,AAAe,AAAa,AAAgB,AAAc,AAAc,HAE1G;;;;oBAOU,uBAEb;CAAa,SAAS,HAAc,CAAY,FAAW,MAAe;;;YC1B7D,DACd;CACC;CAGA,AAA2B;;kBDEe;aCXX;;;;"
+}

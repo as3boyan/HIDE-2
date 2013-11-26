@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.bootstrap.new-project-dialog";
-	public static var dependencies:Array<String> = ["boyan.jquery.script"];
+	public static var dependencies:Array<String> = ["boyan.jquery.script", "boyan.bootstrap.menu"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -15,7 +15,12 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ()
 		{
 			NewProjectDialog.create();
-			//NewProjectDialog.show();
+			
+			BootstrapMenu.getMenu("File").addMenuItem("New Project...", function ():Void
+			{
+				NewProjectDialog.show();
+			}
+			, "Ctrl-Shift-N", "N".code, true, true, false);
 		}
 		);
 		

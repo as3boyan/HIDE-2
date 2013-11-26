@@ -20,6 +20,9 @@ Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
+		BootstrapMenu.getMenu("File").addMenuItem("New Project...",function() {
+			NewProjectDialog.show();
+		},"Ctrl-Shift-N",78,true,true,false);
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
@@ -270,6 +273,10 @@ NewProjectDialog.generateProjectName = function(onGenerated) {
 		if(onGenerated != null) onGenerated();
 	}
 	if(NewProjectDialog.selectedCategory != "Haxe") NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "none"; else NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "block";
+};
+NewProjectDialog.show = function() {
+	if(NewProjectDialog.page1.style.display == "none") NewProjectDialog.backButton.click();
+	new $(NewProjectDialog.modal).modal("show");
 };
 NewProjectDialog.hide = function() {
 	new $(NewProjectDialog.modal).modal("hide");
@@ -823,7 +830,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.bootstrap.new-project-dialog";
-Main.dependencies = ["boyan.jquery.script"];
+Main.dependencies = ["boyan.jquery.script","boyan.bootstrap.menu"];
 Main.main();
 })();
 

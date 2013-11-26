@@ -9,7 +9,7 @@ import ui.menu.basic.Menu;
 class Main
 {
 	public static var name:String = "boyan.bootstrap.menu";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.script"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.script", "boyan.events.hotkey"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void

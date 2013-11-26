@@ -28,7 +28,7 @@ interface MenuItem
 {	
 	var li:LIElement;
 	
-	public function new(_text:String, _onClickFunction:Void->Void, ?_hotkey:String)
+	public function new(_text:String, _onClickFunction:Void->Void, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool)
 	{		
 		var span:SpanElement = null;
 		
@@ -52,9 +52,15 @@ interface MenuItem
 			{
 				if (li.className != "disabled")
 				{
+					_onClickFunction();
 					//new JQuery(js.Browser.document).triggerHandler(_onClickFunctionName);
 				}
 			};
+			
+			if (_hotkey != null && _keyCode != null)
+			{
+				Hotkeys.addHotkey(_keyCode, _ctrl, _shift, _alt, _onClickFunction);
+			}
 		}
 		
 		a.innerText = _text;
@@ -134,9 +140,9 @@ interface MenuItem
 		li.appendChild(ul);
 	}
 	
-	public function addMenuItem(_text:String, _onClickFunction:Void->Void, ?_hotkey:String):Void
+	public function addMenuItem(_text:String, _onClickFunction:Void->Void, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void
 	{
-		ul.appendChild(new MenuButtonItem(_text, _onClickFunction, _hotkey).getElement());
+		ul.appendChild(new MenuButtonItem(_text, _onClickFunction, _hotkey, _keyCode, _ctrl, _shift, _alt).getElement());
 	}
 	
 	public function addSeparator():Void

@@ -657,17 +657,6 @@ class NewProjectDialog
 		
 		page2.appendChild(row);
 		
-		//var row:DivElement = Browser.document.createDivElement();
-		//row.className = "row";
-		
-		//var col:DivElement  = Browser.document.createDivElement();
-		//col.className = "col-md-8";
-		//row.appendChild(col);
-		
-		//var inputGroup:DivElement = Browser.document.createDivElement();
-		//inputGroup.className = "input-group";
-		//row.appendChild(inputGroup);
-		
 		row = Browser.document.createDivElement();
 		row.className = "row";
 		
@@ -682,18 +671,6 @@ class NewProjectDialog
 		projectLocation.placeholder = "Location";
 		projectLocation.style.width = "80%";
 		inputGroup.appendChild(projectLocation);
-		
-		//var inputGroupAddon:SpanElement = Browser.document.createSpanElement();
-		//inputGroupAddon.className = "input-group-addon";
-		//inputGroup.appendChild(inputGroupAddon);
-		
-		//var col2:DivElement  = Browser.document.createDivElement();
-		//col2.className = "col-md-4";
-		//row.appendChild(col2);
-		//
-		//var inputGroup2:DivElement = Browser.document.createDivElement();
-		//inputGroup2.className = "input-group";
-		//col2.appendChild(inputGroup2);
 		
 		var browseButton:ButtonElement = Browser.document.createButtonElement();
 		browseButton.type = "button";

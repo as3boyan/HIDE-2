@@ -218,7 +218,7 @@ ui.menu = {};
 ui.menu.basic = {};
 ui.menu.basic.MenuItem = function() { };
 ui.menu.basic.MenuItem.__name__ = true;
-ui.menu.basic.MenuButtonItem = function(_text,_onClickFunction,_hotkey) {
+ui.menu.basic.MenuButtonItem = function(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
 	var _g = this;
 	var span = null;
 	if(_hotkey != null) {
@@ -235,10 +235,12 @@ ui.menu.basic.MenuButtonItem = function(_text,_onClickFunction,_hotkey) {
 	a = _this.createElement("a");
 	a.style.left = "0";
 	a.setAttribute("text",_text);
-	if(_onClickFunction != null) a.onclick = function(e) {
-		if(_g.li.className != "disabled") {
-		}
-	};
+	if(_onClickFunction != null) {
+		a.onclick = function(e) {
+			if(_g.li.className != "disabled") _onClickFunction();
+		};
+		if(_hotkey != null && _keyCode != null) Hotkeys.addHotkey(_keyCode,_ctrl,_shift,_alt,_onClickFunction);
+	}
 	a.innerText = _text;
 	if(span != null) a.appendChild(span);
 	this.li.appendChild(a);
@@ -292,8 +294,8 @@ ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText
 };
 ui.menu.basic.Menu.__name__ = true;
 ui.menu.basic.Menu.prototype = {
-	addMenuItem: function(_text,_onClickFunction,_hotkey) {
-		this.ul.appendChild(new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey).getElement());
+	addMenuItem: function(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
+		this.ul.appendChild(new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt).getElement());
 	}
 	,addSeparator: function() {
 		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
@@ -350,7 +352,7 @@ var Class = { __name__ : ["Class"]};
 var Enum = { };
 BootstrapMenu.menus = new haxe.ds.StringMap();
 Main.$name = "boyan.bootstrap.menu";
-Main.dependencies = ["boyan.bootstrap.script"];
+Main.dependencies = ["boyan.bootstrap.script","boyan.events.hotkey"];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 
