@@ -9,7 +9,7 @@ import js.html.PreElement;
 class Main
 {
 	public static var name:String = "boyan.ace.editor";
-	public static var dependencies:Array<String> = ["boyan.jquery.split-pane", "boyan.bootstrap.tabmanager"];
+	public static var dependencies:Array<String> = ["boyan.jquery.split-pane", "boyan.bootstrap.tab-manager"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void

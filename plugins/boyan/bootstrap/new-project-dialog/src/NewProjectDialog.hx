@@ -931,23 +931,23 @@ class NewProjectDialog
 	
 	private static function updateDescription(category:String, selectedOption:String):Void
 	{
-		switch (category) 
-		{
-			case "Haxe":
-				switch (selectedOption) 
-				{
+		//switch (category) 
+		//{
+			//case "Haxe":
+				//switch (selectedOption) 
+				//{
 					//["Flash Project", "JavaScript Project", "Neko Project", "PHP Project", "C++ Project", "Java Project", "C# Project"]
-					case "Flash Project":
+					//case "Flash Project":
 						//description.textContent = selectedOption;
-					default:
-						
-				}
-			case "OpenFL":
-			case "OpenFL/Samples":
-				
-			default:
-				
-		}
+					//default:
+						//
+				//}
+			//case "OpenFL":
+			//case "OpenFL/Samples":
+				//
+			//default:
+				//
+		//}
 		
 		description.textContent = selectedOption;
 	}
