@@ -1,4 +1,15 @@
 (function () { "use strict";
+var Category = function(_element) {
+	this.element = _element;
+};
+Category.__name__ = true;
+Category.prototype = {
+	addCategory: function(name) {
+	}
+	,addItem: function(name) {
+	}
+	,__class__: Category
+};
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
@@ -21,11 +32,32 @@ Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
 		BootstrapMenu.getMenu("File").addMenuItem("New Project...",NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
+		NewProjectDialog.getCategory("Haxe").addItem("");
+		NewProjectDialog.getCategory("OpenFL").addCategory("");
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
 var IMap = function() { };
 IMap.__name__ = true;
+var haxe = {};
+haxe.ds = {};
+haxe.ds.StringMap = function() {
+	this.h = { };
+};
+haxe.ds.StringMap.__name__ = true;
+haxe.ds.StringMap.__interfaces__ = [IMap];
+haxe.ds.StringMap.prototype = {
+	set: function(key,value) {
+		this.h["$" + key] = value;
+	}
+	,get: function(key) {
+		return this.h["$" + key];
+	}
+	,exists: function(key) {
+		return this.h.hasOwnProperty("$" + key);
+	}
+	,__class__: haxe.ds.StringMap
+};
 var NewProjectDialog = function() { };
 NewProjectDialog.__name__ = true;
 NewProjectDialog.create = function() {
@@ -279,6 +311,14 @@ NewProjectDialog.show = function() {
 NewProjectDialog.hide = function() {
 	new $(NewProjectDialog.modal).modal("hide");
 };
+NewProjectDialog.getCategory = function(name) {
+	if(!NewProjectDialog.categories.exists(name)) {
+		var category = new Category(NewProjectDialog.createCategory(name));
+		NewProjectDialog.categories.set(name,category);
+		NewProjectDialog.tree.appendChild(category.element);
+	}
+	return NewProjectDialog.categories.get(name);
+};
 NewProjectDialog.createOpenFLProject = function(params) {
 	var OpenFLTools = js.Node.require("child_process").spawn("haxelib",["run","openfl","create"].concat(params));
 	var log = "";
@@ -338,13 +378,10 @@ NewProjectDialog.createPage1 = function() {
 	well.style.height = "250px";
 	well.style.marginBottom = "0";
 	NewProjectDialog.page1.appendChild(well);
-	var tree;
 	var _this = window.document;
-	tree = _this.createElement("ul");
-	tree.className = "nav nav-list";
-	well.appendChild(tree);
-	tree.appendChild(NewProjectDialog.createCategory("Haxe"));
-	tree.appendChild(NewProjectDialog.createCategoryWithSubcategories("OpenFL",["Samples"]));
+	NewProjectDialog.tree = _this.createElement("ul");
+	NewProjectDialog.tree.className = "nav nav-list";
+	well.appendChild(NewProjectDialog.tree);
 	NewProjectDialog.list = NewProjectDialog.createList();
 	NewProjectDialog.list.style.float = "left";
 	NewProjectDialog.list.style.width = "50%";
@@ -538,33 +575,6 @@ NewProjectDialog.updateListItems = function(category) {
 	}
 	NewProjectDialog.checkSelectedOptions();
 };
-NewProjectDialog.createCategoryWithSubcategories = function(text,subcategories) {
-	var li = NewProjectDialog.createCategory(text);
-	var a;
-	a = js.Boot.__cast(li.getElementsByTagName("a")[0] , HTMLAnchorElement);
-	a.className = "tree-toggler nav-header";
-	a.onclick = function(e) {
-		new $(li).children("ul.tree").toggle(300);
-	};
-	var ul;
-	var _this = window.document;
-	ul = _this.createElement("ul");
-	ul.className = "nav nav-list tree";
-	li.appendChild(ul);
-	li.onclick = function(e) {
-		var _g = 0;
-		while(_g < subcategories.length) {
-			var subcategory = subcategories[_g];
-			++_g;
-			ul.appendChild(NewProjectDialog.createCategory(subcategory));
-		}
-		e.stopPropagation();
-		e.preventDefault();
-		li.onclick = null;
-		new $(ul).show(300);
-	};
-	return li;
-};
 NewProjectDialog.createList = function() {
 	var select;
 	var _this = window.document;
@@ -628,22 +638,6 @@ var StringTools = function() { };
 StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
-};
-var haxe = {};
-haxe.ds = {};
-haxe.ds.StringMap = function() {
-	this.h = { };
-};
-haxe.ds.StringMap.__name__ = true;
-haxe.ds.StringMap.__interfaces__ = [IMap];
-haxe.ds.StringMap.prototype = {
-	set: function(key,value) {
-		this.h["$" + key] = value;
-	}
-	,get: function(key) {
-		return this.h["$" + key];
-	}
-	,__class__: haxe.ds.StringMap
 };
 var js = {};
 js.Boot = function() { };
@@ -815,6 +809,7 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 Main.$name = "boyan.bootstrap.new-project-dialog";
 Main.dependencies = ["boyan.bootstrap.menu"];
+NewProjectDialog.categories = new haxe.ds.StringMap();
 Main.main();
 })();
 

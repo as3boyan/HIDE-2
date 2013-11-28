@@ -409,7 +409,7 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
-HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane","boyan.samples.helloworld"];
+HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane"];
 HIDE.requestedPluginsData = new Array();
 Main.main();
 })(typeof window != "undefined" ? window : exports);

@@ -42,6 +42,9 @@ class NewProjectDialog
 	private static var checkboxes:StringMap<InputElement>;
 	private static var nextButton:ButtonElement;
 	
+	private static var categories:StringMap<Dynamic> = new StringMap();
+	static private var tree:UListElement;
+	
 	public static function create():Void
 	{
 		modal = Browser.document.createDivElement();
@@ -490,6 +493,20 @@ class NewProjectDialog
 		untyped new JQuery(modal).modal("hide");
 	}
 	
+	public static function getCategory(name:String):Category
+	{
+		if (!categories.exists(name))
+		{
+			var category:Category = new Category(createCategory(name));
+			categories.set(name, category);
+			tree.appendChild(category.element);
+			
+			//tree.appendChild(createCategoryWithSubcategories("OpenFL", ["Samples"]));
+		}
+		
+		return categories.get(name);
+	}
+	
 	private static function createOpenFLProject(params:Array<String>):Void
 	{
 		var OpenFLTools = js.Node.childProcess.spawn("haxelib", ["run", "openfl", "create"].concat(params));
@@ -613,12 +630,9 @@ class NewProjectDialog
 		well.style.marginBottom = "0";
 		page1.appendChild(well);
 		
-		var tree:UListElement = Browser.document.createUListElement();
+		tree = Browser.document.createUListElement();
 		tree.className = "nav nav-list";
 		well.appendChild(tree);
-		
-		tree.appendChild(createCategory("Haxe"));
-		tree.appendChild(createCategoryWithSubcategories("OpenFL", ["Samples"]));
 		
 		list = createList();
 		list.style.float = "left";
