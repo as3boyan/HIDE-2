@@ -106,7 +106,7 @@ class Main
 								//&& !Lambda.has(HIDE.conflictingPlugins, pluginName)
 								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, pluginName))
 								{
-									//trace("    - pushd " + js.Node.path.join("plugins", pathToPlugin) + " && haxe plugin.hxml && popd");
+									//trace("    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + " && haxe plugin.hxml && popd");
 									onLoad(path, pathToPlugin);
 									return;
 								}

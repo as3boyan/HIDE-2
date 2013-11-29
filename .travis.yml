@@ -13,25 +13,25 @@ before_script:
 
 script:
     - haxe HIDE.hxml
-    - pushd plugins\boyan\bootstrap\alerts && haxe plugin.hxml && popd
-    - pushd plugins\boyan\bootstrap\menu && haxe plugin.hxml && popd
-    - pushd plugins\boyan\bootstrap\new-project-dialog && haxe plugin.hxml && popd
-    - pushd plugins\boyan\bootstrap\script && haxe plugin.hxml && popd
-    - pushd plugins\boyan\bootstrap\tab-manager && haxe plugin.hxml && popd
-    - pushd plugins\boyan\bootstrap\file-tree && haxe plugin.hxml && popd
-    - pushd plugins\boyan\codemirror\editor && haxe plugin.hxml && popd
-    - pushd plugins\boyan\compilation\client && haxe plugin.hxml && popd
-    - pushd plugins\boyan\compilation\output && haxe plugin.hxml && popd
-    - pushd plugins\boyan\compilation\server && haxe plugin.hxml && popd
-    - pushd plugins\boyan\jquery\layout && haxe plugin.hxml && popd
-    - pushd plugins\boyan\jquery\script && haxe plugin.hxml && popd
-    - pushd plugins\boyan\jquery\ui && haxe plugin.hxml && popd
-    - pushd plugins\boyan\samples\helloworld && haxe plugin.hxml && popd
-    - pushd plugins\boyan\events\hotkey && haxe plugin.hxml && popd
-    - pushd plugins\boyan\window\file-dialog && haxe plugin.hxml && popd
-    - pushd plugins\boyan\window\preserve-window-state && haxe plugin.hxml && popd
-    - pushd plugins\boyan\openfl\tools && haxe plugin.hxml && popd
-    - pushd plugins\boyan\nekotools\server && haxe plugin.hxml && popd 
+    - pushd plugins/boyan/bootstrap/alerts && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/menu && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/new-project-dialog && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/script && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/tab-manager && haxe plugin.hxml && popd
+    - pushd plugins/boyan/codemirror/editor && haxe plugin.hxml && popd
+    - pushd plugins/boyan/events/hotkey && haxe plugin.hxml && popd
+    - pushd plugins/boyan/compilation/client && haxe plugin.hxml && popd
+    - pushd plugins/boyan/compilation/output && haxe plugin.hxml && popd
+    - pushd plugins/boyan/compilation/server && haxe plugin.hxml && popd
+    - pushd plugins/boyan/jquery/layout && haxe plugin.hxml && popd
+    - pushd plugins/boyan/jquery/script && haxe plugin.hxml && popd
+    - pushd plugins/boyan/jquery/ui && haxe plugin.hxml && popd
+    - pushd plugins/boyan/nekotools/server && haxe plugin.hxml && popd
+    - pushd plugins/boyan/openfl/tools && haxe plugin.hxml && popd
+    - pushd plugins/boyan/window/file-dialog && haxe plugin.hxml && popd
+    - pushd plugins/boyan/window/preserve-window-state && haxe plugin.hxml && popd
+    - pushd plugins/boyan/samples/helloworld && haxe plugin.hxml && popd
+    - pushd plugins/boyan/bootstrap/file-tree && haxe plugin.hxml && popd 
 
 notifications:
     email: false

@@ -236,6 +236,7 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 							if(error1 != null) console.log(error1); else {
 								var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 								if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,pluginName)) {
+									console.log("    - pushd " + StringTools.replace(js.Node.require("path").join("plugins",pathToPlugin),js.Node.require("path").sep,"/") + " && haxe plugin.hxml && popd");
 									onLoad(path,pathToPlugin);
 									return;
 								}

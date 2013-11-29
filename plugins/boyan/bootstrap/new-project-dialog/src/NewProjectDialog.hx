@@ -42,7 +42,7 @@ class NewProjectDialog
 	private static var checkboxes:StringMap<InputElement>;
 	private static var nextButton:ButtonElement;
 	
-	private static var categories:StringMap<Dynamic> = new StringMap();
+	private static var categories:StringMap<Category> = new StringMap();
 	static private var tree:UListElement;
 	
 	public static function create():Void
@@ -156,7 +156,7 @@ class NewProjectDialog
 		
 		Browser.document.body.appendChild(modal);
 		
-		updateListItems("Haxe");
+		//updateListItems("Haxe");
 		
 		Browser.window.addEventListener("keyup", function (e)
 		{
@@ -497,7 +497,7 @@ class NewProjectDialog
 	{
 		if (!categories.exists(name))
 		{
-			var category:Category = new Category(createCategory(name));
+			var category:Category = createCategory(name);
 			categories.set(name, category);
 			tree.appendChild(category.element);
 			
@@ -825,26 +825,21 @@ class NewProjectDialog
 		_page2.appendChild(row);
 	}
 	
-	private static function createCategory(text:String):LIElement
-	{
+	private static function createCategory(text:String):Category
+	{		
 		var li:LIElement = Browser.document.createLIElement();
+		
+		var category:Category = new Category(li);
 			
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.href = "#";
 		
 		a.addEventListener("click", function (e:MouseEvent):Void
 		{
-			var parent = li.parentElement.parentElement;
-			var topA:AnchorElement = cast(parent.getElementsByTagName("a")[0], AnchorElement);
+			//var parent = li.parentElement.parentElement;
+			//var topA:AnchorElement = cast(parent.getElementsByTagName("a")[0], AnchorElement);
 			
-			if (parent.className == "well")
-			{
-				updateListItems(a.textContent);
-			}
-			else
-			{
-				updateListItems(topA.innerText + "/" + a.textContent);
-			}
+			updateListItems(category);
 		}
 		);
 		
@@ -859,33 +854,70 @@ class NewProjectDialog
 		
 		li.appendChild(a);
 		
-		return li;
+		return category;
 	}
 	
-	private static function updateListItems(category:String):Void
+	public static function createSubcategory(text:String, category:Category):Void
+	{
+		var a:AnchorElement = cast(category.element.getElementsByTagName("a")[0], AnchorElement);
+		a.className = "tree-toggler nav-header";
+		
+		a.onclick = function (e:MouseEvent):Void
+		{
+			new JQuery(category.element).children('ul.tree').toggle(300);
+		};
+		
+		var ul:UListElement = Browser.document.createUListElement();
+		ul.className = "nav nav-list tree";
+		category.element.appendChild(ul);
+		
+		category.element.onclick = function (e:MouseEvent):Void
+		{
+			for (subcategory in category.subcategories.keys())
+			{
+				ul.appendChild(category.subcategories.get(subcategory).element);
+			}
+			
+			e.stopPropagation();
+			e.preventDefault();
+			category.element.onclick = null;
+			
+			new JQuery(ul).show(300);
+		};
+		
+		var subcategory:Category = createCategory(text);
+		category.subcategories.set(text, subcategory);
+		//return subcategory;
+	}
+	
+	private static function updateListItems(category:Category):Void
 	{		
-		selectedCategory = category;
+		//selectedCategory = category;
 		
 		new JQuery(list).children().remove();
 		
-		switch (category) 
-		{
-			case "Haxe":
-				setListItems(list, ["Flash Project", "JavaScript Project", "Neko Project", "PHP Project", "C++ Project", "Java Project", "C# Project"]);
-			case "OpenFL":
-				setListItems(list, ["OpenFL Project", "OpenFL Extension"]);
-			case "OpenFL/Samples":
-				setListItems(list, ["ActuateExample", "AddingAnimation", "AddingText", "DisplayingABitmap", "HandlingKeyboardEvents", "HandlingMouseEvent", "HerokuShaders", "PiratePig", "PlayingSound", "SimpleBox2D", "SimpleOpenGLView"]);
-			default:
-					
-		}
+		setListItems(list, category.getItems());
+		
+		//switch (category) 
+		//{
+			//case "Haxe":
+				//setListItems(list, ["Flash Project", "JavaScript Project", "Neko Project", "PHP Project", "C++ Project", "Java Project", "C# Project"]);
+			//case "OpenFL":
+				//setListItems(list, ["OpenFL Project", "OpenFL Extension"]);
+			//case "OpenFL/Samples":
+				//setListItems(list, ["ActuateExample", "AddingAnimation", "AddingText", "DisplayingABitmap", "HandlingKeyboardEvents", "HandlingMouseEvent", "HerokuShaders", "PiratePig", "PlayingSound", "SimpleBox2D", "SimpleOpenGLView"]);
+			//default:
+					//
+		//}
 		
 		checkSelectedOptions();
 	}
 	
 	public static function createCategoryWithSubcategories(text:String, subcategories:Array<String>):LIElement
 	{
-		var li:LIElement = createCategory(text);
+		var li:LIElement  = Browser.document.createLIElement();
+		
+		var category:Category= createCategory(text);
 		
 		var a:AnchorElement = cast(li.getElementsByTagName("a")[0], AnchorElement);
 		a.className = "tree-toggler nav-header";
@@ -903,7 +935,7 @@ class NewProjectDialog
 		{
 			for (subcategory in subcategories)
 			{
-				ul.appendChild(createCategory(subcategory));
+				ul.appendChild(createCategory(subcategory).element);
 			}
 			
 			e.stopPropagation();
@@ -939,7 +971,7 @@ class NewProjectDialog
 		if (list.selectedOptions.length > 0)
 		{
 			var option:OptionElement = cast(list.selectedOptions[0], OptionElement);
-			updateDescription(selectedCategory, option.label);
+			//updateDescription(selectedCategory, option.label);
 		}
 	}
 	

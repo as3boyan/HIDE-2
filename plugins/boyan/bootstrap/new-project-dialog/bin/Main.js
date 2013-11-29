@@ -1,12 +1,28 @@
 (function () { "use strict";
 var Category = function(_element) {
+	this.subcategories = new haxe.ds.StringMap();
+	this.items = new Array();
 	this.element = _element;
 };
 Category.__name__ = true;
 Category.prototype = {
-	addCategory: function(name) {
+	getCategory: function(name) {
+		if(!this.subcategories.exists(name)) NewProjectDialog.createSubcategory(name,this);
+		return this.subcategories.get(name);
 	}
 	,addItem: function(name) {
+		this.items.push(new Item(name));
+	}
+	,getItems: function() {
+		var itemNames = new Array();
+		var _g = 0;
+		var _g1 = this.items;
+		while(_g < _g1.length) {
+			var item = _g1[_g];
+			++_g;
+			itemNames.push(item.name);
+		}
+		return itemNames;
 	}
 	,__class__: Category
 };
@@ -26,14 +42,46 @@ HxOverrides.substr = function(s,pos,len) {
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
 };
+HxOverrides.iter = function(a) {
+	return { cur : 0, arr : a, hasNext : function() {
+		return this.cur < this.arr.length;
+	}, next : function() {
+		return this.arr[this.cur++];
+	}};
+};
+var Item = function(_name) {
+	this.name = _name;
+};
+Item.__name__ = true;
+Item.prototype = {
+	__class__: Item
+};
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
 		BootstrapMenu.getMenu("File").addMenuItem("New Project...",NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
-		NewProjectDialog.getCategory("Haxe").addItem("");
-		NewProjectDialog.getCategory("OpenFL").addCategory("");
+		NewProjectDialog.getCategory("Haxe").addItem("Flash Project");
+		NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project");
+		NewProjectDialog.getCategory("Haxe").addItem("Neko Project");
+		NewProjectDialog.getCategory("Haxe").addItem("PHP Project");
+		NewProjectDialog.getCategory("Haxe").addItem("C++ Project");
+		NewProjectDialog.getCategory("Haxe").addItem("Java Project");
+		NewProjectDialog.getCategory("Haxe").addItem("C# Project");
+		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project");
+		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D");
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView");
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
@@ -55,6 +103,13 @@ haxe.ds.StringMap.prototype = {
 	}
 	,exists: function(key) {
 		return this.h.hasOwnProperty("$" + key);
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) a.push(key.substr(1));
+		}
+		return HxOverrides.iter(a);
 	}
 	,__class__: haxe.ds.StringMap
 };
@@ -148,7 +203,6 @@ NewProjectDialog.create = function() {
 	cancelButton.textContent = "Cancel";
 	footer.appendChild(cancelButton);
 	window.document.body.appendChild(NewProjectDialog.modal);
-	NewProjectDialog.updateListItems("Haxe");
 	window.addEventListener("keyup",function(e) {
 		if(e.keyCode == 27) new $(NewProjectDialog.modal).modal("hide");
 	});
@@ -313,7 +367,7 @@ NewProjectDialog.hide = function() {
 };
 NewProjectDialog.getCategory = function(name) {
 	if(!NewProjectDialog.categories.exists(name)) {
-		var category = new Category(NewProjectDialog.createCategory(name));
+		var category = NewProjectDialog.createCategory(name);
 		NewProjectDialog.categories.set(name,category);
 		NewProjectDialog.tree.appendChild(category.element);
 	}
@@ -535,15 +589,13 @@ NewProjectDialog.createCategory = function(text) {
 	var li;
 	var _this = window.document;
 	li = _this.createElement("li");
+	var category = new Category(li);
 	var a;
 	var _this = window.document;
 	a = _this.createElement("a");
 	a.href = "#";
 	a.addEventListener("click",function(e) {
-		var parent = li.parentElement.parentElement;
-		var topA;
-		topA = js.Boot.__cast(parent.getElementsByTagName("a")[0] , HTMLAnchorElement);
-		if(parent.className == "well") NewProjectDialog.updateListItems(a.textContent); else NewProjectDialog.updateListItems(topA.innerText + "/" + a.textContent);
+		NewProjectDialog.updateListItems(category);
 	});
 	var span;
 	var _this = window.document;
@@ -556,23 +608,37 @@ NewProjectDialog.createCategory = function(text) {
 	span.style.marginLeft = "5px";
 	a.appendChild(span);
 	li.appendChild(a);
-	return li;
+	return category;
+};
+NewProjectDialog.createSubcategory = function(text,category) {
+	var a;
+	a = js.Boot.__cast(category.element.getElementsByTagName("a")[0] , HTMLAnchorElement);
+	a.className = "tree-toggler nav-header";
+	a.onclick = function(e) {
+		new $(category.element).children("ul.tree").toggle(300);
+	};
+	var ul;
+	var _this = window.document;
+	ul = _this.createElement("ul");
+	ul.className = "nav nav-list tree";
+	category.element.appendChild(ul);
+	category.element.onclick = function(e) {
+		var $it0 = category.subcategories.keys();
+		while( $it0.hasNext() ) {
+			var subcategory = $it0.next();
+			ul.appendChild(category.subcategories.get(subcategory).element);
+		}
+		e.stopPropagation();
+		e.preventDefault();
+		category.element.onclick = null;
+		new $(ul).show(300);
+	};
+	var subcategory = NewProjectDialog.createCategory(text);
+	category.subcategories.set(text,subcategory);
 };
 NewProjectDialog.updateListItems = function(category) {
-	NewProjectDialog.selectedCategory = category;
 	new $(NewProjectDialog.list).children().remove();
-	switch(category) {
-	case "Haxe":
-		NewProjectDialog.setListItems(NewProjectDialog.list,["Flash Project","JavaScript Project","Neko Project","PHP Project","C++ Project","Java Project","C# Project"]);
-		break;
-	case "OpenFL":
-		NewProjectDialog.setListItems(NewProjectDialog.list,["OpenFL Project","OpenFL Extension"]);
-		break;
-	case "OpenFL/Samples":
-		NewProjectDialog.setListItems(NewProjectDialog.list,["ActuateExample","AddingAnimation","AddingText","DisplayingABitmap","HandlingKeyboardEvents","HandlingMouseEvent","HerokuShaders","PiratePig","PlayingSound","SimpleBox2D","SimpleOpenGLView"]);
-		break;
-	default:
-	}
+	NewProjectDialog.setListItems(NewProjectDialog.list,category.getItems());
 	NewProjectDialog.checkSelectedOptions();
 };
 NewProjectDialog.createList = function() {
@@ -592,11 +658,7 @@ NewProjectDialog.checkSelectedOptions = function() {
 	if(NewProjectDialog.list.selectedOptions.length > 0) {
 		var option;
 		option = js.Boot.__cast(NewProjectDialog.list.selectedOptions[0] , HTMLOptionElement);
-		NewProjectDialog.updateDescription(NewProjectDialog.selectedCategory,option.label);
 	}
-};
-NewProjectDialog.updateDescription = function(category,selectedOption) {
-	NewProjectDialog.description.textContent = selectedOption;
 };
 NewProjectDialog.setListItems = function(list,items) {
 	var _g = 0;
