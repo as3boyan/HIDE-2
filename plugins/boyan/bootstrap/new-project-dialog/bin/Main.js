@@ -10,8 +10,10 @@ Category.prototype = {
 		if(!this.subcategories.exists(name)) NewProjectDialog.createSubcategory(name,this);
 		return this.subcategories.get(name);
 	}
-	,addItem: function(name) {
-		this.items.push(new Item(name));
+	,addItem: function(name,showCreateDirectoryOption,nameLocked) {
+		if(nameLocked == null) nameLocked = false;
+		if(showCreateDirectoryOption == null) showCreateDirectoryOption = true;
+		this.items.push(new Item(name,showCreateDirectoryOption,nameLocked));
 	}
 	,getItems: function() {
 		var itemNames = new Array();
@@ -23,6 +25,20 @@ Category.prototype = {
 			itemNames.push(item.name);
 		}
 		return itemNames;
+	}
+	,select: function() {
+		NewProjectDialog.updateListItems(this);
+	}
+	,getItem: function(name) {
+		var currentItem = null;
+		var _g = 0;
+		var _g1 = this.items;
+		while(_g < _g1.length) {
+			var item = _g1[_g];
+			++_g;
+			if(name == item.name) currentItem = item;
+		}
+		return currentItem;
 	}
 	,__class__: Category
 };
@@ -49,8 +65,12 @@ HxOverrides.iter = function(a) {
 		return this.arr[this.cur++];
 	}};
 };
-var Item = function(_name) {
+var Item = function(_name,_showCreateDirectoryOption,_nameLocked) {
+	if(_nameLocked == null) _nameLocked = false;
+	if(_showCreateDirectoryOption == null) _showCreateDirectoryOption = true;
 	this.name = _name;
+	this.showCreateDirectoryOption = _showCreateDirectoryOption;
+	this.nameLocked = _nameLocked;
 };
 Item.__name__ = true;
 Item.prototype = {
@@ -69,19 +89,21 @@ Main.main = function() {
 		NewProjectDialog.getCategory("Haxe").addItem("C++ Project");
 		NewProjectDialog.getCategory("Haxe").addItem("Java Project");
 		NewProjectDialog.getCategory("Haxe").addItem("C# Project");
-		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project");
-		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D");
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView");
+		NewProjectDialog.getCategory("Haxe").select();
+		NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
+		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project",false);
+		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension",false);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D",false,true);
+		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView",false,true);
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
@@ -236,76 +258,6 @@ NewProjectDialog.createProject = function() {
 		if(exists) {
 			js.Node.process.chdir(js.Node.require("path").join(NewProjectDialog.projectLocation.value));
 			var project = new Project();
-			var _g = NewProjectDialog.selectedCategory;
-			switch(_g) {
-			case "Haxe":
-				NewProjectDialog.createDirectoryRecursively(NewProjectDialog.projectLocation.value,[NewProjectDialog.projectName.value,"src"],function() {
-					var pathToMain = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value,"src");
-					pathToMain = js.Node.require("path").join(pathToMain,"Main.hx");
-					var code = "package ;\n\nclass Main\n{\nstatic public function main()\n{\n}\n}";
-					js.Node.require("fs").writeFile(pathToMain,code,null,function(error) {
-						if(error != null) console.log(error);
-					});
-				});
-				project.type = 0;
-				var _g1 = NewProjectDialog.list.value;
-				switch(_g1) {
-				case "Flash Project":
-					project.target = "flash";
-					break;
-				case "JavaScript Project":
-					project.target = "html5";
-					break;
-				case "Neko Project":
-					project.target = "neko";
-					break;
-				case "PHP Project":
-					project.target = "php";
-					break;
-				case "C++ Project":
-					project.target = "cpp";
-					break;
-				case "Java Project":
-					project.target = "java";
-					break;
-				case "C# Project":
-					project.target = "csharp";
-					break;
-				default:
-				}
-				var pathToMain = js.Node.require("path").join(NewProjectDialog.projectName.value,"src");
-				pathToMain = js.Node.require("path").join(pathToMain,"Main.hx");
-				project.main = pathToMain;
-				break;
-			case "OpenFL":
-				var _g1 = NewProjectDialog.list.value;
-				switch(_g1) {
-				case "OpenFL Project":
-					var projectPackage = NewProjectDialog.textfieldsWithCheckboxes.get("Package").value;
-					var str = "";
-					if(NewProjectDialog.checkboxes.get("Package").checked && projectPackage != "") str = projectPackage + ".";
-					var params = ["project",str + NewProjectDialog.projectName.value];
-					var projectCompany = NewProjectDialog.textfieldsWithCheckboxes.get("Company").value;
-					if(NewProjectDialog.checkboxes.get("Company").checked && projectCompany != "") params.push(projectCompany);
-					NewProjectDialog.createOpenFLProject(params);
-					break;
-				case "OpenFL Extension":
-					NewProjectDialog.createOpenFLProject(["extension",NewProjectDialog.projectName.value]);
-					break;
-				default:
-				}
-				project.type = 1;
-				project.target = "html5";
-				project.main = "project.xml";
-				break;
-			case "OpenFL/Samples":
-				NewProjectDialog.createOpenFLProject([NewProjectDialog.list.value]);
-				project.type = 1;
-				project.target = "html5";
-				project.main = "project.xml";
-				break;
-			default:
-			}
 			var name = NewProjectDialog.projectName.value;
 			if(name != "") project.name = name;
 			var projectPackage = NewProjectDialog.textfieldsWithCheckboxes.get("Package").value;
@@ -317,7 +269,7 @@ NewProjectDialog.createProject = function() {
 			var url = NewProjectDialog.textfieldsWithCheckboxes.get("URL").value;
 			if(NewProjectDialog.checkboxes.get("URL").checked && url != "") project.url = url;
 			var path;
-			if(NewProjectDialog.createDirectoryForProject.checked) path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value,"project.hide"); else path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,"project.hide");
+			if(!NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).showCreateDirectoryOption || NewProjectDialog.createDirectoryForProject.checked) path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value,"project.hide"); else path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,"project.hide");
 			NewProjectDialog.saveData("Package");
 			NewProjectDialog.saveData("Company");
 			NewProjectDialog.saveData("License");
@@ -331,32 +283,19 @@ NewProjectDialog.createProject = function() {
 		}
 	});
 };
-NewProjectDialog.createDirectory = function(path,onCreated) {
-	js.Node.require("fs").mkdir(path,null,function(error) {
-		if(error != null) console.log(error);
-		if(onCreated != null) onCreated();
-	});
-};
-NewProjectDialog.createDirectoryRecursively = function(path,folderPath,onCreated) {
-	var fullPath = js.Node.require("path").join(path,folderPath[0]);
-	NewProjectDialog.createDirectory(fullPath,function() {
-		folderPath.splice(0,1);
-		if(folderPath.length > 0) NewProjectDialog.createDirectoryRecursively(fullPath,folderPath,onCreated); else onCreated();
-	});
-};
 NewProjectDialog.generateProjectName = function(onGenerated) {
-	if(NewProjectDialog.selectedCategory != "OpenFL/Samples") {
+	if(NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).nameLocked == false) {
 		var value = StringTools.replace(NewProjectDialog.list.value,"+","p");
 		value = StringTools.replace(value,"#","sharp");
 		value = StringTools.replace(value," ","");
-		if(NewProjectDialog.selectedCategory != "OpenFL") value = StringTools.replace(NewProjectDialog.selectedCategory,"/","") + value;
 		NewProjectDialog.generateFolderName(NewProjectDialog.projectLocation.value,value,1,onGenerated);
 	} else {
 		NewProjectDialog.projectName.value = NewProjectDialog.list.value;
 		NewProjectDialog.updateHelpBlock();
 		if(onGenerated != null) onGenerated();
 	}
-	if(NewProjectDialog.selectedCategory != "Haxe") NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "none"; else NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "block";
+	if(NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).showCreateDirectoryOption) NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "block"; else NewProjectDialog.createDirectoryForProject.parentElement.parentElement.style.display = "none";
+	NewProjectDialog.projectName.disabled = NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).nameLocked;
 };
 NewProjectDialog.show = function() {
 	if(NewProjectDialog.page1.style.display == "none") NewProjectDialog.backButton.click();
@@ -372,24 +311,6 @@ NewProjectDialog.getCategory = function(name) {
 		NewProjectDialog.tree.appendChild(category.element);
 	}
 	return NewProjectDialog.categories.get(name);
-};
-NewProjectDialog.createOpenFLProject = function(params) {
-	var OpenFLTools = js.Node.require("child_process").spawn("haxelib",["run","openfl","create"].concat(params));
-	var log = "";
-	OpenFLTools.stderr.setEncoding("utf8");
-	OpenFLTools.stderr.on("data",function(data) {
-		var str = data.toString();
-		log += str;
-	});
-	OpenFLTools.on("close",function(code) {
-		console.log("exit code: " + Std.string(code));
-		console.log(log);
-		var path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value);
-		if(NewProjectDialog.list.value != NewProjectDialog.projectName.value) js.Node.require("fs").rename(js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.list.value),path,function(error) {
-			if(error != null) console.log(error);
-		}); else {
-		}
-	});
 };
 NewProjectDialog.generateFolderName = function(path,folder,n,onGenerated) {
 	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + Std.string(n)),function(exists) {
@@ -496,6 +417,11 @@ NewProjectDialog.createPage2 = function() {
 	browseButton.textContent = "Browse...";
 	browseButton.style.width = "20%";
 	browseButton.onclick = function(e) {
+		FileDialog.openFolder(function(path) {
+			NewProjectDialog.projectLocation.value = path;
+			NewProjectDialog.updateHelpBlock();
+			js.Browser.getLocalStorage().setItem("Location",path);
+		});
 	};
 	inputGroup.appendChild(browseButton);
 	NewProjectDialog.page2.appendChild(row);
@@ -546,7 +472,7 @@ NewProjectDialog.createPage2 = function() {
 NewProjectDialog.updateHelpBlock = function() {
 	if(NewProjectDialog.projectLocation.value != "") {
 		var str = "";
-		if((NewProjectDialog.selectedCategory != "Haxe" || NewProjectDialog.createDirectoryForProject.checked == true) && NewProjectDialog.projectName.value != "") str = NewProjectDialog.projectName.value;
+		if((!NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).showCreateDirectoryOption || NewProjectDialog.createDirectoryForProject.checked == true) && NewProjectDialog.projectName.value != "") str = NewProjectDialog.projectName.value;
 		NewProjectDialog.helpBlock.innerText = "Project will be created in: " + js.Node.require("path").join(NewProjectDialog.projectLocation.value,str);
 	} else NewProjectDialog.helpBlock.innerText = "";
 };
@@ -637,6 +563,7 @@ NewProjectDialog.createSubcategory = function(text,category) {
 	category.subcategories.set(text,subcategory);
 };
 NewProjectDialog.updateListItems = function(category) {
+	NewProjectDialog.selectedCategory = category;
 	new $(NewProjectDialog.list).children().remove();
 	NewProjectDialog.setListItems(NewProjectDialog.list,category.getItems());
 	NewProjectDialog.checkSelectedOptions();
@@ -870,7 +797,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.bootstrap.new-project-dialog";
-Main.dependencies = ["boyan.bootstrap.menu"];
+Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog"];
 NewProjectDialog.categories = new haxe.ds.StringMap();
 Main.main();
 })();

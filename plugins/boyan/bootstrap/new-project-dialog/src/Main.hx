@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.bootstrap.new-project-dialog";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.menu"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.menu", "boyan.window.file-dialog"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -27,20 +27,24 @@ class Main
 			NewProjectDialog.getCategory("Haxe").addItem("Java Project");
 			NewProjectDialog.getCategory("Haxe").addItem("C# Project");
 			
-			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project");
-			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension");
+			NewProjectDialog.getCategory("Haxe").select();
 			
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D");
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView");
+			NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
+			
+			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project", false);
+			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension", false);
+			
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView", false, true);
 		}
 		);
 		

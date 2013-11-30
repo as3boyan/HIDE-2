@@ -29,7 +29,7 @@ class NewProjectDialog
 {
 	private static var modal:DivElement;
 	private static var list:SelectElement;
-	private static var selectedCategory:String;
+	private static var selectedCategory:Category;
 	private static var description:ParagraphElement;
 	private static var helpBlock:ParagraphElement;
 	private static var projectName:InputElement;
@@ -156,8 +156,6 @@ class NewProjectDialog
 		
 		Browser.document.body.appendChild(modal);
 		
-		//updateListItems("Haxe");
-		
 		Browser.window.addEventListener("keyup", function (e)
 		{
 			if (e.keyCode == 27)
@@ -216,91 +214,91 @@ class NewProjectDialog
 					
 					var project:Project = new Project();
 					
-					switch (selectedCategory) 
-					{
-						case "Haxe":
-							createDirectoryRecursively(projectLocation.value, [projectName.value, "src"], function ():Void
-							{				
-								var pathToMain:String  = js.Node.path.join(projectLocation.value, projectName.value, "src");
-								pathToMain = js.Node.path.join(pathToMain, "Main.hx");
-								
-								var code:String = "package ;\n\nclass Main\n{\nstatic public function main()\n{\n}\n}";
-								
-								js.Node.fs.writeFile(pathToMain, code, function (error):Void
-								{
-									if (error != null)
-									{
-										trace(error);
-									}
-									
+					//switch (selectedCategory) 
+					//{
+						//case "Haxe":
+							//createDirectoryRecursively(projectLocation.value, [projectName.value, "src"], function ():Void
+							//{				
+								//var pathToMain:String  = js.Node.path.join(projectLocation.value, projectName.value, "src");
+								//pathToMain = js.Node.path.join(pathToMain, "Main.hx");
+								//
+								//var code:String = "package ;\n\nclass Main\n{\nstatic public function main()\n{\n}\n}";
+								//
+								//js.Node.fs.writeFile(pathToMain, code, function (error):Void
+								//{
+									//if (error != null)
+									//{
+										//trace(error);
+									//}
+									//
 									//TabsManager.openFileInNewTab(pathToMain);
-								}
-								);
-							}
-							);
-							
-							project.type = Project.HAXE;
-							
-							switch (list.value) 
-							{
-								case "Flash Project":
-									project.target = "flash";
-								case "JavaScript Project":
-									project.target = "html5";
-								case "Neko Project":
-									project.target = "neko";
-								case "PHP Project":
-									project.target = "php";
-								case "C++ Project":
-									project.target = "cpp";
-								case "Java Project":
-									project.target = "java";
-								case "C# Project":
-									project.target = "csharp";
-								default:
-									
-							}
-							
-							var pathToMain:String  = js.Node.path.join(projectName.value, "src");
-							pathToMain = js.Node.path.join(pathToMain, "Main.hx");
-							
-							project.main = pathToMain;
-						case "OpenFL":
-							switch (list.value) 
-							{
-								case "OpenFL Project":		
-									var projectPackage:String = textfieldsWithCheckboxes.get("Package").value;
-									
-									var str:String = "";
-									
-									if (checkboxes.get("Package").checked && projectPackage != "")
-									{
-										str = projectPackage + ".";
-									}
-									
-									var params:Array<String> = ["project", str + projectName.value];
-									
-									var projectCompany:String = textfieldsWithCheckboxes.get("Company").value;
-									
-									if (checkboxes.get("Company").checked && projectCompany != "")
-									{
-										params.push(projectCompany);
-									}
-									
-									createOpenFLProject(params);
-								case "OpenFL Extension":
-									createOpenFLProject(["extension", projectName.value]);
-								default:
-									
-							}
-							
-							project.type = Project.OPENFL;
-							project.target = "html5";
-							project.main = "project.xml";
-						case "OpenFL/Samples":
-							
-							createOpenFLProject([list.value]);
-								
+								//}
+								//);
+							//}
+							//);
+							//
+							//project.type = Project.HAXE;
+							//
+							//switch (list.value) 
+							//{
+								//case "Flash Project":
+									//project.target = "flash";
+								//case "JavaScript Project":
+									//project.target = "html5";
+								//case "Neko Project":
+									//project.target = "neko";
+								//case "PHP Project":
+									//project.target = "php";
+								//case "C++ Project":
+									//project.target = "cpp";
+								//case "Java Project":
+									//project.target = "java";
+								//case "C# Project":
+									//project.target = "csharp";
+								//default:
+									//
+							//}
+							//
+							//var pathToMain:String  = js.Node.path.join(projectName.value, "src");
+							//pathToMain = js.Node.path.join(pathToMain, "Main.hx");
+							//
+							//project.main = pathToMain;
+						//case "OpenFL":
+							//switch (list.value) 
+							//{
+								//case "OpenFL Project":		
+									//var projectPackage:String = textfieldsWithCheckboxes.get("Package").value;
+									//
+									//var str:String = "";
+									//
+									//if (checkboxes.get("Package").checked && projectPackage != "")
+									//{
+										//str = projectPackage + ".";
+									//}
+									//
+									//var params:Array<String> = ["project", str + projectName.value];
+									//
+									//var projectCompany:String = textfieldsWithCheckboxes.get("Company").value;
+									//
+									//if (checkboxes.get("Company").checked && projectCompany != "")
+									//{
+										//params.push(projectCompany);
+									//}
+									//
+									//createOpenFLProject(params);
+								//case "OpenFL Extension":
+									//createOpenFLProject(["extension", projectName.value]);
+								//default:
+									//
+							//}
+							//
+							//project.type = Project.OPENFL;
+							//project.target = "html5";
+							//project.main = "project.xml";
+						//case "OpenFL/Samples":
+							//
+							//createOpenFLProject([list.value]);
+								//
 							//switch (list.value) 
 							//{
 								//case "ActuateExample":
@@ -328,14 +326,14 @@ class NewProjectDialog
 								//default:
 									//
 							//}
-							
-							project.type = Project.OPENFL;
-							project.target = "html5";
-							project.main = "project.xml";
-						default:
-							
-					}
-					
+							//
+							//project.type = Project.OPENFL;
+							//project.target = "html5";
+							//project.main = "project.xml";
+						//default:
+							//
+					//}
+					//
 					var name:String = projectName.value;
 							
 					if (name != "")
@@ -373,7 +371,7 @@ class NewProjectDialog
 					
 					var path:String;
 					
-					if (createDirectoryForProject.checked)
+					if (!selectedCategory.getItem(list.value).showCreateDirectoryOption || createDirectoryForProject.checked)
 					{
 						path = js.Node.path.join(projectLocation.value, projectName.value, "project.hide");
 					}
@@ -405,55 +403,19 @@ class NewProjectDialog
 		}
 	}
 	
-	private static function createDirectory(path:String, ?onCreated:Dynamic):Void
-	{
-		js.Node.fs.mkdir(path, function (error):Void
-		{								
-			if (error != null)
-			{
-				trace(error);
-			}
-			
-			if (onCreated != null)
-			{
-				onCreated();
-			}
-		}
-		);
-	}
-	
-	private static function createDirectoryRecursively(path:String, folderPath:Array<String>, ?onCreated:Dynamic):Void
-	{
-		var fullPath:String = js.Node.path.join(path, folderPath[0]);
-		
-		createDirectory(fullPath, function ():Void
-		{
-			folderPath.splice(0, 1);
-			
-			if (folderPath.length > 0)
-			{
-				createDirectoryRecursively(fullPath, folderPath, onCreated);
-			}
-			else
-			{
-				onCreated();
-			}
-		}
-		);
-	}
-	
 	private static function generateProjectName(?onGenerated:Dynamic):Void
-	{
-		if (selectedCategory != "OpenFL/Samples")
+	{		
+		if (selectedCategory.getItem(list.value).nameLocked == false)
 		{
 			var value:String = StringTools.replace(list.value, "+", "p");
 			value = StringTools.replace(value, "#", "sharp");
 			value = StringTools.replace(value, " ", "");
-			
-			if (selectedCategory != "OpenFL")
-			{
-				value = StringTools.replace(selectedCategory, "/", "") + value;
-			}
+			//
+			//if (selectedCategory != "OpenFL")
+			//{
+			//	value = StringTools.replace(selectedCategory, "/", "") + value;
+			//}
+			//
 			
 			generateFolderName(projectLocation.value, value, 1, onGenerated);
 		}
@@ -468,14 +430,17 @@ class NewProjectDialog
 			}
 		}
 		
-		if (selectedCategory != "Haxe")
-		{
-			createDirectoryForProject.parentElement.parentElement.style.display = "none";
-		}
-		else
+		
+		if (selectedCategory.getItem(list.value).showCreateDirectoryOption)
 		{
 			createDirectoryForProject.parentElement.parentElement.style.display = "block";
 		}
+		else
+		{
+			createDirectoryForProject.parentElement.parentElement.style.display = "none";
+		}
+		
+		projectName.disabled = selectedCategory.getItem(list.value).nameLocked;
 	}
 	
 	public static function show():Void
@@ -500,8 +465,6 @@ class NewProjectDialog
 			var category:Category = createCategory(name);
 			categories.set(name, category);
 			tree.appendChild(category.element);
-			
-			//tree.appendChild(createCategoryWithSubcategories("OpenFL", ["Samples"]));
 		}
 		
 		return categories.get(name);
@@ -694,14 +657,14 @@ class NewProjectDialog
 		
 		browseButton.onclick = function (e:MouseEvent)
 		{
-			//FileDialog.openFolder(function (path:String):Void
-			//{
-				//projectLocation.value = path;
-				//updateHelpBlock();
-				//
-				//Browser.getLocalStorage().setItem("Location", path);
-			//}
-			//);
+			FileDialog.openFolder(function (path:String):Void
+			{
+				projectLocation.value = path;
+				updateHelpBlock();
+				
+				Browser.getLocalStorage().setItem("Location", path);
+			}
+			);
 		};
 		
 		inputGroup.appendChild(browseButton);
@@ -768,7 +731,8 @@ class NewProjectDialog
 		{
 			var str:String = "";
 			
-			if ((selectedCategory != "Haxe" || createDirectoryForProject.checked == true) && projectName.value != "")
+			//(selectedCategory != "Haxe" ||
+			if ((!selectedCategory.getItem(list.value).showCreateDirectoryOption || createDirectoryForProject.checked == true) && projectName.value != "")
 			{
 				str = projectName.value;
 			}
@@ -887,12 +851,11 @@ class NewProjectDialog
 		
 		var subcategory:Category = createCategory(text);
 		category.subcategories.set(text, subcategory);
-		//return subcategory;
 	}
 	
-	private static function updateListItems(category:Category):Void
+	public static function updateListItems(category:Category):Void
 	{		
-		//selectedCategory = category;
+		selectedCategory = category;
 		
 		new JQuery(list).children().remove();
 		

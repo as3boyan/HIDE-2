@@ -29,9 +29,9 @@ class Category
 		return subcategories.get(name);
 	}
 	
-	public function addItem(name:String):Void
+	public function addItem(name:String, ?showCreateDirectoryOption:Bool = true, ?nameLocked:Bool = false):Void
 	{
-		items.push(new Item(name));
+		items.push(new Item(name, showCreateDirectoryOption, nameLocked));
 	}
 	
 	public function getItems():Array<String>
@@ -44,5 +44,25 @@ class Category
 		}
 		
 		return itemNames;
+	}
+	
+	public function select():Void
+	{
+		NewProjectDialog.updateListItems(this);
+	}
+	
+	public function getItem(name:String):Item
+	{
+		var currentItem:Item = null;
+		
+		for (item in items)
+		{
+			if (name == item.name)
+			{
+				currentItem = item;
+			}
+		}
+		
+		return currentItem;
 	}
 }
