@@ -33,6 +33,8 @@ typedef PluginDependenciesData =
 	
 	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
 	
+	public static var windows:Array<Dynamic> = [];
+	
 	//Loads JS scripts in specified order and calls onLoad function when last item of urls array was loaded
 	public static function loadJS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{		
@@ -119,6 +121,21 @@ typedef PluginDependenciesData =
 		checkRequiredPluginsData();
 	}
 	
+	public static function openPageInNewWindow(name:String, url:String, ?params:Dynamic):Dynamic
+	{
+		var window = js.Node.require("nw.gui").Window.open(js.Node.path.join(getPluginPath(name), url), params);
+		windows.push(window);
+		
+		window.on("close", function (e):Void
+		{
+			windows.remove(window);
+			window.close(true);
+		}
+		);
+		
+		return window;
+	}
+	
 	private static function checkRequiredPluginsData():Void
 	{				
 		if (requestedPluginsData.length > 0)
@@ -159,7 +176,9 @@ typedef PluginDependenciesData =
 					j++;
 				}
 			}
-		
+		}
+		else 
+		{
 			if (Lambda.count(pathToPlugins) == plugins.length)
 			{
 				trace("all plugins loaded");

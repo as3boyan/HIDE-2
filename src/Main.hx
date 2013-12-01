@@ -16,14 +16,26 @@ class Main
 	public static var currentTime:Float;
 	
 	static function main() 
-	{				
-		js.Node.require('nw.gui').Window.get().showDevTools();
+	{
+		var gui:Dynamic = js.Node.require('nw.gui');
+		var window:Dynamic = gui.Window.get();
 		
-		Browser.window.addEventListener("load", function (e)
+		window.showDevTools();
+		
+		Browser.window.addEventListener("load", function (e):Void
 		{			
-			js.Node.require('nw.gui').Window.get().show();
+			window.show();
 			currentTime = Date.now().getTime();
 			loadPlugins();
+		}
+		);
+		
+		window.on("close", function (e):Void
+		{
+			for (window in HIDE.windows)
+			{
+				window.close(true);
+			}
 		}
 		);
 	}

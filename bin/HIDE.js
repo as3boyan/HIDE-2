@@ -87,6 +87,15 @@ HIDE.notifyLoadingComplete = function(name) {
 	HIDE.plugins.push(name);
 	HIDE.checkRequiredPluginsData();
 };
+HIDE.openPageInNewWindow = function(name,url,params) {
+	var $window = js.Node.require("nw.gui").Window.open(js.Node.require("path").join(HIDE.getPluginPath(name),url),params);
+	HIDE.windows.push($window);
+	$window.on("close",function(e) {
+		HxOverrides.remove(HIDE.windows,$window);
+		$window.close(true);
+	});
+	return $window;
+};
 HIDE.checkRequiredPluginsData = function() {
 	if(HIDE.requestedPluginsData.length > 0) {
 		var pluginData;
@@ -104,11 +113,10 @@ HIDE.checkRequiredPluginsData = function() {
 				pluginData.onLoaded();
 			} else j++;
 		}
-		if(Lambda.count(HIDE.pathToPlugins) == HIDE.plugins.length) {
-			console.log("all plugins loaded");
-			var delta = new Date().getTime() - Main.currentTime;
-			console.log("Loading took: " + Std.string(delta) + " ms");
-		}
+	} else if(Lambda.count(HIDE.pathToPlugins) == HIDE.plugins.length) {
+		console.log("all plugins loaded");
+		var delta = new Date().getTime() - Main.currentTime;
+		console.log("Loading took: " + Std.string(delta) + " ms");
 	}
 };
 HIDE.loadJSAsync = function(name,urls,onLoad) {
@@ -145,6 +153,18 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
+};
+HxOverrides.remove = function(a,obj) {
+	var i = 0;
+	var l = a.length;
+	while(i < l) {
+		if(a[i] == obj) {
+			a.splice(i,1);
+			return true;
+		}
+		i++;
+	}
+	return false;
 };
 HxOverrides.iter = function(a) {
 	return { cur : 0, arr : a, hasNext : function() {
@@ -191,11 +211,22 @@ Lambda.count = function(it,pred) {
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	js.Node.require("nw.gui").Window.get().showDevTools();
+	var gui = js.Node.require("nw.gui");
+	var $window = gui.Window.get();
+	$window.showDevTools();
 	window.addEventListener("load",function(e) {
-		js.Node.require("nw.gui").Window.get().show();
+		$window.show();
 		Main.currentTime = new Date().getTime();
 		Main.loadPlugins();
+	});
+	$window.on("close",function(e) {
+		var _g = 0;
+		var _g1 = HIDE.windows;
+		while(_g < _g1.length) {
+			var window1 = _g1[_g];
+			++_g;
+			window1.close(true);
+		}
 	});
 };
 Main.loadPlugins = function() {
@@ -236,7 +267,6 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 							if(error1 != null) console.log(error1); else {
 								var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 								if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,pluginName)) {
-									console.log("    - pushd " + StringTools.replace(js.Node.require("path").join("plugins",pathToPlugin),js.Node.require("path").sep,"/") + " && haxe plugin.hxml && popd &");
 									onLoad(path,pathToPlugin);
 									return;
 								}
@@ -378,6 +408,12 @@ js.Node.__name__ = true;
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
+if(Array.prototype.indexOf) HxOverrides.remove = function(a,o) {
+	var i = a.indexOf(o);
+	if(i == -1) return false;
+	a.splice(i,1);
+	return true;
+};
 String.__name__ = true;
 Array.__name__ = true;
 Date.__name__ = ["Date"];
@@ -412,6 +448,7 @@ HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
 HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane"];
 HIDE.requestedPluginsData = new Array();
+HIDE.windows = [];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 
