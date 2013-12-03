@@ -25,6 +25,7 @@ Presentation.main = function() {
 		var _this = window.document;
 		start = _this.createElement("div");
 		start.id = "start";
+		start.className = "step";
 		impress.appendChild(start);
 		var p;
 		var _this = window.document;
@@ -44,6 +45,7 @@ Presentation.main = function() {
 		slide2.id = "slide2";
 		slide2.setAttribute("data-x","-1200");
 		slide2.setAttribute("data-y","0");
+		slide2.className = "step";
 		impress.appendChild(slide2);
 		var _this = window.document;
 		p = _this.createElement("p");

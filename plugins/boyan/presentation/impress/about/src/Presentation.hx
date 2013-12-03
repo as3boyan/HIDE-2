@@ -19,6 +19,7 @@ class Presentation
 		
 			var start:DivElement = Browser.document.createDivElement();
 			start.id = "start";
+			start.className = "step";
 			impress.appendChild(start);
 			
 			var p:ParagraphElement = Browser.document.createParagraphElement();
@@ -36,6 +37,7 @@ class Presentation
 			slide2.id = "slide2";
 			slide2.setAttribute("data-x", "-1200");
 			slide2.setAttribute("data-y", "0");
+			slide2.className = "step";
 			impress.appendChild(slide2);
 			
 			p = Browser.document.createParagraphElement();
