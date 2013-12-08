@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/HIDE/plugins/boyan/presentation/impress/about/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAyB,AAAM,AAAkB,SAAS;CAG1D,AAA2B;;aATI;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAE1D;CAAsB,AAAoB,AAAiB;CAA8B,AAAM,AAAkB,SAAS;;;CAK3H,AAA2B;;aAbI;oBACe,nBAAC;;;;"
 }

@@ -1,0 +1,11 @@
+what is node-webkit
+
+I would say node-webkit is a decent piece of Chromium browser(without any tabs support, that can show pages in multiple windows)
+
+With Node.js modules support
+
+And it also provides native UI:
+- Windows
+- Menus
+
+OS shell commands

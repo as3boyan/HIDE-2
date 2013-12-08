@@ -28,7 +28,7 @@ interface MenuItem
 {	
 	var li:LIElement;
 	
-	public function new(_text:String, _onClickFunction:Void->Void, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool)
+	public function new(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool)
 	{		
 		var span:SpanElement = null;
 		
@@ -140,7 +140,7 @@ interface MenuItem
 		li.appendChild(ul);
 	}
 	
-	public function addMenuItem(_text:String, _onClickFunction:Void->Void, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void
+	public function addMenuItem(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void
 	{
 		ul.appendChild(new MenuButtonItem(_text, _onClickFunction, _hotkey, _keyCode, _ctrl, _shift, _alt).getElement());
 	}

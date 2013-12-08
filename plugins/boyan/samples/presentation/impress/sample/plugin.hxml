@@ -1,0 +1,14 @@
+-cp src
+-cp ../../../../../../externs/plugins/hide
+-cp ../../../../../../externs/plugins/boyan/bootstrap/menu
+-main Main
+-js bin/Main.js
+-dce full
+-debug
+--next
+-cp src
+-cp ../../../../../../externs/nodejs-std/src
+-main Presentation
+-js bin/Presentation.js
+-dce full
+-debug

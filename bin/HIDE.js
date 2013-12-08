@@ -130,14 +130,6 @@ HIDE.loadJSAsync = function(name,urls,onLoad) {
 	};
 	window.document.body.appendChild(script);
 };
-HIDE.registerHotkey = function(hotkey,functionName) {
-};
-HIDE.registerHotkeyByKeyCode = function(code,functionName) {
-	window.addEventListener("keyup",function(e) {
-		if(e.keyCode == code) {
-		}
-	});
-};
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
@@ -264,7 +256,8 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 					pathToFolder = js.Node.require("path").join(path,pathToPlugin,item[0]);
 					js.Node.require("fs").stat(pathToFolder,(function(item) {
 						return function(error1,stat) {
-							if(error1 != null) console.log(error1); else {
+							if(error1 != null) {
+							} else {
 								var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 								if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,pluginName)) {
 									onLoad(path,pathToPlugin);

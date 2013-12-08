@@ -50,7 +50,7 @@ class Main
 			
 			var relativePathToPlugin:String = js.Node.path.join(path, pathToPlugin);
 			
-			//Store path to plugin, so we can load scripts by specifying path relative to plugin's directory
+			//Store path to plugin, so we can load JS and CSS scripts by specifying path relative to plugin's directory
 			HIDE.pathToPlugins.set(pluginName, relativePathToPlugin);
 			
 			var absolutePathToPlugin:String = js.Node.require("path").resolve(relativePathToPlugin);
@@ -105,7 +105,7 @@ class Main
 						{
 							if (error != null)
 							{
-								trace(error);
+								//trace(error);
 							}
 							else 
 							{						
