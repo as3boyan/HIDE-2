@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/HIDE/plugins/boyan/codemirror/editor/src/Main.hx"],
+"sources":["/home/as3boyan/HIDE/plugins/boyan/codemirror/editor/src/Main.hx"],
 "names":[],
 "mappings":";;YAec,DAEb;CAAuC,AAAM,AAAc,UAC3D;EACC,DAAa,AAAM,AAAC,AAAuC;EAE3D,DAAY,AAAM,AAAC,AAAsC,UACzD;GACgC;;;GAC/B,AAAc;GAEd,FAAqB,AAAe;GAEf,FAAwB,AAAU,aACtB,HAGH;GAS9B,FAA2B;;;;aA9BE;oBACe,nBAAC,AAAuB;;;;"
 }
