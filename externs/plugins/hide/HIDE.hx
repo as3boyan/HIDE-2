@@ -15,4 +15,5 @@ extern class HIDE
 	public static function waitForDependentPluginsToBeLoaded(name:String, plugins:Array<String>, onLoaded:Void->Void, ?callOnLoadWhenAtLeastOnePluginLoaded:Bool = false):Void;
 	public static function notifyLoadingComplete(name:String):Void;
 	public static function openPageInNewWindow(name:String, url:String, ?params:Dynamic):Void;
+	public static function compilePlugins(?onComplete:Dynamic, ?onFailed:Dynamic):Void;
 }

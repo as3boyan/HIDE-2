@@ -30,6 +30,8 @@ typedef Hotkey =
 					hotkey.onKeyDown();
 				}
 			}
+
+			trace(e.keyCode);
 		}
 		);
 	}

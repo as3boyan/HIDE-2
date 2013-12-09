@@ -26,6 +26,7 @@ import js.html.DivElement;
 		div.appendChild(button);
 		div.appendChild(Browser.document.createTextNode(text));
 		
+		Browser.document.body.appendChild(div);
 		//new JQuery("#notify_position").html(div.outerHTML);
 	}
 }

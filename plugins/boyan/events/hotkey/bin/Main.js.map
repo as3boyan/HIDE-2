@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["/home/as3boyan/HIDE/plugins/boyan/events/hotkey/src/Hotkeys.hx","/home/as3boyan/HIDE/plugins/boyan/events/hotkey/src/Main.hx"],
 "names":[],
-"mappings":";;kBAqBc,PAEb;CAAgC,AAAW,WAE1C;;EAAe;EAAf,CAAe,FACf;GADA,AAAe,FAAf;;GAEC,DAAI,EAAkB,AAAa,AAAe,AAAa,AAAgB,AAAc,AAAc,HAE1G;;;;oBAOU,uBAEb;CAAa,SAAS,HAAc,CAAY,FAAW,MAAe;;;YC1B7D,DACd;CACC;CAGA,AAA2B;;kBDEe;aCXX;;;;"
+"mappings":";;kBAqBc,PAEb;CAAgC,AAAW,WAC3C;EACC;EAAe;EAAf,CAAe,FACf;GADA,AAAe,FAAf;;GAEC,DAAI,EAAkB,AAAa,AAAe,AAAa,AAAgB,AAAc,AAAc,HAE1G;;EAIF,UAAM;;;oBAKM,uBAEb;CAAa,SAAS,HAAc,CAAY,FAAW,MAAe;;;YC5B7D,DACd;CACC;CAGA,AAA2B;;kBDEe;aCXX;;;;"
 }

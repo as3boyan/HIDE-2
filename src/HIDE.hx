@@ -135,6 +135,32 @@ typedef PluginDependenciesData =
 		
 		return window;
 	}
+
+	public static function compilePlugins(?onComplete:Dynamic, ?onFailed:Dynamic):Void
+	{
+		var pluginCount:Int = Lambda.count(HIDE.pathToPlugins);
+		var compiledPluginCount:Int = 0;
+
+		var relativePathToPlugin:String;
+		var absolutePathToPlugin:String;
+
+		for (name in HIDE.pathToPlugins.keys())
+		{
+			relativePathToPlugin = HIDE.pathToPlugins.get(name);
+			absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
+
+			Main.compilePlugin(name, absolutePathToPlugin, function ():Void
+			{
+				compiledPluginCount++;
+
+				if (compiledPluginCount == pluginCount)
+				{
+					onComplete();
+				}
+			}
+			, onFailed);
+		}
+	}
 	
 	private static function checkRequiredPluginsData():Void
 	{				

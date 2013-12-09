@@ -97,6 +97,22 @@ HIDE.openPageInNewWindow = function(name,url,params) {
 	});
 	return $window;
 };
+HIDE.compilePlugins = function(onComplete) {
+	var pluginCount = Lambda.count(HIDE.pathToPlugins);
+	var compiledPluginCount = 0;
+	var relativePathToPlugin;
+	var absolutePathToPlugin;
+	var $it0 = HIDE.pathToPlugins.keys();
+	while( $it0.hasNext() ) {
+		var name = $it0.next();
+		relativePathToPlugin = HIDE.pathToPlugins.get(name);
+		absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
+		Main.compilePlugin(name,absolutePathToPlugin,function() {
+			compiledPluginCount++;
+			if(compiledPluginCount == pluginCount) onComplete();
+		});
+	}
+};
 HIDE.checkRequiredPluginsData = function() {
 	if(HIDE.requestedPluginsData.length > 0) {
 		var pluginData;

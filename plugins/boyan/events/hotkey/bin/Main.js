@@ -9,6 +9,7 @@ Hotkeys.prepare = function() {
 			++_g;
 			if(hotkey.keyCode == e.keyCode && hotkey.ctrl == e.ctrlKey && hotkey.shift == e.shiftKey && hotkey.alt == e.altKey) hotkey.onKeyDown();
 		}
+		console.log(e.keyCode);
 	});
 };
 Hotkeys.addHotkey = function(keyCode,ctrl,shift,alt,onKeyDown) {

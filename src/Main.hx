@@ -150,11 +150,14 @@ class Main
 		);
 	}
 	
-	private static function compilePlugin(name:String, pathToPlugin:String, onSuccess:Dynamic):Void
+	public static function compilePlugin(name:String, pathToPlugin:String, onSuccess:Dynamic, ?onFailed:String->Void):Void
 	{
 		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
 						
+		var stderrData:String = "";
+
 		haxeCompilerProcess.stderr.on('data', function (data:String):Void {
+			stderrData += data;
 			trace(pathToPlugin + ' stderr: ' + data);
 		});
 		
@@ -167,6 +170,11 @@ class Main
 			else 
 			{
 				trace("can't load " + name + " plugin, compilation failed");
+
+				if (onFailed != null)
+				{
+					onFailed(stderrData)
+				}
 			}
 		}
 		);
