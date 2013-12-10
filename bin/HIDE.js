@@ -97,7 +97,7 @@ HIDE.openPageInNewWindow = function(name,url,params) {
 	});
 	return $window;
 };
-HIDE.compilePlugins = function(onComplete) {
+HIDE.compilePlugins = function(onComplete,onFailed) {
 	var pluginCount = Lambda.count(HIDE.pathToPlugins);
 	var compiledPluginCount = 0;
 	var relativePathToPlugin;
@@ -110,7 +110,7 @@ HIDE.compilePlugins = function(onComplete) {
 		Main.compilePlugin(name,absolutePathToPlugin,function() {
 			compiledPluginCount++;
 			if(compiledPluginCount == pluginCount) onComplete();
-		});
+		},onFailed);
 	}
 };
 HIDE.checkRequiredPluginsData = function() {
@@ -238,14 +238,15 @@ Main.main = function() {
 		}
 	});
 };
-Main.loadPlugins = function() {
+Main.loadPlugins = function(compile) {
+	if(compile == null) compile = true;
 	var pathToPlugins = js.Node.require("path").join("..","plugins");
 	Main.readDir(pathToPlugins,"",function(path,pathToPlugin) {
 		var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 		var relativePathToPlugin = js.Node.require("path").join(path,pathToPlugin);
 		HIDE.pathToPlugins.set(pluginName,relativePathToPlugin);
 		var absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
-		Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin);
+		if(compile) Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin); else Main.loadPlugin(absolutePathToPlugin);
 	});
 	haxe.Timer.delay(function() {
 		if(HIDE.requestedPluginsData.length > 0) {
@@ -294,13 +295,18 @@ Main.loadPlugin = function(pathToPlugin) {
 		if(exists) HIDE.loadJS(null,[pathToMain]); else console.log(pathToMain + " is not found/nPlease compile " + pathToPlugin + " plugin");
 	});
 };
-Main.compilePlugin = function(name,pathToPlugin,onSuccess) {
+Main.compilePlugin = function(name,pathToPlugin,onSuccess,onFailed) {
 	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
+	var stderrData = "";
 	haxeCompilerProcess.stderr.on("data",function(data) {
+		stderrData += data;
 		console.log(pathToPlugin + " stderr: " + data);
 	});
 	haxeCompilerProcess.on("close",function(code) {
-		if(code == 0) onSuccess(pathToPlugin); else console.log("can't load " + name + " plugin, compilation failed");
+		if(code == 0) onSuccess(pathToPlugin); else {
+			console.log("can't load " + name + " plugin, compilation failed");
+			if(onFailed != null) onFailed(stderrData);
+		}
 	});
 };
 var Std = function() { };

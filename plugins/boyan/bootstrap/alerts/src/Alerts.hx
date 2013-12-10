@@ -1,5 +1,5 @@
-package ui;
-import jQuery.JQuery;
+package ;
+//import jQuery.JQuery;
 import js.Browser;
 import js.html.ButtonElement;
 import js.html.DivElement;

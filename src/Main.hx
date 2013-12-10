@@ -40,7 +40,7 @@ class Main
 		);
 	}
 	
-	private static function loadPlugins():Void
+	public static function loadPlugins(?compile:Bool = true):Void
 	{
 		var pathToPlugins:String = js.Node.path.join("..", "plugins");
 			
@@ -55,7 +55,7 @@ class Main
 			
 			var absolutePathToPlugin:String = js.Node.require("path").resolve(relativePathToPlugin);
 			
-			if (true)
+			if (compile)
 			{
 				//Compile each plugin and load
 				compilePlugin(pluginName, absolutePathToPlugin, loadPlugin);	
@@ -84,7 +84,7 @@ class Main
 	}
 	
 	private static function readDir(path:String, pathToPlugin:String, onLoad:Dynamic):Void
-	{		
+	{
 		var pathToFolder:String;
 		
 		js.Node.fs.readdir(js.Node.path.join(path, pathToPlugin), function (error:js.Node.NodeErr, folders:Array<String>):Void
@@ -173,7 +173,7 @@ class Main
 
 				if (onFailed != null)
 				{
-					onFailed(stderrData)
+					onFailed(stderrData);
 				}
 			}
 		}
