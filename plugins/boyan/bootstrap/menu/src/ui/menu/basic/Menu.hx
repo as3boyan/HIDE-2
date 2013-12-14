@@ -112,6 +112,7 @@ interface MenuItem
 {
 	var li:LIElement;
 	var ul:UListElement;
+	var position:Int;
 	
 	public function new(_text:String, ?_headerText:String) 
 	{
@@ -153,7 +154,31 @@ interface MenuItem
 	public function addToDocument():Void
 	{	
 		var div:Element = cast(Browser.document.getElementById("position-navbar"), Element);
-		div.appendChild(li);
+
+		if (position != null)
+		{
+			for (i in 0...div.childNodes.length)
+			{
+				// if (position > i)
+				// {
+
+				// }
+			}
+		}
+		else
+		{
+			div.appendChild(li);
+		}
+	}
+
+	public function removeFromDocument():Void
+	{
+		li.remove();
+	}
+
+	public function setPosition(_position:Int):Void
+	{
+		position = _position;
 	}
 	
 	public function setDisabled(menuItemNames:Array<String>):Void

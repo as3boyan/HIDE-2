@@ -1,0 +1,9 @@
+-cp src
+-cp ../../../../externs/plugins/hide
+-cp ../../../../externs/nodejs-std/src
+-cp ../../../../externs/plugins/boyan/bootstrap/menu
+-cp ../../../../externs/plugins/boyan/bootstrap/alerts
+-main Main
+-js bin/Main.js
+-dce full
+-debug

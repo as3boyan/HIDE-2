@@ -1,0 +1,30 @@
+#+TITLE: Haxe externs for three.js
+* About
+Haxe externs for [[https://github.com/mrdoob/three.js][three.js]] (release 57).
+
+These externs are provided to you by *Laurent Bedubourg* and *John Croisant* (@jacius) ( who did 99.9% of the work for the .57 update :)
+
+* Install
+: haxelib install three.js
+* Dev install
+: git clone git@github.com:labe-me/haxe-three.js.git
+: zip -r haxe-three.js.zip haxe-three.js
+: haxelib test haxe-three.js.zip
+: haxelib dev three.js `pwd`/haxe-three.js
+* Usage
+
+Regular usage will embed three.js minified javascript:
+
+: haxe -lib three.js ...
+
+Debug compilation will embed non-minified javascript (easier to debug):
+
+: haxe -lib three.js -debug ...
+
+To avoid embedding javascript (don't forget to include three.js javascript manually inside your HTML):
+
+: haxe -lib three.js -D noEmbedJS ...
+
+Take a look at the [[https://github.com/labe-me/haxe-three.js/tree/master/examples][examples]] for some code ported from original three.js examples.
+
+*Important:* Due to a small bug in haxe, you may have to import js.three.Three or add it to your command line if you do not reference this class from your code. We are working on the problem.

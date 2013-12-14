@@ -303,7 +303,19 @@ ui.menu.basic.Menu.prototype = {
 	,addToDocument: function() {
 		var div;
 		div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
-		div.appendChild(this.li);
+		if(this.position != null) {
+			var _g1 = 0;
+			var _g = div.childNodes.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+			}
+		} else div.appendChild(this.li);
+	}
+	,removeFromDocument: function() {
+		this.li.remove();
+	}
+	,setPosition: function(_position) {
+		this.position = _position;
 	}
 	,setDisabled: function(menuItemNames) {
 		var childNodes = this.ul.childNodes;

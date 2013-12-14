@@ -674,7 +674,7 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
-HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane"];
+HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane","boyan.bootstrap.themes.topcoat"];
 HIDE.requestedPluginsData = new Array();
 HIDE.windows = [];
 js.NodeC.UTF8 = "utf8";
