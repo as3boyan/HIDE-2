@@ -75,7 +75,7 @@ HIDE.traceScriptLoadingInfo = function(name,url) {
 };
 HIDE.getPluginPath = function(name) {
 	var pathToPlugin = HIDE.pathToPlugins.get(name);
-	if(pathToPlugin == null) console.log("HIDE can't find path for plugin: " + name + "\nPlease check that folder structure of plugin corresponds to it's 'name'");
+	if(pathToPlugin == null) console.log("HIDE can't find path for plugin: " + name + "\nPlease check folder structure of plugin, make sure that it corresponds to it's 'name'");
 	return pathToPlugin;
 };
 HIDE.waitForDependentPluginsToBeLoaded = function(name,plugins,onLoaded,callOnLoadWhenAtLeastOnePluginLoaded) {
@@ -134,6 +134,14 @@ HIDE.checkRequiredPluginsData = function() {
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
 		console.log("Loading took: " + Std.string(delta) + " ms");
+		js.Node.require("fs").readFile("../.travis.yml.template","utf8",function(error,data) {
+			if(data != null) {
+				var updatedData = StringTools.replace(data,"::plugins::",Main.pluginsTestingData);
+				js.Node.require("fs").writeFile("../.travis.yml",updatedData,"utf8",function(error1) {
+					console.log(".travis.yml was updated according to active plugins list");
+				});
+			} else console.log(error);
+		});
 	}
 };
 HIDE.loadJSAsync = function(name,urls,onLoad) {
@@ -278,6 +286,7 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 							} else {
 								var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 								if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,pluginName)) {
+									Main.pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.require("path").join("plugins",pathToPlugin),js.Node.require("path").sep,"/") + "\n    - haxe plugin.hxml\n    - popd";
 									onLoad(path,pathToPlugin);
 									return;
 								}
@@ -677,6 +686,7 @@ HIDE.pathToPlugins = new haxe.ds.StringMap();
 HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane","boyan.bootstrap.themes.topcoat"];
 HIDE.requestedPluginsData = new Array();
 HIDE.windows = [];
+Main.pluginsTestingData = "";
 js.NodeC.UTF8 = "utf8";
 js.NodeC.ASCII = "ascii";
 js.NodeC.BINARY = "binary";

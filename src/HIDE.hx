@@ -102,7 +102,7 @@ typedef PluginDependenciesData =
 				
 		if (pathToPlugin == null)
 		{
-			trace("HIDE can't find path for plugin: " + name + "\nPlease check that folder structure of plugin corresponds to it's 'name'");
+			trace("HIDE can't find path for plugin: " + name + "\nPlease check folder structure of plugin, make sure that it corresponds to it's 'name'");
 		}
 		
 		return pathToPlugin;
@@ -212,6 +212,26 @@ typedef PluginDependenciesData =
 				var delta:Float = Date.now().getTime() - Main.currentTime;
 				
 				trace("Loading took: " + Std.string(delta) + " ms");
+
+				js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
+				{
+					if (data != null)
+					{
+						var updatedData:String = StringTools.replace(data,"::plugins::", Main.pluginsTestingData);
+
+						js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
+						{
+							trace(".travis.yml was updated according to active plugins list");
+						}
+						);
+						
+					}
+					else
+					{
+						trace(error);
+					}
+				}
+				);
 			}
 		}
 	}

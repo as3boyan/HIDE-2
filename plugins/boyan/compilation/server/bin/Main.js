@@ -11,9 +11,13 @@ HaxeServer.start = function() {
 		var str = data.toString();
 		var lines = str.split("\n");
 		console.log("ERROR: " + lines.join(""));
+		HaxeServer.processStarted = false;
 	});
 	haxeCompletionServer.on("close",function(code) {
 		console.log("haxeCompletionServer process exit code " + code);
+	});
+	js.Node.require("nw.gui").Window.get().on("close",function(e) {
+		if(HaxeServer.processStarted) haxeCompletionServer.kill();
 	});
 };
 var HxOverrides = function() { };
@@ -72,6 +76,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+HaxeServer.processStarted = true;
 Main.$name = "boyan.compilation.server";
 Main.main();
 })();

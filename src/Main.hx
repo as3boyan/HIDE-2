@@ -14,6 +14,7 @@ import js.Lib;
 class Main 
 {
 	public static var currentTime:Float;
+	public static var pluginsTestingData:String = "";
 	
 	static function main() 
 	{
@@ -118,7 +119,7 @@ class Main
 								//&& !Lambda.has(HIDE.conflictingPlugins, pluginName)
 								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, pluginName))
 								{
-									//trace("    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + " && haxe plugin.hxml && popd &");
+									pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + "\n    - haxe plugin.hxml\n    - popd";
 									onLoad(path, pathToPlugin);
 									return;
 								}
