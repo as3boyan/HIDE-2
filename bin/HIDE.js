@@ -46,25 +46,24 @@ HIDE.loadJS = function(name,urls,onLoad) {
 	HIDE.loadJSAsync(name,urls,onLoad);
 };
 HIDE.loadCSS = function(name,urls,onLoad) {
-	var url;
 	var _g1 = 0;
 	var _g = urls.length;
 	while(_g1 < _g) {
 		var i = [_g1++];
-		url = urls[i[0]];
-		if(name != null) url = js.Node.require("path").join(HIDE.getPluginPath(name),url);
+		var url = [urls[i[0]]];
+		if(name != null) url[0] = js.Node.require("path").join(HIDE.getPluginPath(name),url[0]);
 		var link;
 		var _this = window.document;
 		link = _this.createElement("link");
-		link.href = url;
+		link.href = url[0];
 		link.type = "text/css";
 		link.rel = "stylesheet";
-		link.onload = (function(i) {
+		link.onload = (function(url,i) {
 			return function(e) {
-				HIDE.traceScriptLoadingInfo(name,url);
+				HIDE.traceScriptLoadingInfo(name,url[0]);
 				if(i[0] == urls.length - 1 && onLoad != null) onLoad();
 			};
-		})(i);
+		})(url,i);
 		window.document.head.appendChild(link);
 	}
 };

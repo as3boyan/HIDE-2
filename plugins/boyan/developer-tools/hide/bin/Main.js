@@ -17,7 +17,7 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Reload IDE",function() {
+		BootstrapMenu.getMenu("Developer Tools",110).addMenuItem("Reload IDE",function() {
 			js.Node.require("nw.gui").Window.get().reloadIgnoringCache();
 		},"Ctrl-Shift-R",82,true,true,false);
 		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE",function() {

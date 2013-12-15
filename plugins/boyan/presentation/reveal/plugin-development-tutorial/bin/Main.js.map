@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["/home/as3boyan/HIDE/plugins/boyan/presentation/reveal/plugin-development-tutorial/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAE1D;CAAsB,AAAoB,AAAmC;CAA8B,AAAM,AAAkB,SAAS;;;CAK7I,AAA2B;;aAbI;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAE1D;CAAsB,AAAQ,AAAiB,AAAmC;CAA8B,AAAM,AAAkB,SAAS;;;CAKlJ,AAA2B;;aAbI;oBACe,nBAAC;;;;"
 }

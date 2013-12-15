@@ -16,6 +16,7 @@ before_script:
     - cd neko
     - make clean all
     - sudo make install
+    - haxelib setup /usr/lib/haxe/lib
 
     - git clone git://github.com/as3boyan/HIDE
     - haxelib install jQueryExtern

@@ -52,11 +52,9 @@ typedef PluginDependenciesData =
 	//Asynchronously loads multiple CSS scripts
 	public static function loadCSS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{
-		var url:String;
-		
 		for (i in 0...urls.length)
 		{			
-			url = urls[i];
+			var url:String = urls[i];
 			
 			if (name != null)
 			{

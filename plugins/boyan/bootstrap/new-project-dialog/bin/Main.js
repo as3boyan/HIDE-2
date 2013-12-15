@@ -81,7 +81,7 @@ Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
-		BootstrapMenu.getMenu("File").addMenuItem("New Project...",NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
+		BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
 		NewProjectDialog.getCategory("Haxe").addItem("Flash Project");
 		NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project");
 		NewProjectDialog.getCategory("Haxe").addItem("Neko Project");

@@ -8,7 +8,7 @@ package ;
 extern class BootstrapMenu
 {
 	public static function createMenuBar():Void;
-	public static function getMenu(name:String):Menu;
+	public static function getMenu(name:String, ?position:Int):Menu;
 }
 
 @:native("ui.menu.basic.Menu") extern class Menu
@@ -16,6 +16,7 @@ extern class BootstrapMenu
 	public function addMenuItem(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void;
 	public function addSeparator():Void;
 	public function addToDocument():Void;
+	public function removeFromDocument():Void;
 	public function setDisabled(menuItemNames:Array<String>):Void;
 	public function setMenuEnabled(enabled:Bool):Void;
 }

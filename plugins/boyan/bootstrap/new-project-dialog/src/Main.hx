@@ -17,7 +17,7 @@ class Main
 		{
 			NewProjectDialog.create();
 			
-			BootstrapMenu.getMenu("File").addMenuItem("New Project...",	NewProjectDialog.show, "Ctrl-Shift-N", "N".code, true, true, false);
+			BootstrapMenu.getMenu("File", 1).addMenuItem("New Project...",	NewProjectDialog.show, "Ctrl-Shift-N", "N".code, true, true, false);
 			
 			NewProjectDialog.getCategory("Haxe").addItem("Flash Project");
 			NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project");

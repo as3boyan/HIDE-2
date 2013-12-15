@@ -19,6 +19,12 @@ haxe.ds.StringMap.prototype = {
 	,exists: function(key) {
 		return this.h.hasOwnProperty("$" + key);
 	}
+	,remove: function(key) {
+		key = "$" + key;
+		if(!this.h.hasOwnProperty(key)) return false;
+		delete(this.h[key]);
+		return true;
+	}
 	,__class__: haxe.ds.StringMap
 };
 var BootstrapMenu = $hx_exports.BootstrapMenu = function() { };
@@ -54,13 +60,51 @@ BootstrapMenu.createMenuBar = function() {
 	navbar.appendChild(div);
 	window.document.body.appendChild(navbar);
 };
-BootstrapMenu.getMenu = function(name) {
+BootstrapMenu.getMenu = function(name,position) {
+	var menu;
 	if(!BootstrapMenu.menus.exists(name)) {
-		var menu = new ui.menu.basic.Menu(name);
-		menu.addToDocument();
+		menu = new ui.menu.basic.Menu(name);
+		menu.setPosition(position);
+		BootstrapMenu.addMenuToDocument(menu);
 		BootstrapMenu.menus.set(name,menu);
+	} else {
+		menu = BootstrapMenu.menus.get(name);
+		if(position != null && menu.position != position) {
+			BootstrapMenu.menus.get(name).removeFromDocument();
+			BootstrapMenu.menus.remove(name);
+			menu.setPosition(position);
+			BootstrapMenu.addMenuToDocument(menu);
+			BootstrapMenu.menus.set(name,menu);
+		}
 	}
-	return BootstrapMenu.menus.get(name);
+	return menu;
+};
+BootstrapMenu.addMenuToDocument = function(menu) {
+	var div;
+	div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
+	if(menu.position != null && div.childNodes.length > 0) {
+		var currentMenu;
+		var added = false;
+		var _g1 = 0;
+		var _g = BootstrapMenu.menuArray.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			currentMenu = BootstrapMenu.menuArray[i];
+			if(currentMenu != menu && currentMenu.position == null || menu.position < currentMenu.position) {
+				div.insertBefore(menu.getElement(),currentMenu.getElement());
+				BootstrapMenu.menuArray.splice(i,0,menu);
+				added = true;
+				break;
+			}
+		}
+		if(!added) {
+			menu.addToDocument();
+			BootstrapMenu.menuArray.push(menu);
+		}
+	} else {
+		menu.addToDocument();
+		BootstrapMenu.menuArray.push(menu);
+	}
 };
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
@@ -303,13 +347,7 @@ ui.menu.basic.Menu.prototype = {
 	,addToDocument: function() {
 		var div;
 		div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
-		if(this.position != null) {
-			var _g1 = 0;
-			var _g = div.childNodes.length;
-			while(_g1 < _g) {
-				var i = _g1++;
-			}
-		} else div.appendChild(this.li);
+		div.appendChild(this.li);
 	}
 	,removeFromDocument: function() {
 		this.li.remove();
@@ -345,6 +383,9 @@ ui.menu.basic.Menu.prototype = {
 			}
 		}
 	}
+	,getElement: function() {
+		return this.li;
+	}
 	,__class__: ui.menu.basic.Menu
 };
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
@@ -363,6 +404,7 @@ Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
 BootstrapMenu.menus = new haxe.ds.StringMap();
+BootstrapMenu.menuArray = new Array();
 Main.$name = "boyan.bootstrap.menu";
 Main.dependencies = ["boyan.bootstrap.script","boyan.events.hotkey"];
 Main.main();

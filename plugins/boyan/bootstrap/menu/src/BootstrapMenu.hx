@@ -5,6 +5,7 @@ import js.html.AnchorElement;
 import js.html.DivElement;
 import js.html.UListElement;
 import ui.menu.basic.Menu;
+import js.html.Element;
 
 /**
  * ...
@@ -17,7 +18,8 @@ import ui.menu.basic.Menu;
 //http://haxe.org/manual/tips_and_tricks
 @:keepSub @:expose class BootstrapMenu
 {
-	private static var menus:StringMap<Dynamic> = new StringMap();
+	private static var menus:StringMap<Menu> = new StringMap();
+	private static var menuArray:Array<Menu> = new Array();
 	
 	public static function createMenuBar():Void
 	{
@@ -67,15 +69,73 @@ import ui.menu.basic.Menu;
 		Browser.document.body.appendChild(navbar);
 	}
 	
-	public static function getMenu(name:String):Menu
+	public static function getMenu(name:String, ?position:Int):Menu
 	{
+		var menu:Menu;
+
 		if (!menus.exists(name))
 		{
-			var menu:Menu = new Menu(name);
-			menu.addToDocument();
-			menus.set(name, menu);
+			menu = new Menu(name);
+
+			menu.setPosition(position);
+
+			addMenuToDocument(menu);
+
+			menus.set(name, menu);		
+		}
+		else
+		{
+			menu = menus.get(name);
+
+			if (position != null && menu.position != position)	
+			{
+				menus.get(name).removeFromDocument();
+				menus.remove(name);
+
+				menu.setPosition(position);
+
+				addMenuToDocument(menu);
+
+				menus.set(name, menu);
+			}
 		}
 		
-		return menus.get(name);
+		return menu;
+	}
+
+	public static function addMenuToDocument(menu:Menu):Void
+	{
+		var div:Element = cast(Browser.document.getElementById("position-navbar"), Element);
+
+		if (menu.position != null && div.childNodes.length > 0)
+		{
+			var currentMenu:Menu;
+
+			var added:Bool = false;
+
+			for (i in 0...menuArray.length)
+			{
+				currentMenu = menuArray[i];
+
+				if (currentMenu != menu && currentMenu.position == null || menu.position < currentMenu.position)
+				{
+					div.insertBefore(menu.getElement(), currentMenu.getElement());
+					menuArray.insert(i, menu);
+					added = true;
+					break;
+				}
+			}
+
+			if (!added)
+			{
+				menu.addToDocument();
+				menuArray.push(menu);
+			}
+		}
+		else
+		{
+			menu.addToDocument();
+			menuArray.push(menu);
+		}
 	}
 }
