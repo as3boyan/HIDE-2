@@ -14,7 +14,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			BootstrapMenu.getMenu("Developer Tools", 110).addMenuItem("Reload IDE", function ():Void
+			BootstrapMenu.getMenu("Developer Tools", 100).addMenuItem("Reload IDE", function ():Void
 			{
 				js.Node.require('nw.gui').Window.get().reloadIgnoringCache();
 			}

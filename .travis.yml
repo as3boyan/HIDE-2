@@ -42,13 +42,13 @@ script:
     - pushd plugins/boyan/bootstrap/tab-manager
     - haxe plugin.hxml
     - popd
-    - pushd plugins/boyan/codemirror/editor
-    - haxe plugin.hxml
-    - popd
     - pushd plugins/boyan/compilation/client
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/compilation/output
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/codemirror/editor
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/compilation/server

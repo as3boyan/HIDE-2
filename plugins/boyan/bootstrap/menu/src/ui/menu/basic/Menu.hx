@@ -154,21 +154,7 @@ interface MenuItem
 	public function addToDocument():Void
 	{	
 		var div:Element = cast(Browser.document.getElementById("position-navbar"), Element);
-
-		// if (position != null)
-		// {
-			// for (i in 0...div.childNodes.length)
-			// {
-			// 	// if (position > i)
-			// 	// {
-
-			// 	// }
-			// }
-		// }
-		// else
-		// {
-			div.appendChild(li);
-		// }
+		div.appendChild(li);
 	}
 
 	public function removeFromDocument():Void
