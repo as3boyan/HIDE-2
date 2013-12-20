@@ -1,4 +1,5 @@
 -cp src
+-cp ../../../../../externs/nodejs-std/src
 -cp ../../../../../externs/plugins/hide
 -cp ../../../../../externs/plugins/boyan/bootstrap/menu
 -main Main

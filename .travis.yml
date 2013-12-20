@@ -24,31 +24,13 @@ before_script:
 script:
     - haxe HIDE.hxml
 
-    - pushd plugins/boyan/bootstrap/alerts
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/bootstrap/file-tree
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/bootstrap/menu
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/bootstrap/new-project-dialog
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/bootstrap/script
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/bootstrap/tab-manager
+    - pushd plugins/boyan/codemirror/editor
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/compilation/client
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/compilation/output
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/codemirror/editor
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/compilation/server
@@ -81,6 +63,30 @@ script:
     - pushd plugins/boyan/webgl/three
     - haxe plugin.hxml
     - popd
+    - pushd plugins/boyan/bootstrap/alerts
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/bootstrap/file-tree
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/bootstrap/menu
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/bootstrap/new-project-dialog
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/bootstrap/script
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/bootstrap/tab-manager
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/presentation/impress/about
+    - haxe plugin.hxml
+    - popd
+    - pushd plugins/boyan/presentation/reveal/plugin-development-tutorial
+    - haxe plugin.hxml
+    - popd
     - pushd plugins/boyan/window/file-dialog
     - haxe plugin.hxml
     - popd
@@ -91,12 +97,6 @@ script:
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/window/zoom
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/presentation/impress/about
-    - haxe plugin.hxml
-    - popd
-    - pushd plugins/boyan/presentation/reveal/plugin-development-tutorial
     - haxe plugin.hxml
     - popd
     - pushd plugins/boyan/samples/presentation/impress/sample
