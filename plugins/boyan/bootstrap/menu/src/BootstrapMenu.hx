@@ -107,7 +107,7 @@ import js.html.Element;
 	{
 		var div:Element = cast(Browser.document.getElementById("position-navbar"), Element);
 
-		if (menu.position != null && div.childNodes.length > 0)
+		if (menu.position != null && menuArray.length > 0 && div.childNodes.length > 0)
 		{
 			var currentMenu:Menu;
 

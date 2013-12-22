@@ -14,13 +14,13 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			BootstrapMenu.getMenu("Developer Tools", 100).addMenuItem("Reload IDE", function ():Void
+			BootstrapMenu.getMenu("Developer Tools", 100).addMenuItem("Reload IDE", 1, function ():Void
 			{
 				js.Node.require('nw.gui').Window.get().reloadIgnoringCache();
 			}
 			, "Ctrl-Shift-R", "R".code, true, true, false);
 
-			BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE", function ():Void
+			BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE", 2, function ():Void
 			{
 				HIDE.compilePlugins(function ():Void
 				{

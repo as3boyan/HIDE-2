@@ -17,7 +17,7 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		BootstrapMenu.getMenu("View",2).addMenuItem("Toggle Fullscreen",function() {
+		BootstrapMenu.getMenu("View",2).addMenuItem("Toggle Fullscreen",1,function() {
 			js.Node.require("nw.gui").Window.get().toggleFullscreen();
 		},"F11",122,false,false,false);
 		HIDE.notifyLoadingComplete(Main.$name);

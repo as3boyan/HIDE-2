@@ -16,6 +16,8 @@ class Main
 	{	
 		//Will create menu bar when Bootstrap plugin is loaded
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
+		
+		HIDE.loadCSS(name, ["bin/includes/css/menu.css"]);
 	}
 	
 	private static function load():Void

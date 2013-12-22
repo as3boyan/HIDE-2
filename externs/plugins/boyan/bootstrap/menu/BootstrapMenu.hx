@@ -13,7 +13,7 @@ extern class BootstrapMenu
 
 @:native("ui.menu.basic.Menu") extern class Menu
 {
-	public function addMenuItem(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void;
+	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void;
 	public function addSeparator():Void;
 	public function addToDocument():Void;
 	public function removeFromDocument():Void;

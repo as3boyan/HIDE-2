@@ -238,7 +238,7 @@ typedef PluginDependenciesData =
 	private static function loadJSAsync(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{
 		var script:ScriptElement = Browser.document.createScriptElement();
-		script.src = urls.splice(0, 1)[0];
+		script.src = urls.splice(0, 1)[0]; //+ "?" + Std.string(Std.random(100000))
 		script.onload = function (e)
 		{			
 			traceScriptLoadingInfo(name, script.src);

@@ -9,6 +9,7 @@ import js.html.MouseEvent;
 import js.html.NodeList;
 import js.html.SpanElement;
 import js.html.UListElement;
+import ui.menu.basic.Menu.MenuButtonItem;
 
 /**
  * ...
@@ -27,6 +28,7 @@ interface MenuItem
 @:keepSub class MenuButtonItem implements MenuItem
 {	
 	var li:LIElement;
+	public var position:Int;
 	
 	public function new(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool)
 	{		
@@ -53,7 +55,6 @@ interface MenuItem
 				if (li.className != "disabled")
 				{
 					_onClickFunction();
-					//new JQuery(js.Browser.document).triggerHandler(_onClickFunctionName);
 				}
 			};
 			
@@ -71,22 +72,12 @@ interface MenuItem
 		}
 		
 		li.appendChild(a);
-		
-		//registerEvent(_onClickFunctionName, _onClickFunction);
 	}
 	
 	public function getElement():LIElement
 	{
 		return li;
 	}
-	
-	//public function registerEvent(_onClickFunctionName, _onClickFunction:Dynamic):Void
-	//{
-		//if (_onClickFunction != null) 
-		//{
-			//new JQuery(js.Browser.document).on(_onClickFunctionName, _onClickFunction);
-		//}
-	//}
 }
 
 //@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
@@ -112,6 +103,7 @@ interface MenuItem
 {
 	var li:LIElement;
 	var ul:UListElement;
+	var items:Array<MenuButtonItem>;
 	public var position:Int;
 	
 	public function new(_text:String, ?_headerText:String) 
@@ -128,7 +120,6 @@ interface MenuItem
 		
 		ul = Browser.document.createUListElement();
 		ul.className = "dropdown-menu";
-		ul.style.minWidth = "300px";
 		
 		if (_headerText != null)
 		{
@@ -139,11 +130,46 @@ interface MenuItem
 		}
 		
 		li.appendChild(ul);
+		
+		items = new Array();
 	}
 	
-	public function addMenuItem(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void
+	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void
 	{
-		ul.appendChild(new MenuButtonItem(_text, _onClickFunction, _hotkey, _keyCode, _ctrl, _shift, _alt).getElement());
+		var menuButtonItem:MenuButtonItem = new MenuButtonItem(_text, _onClickFunction, _hotkey, _keyCode, _ctrl, _shift, _alt);
+				
+		menuButtonItem.position = _position;
+		
+		if (menuButtonItem.position != null && items.length > 0 && ul.childNodes.length > 0)
+		{
+			var currentMenuButtonItem:MenuButtonItem;
+
+			var added:Bool = false;
+
+			for (i in 0...items.length)
+			{
+				currentMenuButtonItem = items[i];
+
+				if (currentMenuButtonItem != menuButtonItem && currentMenuButtonItem.position == null || menuButtonItem.position < currentMenuButtonItem.position)
+				{
+					ul.insertBefore(menuButtonItem.getElement(), currentMenuButtonItem.getElement());
+					items.insert(i, menuButtonItem);
+					added = true;
+					break;
+				}
+			}
+
+			if (!added)
+			{
+				ul.appendChild(menuButtonItem.getElement());
+				items.push(menuButtonItem);
+			}
+		}
+		else
+		{
+			ul.appendChild(menuButtonItem.getElement());
+			items.push(menuButtonItem);
+		}
 	}
 	
 	public function addSeparator():Void

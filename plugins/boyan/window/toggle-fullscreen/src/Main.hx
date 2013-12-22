@@ -14,7 +14,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{	
-			BootstrapMenu.getMenu("View", 2).addMenuItem("Toggle Fullscreen", function ():Void
+			BootstrapMenu.getMenu("View", 2).addMenuItem("Toggle Fullscreen", 1, function ():Void
 			{
 				js.Node.require('nw.gui').Window.get().toggleFullscreen();
 			}

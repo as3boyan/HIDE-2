@@ -82,7 +82,7 @@ BootstrapMenu.getMenu = function(name,position) {
 BootstrapMenu.addMenuToDocument = function(menu) {
 	var div;
 	div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
-	if(menu.position != null && div.childNodes.length > 0) {
+	if(menu.position != null && BootstrapMenu.menuArray.length > 0 && div.childNodes.length > 0) {
 		var currentMenu;
 		var added = false;
 		var _g1 = 0;
@@ -131,6 +131,7 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
+	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css"]);
 };
 Main.load = function() {
 	BootstrapMenu.createMenuBar();
@@ -325,7 +326,6 @@ ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText
 	var _this = window.document;
 	this.ul = _this.createElement("ul");
 	this.ul.className = "dropdown-menu";
-	this.ul.style.minWidth = "300px";
 	if(_headerText != null) {
 		var li_header;
 		var _this = window.document;
@@ -335,11 +335,36 @@ ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText
 		this.ul.appendChild(li_header);
 	}
 	this.li.appendChild(this.ul);
+	this.items = new Array();
 };
 ui.menu.basic.Menu.__name__ = true;
 ui.menu.basic.Menu.prototype = {
-	addMenuItem: function(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
-		this.ul.appendChild(new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt).getElement());
+	addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
+		var menuButtonItem = new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt);
+		menuButtonItem.position = _position;
+		if(menuButtonItem.position != null && this.items.length > 0 && this.ul.childNodes.length > 0) {
+			var currentMenuButtonItem;
+			var added = false;
+			var _g1 = 0;
+			var _g = this.items.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				currentMenuButtonItem = this.items[i];
+				if(currentMenuButtonItem != menuButtonItem && currentMenuButtonItem.position == null || menuButtonItem.position < currentMenuButtonItem.position) {
+					this.ul.insertBefore(menuButtonItem.getElement(),currentMenuButtonItem.getElement());
+					this.items.splice(i,0,menuButtonItem);
+					added = true;
+					break;
+				}
+			}
+			if(!added) {
+				this.ul.appendChild(menuButtonItem.getElement());
+				this.items.push(menuButtonItem);
+			}
+		} else {
+			this.ul.appendChild(menuButtonItem.getElement());
+			this.items.push(menuButtonItem);
+		}
 	}
 	,addSeparator: function() {
 		this.ul.appendChild(new ui.menu.basic.Separator().getElement());

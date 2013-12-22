@@ -2,7 +2,7 @@
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		BootstrapMenu.getMenu("Help").addMenuItem("About HIDE...",function() {
+		BootstrapMenu.getMenu("Help").addMenuItem("About HIDE...",3,function() {
 			return HIDE.openPageInNewWindow(Main.$name,"bin/index.html",{ toolbar : false});
 		});
 	});

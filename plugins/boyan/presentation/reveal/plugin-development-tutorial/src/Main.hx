@@ -14,7 +14,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			BootstrapMenu.getMenu("Help", 110).addMenuItem("How to develop plugins for HIDE", HIDE.openPageInNewWindow.bind(name, "bin/index.html", {toolbar:false}));
+			BootstrapMenu.getMenu("Help", 110).addMenuItem("How to develop plugins for HIDE", 1, HIDE.openPageInNewWindow.bind(name, "bin/index.html", {toolbar:false}));
 		}
 		);
 		

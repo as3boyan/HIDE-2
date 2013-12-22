@@ -16,19 +16,19 @@ class Main
 		{	
 			var window = js.Node.require('nw.gui').Window.get();
 
-			BootstrapMenu.getMenu("View").addMenuItem("Zoom In", function ():Void
+			BootstrapMenu.getMenu("View").addMenuItem("Zoom In", 2, function ():Void
 			{
 				window.zoomLevel += 1;
 			}
 			, "Ctrl-Shift-+", 187, true, true, false);
 
-			BootstrapMenu.getMenu("View").addMenuItem("Zoom Out", function ():Void
+			BootstrapMenu.getMenu("View").addMenuItem("Zoom Out", 3, function ():Void
 			{
 				window.zoomLevel -= 1;
 			}
 			, "Ctrl-Shift--", 189, true, true, false);
 
-			BootstrapMenu.getMenu("View").addMenuItem("Reset", function ():Void
+			BootstrapMenu.getMenu("View").addMenuItem("Reset", 4, function ():Void
 			{
 				window.zoomLevel = 0;
 			}

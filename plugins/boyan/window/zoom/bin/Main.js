@@ -18,13 +18,13 @@ var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		var $window = js.Node.require("nw.gui").Window.get();
-		BootstrapMenu.getMenu("View").addMenuItem("Zoom In",function() {
+		BootstrapMenu.getMenu("View").addMenuItem("Zoom In",2,function() {
 			$window.zoomLevel += 1;
 		},"Ctrl-Shift-+",187,true,true,false);
-		BootstrapMenu.getMenu("View").addMenuItem("Zoom Out",function() {
+		BootstrapMenu.getMenu("View").addMenuItem("Zoom Out",3,function() {
 			$window.zoomLevel -= 1;
 		},"Ctrl-Shift--",189,true,true,false);
-		BootstrapMenu.getMenu("View").addMenuItem("Reset",function() {
+		BootstrapMenu.getMenu("View").addMenuItem("Reset",4,function() {
 			$window.zoomLevel = 0;
 		},"Ctrl-Shift-0",48,true,true,false);
 		HIDE.notifyLoadingComplete(Main.$name);

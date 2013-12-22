@@ -17,10 +17,10 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		BootstrapMenu.getMenu("Developer Tools",100).addMenuItem("Reload IDE",function() {
+		BootstrapMenu.getMenu("Developer Tools",100).addMenuItem("Reload IDE",1,function() {
 			js.Node.require("nw.gui").Window.get().reloadIgnoringCache();
 		},"Ctrl-Shift-R",82,true,true,false);
-		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE",function() {
+		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE",2,function() {
 			HIDE.compilePlugins(function() {
 				js.Node.require("nw.gui").Window.get().reloadIgnoringCache();
 			},function(data) {
