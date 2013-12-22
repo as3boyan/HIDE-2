@@ -19,6 +19,8 @@ class Main
 			HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.layout", "boyan.jquery.split-pane"], load, true);
 		}
 		);
+		
+		HIDE.loadCSS(name, ["bin/includes/css/file-tree.css"]);
 	}
 	
 	private static function load():Void

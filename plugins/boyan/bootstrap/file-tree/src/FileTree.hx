@@ -23,6 +23,7 @@ import js.html.UListElement;
 		var splitPaneComponent:DivElement = cast(Splitpane.components[0], DivElement);
 		
 		var treeWell:DivElement = Browser.document.createDivElement();
+		treeWell.id = "tree-well";
 		treeWell.className = "well";
 		treeWell.style.overflow = "auto";
 		treeWell.style.padding = "0";

@@ -7,6 +7,7 @@ FileTree.init = function() {
 	var treeWell;
 	var _this = window.document;
 	treeWell = _this.createElement("div");
+	treeWell.id = "tree-well";
 	treeWell.className = "well";
 	treeWell.style.overflow = "auto";
 	treeWell.style.padding = "0";
@@ -141,6 +142,7 @@ Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout","boyan.jquery.split-pane"],Main.load,true);
 	});
+	HIDE.loadCSS(Main.$name,["bin/includes/css/file-tree.css"]);
 };
 Main.load = function() {
 	FileTree.init();

@@ -584,6 +584,7 @@ class NewProjectDialog
 		page1 = Browser.document.createDivElement();
 		
 		var well:DivElement = Browser.document.createDivElement();
+		well.id = "new-project-dialog-well";
 		well.className = "well";
 		//well.style.overflow = "auto";
 		//well.classList.add("pull-left");
@@ -800,9 +801,6 @@ class NewProjectDialog
 		
 		a.addEventListener("click", function (e:MouseEvent):Void
 		{
-			//var parent = li.parentElement.parentElement;
-			//var topA:AnchorElement = cast(parent.getElementsByTagName("a")[0], AnchorElement);
-			
 			updateListItems(category);
 		}
 		);
@@ -860,18 +858,6 @@ class NewProjectDialog
 		new JQuery(list).children().remove();
 		
 		setListItems(list, category.getItems());
-		
-		//switch (category) 
-		//{
-			//case "Haxe":
-				//setListItems(list, ["Flash Project", "JavaScript Project", "Neko Project", "PHP Project", "C++ Project", "Java Project", "C# Project"]);
-			//case "OpenFL":
-				//setListItems(list, ["OpenFL Project", "OpenFL Extension"]);
-			//case "OpenFL/Samples":
-				//setListItems(list, ["ActuateExample", "AddingAnimation", "AddingText", "DisplayingABitmap", "HandlingKeyboardEvents", "HandlingMouseEvent", "HerokuShaders", "PiratePig", "PlayingSound", "SimpleBox2D", "SimpleOpenGLView"]);
-			//default:
-					//
-		//}
 		
 		checkSelectedOptions();
 	}

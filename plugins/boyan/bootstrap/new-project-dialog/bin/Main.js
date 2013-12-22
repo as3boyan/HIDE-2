@@ -105,6 +105,7 @@ Main.main = function() {
 		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D",false,true);
 		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView",false,true);
 	});
+	HIDE.loadCSS(Main.$name,["bin/includes/css/new-project-dialog.css"]);
 	HIDE.notifyLoadingComplete(Main.$name);
 };
 var IMap = function() { };
@@ -347,6 +348,7 @@ NewProjectDialog.createPage1 = function() {
 	var well;
 	var _this = window.document;
 	well = _this.createElement("div");
+	well.id = "new-project-dialog-well";
 	well.className = "well";
 	well.style.float = "left";
 	well.style.width = "50%";

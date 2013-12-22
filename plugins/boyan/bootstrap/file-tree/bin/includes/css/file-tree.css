@@ -1,0 +1,7 @@
+#tree-well li {
+	margin-left: 0.4em;
+}
+
+#tree-well .nav>li>a {
+	padding: 10px 7px;
+}

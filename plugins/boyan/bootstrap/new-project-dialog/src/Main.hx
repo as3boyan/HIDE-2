@@ -48,6 +48,8 @@ class Main
 		}
 		);
 		
+		HIDE.loadCSS(name, ["bin/includes/css/new-project-dialog.css"]);
+		
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 		HIDE.notifyLoadingComplete(name);
 	}

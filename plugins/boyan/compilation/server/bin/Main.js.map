@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["/home/as3boyan/HIDE/plugins/boyan/compilation/server/src/HaxeServer.hx","/usr/lib/haxe/std/js/_std/HxOverrides.hx","/home/as3boyan/HIDE/plugins/boyan/compilation/server/src/Main.hx","/usr/lib/haxe/std/js/_std/Std.hx","/home/as3boyan/HIDE/externs/nodejs-std/src/js/Node.hx"],
+"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/compilation/server/src/HaxeServer.hx","C:/HaxeToolkit/haxe/std/js/_std/HxOverrides.hx","C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/compilation/server/src/Main.hx","C:/HaxeToolkit/haxe/std/js/_std/Std.hx","C:/Users/Denis/Documents/GitHub/hide/hide/externs/nodejs-std/src/js/Node.hx"],
 "names":[],
 "mappings":";;mBAUc,RACd;CACqD,AAAiB,AAAsB,AAAQ,AAAC,AAAU;CAE9G,AAAyC;CACzC,AAAgC,AAAO,cACvC;YAAM,TAAa;;CAEnB,AAAyC;CACzC,AAAgC,AAAO,cAAgB;EACpC;EACL,DAAU;EACtB,UAAM,TAAY,FAAW;EAC7B,CAAiB;;CAGnB,AAAyB,AAAQ,cAC/B;YAAM,AAAC,TAA2C;;CAGpD,AAAiB,AAAyB,AAAS,WAElD;EAAI,DAEH;;;;kBC2BI,AAAoD;CAIlD,EAAM,FAAc;CAE5B,CAAI,EAAK,HACO;CACT;;qBAGD,DAA8D;CACpE,CAAI,EAAO,AAAQ,AAAO,AAAK,AAAO,AAAQ,DAAM,FAAW;CAC/D,CAAI,EAAO,HAAO,EAAM;CACxB,CAAI,CAAM,FAAG;EACZ,CAAM,AAAW;EACjB,AAAI,CAAM,FAAI,EAAM;MACf,JAAI,CAAM,FACf,EAAM,AAAW,AAAM;CAGjB,AAAmB,AAAK;;;YCtElB,DACd;CACC;CAGA,AAA2B;;;eCyBd,HAA4C;CACzC,AAAmB,AAAG;CAEtC,CAAI,EAAK,AAAK,HAAC,AAAa,GAAM,AAAY,HAAa,GAAM,HAChE,EAAY,FAAmB;CAChC,CAAY,DAAgB,AACpB;CACI;;;;AA4CX,EAAI,EAAuB,HAC1B,EAAsB,SAAY;CACzB;CACE;CAAI;CAAd;;EACC,DAAE,EAAK,FAAE,AAAS;;CACZ;;AC02BF;AACR,GAAqB;AACrB,GAAuB;AACvB,GAAsB;AACtB,GAAwB;AACxB,GAAiB;AACjB,GAAkB;AAClB,GAAkB;AAClB,GAAkB;AAClB,GAAiB;AACjB,GAAoB;AACpB,GAAgB;AAEF,CAAuB,AAAvB,AAAgC,AAAS;AACvD,EAAI,DAAQ,EAAK,CAAK,HAAQ,GAAM,HAAG;CACtC,EAAuB;CACvB,EAAyB;;4BJp9Bc;aEAT;;;;"
 }
