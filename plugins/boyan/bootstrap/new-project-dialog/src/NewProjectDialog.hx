@@ -203,7 +203,7 @@ class NewProjectDialog
 	}
 	
 	private static function createProject():Void
-	{
+	{		
 		if (projectLocation.value != "" && projectName.value != "")
 		{
 			js.Node.fs.exists(projectLocation.value, function (exists:Bool):Void
@@ -214,28 +214,17 @@ class NewProjectDialog
 					
 					var project:Project = new Project();
 					
+					var item:Item = selectedCategory.getItem(list.value);
+					
+					if (item.createProjectFunction != null)
+					{
+						item.createProjectFunction({projectName: projectName.value, projectLocation:projectLocation.value});
+					}
+					
 					//switch (selectedCategory) 
 					//{
 						//case "Haxe":
-							//createDirectoryRecursively(projectLocation.value, [projectName.value, "src"], function ():Void
-							//{				
-								//var pathToMain:String  = js.Node.path.join(projectLocation.value, projectName.value, "src");
-								//pathToMain = js.Node.path.join(pathToMain, "Main.hx");
-								//
-								//var code:String = "package ;\n\nclass Main\n{\nstatic public function main()\n{\n}\n}";
-								//
-								//js.Node.fs.writeFile(pathToMain, code, function (error):Void
-								//{
-									//if (error != null)
-									//{
-										//trace(error);
-									//}
-									//
-									//TabsManager.openFileInNewTab(pathToMain);
-								//}
-								//);
-							//}
-							//);
+							
 							//
 							//project.type = Project.HAXE;
 							//
@@ -298,34 +287,6 @@ class NewProjectDialog
 						//case "OpenFL/Samples":
 							//
 							//createOpenFLProject([list.value]);
-								//
-							//switch (list.value) 
-							//{
-								//case "ActuateExample":
-									//
-								//case "AddingAnimation":
-									//
-								//case "AddingText":
-									//
-								//case "DisplayingABitmap":
-									//
-								//case "HandlingKeyboardEvents":
-									//
-								//case "HandlingMouseEvent":
-									//
-								//case "HerokuShaders":
-									//
-								//case "PiratePig":
-									//
-								//case "PlayingSound":
-									//
-								//case "SimpleBox2D":
-									//
-								//case "SimpleOpenGLView":
-									//
-								//default:
-									//
-							//}
 							//
 							//project.type = Project.OPENFL;
 							//project.target = "html5";

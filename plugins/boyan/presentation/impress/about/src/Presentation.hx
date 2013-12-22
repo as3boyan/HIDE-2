@@ -1,9 +1,12 @@
 package ;
+import haxe.Timer;
 import js.Browser;
 import js.html.DivElement;
 import js.html.Element;
+import js.html.KeyboardEvent;
 import js.html.ParagraphElement;
 import js.html.AnchorElement;
+import js.Lib;
 
 /**
  * ...
@@ -13,6 +16,8 @@ class Presentation
 {
 	private static var impressDiv:DivElement;
 	private static var slidesCount:Int;
+	private static var autoplay:Bool = true;
+	static private var timer:Timer;
 
 	public static function main()
 	{		
@@ -38,272 +43,81 @@ class Presentation
 			var slide:DivElement;
 
 			slide = createSlide("'Feature request' perk backer and project sponsor");
-			slide.setAttribute("data-x", "-3200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Haxe Foundation ", "http://haxe-foundation.org/", "haxe-foundation.org");
-			slide.setAttribute("data-x", "-5200");
-			slide.setAttribute("data-y", "0");
-
+			slide = createSlide("Haxe Foundation ", "http://haxe-foundation.org/", "haxe-foundation.org", "120px");
 			slide = createSlide("'Link to your website' perk backers");
-			slide.setAttribute("data-x", "-7200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("FlashDevelop", "http://www.flashdevelop.org/", "www.flashdevelop.org");
-			slide.setAttribute("data-x", "-9200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("OpenFL", "http://www.openfl.org/", "www.openfl.org");
-			slide.setAttribute("data-x", "-11200");
-			slide.setAttribute("data-y", "0");
+			slide = createSlide("FlashDevelop", "http://www.flashdevelop.org/", "www.flashdevelop.org", "100px");
+			slide = createSlide("OpenFL", "http://www.openfl.org/", "www.openfl.org", "100px");
+			slide = createSlide("Hypersurge", "http://hypersurge.com/", "hypersurge.com", "100px");
+			slide = createSlide("Adrian Cowan", "http://blog.othrayte.net/", "blog.othrayte.net", "100px");
+			slide = createSlide("Justin Donaldson", "http://scwn.net/", "scwn.net", "100px");
+			slide = createSlide("Jonas Malaco Filho", null, null, "100px");
+			slide = createSlide("tommy62", null, null, "100px");
+			slide = createSlide("'Contributor' perk backers");
 			
-			slide = createSlide("Hypersurge", "http://hypersurge.com/", "hypersurge.com");
-			slide.setAttribute("data-x", "-13200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Adrian Cowan", "http://blog.othrayte.net/", "blog.othrayte.net");
-			slide.setAttribute("data-x", "-15500");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Justin Donaldson", "http://scwn.net/", "scwn.net");
-			slide.setAttribute("data-x", "-17200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Jonas Malaco Filho");
-			slide.setAttribute("data-x", "-19800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("tommy62");
-			slide.setAttribute("data-x", "-21800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("'Contributor ' perk backers");
-			slide.setAttribute("data-x", "-23200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Allan Dowdeswell");
-			slide.setAttribute("data-x", "-24800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Samuel Batista");
-			slide.setAttribute("data-x", "-26800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("JongChan Choi");
-			slide.setAttribute("data-x", "-28800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Patric Vormstein");
-			slide.setAttribute("data-x", "-30800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Harry.french");
-			slide.setAttribute("data-x", "-32800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Vincent Blanchet");
-			slide.setAttribute("data-x", "-34800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("zaynyatyi");
-			slide.setAttribute("data-x", "-36800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("qzix13");
-			slide.setAttribute("data-x", "-38800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("free24speed");
-			slide.setAttribute("data-x", "-41800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("franco.ponticelli");
-			slide.setAttribute("data-x", "-43800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("william.shakour");
-			slide.setAttribute("data-x", "-45800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("frabbit");
-			slide.setAttribute("data-x", "-47800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Nick Holder");
-			slide.setAttribute("data-x", "-49800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("fintanboyle");
-			slide.setAttribute("data-x", "-51800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Katsuomi Kobayashi");
-			slide.setAttribute("data-x", "-53800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("grigoruk");
-			slide.setAttribute("data-x", "-55800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("jessetalavera");
-			slide.setAttribute("data-x", "-57800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("bradparks");
-			slide.setAttribute("data-x", "-59800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("pchertok");
-			slide.setAttribute("data-x", "-61800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Masahiro Wakame");
-			slide.setAttribute("data-x", "-63800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Stojan Ilic");
-			slide.setAttribute("data-x", "-65800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Renaud Bardet");
-			slide.setAttribute("data-x", "-67800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Filip Loster");
-			slide.setAttribute("data-x", "-69800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("MatejTyc");
-			slide.setAttribute("data-x", "-71800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Tiago Ling Alexandre");
-			slide.setAttribute("data-x", "-73800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Skial Bainn");
-			slide.setAttribute("data-x", "-75800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("lars.doucet");
-			slide.setAttribute("data-x", "-77800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Ido Yehieli");
-			slide.setAttribute("data-x", "-79800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Ronan Sandford");
-			slide.setAttribute("data-x", "-81800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("brutfood");
-			slide.setAttribute("data-x", "-83800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Matan Uberstein");
-			slide.setAttribute("data-x", "-85800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("rcarcasses");
-			slide.setAttribute("data-x", "-87800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("vic.cvc");
-			slide.setAttribute("data-x", "-89800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Richard Lovejoy");
-			slide.setAttribute("data-x", "-91800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Tarwin Stroh-Spijer");
-			slide.setAttribute("data-x", "-93800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("obutovich");
-			slide.setAttribute("data-x", "-95800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("erik.escoffier");
-			slide.setAttribute("data-x", "-97800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Robert Wahler");
-			slide.setAttribute("data-x", "-99800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Louis Tovar");
-			slide.setAttribute("data-x", "-101800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("L Pope");
-			slide.setAttribute("data-x", "-103800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Florian Landerl");
-			slide.setAttribute("data-x", "-105800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("shohei 909");
-			slide.setAttribute("data-x", "-107800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Andy Li");
-			slide.setAttribute("data-x", "-109800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("dionjw");
-			slide.setAttribute("data-x", "-111800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Aaron Spjut");
-			slide.setAttribute("data-x", "-115800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("sebpatu");
-			slide.setAttribute("data-x", "-117800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("brycedneal");
-			slide.setAttribute("data-x", "-119800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Sam Twidale");
-			slide.setAttribute("data-x", "-121800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Phillip Louderback");
-			slide.setAttribute("data-x", "-123800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Mario Vormstein");
-			slide.setAttribute("data-x", "-125800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("deepnight");
-			slide.setAttribute("data-x", "-127800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Daniel Freeman");
-			slide.setAttribute("data-x", "-129800");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Also there is anonymous contributors, people who helped us to spread the word and people who helped us through pull requests, bug reports and feature requests");
-			slide.setAttribute("data-x", "-131200");
-			slide.setAttribute("data-y", "0");
-
-			slide = createSlide("Without your help, this would not have been possible to make it");
-			slide.setAttribute("data-x", "-133200");
-			slide.setAttribute("data-y", "0");
+			var contributors:Array<String> = [
+			"Allan Dowdeswell",
+			"Samuel Batista",
+			"JongChan Choi",
+			"Patric Vormstein",
+			"Harry.french",
+			"Vincent Blanchet",
+			"zaynyatyi",
+			"qzix13",
+			"free24speed",
+			"franco.ponticelli",
+			"william.shakour",
+			"frabbit",
+			"Nick Holder",
+			"fintanboyle",
+			"Katsuomi Kobayashi",
+			"grigoruk",
+			"jessetalavera",
+			"bradparks",
+			"pchertok",
+			"Masahiro Wakame",
+			"Stojan Ilic",
+			"Renaud Bardet",
+			"Filip Loster",
+			"MatejTyc",
+			"Tiago Ling Alexandre",
+			"Skial Bainn",
+			"lars.doucet",
+			"Ido Yehieli",
+			"Ronan Sandford",
+			"brutfood",
+			"Matan Uberstein",
+			"rcarcasses",
+			"vic.cvc",
+			"Richard Lovejoy",
+			"Tarwin Stroh-Spijer",
+			"obutovich",
+			"erik.escoffier",
+			"Robert Wahler",
+			"Louis Tovar",
+			"L Pope",
+			"Florian Landerl",
+			"shohei 909",
+			"Andy Li",
+			"dionjw",
+			"Aaron Spjut",
+			"sebpatu",
+			"brycedneal",
+			"Sam Twidale",
+			"Phillip Louderback",
+			"Mario Vormstein",
+			"deepnight",
+			"Daniel Freeman",
+			];
 			
+			while (contributors.length > 0)
+			{
+				slide = createSlide(contributors.splice(Std.random(contributors.length), 1)[0]);
+			}
+			
+			slide = createSlide("Also there is anonymous contributors, people who helped us to spread the word and people who helped us through pull requests, bug reports and feature requests and by giving feedbacks");
+			slide = createSlide("Without your help, this would not have been possible to make it");			
 			slide = createSlide("Thanks for your support!");
-			slide.setAttribute("data-x", "-135200");
-			slide.setAttribute("data-y", "0");
-
 			slide = createSlide("(in case if you want to change website or name, just let me know - AS3Boyan)");
-			slide.setAttribute("data-x", "-137200");
-			slide.setAttribute("data-y", "0");
 
 			Browser.document.body.appendChild(impressDiv);
 			
@@ -318,7 +132,7 @@ class Presentation
 		};
 	}
 	
-	private static function createSlide(text:String, ?url:String, ?linkText:String):DivElement
+	private static function createSlide(text:String, ?url:String, ?linkText:String, ?_fontSize:String = "80px"):DivElement
 	{
 		slidesCount++;
 
@@ -327,9 +141,17 @@ class Presentation
 		slide.className = "step";
 		trace(slide.id);
 		
+		slide.setAttribute("data-rotate", Std.string(Std.random(360)));
+		slide.setAttribute("data-scale", Std.string(Math.random() * 25 + 1));
+		slide.setAttribute("data-x", Std.string( Math.random() * 100000));
+		slide.setAttribute("data-y", Std.string( Math.random() * 100000));
+		slide.setAttribute("data-z", Std.string( -Math.random() * 3000));
+		slide.setAttribute("data-rotate-x", Std.string(Std.random(360)));
+		slide.setAttribute("data-rotate-y", Std.string(Std.random(360)));
+		
 		var p:ParagraphElement = Browser.document.createParagraphElement();
 		p.style.width = "1000px";
-		p.style.fontSize = "80px";
+		p.style.fontSize = _fontSize;
 		p.innerText = text;
 		slide.appendChild(p);
 
@@ -353,7 +175,50 @@ class Presentation
 	}
 
 	private static function runImpressJS():Void
-	{
-		untyped impress().init();
+	{		
+		var impressInstance:Dynamic = untyped impress();
+		impressInstance.init();
+		
+		//Impress.js autoplay
+		//ported to Haxe from
+		//http://stackoverflow.com/questions/11694069/how-to-make-impress-js-slideshow-auto-play-and-loop
+		Browser.document.addEventListener('impress:stepenter', function (e):Void
+		{			
+			if (autoplay)
+			{
+				var duration:Int = (e.target.getAttribute('data-transition-duration') != null ? e.target.getAttribute('data-transition-duration') : 3000 + Std.random(2000)); // use the set duration or fallback to 2000ms
+			
+				Timer.delay(function () 
+				{
+					if (autoplay)
+					{
+						untyped impressInstance.next(); 
+					}
+				}
+				, duration);
+			}
+		});
+		
+		Browser.document.addEventListener("keyup", function (e:KeyboardEvent)
+		{
+			autoplay = false;
+			
+			if (timer != null)
+			{
+				timer.stop();
+				timer = null;
+			}
+			
+			timer = new Timer(15000);
+			
+			timer.run = function ()
+			{
+				autoplay = true;
+				untyped impressInstance.next(); 
+				timer.stop();
+				timer = null;
+			};
+		}
+		);
 	}
 }

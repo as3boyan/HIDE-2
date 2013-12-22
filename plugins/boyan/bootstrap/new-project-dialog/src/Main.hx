@@ -19,7 +19,30 @@ class Main
 			
 			BootstrapMenu.getMenu("File", 1).addMenuItem("New Project...", 1, NewProjectDialog.show, "Ctrl-Shift-N", "N".code, true, true, false);
 			
-			NewProjectDialog.getCategory("Haxe").addItem("Flash Project");
+			NewProjectDialog.getCategory("Haxe").addItem("Flash Project", function (data):Void
+			{
+				FileTools.createDirectoryRecursively(data.projectLocation, [data.projectName, "src"], function ():Void
+				{				
+					var pathToMain:String  = js.Node.path.join(data.projectLocation, data.projectName, "src");
+					pathToMain = js.Node.path.join(pathToMain, "Main.hx");
+					
+					var code:String = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
+					
+					js.Node.fs.writeFile(pathToMain, code, function (error):Void
+					{
+						if (error != null)
+						{
+							trace(error);
+						}
+						
+						//TabsManager.openFileInNewTab(pathToMain);
+					}
+					);
+				}
+				);
+			}
+			);
+			
 			NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project");
 			NewProjectDialog.getCategory("Haxe").addItem("Neko Project");
 			NewProjectDialog.getCategory("Haxe").addItem("PHP Project");
@@ -31,20 +54,20 @@ class Main
 			
 			NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
 			
-			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project", false);
-			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension", false);
+			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project", null, false);
+			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension", null, false);
 			
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D", false, true);
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView", false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D", null, false, true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView", null, false, true);
 		}
 		);
 		

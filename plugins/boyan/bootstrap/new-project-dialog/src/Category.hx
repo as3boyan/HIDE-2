@@ -29,9 +29,9 @@ class Category
 		return subcategories.get(name);
 	}
 	
-	public function addItem(name:String, ?showCreateDirectoryOption:Bool = true, ?nameLocked:Bool = false):Void
+	public function addItem(name:String, ?createProjectFunction:Dynamic, ?showCreateDirectoryOption:Bool = true, ?nameLocked:Bool = false):Void
 	{
-		items.push(new Item(name, showCreateDirectoryOption, nameLocked));
+		items.push(new Item(name, createProjectFunction, showCreateDirectoryOption, nameLocked));
 	}
 	
 	public function getItems():Array<String>

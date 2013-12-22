@@ -3,22 +3,10 @@ node_js: ["0.11"]
 
 # Install Haxe
 before_script:
-    #Build Haxe
-    - sudo apt-get install libzip-dev ocaml git camlp4
-    - git clone --recursive https://github.com/HaxeFoundation/haxe.git haxe
-    - cd haxe
-    - make clean all
-    - sudo make install
-
-    #Build neko
-    - git clone https://github.com/HaxeFoundation/neko.git neko
-    - sudo apt-get install libgc-dev libzip-dev libpcre3-dev
-    - cd neko
-    - make clean all
-    - sudo make install
-    - haxelib setup /usr/lib/haxe/lib
-
-    - git clone git://github.com/as3boyan/HIDE
+    - sudo apt-get install python-software-properties -y # for the next command
+    - sudo add-apt-repository ppa:eyecreate/haxe -y      # add the ubuntu ppa that contains haxe
+    - sudo apt-get update                                # pull info from ppa
+    - sudo apt-get install haxe -y 
     - haxelib install jQueryExtern
 
 script:
