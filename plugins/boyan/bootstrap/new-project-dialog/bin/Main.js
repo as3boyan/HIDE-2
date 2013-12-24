@@ -1,5 +1,5 @@
-(function () { "use strict";
-var Category = function(_element) {
+(function ($hx_exports) { "use strict";
+var Category = $hx_exports.Category = function(_element) {
 	this.subcategories = new haxe.ds.StringMap();
 	this.items = new Array();
 	this.element = _element;
@@ -42,21 +42,6 @@ Category.prototype = {
 	}
 	,__class__: Category
 };
-var FileTools = function() { };
-FileTools.__name__ = true;
-FileTools.createDirectoryRecursively = function(path,folderPath,onCreated) {
-	var fullPath = js.Node.require("path").join(path,folderPath[0]);
-	FileTools.createDirectory(fullPath,function() {
-		folderPath.splice(0,1);
-		if(folderPath.length > 0) FileTools.createDirectoryRecursively(fullPath,folderPath,onCreated); else onCreated();
-	});
-};
-FileTools.createDirectory = function(path,onCreated) {
-	js.Node.require("fs").mkdir(path,null,function(error) {
-		if(error != null) console.log(error);
-		if(onCreated != null) onCreated();
-	});
-};
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
@@ -80,7 +65,7 @@ HxOverrides.iter = function(a) {
 		return this.arr[this.cur++];
 	}};
 };
-var Item = function(_name,_createProjectFunction,_showCreateDirectoryOption,_nameLocked) {
+var Item = $hx_exports.Item = function(_name,_createProjectFunction,_showCreateDirectoryOption,_nameLocked) {
 	if(_nameLocked == null) _nameLocked = false;
 	if(_showCreateDirectoryOption == null) _showCreateDirectoryOption = true;
 	this.name = _name;
@@ -98,23 +83,6 @@ Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
 		BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
-		NewProjectDialog.getCategory("Haxe").addItem("Flash Project",function(data) {
-			FileTools.createDirectoryRecursively(data.projectLocation,[data.projectName,"src"],function() {
-				var pathToMain = js.Node.require("path").join(data.projectLocation,data.projectName,"src");
-				pathToMain = js.Node.require("path").join(pathToMain,"Main.hx");
-				var code = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
-				js.Node.require("fs").writeFile(pathToMain,code,null,function(error) {
-					if(error != null) console.log(error);
-				});
-			});
-		});
-		NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project");
-		NewProjectDialog.getCategory("Haxe").addItem("Neko Project");
-		NewProjectDialog.getCategory("Haxe").addItem("PHP Project");
-		NewProjectDialog.getCategory("Haxe").addItem("C++ Project");
-		NewProjectDialog.getCategory("Haxe").addItem("Java Project");
-		NewProjectDialog.getCategory("Haxe").addItem("C# Project");
-		NewProjectDialog.getCategory("Haxe").select();
 		NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
 		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project",null,false);
 		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension",null,false);
@@ -161,7 +129,7 @@ haxe.ds.StringMap.prototype = {
 	}
 	,__class__: haxe.ds.StringMap
 };
-var NewProjectDialog = function() { };
+var NewProjectDialog = $hx_exports.NewProjectDialog = function() { };
 NewProjectDialog.__name__ = true;
 NewProjectDialog.create = function() {
 	var _this = window.document;
@@ -339,6 +307,24 @@ NewProjectDialog.getCategory = function(name) {
 		NewProjectDialog.tree.appendChild(category.element);
 	}
 	return NewProjectDialog.categories.get(name);
+};
+NewProjectDialog.createOpenFLProject = function(params) {
+	var OpenFLTools = js.Node.require("child_process").spawn("haxelib",["run","openfl","create"].concat(params));
+	var log = "";
+	OpenFLTools.stderr.setEncoding("utf8");
+	OpenFLTools.stderr.on("data",function(data) {
+		var str = data.toString();
+		log += str;
+	});
+	OpenFLTools.on("close",function(code) {
+		console.log("exit code: " + Std.string(code));
+		console.log(log);
+		var path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value);
+		if(NewProjectDialog.list.value != NewProjectDialog.projectName.value) js.Node.require("fs").rename(js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.list.value),path,function(error) {
+			if(error != null) console.log(error);
+		}); else {
+		}
+	});
 };
 NewProjectDialog.generateFolderName = function(path,folder,n,onGenerated) {
 	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + Std.string(n)),function(exists) {
@@ -597,6 +583,36 @@ NewProjectDialog.updateListItems = function(category) {
 	NewProjectDialog.setListItems(NewProjectDialog.list,category.getItems());
 	NewProjectDialog.checkSelectedOptions();
 };
+NewProjectDialog.createCategoryWithSubcategories = function(text,subcategories) {
+	var li;
+	var _this = window.document;
+	li = _this.createElement("li");
+	var category = NewProjectDialog.createCategory(text);
+	var a;
+	a = js.Boot.__cast(li.getElementsByTagName("a")[0] , HTMLAnchorElement);
+	a.className = "tree-toggler nav-header";
+	a.onclick = function(e) {
+		new $(li).children("ul.tree").toggle(300);
+	};
+	var ul;
+	var _this = window.document;
+	ul = _this.createElement("ul");
+	ul.className = "nav nav-list tree";
+	li.appendChild(ul);
+	li.onclick = function(e) {
+		var _g = 0;
+		while(_g < subcategories.length) {
+			var subcategory = subcategories[_g];
+			++_g;
+			ul.appendChild(NewProjectDialog.createCategory(subcategory).element);
+		}
+		e.stopPropagation();
+		e.preventDefault();
+		li.onclick = null;
+		new $(ul).show(300);
+	};
+	return li;
+};
 NewProjectDialog.createList = function() {
 	var select;
 	var _this = window.document;
@@ -616,6 +632,9 @@ NewProjectDialog.checkSelectedOptions = function() {
 		option = js.Boot.__cast(NewProjectDialog.list.selectedOptions[0] , HTMLOptionElement);
 	}
 };
+NewProjectDialog.updateDescription = function(category,selectedOption) {
+	NewProjectDialog.description.textContent = selectedOption;
+};
 NewProjectDialog.setListItems = function(list,items) {
 	var _g = 0;
 	while(_g < items.length) {
@@ -634,7 +653,7 @@ NewProjectDialog.createListItem = function(text) {
 	option.value = text;
 	return option;
 };
-var Project = function() {
+var Project = $hx_exports.Project = function() {
 	this.customArgs = false;
 };
 Project.__name__ = true;
@@ -828,7 +847,10 @@ if(version[0] > 0 || version[1] >= 9) {
 Main.$name = "boyan.bootstrap.new-project-dialog";
 Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog"];
 NewProjectDialog.categories = new haxe.ds.StringMap();
+Project.HAXE = 0;
+Project.OPENFL = 1;
+Project.HXML = 2;
 Main.main();
-})();
+})(typeof window != "undefined" ? window : exports);
 
 //# sourceMappingURL=Main.js.map

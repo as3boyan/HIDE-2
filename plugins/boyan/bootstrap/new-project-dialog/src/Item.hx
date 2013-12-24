@@ -4,7 +4,7 @@ package ;
  * ...
  * @author AS3Boyan
  */
-class Item
+@:keepSub @:expose class Item
 {
 	public var name:String;
 	public var showCreateDirectoryOption:Bool;

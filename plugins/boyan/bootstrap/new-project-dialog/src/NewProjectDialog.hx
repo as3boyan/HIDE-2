@@ -25,7 +25,7 @@ import js.html.UListElement;
  * ...
  * @author AS3Boyan
  */
-class NewProjectDialog
+@:keepSub @:expose class NewProjectDialog
 {
 	private static var modal:DivElement;
 	private static var list:SelectElement;

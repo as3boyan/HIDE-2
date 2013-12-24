@@ -4,7 +4,7 @@ package ;
  * ...
  * @author AS3Boyan
  */
-class Project
+@:keepSub @:expose class Project
 {
 	inline static public var HAXE:Int = 0;
 	inline static public var OPENFL:Int = 1;

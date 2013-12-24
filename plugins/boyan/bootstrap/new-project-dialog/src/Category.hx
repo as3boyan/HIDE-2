@@ -8,7 +8,7 @@ import jQuery.JQuery;
  * ...
  * @author AS3Boyan
  */
-class Category
+@:keepSub @:expose class Category
 {
 	public var element:LIElement;
 	public var items:Array<Item> = new Array();

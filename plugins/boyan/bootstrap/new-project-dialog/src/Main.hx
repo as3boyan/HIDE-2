@@ -19,39 +19,6 @@ class Main
 			
 			BootstrapMenu.getMenu("File", 1).addMenuItem("New Project...", 1, NewProjectDialog.show, "Ctrl-Shift-N", "N".code, true, true, false);
 			
-			NewProjectDialog.getCategory("Haxe").addItem("Flash Project", function (data):Void
-			{
-				FileTools.createDirectoryRecursively(data.projectLocation, [data.projectName, "src"], function ():Void
-				{				
-					var pathToMain:String  = js.Node.path.join(data.projectLocation, data.projectName, "src");
-					pathToMain = js.Node.path.join(pathToMain, "Main.hx");
-					
-					var code:String = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
-					
-					js.Node.fs.writeFile(pathToMain, code, function (error):Void
-					{
-						if (error != null)
-						{
-							trace(error);
-						}
-						
-						//TabsManager.openFileInNewTab(pathToMain);
-					}
-					);
-				}
-				);
-			}
-			);
-			
-			NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project");
-			NewProjectDialog.getCategory("Haxe").addItem("Neko Project");
-			NewProjectDialog.getCategory("Haxe").addItem("PHP Project");
-			NewProjectDialog.getCategory("Haxe").addItem("C++ Project");
-			NewProjectDialog.getCategory("Haxe").addItem("Java Project");
-			NewProjectDialog.getCategory("Haxe").addItem("C# Project");
-			
-			NewProjectDialog.getCategory("Haxe").select();
-			
 			NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
 			
 			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project", null, false);
