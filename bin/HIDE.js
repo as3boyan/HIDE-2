@@ -303,6 +303,14 @@ Main.loadPlugin = function(pathToPlugin) {
 	});
 };
 Main.compilePlugin = function(name,pathToPlugin,onSuccess,onFailed) {
+	var pathToBin = js.Node.require("path").join(pathToPlugin,"bin");
+	js.Node.require("fs").exists(pathToBin,function(exists) {
+		if(exists) Main.startPluginCompilation(name,pathToPlugin,onSuccess,onFailed); else js.Node.require("fs").mkdir(pathToBin,null,function(error) {
+			Main.startPluginCompilation(name,pathToPlugin,onSuccess,onFailed);
+		});
+	});
+};
+Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
 	var stderrData = "";
 	haxeCompilerProcess.stderr.on("data",function(data) {

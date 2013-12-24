@@ -83,20 +83,6 @@ Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
 		BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
-		NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
-		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project",null,false);
-		NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension",null,false);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("ActuateExample",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingAnimation",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("AddingText",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("DisplayingABitmap",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingKeyboardEvents",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HandlingMouseEvent",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("HerokuShaders",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PiratePig",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("PlayingSound",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleBox2D",null,false,true);
-		NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem("SimpleOpenGLView",null,false,true);
 	});
 	HIDE.loadCSS(Main.$name,["bin/includes/css/new-project-dialog.css"]);
 	HIDE.notifyLoadingComplete(Main.$name);

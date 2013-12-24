@@ -134,7 +134,7 @@ class Main
 	}
 	
 	private static function loadPlugin(pathToPlugin:String):Void
-	{
+	{		
 		var pathToMain:String = js.Node.path.join(pathToPlugin, "bin", "Main.js");
 		
 		js.Node.fs.exists(pathToMain, function (exists:Bool)
@@ -152,6 +152,28 @@ class Main
 	}
 	
 	public static function compilePlugin(name:String, pathToPlugin:String, onSuccess:Dynamic, ?onFailed:String->Void):Void
+	{
+		var pathToBin:String =  js.Node.path.join(pathToPlugin, "bin");
+		
+		js.Node.fs.exists(pathToBin, function (exists:Bool)
+		{
+			if (exists)
+			{
+				startPluginCompilation(name, pathToPlugin, onSuccess, onFailed);
+			}
+			else 
+			{
+				js.Node.fs.mkdir(pathToBin, function (error):Void
+				{
+					startPluginCompilation(name, pathToPlugin, onSuccess, onFailed);
+				}
+				);
+			}
+		}
+		);
+	}
+	
+	private static function startPluginCompilation(name:String, pathToPlugin:String, onSuccess:Dynamic, ?onFailed:String->Void):Void
 	{
 		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
 						
