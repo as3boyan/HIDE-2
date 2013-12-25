@@ -218,7 +218,20 @@ import js.html.UListElement;
 					
 					if (item.createProjectFunction != null)
 					{
-						item.createProjectFunction({projectName: projectName.value, projectLocation:projectLocation.value});
+						var projectPackage:String = textfieldsWithCheckboxes.get("Package").value;
+						var projectCompany:String = textfieldsWithCheckboxes.get("Company").value;
+						
+						if (!checkboxes.get("Package").checked)
+						{
+							projectPackage = "";
+						}
+						
+						if (!checkboxes.get("Company").checked)
+						{
+							projectCompany = "";
+						}
+						
+						item.createProjectFunction({projectName: projectName.value, projectLocation: projectLocation.value, projectPackage: projectPackage, projectCompany: projectCompany});
 					}
 					
 					//switch (selectedCategory) 
@@ -256,25 +269,7 @@ import js.html.UListElement;
 							//switch (list.value) 
 							//{
 								//case "OpenFL Project":		
-									//var projectPackage:String = textfieldsWithCheckboxes.get("Package").value;
-									//
-									//var str:String = "";
-									//
-									//if (checkboxes.get("Package").checked && projectPackage != "")
-									//{
-										//str = projectPackage + ".";
-									//}
-									//
-									//var params:Array<String> = ["project", str + projectName.value];
-									//
-									//var projectCompany:String = textfieldsWithCheckboxes.get("Company").value;
-									//
-									//if (checkboxes.get("Company").checked && projectCompany != "")
-									//{
-										//params.push(projectCompany);
-									//}
-									//
-									//createOpenFLProject(params);
+									
 								//case "OpenFL Extension":
 									//createOpenFLProject(["extension", projectName.value]);
 								//default:
@@ -429,47 +424,6 @@ import js.html.UListElement;
 		}
 		
 		return categories.get(name);
-	}
-	
-	private static function createOpenFLProject(params:Array<String>):Void
-	{
-		var OpenFLTools = js.Node.childProcess.spawn("haxelib", ["run", "openfl", "create"].concat(params));
-						
-		var log:String = "";
-		
-		OpenFLTools.stderr.setEncoding('utf8');
-		OpenFLTools.stderr.on('data', function (data) {
-				var str:String = data.toString();
-				log += str;
-		}
-		);
-		
-		OpenFLTools.on('close', function (code:Int) {
-			trace("exit code: " + Std.string(code));
-			
-			trace(log);
-			
-			var path:String = js.Node.path.join(projectLocation.value, projectName.value);
-			
-			if (list.value != projectName.value)
-			{				
-				js.Node.fs.rename(js.Node.path.join(projectLocation.value, list.value), path, function (error):Void
-				{
-					if (error != null)
-					{
-						trace(error);
-					}
-					
-					//TabsManager.openFileInNewTab(js.Node.path.join(path, "Source", "Main.hx"));
-				}
-				);
-			}
-			else
-			{
-				//TabsManager.openFileInNewTab(js.Node.path.join(path, "Source", "Main.hx"));
-			}
-		}
-		);
 	}
 	
 	private static function generateFolderName(path:String, folder:String, n:Int, ?onGenerated:Dynamic):Void

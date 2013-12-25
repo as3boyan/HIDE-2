@@ -12,7 +12,7 @@ import js.html.TextAreaElement;
 	{
 		js.Node.process.chdir(path);
 		
-		var openFLTools:Dynamic = Utils.process.spawn("haxelib", ["run", "openfl", "display", target]);
+		var openFLTools:Dynamic = js.Node.childProcess.spawn("haxelib", ["run", "openfl", "display", target]);
 		
 		var params:Array<String> = new Array();
 		
