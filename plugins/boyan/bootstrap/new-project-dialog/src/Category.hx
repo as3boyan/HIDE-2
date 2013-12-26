@@ -13,6 +13,7 @@ import jQuery.JQuery;
 	public var element:LIElement;
 	public var items:Array<Item> = new Array();
 	public var subcategories:StringMap<Category> = new StringMap();
+	public var position:Int;
 	
 	public function new(_element:LIElement) 
 	{
@@ -64,5 +65,15 @@ import jQuery.JQuery;
 		}
 		
 		return currentItem;
+	}
+	
+	public function setPosition(_position:Int):Void
+	{
+		position = _position;
+	}
+	
+	public function getElement():LIElement
+	{
+		return element;
 	}
 }

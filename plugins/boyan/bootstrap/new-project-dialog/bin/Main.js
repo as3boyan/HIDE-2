@@ -40,6 +40,12 @@ Category.prototype = {
 		}
 		return currentItem;
 	}
+	,setPosition: function(_position) {
+		this.position = _position;
+	}
+	,getElement: function() {
+		return this.element;
+	}
 	,__class__: Category
 };
 var HxOverrides = function() { };
@@ -105,6 +111,12 @@ haxe.ds.StringMap.prototype = {
 	}
 	,exists: function(key) {
 		return this.h.hasOwnProperty("$" + key);
+	}
+	,remove: function(key) {
+		key = "$" + key;
+		if(!this.h.hasOwnProperty(key)) return false;
+		delete(this.h[key]);
+		return true;
 	}
 	,keys: function() {
 		var a = [];
@@ -239,7 +251,13 @@ NewProjectDialog.createProject = function() {
 			js.Node.process.chdir(js.Node.require("path").join(NewProjectDialog.projectLocation.value));
 			var project = new Project();
 			var item = NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value);
-			if(item.createProjectFunction != null) item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value});
+			if(item.createProjectFunction != null) {
+				var projectPackage = NewProjectDialog.textfieldsWithCheckboxes.get("Package").value;
+				var projectCompany = NewProjectDialog.textfieldsWithCheckboxes.get("Company").value;
+				if(!NewProjectDialog.checkboxes.get("Package").checked) projectPackage = "";
+				if(!NewProjectDialog.checkboxes.get("Company").checked) projectCompany = "";
+				item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value, projectPackage : projectPackage, projectCompany : projectCompany});
+			}
 			var name = NewProjectDialog.projectName.value;
 			if(name != "") project.name = name;
 			var projectPackage = NewProjectDialog.textfieldsWithCheckboxes.get("Package").value;
@@ -286,31 +304,51 @@ NewProjectDialog.show = function() {
 NewProjectDialog.hide = function() {
 	new $(NewProjectDialog.modal).modal("hide");
 };
-NewProjectDialog.getCategory = function(name) {
+NewProjectDialog.getCategory = function(name,position) {
+	var category;
 	if(!NewProjectDialog.categories.exists(name)) {
-		var category = NewProjectDialog.createCategory(name);
+		category = NewProjectDialog.createCategory(name);
 		NewProjectDialog.categories.set(name,category);
-		NewProjectDialog.tree.appendChild(category.element);
-	}
-	return NewProjectDialog.categories.get(name);
-};
-NewProjectDialog.createOpenFLProject = function(params) {
-	var OpenFLTools = js.Node.require("child_process").spawn("haxelib",["run","openfl","create"].concat(params));
-	var log = "";
-	OpenFLTools.stderr.setEncoding("utf8");
-	OpenFLTools.stderr.on("data",function(data) {
-		var str = data.toString();
-		log += str;
-	});
-	OpenFLTools.on("close",function(code) {
-		console.log("exit code: " + Std.string(code));
-		console.log(log);
-		var path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value);
-		if(NewProjectDialog.list.value != NewProjectDialog.projectName.value) js.Node.require("fs").rename(js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.list.value),path,function(error) {
-			if(error != null) console.log(error);
-		}); else {
+		category.setPosition(position);
+		NewProjectDialog.addCategoryToDocument(category);
+	} else {
+		category = NewProjectDialog.categories.get(name);
+		if(position != null && category.position != position) {
 		}
-	});
+	}
+	if(position != null && category.position != position) {
+		category.getElement().remove();
+		NewProjectDialog.categories.remove(name);
+		category.setPosition(position);
+		NewProjectDialog.addCategoryToDocument(category);
+		NewProjectDialog.categories.set(name,category);
+	}
+	return category;
+};
+NewProjectDialog.addCategoryToDocument = function(category) {
+	if(category.position != null && NewProjectDialog.categoriesArray.length > 0 && NewProjectDialog.tree.childNodes.length > 0) {
+		var currentCategory;
+		var added = false;
+		var _g1 = 0;
+		var _g = NewProjectDialog.categoriesArray.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			currentCategory = NewProjectDialog.categoriesArray[i];
+			if(currentCategory != category && currentCategory.position == null || category.position < currentCategory.position) {
+				NewProjectDialog.tree.insertBefore(category.getElement(),currentCategory.getElement());
+				NewProjectDialog.categoriesArray.splice(i,0,category);
+				added = true;
+				break;
+			}
+		}
+		if(!added) {
+			NewProjectDialog.tree.appendChild(category.getElement());
+			NewProjectDialog.categoriesArray.push(category);
+		}
+	} else {
+		NewProjectDialog.tree.appendChild(category.getElement());
+		NewProjectDialog.categoriesArray.push(category);
+	}
 };
 NewProjectDialog.generateFolderName = function(path,folder,n,onGenerated) {
 	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + Std.string(n)),function(exists) {
@@ -833,6 +871,7 @@ if(version[0] > 0 || version[1] >= 9) {
 Main.$name = "boyan.bootstrap.new-project-dialog";
 Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog"];
 NewProjectDialog.categories = new haxe.ds.StringMap();
+NewProjectDialog.categoriesArray = new Array();
 Project.HAXE = 0;
 Project.OPENFL = 1;
 Project.HXML = 2;

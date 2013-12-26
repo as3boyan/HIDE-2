@@ -43,7 +43,9 @@ import js.html.UListElement;
 	private static var nextButton:ButtonElement;
 	
 	private static var categories:StringMap<Category> = new StringMap();
-	static private var tree:UListElement;
+	private static var tree:UListElement;
+	
+	private static var categoriesArray:Array<Category> = new Array();
 	
 	public static function create():Void
 	{
@@ -414,16 +416,75 @@ import js.html.UListElement;
 		untyped new JQuery(modal).modal("hide");
 	}
 	
-	public static function getCategory(name:String):Category
+	public static function getCategory(name:String, ?position:Int):Category
 	{
+		var category:Category;
+		
 		if (!categories.exists(name))
 		{
-			var category:Category = createCategory(name);
+			category = createCategory(name);
 			categories.set(name, category);
-			tree.appendChild(category.element);
+			
+			category.setPosition(position);
+			addCategoryToDocument(category);
+		}
+		else 
+		{
+			category = categories.get(name);
+			
+			if (position != null && category.position != position)
+			{
+				
+			}
 		}
 		
-		return categories.get(name);
+		if (position != null && category.position != position)	
+		{
+			category.getElement().remove();
+			categories.remove(name);
+
+			category.setPosition(position);
+
+			addCategoryToDocument(category);
+
+			categories.set(name, category);
+		}
+		
+		return category;
+	}
+	
+	public static function addCategoryToDocument(category:Category):Void
+	{
+		if (category.position != null && categoriesArray.length > 0 && tree.childNodes.length > 0)
+		{
+			var currentCategory:Category;
+
+			var added:Bool = false;
+
+			for (i in 0...categoriesArray.length)
+			{
+				currentCategory = categoriesArray[i];
+
+				if (currentCategory != category && currentCategory.position == null || category.position < currentCategory.position)
+				{
+					tree.insertBefore(category.getElement(), currentCategory.getElement());
+					categoriesArray.insert(i, category);
+					added = true;
+					break;
+				}
+			}
+
+			if (!added)
+			{
+				tree.appendChild(category.getElement());
+				categoriesArray.push(category);
+			}
+		}
+		else
+		{
+			tree.appendChild(category.getElement());
+			categoriesArray.push(category);
+		}
 	}
 	
 	private static function generateFolderName(path:String, folder:String, n:Int, ?onGenerated:Dynamic):Void

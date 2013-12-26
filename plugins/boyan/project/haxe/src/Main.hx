@@ -14,7 +14,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			NewProjectDialog.getCategory("Haxe").addItem("Flash Project", createHaxeProject);
+			NewProjectDialog.getCategory("Haxe", 1).addItem("Flash Project", createHaxeProject);
 			NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project", createHaxeProject);
 			NewProjectDialog.getCategory("Haxe").addItem("Neko Project", createHaxeProject);
 			NewProjectDialog.getCategory("Haxe").addItem("PHP Project", createHaxeProject);

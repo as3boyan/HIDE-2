@@ -31,7 +31,7 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		NewProjectDialog.getCategory("Haxe").addItem("Flash Project",Main.createHaxeProject);
+		NewProjectDialog.getCategory("Haxe",1).addItem("Flash Project",Main.createHaxeProject);
 		NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project",Main.createHaxeProject);
 		NewProjectDialog.getCategory("Haxe").addItem("Neko Project",Main.createHaxeProject);
 		NewProjectDialog.getCategory("Haxe").addItem("PHP Project",Main.createHaxeProject);

@@ -8,7 +8,7 @@ import js.html.LIElement;
  */
 extern class NewProjectDialog
 {
-	public static function getCategory(name:String):Category;
+	public static function getCategory(name:String, ?position:Int):Category;
 }
 
 extern class Category

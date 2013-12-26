@@ -89,7 +89,7 @@ import js.html.Element;
 
 			if (position != null && menu.position != position)	
 			{
-				menus.get(name).removeFromDocument();
+				menu.removeFromDocument();
 				menus.remove(name);
 
 				menu.setPosition(position);

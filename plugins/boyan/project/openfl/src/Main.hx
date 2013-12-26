@@ -14,7 +14,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Project", createOpenFLProject, false);
+			NewProjectDialog.getCategory("OpenFL", 2).addItem("OpenFL Project", createOpenFLProject, false);
 			NewProjectDialog.getCategory("OpenFL").addItem("OpenFL Extension", createOpenFLExtension, false);
 			
 			var samples: Array<String> = [

@@ -70,7 +70,7 @@ BootstrapMenu.getMenu = function(name,position) {
 	} else {
 		menu = BootstrapMenu.menus.get(name);
 		if(position != null && menu.position != position) {
-			BootstrapMenu.menus.get(name).removeFromDocument();
+			menu.removeFromDocument();
 			BootstrapMenu.menus.remove(name);
 			menu.setPosition(position);
 			BootstrapMenu.addMenuToDocument(menu);
