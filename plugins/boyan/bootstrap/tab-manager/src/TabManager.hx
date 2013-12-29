@@ -1,7 +1,10 @@
 package ;
 import js.Browser;
+import js.html.AnchorElement;
+import js.html.DivElement;
 import js.html.Element;
 import js.html.LIElement;
+import js.html.MouseEvent;
 import js.html.SpanElement;
 import js.html.UListElement;
 
@@ -11,7 +14,7 @@ import js.html.UListElement;
  */
 class TabManager
 {
-	private static var tabs:UListElement;
+	public static var tabs:UListElement;
 	
 	public static function init():Void
 	{
@@ -42,6 +45,8 @@ class TabManager
 				}
 			}                        
 		};
+		
+		ContextMenu.createContextMenu();
 		
 		createNewTab("test");
 		

@@ -1,9 +1,78 @@
 (function () { "use strict";
+var ContextMenu = function() { };
+ContextMenu.__name__ = true;
+ContextMenu.createContextMenu = function() {
+	var contextMenu;
+	var _this = window.document;
+	contextMenu = _this.createElement("div");
+	contextMenu.className = "dropdown";
+	contextMenu.style.position = "absolute";
+	contextMenu.style.display = "none";
+	window.document.onclick = function(e) {
+		contextMenu.style.display = "none";
+	};
+	var ul;
+	var _this = window.document;
+	ul = _this.createElement("ul");
+	ul.className = "dropdown-menu";
+	ul.style.display = "block";
+	var li;
+	var _this = window.document;
+	li = _this.createElement("li");
+	li.className = "divider";
+	ul.appendChild(li);
+	ul.appendChild(ContextMenu.createContextMenuItem("Close",function() {
+	}));
+	ul.appendChild(ContextMenu.createContextMenuItem("Close All",function() {
+	}));
+	ul.appendChild(ContextMenu.createContextMenuItem("Close Other",function() {
+	}));
+	contextMenu.appendChild(ul);
+	window.document.body.appendChild(contextMenu);
+	TabManager.tabs.addEventListener("contextmenu",function(ev) {
+		ev.preventDefault();
+		var clickedOnTab = false;
+		var _g = 0;
+		var _g1 = TabManager.tabs.childNodes;
+		while(_g < _g1.length) {
+			var li1 = _g1[_g];
+			++_g;
+			if(ev.target == li1) {
+				clickedOnTab = true;
+				break;
+			}
+		}
+		if(clickedOnTab) {
+			var li1;
+			li1 = js.Boot.__cast(ev.target , HTMLLIElement);
+			contextMenu.setAttribute("path",li1.getAttribute("path"));
+			contextMenu.style.display = "block";
+			contextMenu.style.left = Std.string(ev.pageX) + "px";
+			contextMenu.style.top = Std.string(ev.pageY) + "px";
+		}
+		return false;
+	});
+};
+ContextMenu.createContextMenuItem = function(text,onClick) {
+	var li;
+	var _this = window.document;
+	li = _this.createElement("li");
+	li.onclick = function(e) {
+		onClick();
+	};
+	var a;
+	var _this = window.document;
+	a = _this.createElement("a");
+	a.href = "#";
+	a.textContent = text;
+	li.appendChild(a);
+	return li;
+};
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.loadCSS(Main.$name,["bin/includes/css/tabs.css"]);
-	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.split-pane","boyan.jquery.layout"],Main.load,true);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout"],Main.load);
 };
 Main.load = function() {
 	TabManager.init();
@@ -31,6 +100,7 @@ TabManager.init = function() {
 			if(c == target) return TabManager.selectDoc(i);
 		}
 	};
+	ContextMenu.createContextMenu();
 	TabManager.createNewTab("test");
 	Splitpane.components[1].appendChild(TabManager.tabs);
 };
