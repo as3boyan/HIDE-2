@@ -14,13 +14,27 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			HIDE.loadJS(name, ["bin/includes/acorn/acorn.js", "bin/includes/acorn/acorn_loose.js", "bin/includes/acorn/util/walk.js"]);
-			HIDE.loadJS(name, ["bin/includes/tern/lib/signal.js", "bin/includes/tern/lib/tern.js", "bin/includes/tern/lib/def.js", "bin/includes/tern/lib/comment.js", "bin/includes/tern/lib/infer.js"]);
+			HIDE.loadJS(name, [
+			"bin/includes/acorn/acorn.js",
+			"bin/includes/acorn/acorn_loose.js",
+			"bin/includes/acorn/util/walk.js",
+			"bin/includes/tern/doc/demo/polyfill.js",
+			"bin/includes/tern/lib/signal.js",
+			"bin/includes/tern/lib/tern.js",
+			"bin/includes/tern/lib/def.js",
+			"bin/includes/tern/lib/comment.js",
+			"bin/includes/tern/lib/infer.js",
+			"bin/includes/tern/plugin/doc_comment.js",
+			], function ():Void
+			{
+				//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
+				HIDE.notifyLoadingComplete(name);
+			}
+			);
 		}
 		);
 		
-		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
-		HIDE.notifyLoadingComplete(name);
+		
 	}
 	
 }
