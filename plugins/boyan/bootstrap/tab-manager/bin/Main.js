@@ -1,4 +1,13 @@
-(function () { "use strict";
+(function ($hx_exports) { "use strict";
+var CMDoc = function(_name,_doc,_path) {
+	this.name = _name;
+	this.doc = _doc;
+	this.path = _path;
+};
+CMDoc.__name__ = true;
+CMDoc.prototype = {
+	__class__: CMDoc
+};
 var ContextMenu = function() { };
 ContextMenu.__name__ = true;
 ContextMenu.createContextMenu = function() {
@@ -68,6 +77,22 @@ ContextMenu.createContextMenuItem = function(text,onClick) {
 	li.appendChild(a);
 	return li;
 };
+var HxOverrides = function() { };
+HxOverrides.__name__ = true;
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) return undefined;
+	return x;
+};
+HxOverrides.substr = function(s,pos,len) {
+	if(pos != null && pos != 0 && len != null && len < 0) return "";
+	if(len == null) len = s.length;
+	if(pos < 0) {
+		pos = s.length + pos;
+		if(pos < 0) pos = 0;
+	} else if(len < 0) len = s.length + len - pos;
+	return s.substr(pos,len);
+};
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
@@ -76,6 +101,9 @@ Main.main = function() {
 };
 Main.load = function() {
 	TabManager.init();
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.file-tree"],function() {
+		FileTree.onFileClick = TabManager.openFileInNewTab;
+	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
 var Std = function() { };
@@ -83,7 +111,13 @@ Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
 };
-var TabManager = function() { };
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+};
+var TabManager = $hx_exports.TabManager = function() { };
 TabManager.__name__ = true;
 TabManager.init = function() {
 	var _this = window.document;
@@ -101,14 +135,16 @@ TabManager.init = function() {
 		}
 	};
 	ContextMenu.createContextMenu();
-	TabManager.createNewTab("test");
+	TabManager.docs = [];
 	Splitpane.components[1].appendChild(TabManager.tabs);
 };
-TabManager.createNewTab = function(name) {
+TabManager.createNewTab = function(name,path) {
 	var li;
 	var _this = window.document;
 	li = _this.createElement("li");
+	li.title = path;
 	li.innerText = name + "\t";
+	li.setAttribute("path",path);
 	var span;
 	var _this = window.document;
 	span = _this.createElement("span");
@@ -124,6 +160,45 @@ TabManager.createNewTab = function(name) {
 	li.appendChild(span);
 	TabManager.tabs.appendChild(li);
 };
+TabManager.openFileInNewTab = function(path) {
+	js.Node.require("fs").readFile(path,null,function(error,code) {
+		if(error != null) console.log(error);
+		var mode = TabManager.getMode(path);
+		var name = js.Node.require("path").basename(path);
+		TabManager.docs.push(new CMDoc(name,new CodeMirror.Doc(code,mode),path));
+		TabManager.createNewTab(name,path);
+		TabManager.selectDoc(TabManager.docs.length - 1);
+	});
+};
+TabManager.getMode = function(path) {
+	var mode = "haxe";
+	var _g = js.Node.require("path").extname(path);
+	switch(_g) {
+	case ".js":
+		mode = "javascript";
+		break;
+	case ".css":
+		mode = "css";
+		break;
+	case ".xml":
+		mode = "xml";
+		break;
+	case ".html":
+		mode = "text/html";
+		break;
+	case ".md":
+		mode = "markdown";
+		break;
+	case ".sh":case ".bat":
+		mode = "shell";
+		break;
+	case ".ml":
+		mode = "ocaml";
+		break;
+	default:
+	}
+	return mode;
+};
 TabManager.selectDoc = function(pos) {
 	var _g1 = 0;
 	var _g = TabManager.tabs.childNodes.length;
@@ -133,6 +208,8 @@ TabManager.selectDoc = function(pos) {
 		child = js.Boot.__cast(TabManager.tabs.childNodes[i] , Element);
 		if(pos == i) child.className = "selected"; else child.className = "";
 	}
+	TabManager.curDoc = TabManager.docs[pos];
+	if(TabManager.editor != null) TabManager.editor.swapDoc(TabManager.curDoc.doc);
 };
 var js = {};
 js.Boot = function() { };
@@ -250,6 +327,8 @@ js.Boot.__instanceof = function(o,cl) {
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
 };
+js.Node = function() { };
+js.Node.__name__ = true;
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.prototype.__class__ = Array;
@@ -262,8 +341,35 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
+var module, setImmediate, clearImmediate;
+js.Node.setTimeout = setTimeout;
+js.Node.clearTimeout = clearTimeout;
+js.Node.setInterval = setInterval;
+js.Node.clearInterval = clearInterval;
+js.Node.global = global;
+js.Node.process = process;
+js.Node.require = require;
+js.Node.console = console;
+js.Node.module = module;
+js.Node.stringify = JSON.stringify;
+js.Node.parse = JSON.parse;
+var version = HxOverrides.substr(js.Node.process.version,1,null).split(".").map(Std.parseInt);
+if(version[0] > 0 || version[1] >= 9) {
+	js.Node.setImmediate = setImmediate;
+	js.Node.clearImmediate = clearImmediate;
+}
 Main.$name = "boyan.bootstrap.tab-manager";
 Main.main();
-})();
+})(typeof window != "undefined" ? window : exports);
 
 //# sourceMappingURL=Main.js.map

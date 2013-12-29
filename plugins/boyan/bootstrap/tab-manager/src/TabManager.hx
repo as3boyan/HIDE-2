@@ -12,9 +12,12 @@ import js.html.UListElement;
  * ...
  * @author AS3Boyan
  */
-class TabManager
+@:keepSub @:expose class TabManager
 {
 	public static var tabs:UListElement;
+	public static var curDoc:CMDoc;
+	private static var docs:Array<CMDoc>;
+	public static var editor:Dynamic;
 	
 	public static function init():Void
 	{
@@ -48,17 +51,17 @@ class TabManager
 		
 		ContextMenu.createContextMenu();
 		
-		createNewTab("test");
+		docs = [];
 		
 		Splitpane.components[1].appendChild(tabs);
 	}
 	
-	public static function createNewTab(name:String):Void
+	public static function createNewTab(name:String, path:String):Void
 	{
 		var li:LIElement = Browser.document.createLIElement();
-		//li.title = path;
+		li.title = path;
 		li.innerText = name + "\t";
-		//li.setAttribute("path", path);
+		li.setAttribute("path", path);
 
 		var span:SpanElement = Browser.document.createSpanElement();
 		span.style.position = "relative";
@@ -78,6 +81,54 @@ class TabManager
 		tabs.appendChild(li);
 	}
 	
+	public static function openFileInNewTab(path:String):Void
+	{
+		js.Node.fs.readFile(path, function (error:js.Node.NodeErr, code:String):Void
+		{
+			if (error != null)
+			{
+				trace(error);
+			}
+			
+			var mode:String = getMode(path);
+			var name:String = js.Node.path.basename(path);
+			
+			docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
+			
+			createNewTab(name, path);
+			
+			selectDoc(docs.length - 1);
+		}
+		);
+	}
+	
+	private static function getMode(path:String):String
+	{
+		var mode:String = "haxe";
+				
+		switch (js.Node.path.extname(path)) 
+		{
+			case ".js":
+					mode = "javascript";
+			case ".css":
+					mode = "css";
+			case ".xml":
+					mode = "xml";
+			case ".html":
+					mode = "text/html";
+			case ".md":
+					mode = "markdown";
+			case ".sh", ".bat":
+					mode = "shell";
+			case ".ml":
+					mode = "ocaml";
+			default:
+					
+		}
+		
+		return mode;
+	}
+	
 	public static function selectDoc(pos:Int):Void
 	{
 		for (i in 0...tabs.childNodes.length)
@@ -92,6 +143,13 @@ class TabManager
 			{
 				child.className = "";
 			}
+		}
+		
+		curDoc = docs[pos];
+		
+		if (editor != null)
+		{
+			editor.swapDoc(curDoc.doc);
 		}
 	}
 }

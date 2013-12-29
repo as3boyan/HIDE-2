@@ -27,6 +27,12 @@ class Main
 	{
 		TabManager.init();
 		
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.file-tree"], function ():Void
+		{
+			FileTree.onFileClick = TabManager.openFileInNewTab;
+		}
+		);
+		
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 		HIDE.notifyLoadingComplete(name);
 	}

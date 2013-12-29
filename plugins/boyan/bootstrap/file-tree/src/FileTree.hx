@@ -13,6 +13,8 @@ import js.html.UListElement;
  */
 @:keepSub @:expose class FileTree
 {	
+	public static var onFileClick:Dynamic;
+	
 	public static function init():Void
 	{
 		//<div id="tree_well" class="well" style="overflow: auto; padding: 0; margin: 0; width: 100%; height: 100%; font-size: 10pt; line-height: 1;">
@@ -119,7 +121,10 @@ import js.html.UListElement;
 						a.title = filePath;
 						a.onclick = function (e):Void
 						{
-							//TabsManager.openFileInNewTab(filePath);
+							if (onFileClick != null)
+							{
+								onFileClick(filePath);
+							}
 						};
 						
 						if (StringTools.endsWith(file, ".hx"))

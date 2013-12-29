@@ -84,10 +84,11 @@ FileTree.readDir = function(path,topElement) {
 						a.href = "#";
 						a.textContent = file[0];
 						a.title = filePath[0];
-						a.onclick = (function() {
+						a.onclick = (function(filePath) {
 							return function(e) {
+								if(FileTree.onFileClick != null) FileTree.onFileClick(filePath[0]);
 							};
-						})();
+						})(filePath);
 						if(StringTools.endsWith(file[0],".hx")) a.style.fontWeight = "bold"; else if(StringTools.endsWith(file[0],".hxml")) {
 							a.style.fontWeight = "bold";
 							a.style.color = "gray";

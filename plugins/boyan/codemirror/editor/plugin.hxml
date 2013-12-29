@@ -2,6 +2,7 @@
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/codemirror
 -cp ../../../../externs/plugins/boyan/jquery/split-pane
+-cp ../../../../externs/plugins/boyan/bootstrap/tab-manager
 -main Main
 -js bin/Main.js
 -dce full
