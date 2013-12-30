@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.project.haxe";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -46,7 +46,7 @@ class Main
 					trace(error);
 				}
 				
-				//TabsManager.openFileInNewTab(pathToMain);
+				TabManager.openFileInNewTab(pathToMain);
 			}
 			);
 		}

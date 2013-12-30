@@ -83,7 +83,7 @@ import js.html.UListElement;
 	
 	public static function openFileInNewTab(path:String):Void
 	{
-		js.Node.fs.readFile(path, function (error:js.Node.NodeErr, code:String):Void
+		js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, code:String):Void
 		{
 			if (error != null)
 			{

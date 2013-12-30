@@ -2,6 +2,7 @@
 -cp ../../../../externs/nodejs-std/src
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/bootstrap/new-project-dialog
+-cp ../../../../externs/plugins/boyan/bootstrap/tab-manager
 -main Main
 -js bin/Main.js
 -dce full

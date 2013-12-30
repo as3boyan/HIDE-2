@@ -52,31 +52,39 @@ typedef PluginDependenciesData =
 	//Asynchronously loads multiple CSS scripts
 	public static function loadCSS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{
-		for (i in 0...urls.length)
-		{			
-			var url:String = urls[i];
-			
-			if (name != null)
+		if (name != null)
+		{
+			for (i in 0...urls.length)
 			{
-				url = js.Node.path.join(getPluginPath(name), url);
+				urls[i] = js.Node.path.join(getPluginPath(name), urls[i]);
 			}
-			
-			var link:LinkElement = Browser.document.createLinkElement();
-			link.href = url;
-			link.type = "text/css";
-			link.rel = "stylesheet";
-			link.onload = function (e)
-			{
-				traceScriptLoadingInfo(name, url);
-				
-				if (i == urls.length - 1 && onLoad != null)
-				{
-					onLoad();
-				}
-			};
-			Browser.document.head.appendChild(link);
 		}
+
+		loadCSSAsync(name, urls, onLoad);
 	}
+	
+	private static function loadCSSAsync(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
+	{
+		var link:LinkElement = Browser.document.createLinkElement();
+		link.href = urls.splice(0, 1)[0];
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.onload = function (e)
+		{
+			traceScriptLoadingInfo(name, link.href);
+			
+			if (urls.length > 0)
+			{
+				loadCSSAsync(name, urls, onLoad);
+			}
+			else if (onLoad != null)
+			{
+				onLoad();
+			}
+		};
+		
+		Browser.document.head.appendChild(link);
+	}	
 	
 	private static function traceScriptLoadingInfo(name:String, url:String):Void
 	{
@@ -230,6 +238,8 @@ typedef PluginDependenciesData =
 					}
 				}
 				);
+				
+				Main.window.show();
 			}
 		}
 	}
@@ -254,5 +264,5 @@ typedef PluginDependenciesData =
 		};
 		
 		Browser.document.body.appendChild(script);
-	}	
+	}
 }

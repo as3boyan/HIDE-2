@@ -7,4 +7,5 @@ package ;
 extern class TabManager
 {
 	public static var editor:Dynamic;
+	public static function openFileInNewTab(path:String):Void;
 }

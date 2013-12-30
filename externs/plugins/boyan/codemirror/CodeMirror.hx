@@ -34,7 +34,7 @@ text : Array<String>,
 
 @:native('CodeMirror.Doc')extern class Doc 
 {
-	public function new(body: Dynamic, mode: String);
+	public function new(body: Dynamic, mode: String, ?firstLineNumber:Int);
 }
 
 @:native('CodeMirror') extern class CodeMirror {

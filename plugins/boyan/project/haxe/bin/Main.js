@@ -49,6 +49,7 @@ Main.createHaxeProject = function(data) {
 		var code = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
 		js.Node.require("fs").writeFile(pathToMain,code,null,function(error) {
 			if(error != null) console.log(error);
+			TabManager.openFileInNewTab(pathToMain);
 		});
 	});
 };
@@ -89,7 +90,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.project.haxe";
-Main.dependencies = ["boyan.bootstrap.new-project-dialog"];
+Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager"];
 Main.main();
 })();
 

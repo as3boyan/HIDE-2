@@ -45,26 +45,28 @@ HIDE.loadJS = function(name,urls,onLoad) {
 	HIDE.loadJSAsync(name,urls,onLoad);
 };
 HIDE.loadCSS = function(name,urls,onLoad) {
-	var _g1 = 0;
-	var _g = urls.length;
-	while(_g1 < _g) {
-		var i = [_g1++];
-		var url = [urls[i[0]]];
-		if(name != null) url[0] = js.Node.require("path").join(HIDE.getPluginPath(name),url[0]);
-		var link;
-		var _this = window.document;
-		link = _this.createElement("link");
-		link.href = url[0];
-		link.type = "text/css";
-		link.rel = "stylesheet";
-		link.onload = (function(url,i) {
-			return function(e) {
-				HIDE.traceScriptLoadingInfo(name,url[0]);
-				if(i[0] == urls.length - 1 && onLoad != null) onLoad();
-			};
-		})(url,i);
-		window.document.head.appendChild(link);
+	if(name != null) {
+		var _g1 = 0;
+		var _g = urls.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			urls[i] = js.Node.require("path").join(HIDE.getPluginPath(name),urls[i]);
+		}
 	}
+	HIDE.loadCSSAsync(name,urls,onLoad);
+};
+HIDE.loadCSSAsync = function(name,urls,onLoad) {
+	var link;
+	var _this = window.document;
+	link = _this.createElement("link");
+	link.href = urls.splice(0,1)[0];
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.onload = function(e) {
+		HIDE.traceScriptLoadingInfo(name,link.href);
+		if(urls.length > 0) HIDE.loadCSSAsync(name,urls,onLoad); else if(onLoad != null) onLoad();
+	};
+	window.document.head.appendChild(link);
 };
 HIDE.traceScriptLoadingInfo = function(name,url) {
 	var str;
@@ -140,6 +142,7 @@ HIDE.checkRequiredPluginsData = function() {
 				});
 			} else console.log(error);
 		});
+		Main.window.show();
 	}
 };
 HIDE.loadJSAsync = function(name,urls,onLoad) {
@@ -227,20 +230,24 @@ var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	var gui = js.Node.require("nw.gui");
-	var $window = gui.Window.get();
-	$window.showDevTools();
+	Main.window = gui.Window.get();
+	Main.window.showDevTools();
 	window.addEventListener("load",function(e) {
-		$window.show();
+		Main.window.show();
 		Main.currentTime = new Date().getTime();
-		Main.loadPlugins();
+		Main.checkHaxeInstalled(function() {
+			Main.loadPlugins();
+		},function() {
+			Main.loadPlugins(false);
+		});
 	});
-	$window.on("close",function(e) {
+	Main.window.on("close",function(e) {
 		var _g = 0;
 		var _g1 = HIDE.windows;
 		while(_g < _g1.length) {
-			var window1 = _g1[_g];
+			var $window = _g1[_g];
 			++_g;
-			window1.close(true);
+			$window.close(true);
 		}
 	});
 };
@@ -264,6 +271,7 @@ Main.loadPlugins = function(compile) {
 				++_g;
 				console.log(pluginData.name + ": can't load plugin, required plugins are not found");
 				console.log(pluginData.plugins);
+				Main.window.show();
 			}
 		}
 	},10000);
@@ -321,6 +329,16 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 		if(code == 0) onSuccess(pathToPlugin); else {
 			console.log("can't load " + name + " plugin, compilation failed");
 			if(onFailed != null) onFailed(stderrData);
+		}
+	});
+};
+Main.checkHaxeInstalled = function(onSuccess,onFailed) {
+	js.Node.require("child_process").exec("haxe",{ },function(error,stdout,stderr) {
+		if(error == null) onSuccess(); else {
+			console.log(error);
+			console.log(stdout);
+			console.log(stderr);
+			onFailed();
 		}
 	});
 };

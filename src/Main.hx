@@ -15,22 +15,33 @@ class Main
 {
 	public static var currentTime:Float;
 	public static var pluginsTestingData:String = "";
+	public static var window:Dynamic;
 	
 	static function main() 
 	{
 		var gui:Dynamic = js.Node.require('nw.gui');
-		var window:Dynamic = gui.Window.get();
+		window = gui.Window.get();
 		
 		window.showDevTools();
 		
 		Browser.window.addEventListener("load", function (e):Void
-		{			
+		{
 			window.show();
 			currentTime = Date.now().getTime();
-			loadPlugins();
+			
+			checkHaxeInstalled(function ()
+			{
+				loadPlugins();
+			}
+			,
+			function ()
+			{
+				loadPlugins(false);
+			}
+			);
 		}
 		);
-		
+				
 		window.on("close", function (e):Void
 		{
 			for (window in HIDE.windows)
@@ -78,6 +89,8 @@ class Main
 				{
 					trace(pluginData.name + ": can't load plugin, required plugins are not found");
 					trace(pluginData.plugins);
+					
+					window.show();
 				}
 			}
 		}
@@ -203,4 +216,27 @@ class Main
 		);
 	}
 	
+	private static function checkHaxeInstalled(onSuccess:Dynamic, onFailed:Dynamic):Void
+	{
+		js.Node.childProcess.exec("haxe", { }, function (error, stdout, stderr) 
+		{
+			if (error == null)
+			{
+				onSuccess();
+			}
+			else 
+			{
+				//if (error.code = 1)
+				//{
+					//
+				//}
+				
+				trace(error);
+				trace(stdout);
+				trace(stderr);
+				onFailed();
+			}
+		}
+		);
+	}
 }

@@ -17,12 +17,11 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
-	HIDE.loadCSS(Main.$name,["bin/includes/css/panel.css"]);
 };
 Main.load = function() {
 	HIDE.loadJS(Main.$name,["bin/includes/js/jquery.layout-latest.min.js"],function() {
 		Splitpane.createSplitPane();
-		HIDE.loadCSS(Main.$name,["bin/includes/css/layout-default-latest.css"],function() {
+		HIDE.loadCSS(Main.$name,["bin/includes/css/layout-default-latest.css","bin/includes/css/panel.css"],function() {
 			Splitpane.activateSplitpane();
 		});
 		HIDE.notifyLoadingComplete(Main.$name);

@@ -15,9 +15,7 @@ class Main
 	public static function main():Void
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
-		
-		HIDE.loadCSS(name, ["bin/includes/css/panel.css"]);
-		
+				
 		//Notify HIDE to ignore this plugin
 		//HIDE.conflictingPlugins.push("boyan.jquery.split-pane");
 	}
@@ -29,7 +27,7 @@ class Main
 			Splitpane.createSplitPane();			
 			
 			//Waits for all CSS
-			HIDE.loadCSS(name, ["bin/includes/css/layout-default-latest.css"], function ():Void
+			HIDE.loadCSS(name, ["bin/includes/css/layout-default-latest.css", "bin/includes/css/panel.css"], function ():Void
 			{
 				Splitpane.activateSplitpane();
 				//Splitpane.activateStatePreserving();
