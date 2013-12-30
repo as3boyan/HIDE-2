@@ -34,7 +34,7 @@ class ContextMenu
 		ul.className = "dropdown-menu";
 		ul.style.display = "block";
 		
-		//ul.appendChild(createContextMenuItem("New File...", TabsManager.createFileInNewTab));
+		ul.appendChild(createContextMenuItem("New File...", TabManager.createFileInNewTab));
 		
 		var li:LIElement = Browser.document.createLIElement();
 		li.className = "divider";
@@ -42,19 +42,19 @@ class ContextMenu
 		ul.appendChild(li);
 		ul.appendChild(createContextMenuItem("Close", function ()
 		{
-				//TabsManager.closeTab(contextMenu.getAttribute("path"));
+				TabManager.closeTab(contextMenu.getAttribute("path"));
 		}
 		));
 		ul.appendChild(createContextMenuItem("Close All", function ()
 		{
-				//closeAll();
+				TabManager.closeAll();
 		}
 		));
 		
 		ul.appendChild(createContextMenuItem("Close Other", function ()
 		{
-				//var path = contextMenu.getAttribute("path");
-				//closeOthers(path);
+				var path = contextMenu.getAttribute("path");
+				TabManager.closeOthers(path);
 		}
 		));
 		

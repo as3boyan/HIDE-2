@@ -26,7 +26,7 @@ class Main
 		
 		Browser.window.addEventListener("load", function (e):Void
 		{
-			window.show();
+			//window.show();
 			currentTime = Date.now().getTime();
 			
 			checkHaxeInstalled(function ()
@@ -203,10 +203,18 @@ class Main
 			{
 				onSuccess(pathToPlugin);
 			}
-			else 
+			else
 			{
 				trace("can't load " + name + " plugin, compilation failed");
-
+				
+				var regex:EReg = new EReg("haxelib install (.+) ", "gim");
+				regex.map(stderrData, function (ereg:EReg)
+				{
+					trace(ereg);
+					return "";
+				}
+				);
+				
 				if (onFailed != null)
 				{
 					onFailed(stderrData);
@@ -219,7 +227,7 @@ class Main
 	private static function checkHaxeInstalled(onSuccess:Dynamic, onFailed:Dynamic):Void
 	{
 		js.Node.childProcess.exec("haxe", { }, function (error, stdout, stderr) 
-		{
+		{			
 			if (error == null)
 			{
 				onSuccess();

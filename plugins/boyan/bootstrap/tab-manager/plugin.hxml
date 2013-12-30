@@ -4,6 +4,7 @@
 -cp ../../../../externs/plugins/boyan/jquery/split-pane
 -cp ../../../../externs/plugins/boyan/codemirror
 -cp ../../../../externs/plugins/boyan/bootstrap/file-tree
+-cp ../../../../externs/plugins/boyan/window/file-dialog
 -lib jQueryExtern
 -main Main
 -js bin/Main.js

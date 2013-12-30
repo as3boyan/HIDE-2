@@ -25,16 +25,21 @@ ContextMenu.createContextMenu = function() {
 	ul = _this.createElement("ul");
 	ul.className = "dropdown-menu";
 	ul.style.display = "block";
+	ul.appendChild(ContextMenu.createContextMenuItem("New File...",TabManager.createFileInNewTab));
 	var li;
 	var _this = window.document;
 	li = _this.createElement("li");
 	li.className = "divider";
 	ul.appendChild(li);
 	ul.appendChild(ContextMenu.createContextMenuItem("Close",function() {
+		TabManager.closeTab(contextMenu.getAttribute("path"));
 	}));
 	ul.appendChild(ContextMenu.createContextMenuItem("Close All",function() {
+		TabManager.closeAll();
 	}));
 	ul.appendChild(ContextMenu.createContextMenuItem("Close Other",function() {
+		var path = contextMenu.getAttribute("path");
+		TabManager.closeOthers(path);
 	}));
 	contextMenu.appendChild(ul);
 	window.document.body.appendChild(contextMenu);
@@ -92,6 +97,25 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
+};
+HxOverrides.iter = function(a) {
+	return { cur : 0, arr : a, hasNext : function() {
+		return this.cur < this.arr.length;
+	}, next : function() {
+		return this.arr[this.cur++];
+	}};
+};
+var Lambda = function() { };
+Lambda.__name__ = true;
+Lambda.indexOf = function(it,v) {
+	var i = 0;
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var v2 = $it0.next();
+		if(v == v2) return i;
+		i++;
+	}
+	return -1;
 };
 var Main = function() { };
 Main.__name__ = true;
@@ -161,6 +185,7 @@ TabManager.createNewTab = function(name,path) {
 	TabManager.tabs.appendChild(li);
 };
 TabManager.openFileInNewTab = function(path) {
+	if(TabManager.isAlreadyOpened(path)) return;
 	js.Node.require("fs").readFile(path,"utf8",function(error,code) {
 		if(error != null) console.log(error);
 		var mode = TabManager.getMode(path);
@@ -169,6 +194,82 @@ TabManager.openFileInNewTab = function(path) {
 		TabManager.createNewTab(name,path);
 		TabManager.selectDoc(TabManager.docs.length - 1);
 	});
+};
+TabManager.createFileInNewTab = function() {
+	FileDialog.saveFile(function(path) {
+		var name = js.Node.require("path").basename(path);
+		var mode = TabManager.getMode(name);
+		var code = "";
+		if(js.Node.require("path").extname(name) == ".hx") {
+			path = HxOverrides.substr(path,0,path.length - name.length) + HxOverrides.substr(name,0,1).toUpperCase() + HxOverrides.substr(name,1,null);
+			code = "package ;\n\nclass " + js.Node.require("path").basename(name) + "\n{\n\n}";
+		}
+		TabManager.docs.push(new CMDoc(name,new CodeMirror.Doc(code,mode),path));
+		TabManager.createNewTab(name,path);
+		TabManager.selectDoc(TabManager.docs.length - 1);
+	});
+};
+TabManager.closeAll = function() {
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
+	}
+};
+TabManager.closeOthers = function(path) {
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(TabManager.docs[i] != null && path != TabManager.docs[i].path) TabManager.closeTab(TabManager.docs[i].path,false);
+	}
+	TabManager.showNextTab();
+};
+TabManager.closeTab = function(path,switchToTab) {
+	if(switchToTab == null) switchToTab = true;
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(TabManager.docs[i] != null && TabManager.docs[i].path == path) {
+			TabManager.docs.splice(i,1);
+			(js.Boot.__cast(TabManager.tabs.children.item(i) , Element)).remove();
+		}
+	}
+	if(switchToTab) TabManager.showPreviousTab();
+};
+TabManager.closeActiveTab = function() {
+	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
+	TabManager.docs.splice(n,1);
+	(js.Boot.__cast(TabManager.tabs.children.item(n) , Element)).remove();
+	TabManager.showPreviousTab();
+};
+TabManager.showNextTab = function() {
+	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
+	n++;
+	if(n > TabManager.docs.length - 1) n = 0;
+	TabManager.selectDoc(n);
+};
+TabManager.showPreviousTab = function() {
+	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
+	n--;
+	if(n < 0) n = TabManager.docs.length - 1;
+	TabManager.selectDoc(n);
+};
+TabManager.isAlreadyOpened = function(path) {
+	var opened = false;
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(TabManager.docs[i].path == path) {
+			TabManager.selectDoc(i);
+			opened = true;
+			break;
+		}
+	}
+	return opened;
 };
 TabManager.getMode = function(path) {
 	var mode = "haxe";
@@ -329,6 +430,9 @@ js.Boot.__cast = function(o,t) {
 };
 js.Node = function() { };
 js.Node.__name__ = true;
+function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
+var $_, $fid = 0;
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.prototype.__class__ = Array;

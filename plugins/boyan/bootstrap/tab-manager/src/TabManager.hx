@@ -83,6 +83,11 @@ import js.html.UListElement;
 	
 	public static function openFileInNewTab(path:String):Void
 	{
+		if (isAlreadyOpened(path))
+		{
+			return;
+		}
+		
 		js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, code:String):Void
 		{
 			if (error != null)
@@ -100,6 +105,132 @@ import js.html.UListElement;
 			selectDoc(docs.length - 1);
 		}
 		);
+	}
+	
+	public static function createFileInNewTab():Void
+	{
+		FileDialog.saveFile(function (path:String)
+		{			
+			//var path:String = convertPathToUnixFormat(value);
+	
+			//if (isAlreadyOpened(path))
+			//{
+				//return;
+			//}
+			
+			var name:String = js.Node.path.basename(path);
+			var mode:String = getMode(name);
+			
+			var code:String = "";
+			
+			if (js.Node.path.extname(name) == ".hx")
+			{
+				path = path.substr(0, path.length - name.length) + name.substr(0, 1).toUpperCase() + name.substr(1); // + Utils.capitalize(name)
+				
+				code = "package ;\n\nclass " + js.Node.path.basename(name) + "\n{\n\n}";
+			}
+			
+			docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
+			
+			createNewTab(name, path);
+			
+			selectDoc(docs.length - 1);
+		}
+		);
+	}
+	
+	public static function closeAll():Void
+	{
+		for (i in 0...docs.length)
+		{
+			if (docs[i] != null)
+			{
+				closeTab(docs[i].path, false);
+			}
+		}
+	}
+        
+	public static function closeOthers(path:String):Void
+	{
+		for (i in 0...docs.length)
+		{
+			if (docs[i] != null && path != docs[i].path)
+			{
+				closeTab(docs[i].path, false);
+			}
+		}
+		
+		showNextTab();
+	}
+	
+	public static function closeTab(path:String, ?switchToTab:Bool = true):Void
+	{
+		for (i in 0...docs.length)
+		{                                
+			if (docs[i] != null && docs[i].path == path)
+			{
+				docs.splice(i, 1);
+				cast(tabs.children.item(i), Element).remove();
+			}
+		}
+		
+		if (switchToTab)
+		{
+			showPreviousTab();
+		}
+	}
+	
+	public static function closeActiveTab():Void
+	{
+		var n = Lambda.indexOf(docs, curDoc);
+		docs.splice(n, 1);
+		cast(tabs.children.item(n), Element).remove();
+		showPreviousTab();
+	}
+	
+	public static function showNextTab():Void
+	{
+		var n = Lambda.indexOf(docs, curDoc);
+		
+		n++;
+		
+		if (n > docs.length - 1)
+		{
+			n = 0;
+		}
+		
+		selectDoc(n);
+	}
+	
+	public static function showPreviousTab():Void
+	{
+		var n = Lambda.indexOf(docs, curDoc);
+		
+		n--;
+		
+		if (n < 0)
+		{
+			n = docs.length - 1;
+		}
+		
+		selectDoc(n);
+	}
+
+	private static function isAlreadyOpened(path:String):Bool
+	{
+		var opened:Bool = false;
+		
+		for (i in 0...docs.length)
+		{
+			if (docs[i].path == path)
+			{
+				selectDoc(i);
+				opened = true;
+				break;
+			}
+		}
+		
+		return opened;
 	}
 	
 	private static function getMode(path:String):String

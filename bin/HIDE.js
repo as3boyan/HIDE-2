@@ -1,4 +1,64 @@
 (function ($hx_exports) { "use strict";
+var EReg = function(r,opt) {
+	opt = opt.split("u").join("");
+	this.r = new RegExp(r,opt);
+};
+EReg.__name__ = true;
+EReg.prototype = {
+	match: function(s) {
+		if(this.r.global) this.r.lastIndex = 0;
+		this.r.m = this.r.exec(s);
+		this.r.s = s;
+		return this.r.m != null;
+	}
+	,matchedPos: function() {
+		if(this.r.m == null) throw "No string matched";
+		return { pos : this.r.m.index, len : this.r.m[0].length};
+	}
+	,matchSub: function(s,pos,len) {
+		if(len == null) len = -1;
+		if(this.r.global) {
+			this.r.lastIndex = pos;
+			this.r.m = this.r.exec(len < 0?s:HxOverrides.substr(s,0,pos + len));
+			var b = this.r.m != null;
+			if(b) this.r.s = s;
+			return b;
+		} else {
+			var b = this.match(len < 0?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len));
+			if(b) {
+				this.r.s = s;
+				this.r.m.index += pos;
+			}
+			return b;
+		}
+	}
+	,map: function(s,f) {
+		var offset = 0;
+		var buf = new StringBuf();
+		do {
+			if(offset >= s.length) break; else if(!this.matchSub(s,offset)) {
+				var x = HxOverrides.substr(s,offset,null);
+				buf.b += Std.string(x);
+				break;
+			}
+			var p = this.matchedPos();
+			var x = HxOverrides.substr(s,offset,p.pos - offset);
+			buf.b += Std.string(x);
+			var x = f(this);
+			buf.b += Std.string(x);
+			if(p.len == 0) {
+				var x = HxOverrides.substr(s,p.pos,1);
+				buf.b += Std.string(x);
+				offset = p.pos + 1;
+			} else offset = p.pos + p.len;
+		} while(this.r.global);
+		if(!this.r.global && offset > 0 && offset < s.length) {
+			var x = HxOverrides.substr(s,offset,null);
+			buf.b += Std.string(x);
+		}
+		return buf.b;
+	}
+};
 var IMap = function() { };
 IMap.__name__ = true;
 var haxe = {};
@@ -233,7 +293,6 @@ Main.main = function() {
 	Main.window = gui.Window.get();
 	Main.window.showDevTools();
 	window.addEventListener("load",function(e) {
-		Main.window.show();
 		Main.currentTime = new Date().getTime();
 		Main.checkHaxeInstalled(function() {
 			Main.loadPlugins();
@@ -328,6 +387,11 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 	haxeCompilerProcess.on("close",function(code) {
 		if(code == 0) onSuccess(pathToPlugin); else {
 			console.log("can't load " + name + " plugin, compilation failed");
+			var regex = new EReg("haxelib install (.+) ","gim");
+			regex.map(stderrData,function(ereg) {
+				console.log(ereg);
+				return "";
+			});
 			if(onFailed != null) onFailed(stderrData);
 		}
 	});
@@ -353,6 +417,10 @@ Std.parseInt = function(x) {
 	if(isNaN(v)) return null;
 	return v;
 };
+var StringBuf = function() {
+	this.b = "";
+};
+StringBuf.__name__ = true;
 var StringTools = function() { };
 StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
