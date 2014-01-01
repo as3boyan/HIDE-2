@@ -1,4 +1,5 @@
 package ;
+import haxe.Timer;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
@@ -69,7 +70,7 @@ import js.html.UListElement;
 
 		span.onclick = function (e):Void
 		{
-			//closeTab(path);
+			TabManager.closeTab(path);
 		}
 
 		var span2:SpanElement = Browser.document.createSpanElement();
@@ -148,6 +149,15 @@ import js.html.UListElement;
 				closeTab(docs[i].path, false);
 			}
 		}
+		
+		if (docs.length > 0)
+		{
+			Timer.delay(function ()
+			{
+				closeAll();
+			}
+			,30);
+		}
 	}
         
 	public static function closeOthers(path:String):Void
@@ -160,7 +170,18 @@ import js.html.UListElement;
 			}
 		}
 		
-		showNextTab();
+		if (docs.length > 1)
+		{
+			Timer.delay(function ()
+			{
+					closeOthers(path);
+			}
+			,30);
+		}
+		else 
+		{
+			showNextTab();
+		}
 	}
 	
 	public static function closeTab(path:String, ?switchToTab:Bool = true):Void
@@ -174,7 +195,7 @@ import js.html.UListElement;
 			}
 		}
 		
-		if (switchToTab)
+		if (switchToTab && docs.length > 0)
 		{
 			showPreviousTab();
 		}
@@ -185,7 +206,11 @@ import js.html.UListElement;
 		var n = Lambda.indexOf(docs, curDoc);
 		docs.splice(n, 1);
 		cast(tabs.children.item(n), Element).remove();
-		showPreviousTab();
+		
+		if (docs.length > 0)
+		{
+			showPreviousTab();
+		}
 	}
 	
 	public static function showNextTab():Void

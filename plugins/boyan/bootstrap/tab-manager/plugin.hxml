@@ -5,6 +5,7 @@
 -cp ../../../../externs/plugins/boyan/codemirror
 -cp ../../../../externs/plugins/boyan/bootstrap/file-tree
 -cp ../../../../externs/plugins/boyan/window/file-dialog
+-cp ../../../../externs/plugins/boyan/events/hotkey
 -lib jQueryExtern
 -main Main
 -js bin/Main.js

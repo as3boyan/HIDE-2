@@ -89,7 +89,7 @@ Questions should be asked on the
 
 ###Developer's Guide
 
-##How HIDE works
+####How HIDE works
 
 A few words on inner structure of HIDE.
 
@@ -131,7 +131,7 @@ NOTE: Currently HIDE will recompile each plugin before adding it to the page. St
 
 Probably it would be easier to understand, if you could imagine HIDE core as some require.js(AMD) lib, written entirely in Haxe, which checks plugin dependencies and loads plugins when dependencies are met.
 
-##Plugin Structure:
+####Plugin Structure:
 
 Required files:
 1. plugin.hxml
@@ -139,7 +139,7 @@ Required files:
 
 Most of HIDE functionality is based on plugins.
 
-##How to develop a plugin
+####How to develop a plugin
 
 Create a copy of "plugins/boyan/samples/helloworld" folder.
 And rename it to plugin name, for example "plugins/john/samples/test".

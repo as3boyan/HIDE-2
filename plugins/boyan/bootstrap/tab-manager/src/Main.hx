@@ -30,6 +30,15 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.file-tree"], function ():Void
 		{
 			FileTree.onFileClick = TabManager.openFileInNewTab;
+			
+			//Ctrl-Tab
+			Hotkeys.addHotkey(9, true, false, false, TabManager.showNextTab);
+			
+			//Ctrl-Shift-Tab
+			Hotkeys.addHotkey(9, true, true, false, TabManager.showPreviousTab);
+			
+			//Ctrl-W
+			Hotkeys.addHotkey("W".code, true, false, false, TabManager.closeActiveTab);
 		}
 		);
 		

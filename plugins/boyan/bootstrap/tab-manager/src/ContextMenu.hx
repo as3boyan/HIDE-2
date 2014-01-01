@@ -42,19 +42,19 @@ class ContextMenu
 		ul.appendChild(li);
 		ul.appendChild(createContextMenuItem("Close", function ()
 		{
-				TabManager.closeTab(contextMenu.getAttribute("path"));
+			TabManager.closeTab(contextMenu.getAttribute("path"));
 		}
 		));
 		ul.appendChild(createContextMenuItem("Close All", function ()
 		{
-				TabManager.closeAll();
+			TabManager.closeAll();
 		}
 		));
 		
 		ul.appendChild(createContextMenuItem("Close Other", function ()
 		{
-				var path = contextMenu.getAttribute("path");
-				TabManager.closeOthers(path);
+			var path = contextMenu.getAttribute("path");
+			TabManager.closeOthers(path);
 		}
 		));
 		

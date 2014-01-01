@@ -127,6 +127,9 @@ Main.load = function() {
 	TabManager.init();
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.file-tree"],function() {
 		FileTree.onFileClick = TabManager.openFileInNewTab;
+		Hotkeys.addHotkey(9,true,false,false,TabManager.showNextTab);
+		Hotkeys.addHotkey(9,true,true,false,TabManager.showPreviousTab);
+		Hotkeys.addHotkey(87,true,false,false,TabManager.closeActiveTab);
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 };
@@ -175,6 +178,7 @@ TabManager.createNewTab = function(name,path) {
 	span.style.position = "relative";
 	span.style.top = "2px";
 	span.onclick = function(e) {
+		TabManager.closeTab(path);
 	};
 	var span2;
 	var _this = window.document;
@@ -216,6 +220,9 @@ TabManager.closeAll = function() {
 		var i = _g1++;
 		if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
 	}
+	if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
+		TabManager.closeAll();
+	},30);
 };
 TabManager.closeOthers = function(path) {
 	var _g1 = 0;
@@ -224,7 +231,9 @@ TabManager.closeOthers = function(path) {
 		var i = _g1++;
 		if(TabManager.docs[i] != null && path != TabManager.docs[i].path) TabManager.closeTab(TabManager.docs[i].path,false);
 	}
-	TabManager.showNextTab();
+	if(TabManager.docs.length > 1) haxe.Timer.delay(function() {
+		TabManager.closeOthers(path);
+	},30); else TabManager.showNextTab();
 };
 TabManager.closeTab = function(path,switchToTab) {
 	if(switchToTab == null) switchToTab = true;
@@ -237,13 +246,13 @@ TabManager.closeTab = function(path,switchToTab) {
 			(js.Boot.__cast(TabManager.tabs.children.item(i) , Element)).remove();
 		}
 	}
-	if(switchToTab) TabManager.showPreviousTab();
+	if(switchToTab && TabManager.docs.length > 0) TabManager.showPreviousTab();
 };
 TabManager.closeActiveTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
 	TabManager.docs.splice(n,1);
 	(js.Boot.__cast(TabManager.tabs.children.item(n) , Element)).remove();
-	TabManager.showPreviousTab();
+	if(TabManager.docs.length > 0) TabManager.showPreviousTab();
 };
 TabManager.showNextTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
@@ -311,6 +320,32 @@ TabManager.selectDoc = function(pos) {
 	}
 	TabManager.curDoc = TabManager.docs[pos];
 	if(TabManager.editor != null) TabManager.editor.swapDoc(TabManager.curDoc.doc);
+};
+var haxe = {};
+haxe.Timer = function(time_ms) {
+	var me = this;
+	this.id = setInterval(function() {
+		me.run();
+	},time_ms);
+};
+haxe.Timer.__name__ = true;
+haxe.Timer.delay = function(f,time_ms) {
+	var t = new haxe.Timer(time_ms);
+	t.run = function() {
+		t.stop();
+		f();
+	};
+	return t;
+};
+haxe.Timer.prototype = {
+	stop: function() {
+		if(this.id == null) return;
+		clearInterval(this.id);
+		this.id = null;
+	}
+	,run: function() {
+	}
+	,__class__: haxe.Timer
 };
 var js = {};
 js.Boot = function() { };
