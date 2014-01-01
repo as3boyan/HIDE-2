@@ -9,34 +9,36 @@ HxOverrides.cca = function(s,index) {
 var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
-	window.document.addEventListener("mousewheel",function(e) {
-		if(e.altKey) {
-			if(e.wheelDeltaY < 0) {
-				var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
-				fontSize--;
-				Main.setFontSize(fontSize);
-				e.preventDefault();
-				e.stopPropagation();
-			} else if(e.wheelDeltaY > 0) {
-				var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
-				fontSize++;
-				Main.setFontSize(fontSize);
-				e.preventDefault();
-				e.stopPropagation();
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
+		window.document.addEventListener("mousewheel",function(e) {
+			if(e.altKey) {
+				if(e.wheelDeltaY < 0) {
+					var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
+					fontSize--;
+					Main.setFontSize(fontSize);
+					e.preventDefault();
+					e.stopPropagation();
+				} else if(e.wheelDeltaY > 0) {
+					var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
+					fontSize++;
+					Main.setFontSize(fontSize);
+					e.preventDefault();
+					e.stopPropagation();
+				}
 			}
-		}
+		});
+		BootstrapMenu.getMenu("View").addMenuItem("Increase Font Size",10001,function() {
+			var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
+			fontSize++;
+			Main.setFontSize(fontSize);
+		},"Ctrl-+",187,true,false,false);
+		BootstrapMenu.getMenu("View").addMenuItem("Decrease Font Size",10002,function() {
+			var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
+			fontSize--;
+			Main.setFontSize(fontSize);
+		},"Ctrl--",189,true,false,false);
+		HIDE.notifyLoadingComplete(Main.$name);
 	});
-	BootstrapMenu.getMenu("View").addMenuItem("Increase Font Size",10001,function() {
-		var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
-		fontSize++;
-		Main.setFontSize(fontSize);
-	},"Ctrl-+",187,true,false,false);
-	BootstrapMenu.getMenu("View").addMenuItem("Decrease Font Size",10002,function() {
-		var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
-		fontSize--;
-		Main.setFontSize(fontSize);
-	},"Ctrl--",189,true,false,false);
-	HIDE.notifyLoadingComplete(Main.$name);
 };
 Main.setFontSize = function(fontSize) {
 	new $(".CodeMirror").css("font-size",Std.string(fontSize) + "px");
@@ -127,6 +129,7 @@ js.Boot.__string_rec = function(o,s) {
 String.__name__ = true;
 Array.__name__ = true;
 Main.$name = "boyan.codemirror.zoom";
+Main.dependencies = ["boyan.bootstrap.menu"];
 Main.main();
 })();
 
