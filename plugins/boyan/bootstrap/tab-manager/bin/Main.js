@@ -197,6 +197,7 @@ TabManager.openFileInNewTab = function(path) {
 		TabManager.docs.push(new CMDoc(name,new CodeMirror.Doc(code,mode),path));
 		TabManager.createNewTab(name,path);
 		TabManager.selectDoc(TabManager.docs.length - 1);
+		TabManager.checkTabsCount();
 	});
 };
 TabManager.createFileInNewTab = function() {
@@ -211,7 +212,16 @@ TabManager.createFileInNewTab = function() {
 		TabManager.docs.push(new CMDoc(name,new CodeMirror.Doc(code,mode),path));
 		TabManager.createNewTab(name,path);
 		TabManager.selectDoc(TabManager.docs.length - 1);
+		TabManager.checkTabsCount();
 	});
+};
+TabManager.checkTabsCount = function() {
+	if(TabManager.editor != null) {
+		if(TabManager.editor.getWrapperElement().style.display == "none" && TabManager.docs.length > 0) {
+			TabManager.editor.getWrapperElement().style.display = "block";
+			TabManager.editor.refresh();
+		}
+	}
 };
 TabManager.closeAll = function() {
 	var _g1 = 0;
@@ -246,13 +256,15 @@ TabManager.closeTab = function(path,switchToTab) {
 			(js.Boot.__cast(TabManager.tabs.children.item(i) , Element)).remove();
 		}
 	}
-	if(switchToTab && TabManager.docs.length > 0) TabManager.showPreviousTab();
+	if(TabManager.docs.length > 0) {
+		if(switchToTab) TabManager.showPreviousTab();
+	} else if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
 };
 TabManager.closeActiveTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
 	TabManager.docs.splice(n,1);
 	(js.Boot.__cast(TabManager.tabs.children.item(n) , Element)).remove();
-	if(TabManager.docs.length > 0) TabManager.showPreviousTab();
+	if(TabManager.docs.length > 0) TabManager.showPreviousTab(); else if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
 };
 TabManager.showNextTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);

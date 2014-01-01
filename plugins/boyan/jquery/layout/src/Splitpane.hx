@@ -90,6 +90,14 @@ import jQuery.JQuery;
 		};
 		
 		layout = untyped JQuery("#panel").layout(layoutSettings);
+		
+		Timer.delay(function ():Void
+		{
+			new JQuery(Browser.window).trigger("resize");
+			trace(Browser.document.getElementById("tree-well").clientWidth);
+			layout.resizeAll();
+		},
+		10000);
 	}
 	
 	public static function activateStatePreserving():Void

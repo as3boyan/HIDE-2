@@ -104,6 +104,8 @@ import js.html.UListElement;
 			createNewTab(name, path);
 			
 			selectDoc(docs.length - 1);
+			
+			checkTabsCount();
 		}
 		);
 	}
@@ -136,8 +138,25 @@ import js.html.UListElement;
 			createNewTab(name, path);
 			
 			selectDoc(docs.length - 1);
+			
+			checkTabsCount();
 		}
 		);
+	}
+	
+	private static function checkTabsCount():Void
+	{
+		if (editor != null)
+		{				
+			if (editor.getWrapperElement().style.display == "none" && docs.length > 0)
+			{
+				editor.getWrapperElement().style.display = "block";
+
+				editor.refresh();
+				
+				//Main.updateMenu();
+			}
+		}
 	}
 	
 	public static function closeAll():Void
@@ -195,9 +214,19 @@ import js.html.UListElement;
 			}
 		}
 		
-		if (switchToTab && docs.length > 0)
+		if (docs.length > 0)
 		{
-			showPreviousTab();
+			if (switchToTab)
+			{
+				showPreviousTab();
+			}
+		}
+		else 
+		{
+			if (editor != null)
+			{
+				editor.getWrapperElement().style.display = "none";
+			}
 		}
 	}
 	
@@ -210,6 +239,13 @@ import js.html.UListElement;
 		if (docs.length > 0)
 		{
 			showPreviousTab();
+		}
+		else 
+		{
+			if (editor != null)
+			{
+				editor.getWrapperElement().style.display = "none";
+			}
 		}
 	}
 	

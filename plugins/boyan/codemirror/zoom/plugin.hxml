@@ -1,0 +1,8 @@
+-cp src
+-cp ../../../../externs/plugins/hide
+-cp ../../../../externs/plugins/boyan/bootstrap/menu
+-lib jQueryExtern
+-main Main
+-js bin/Main.js
+-dce full
+-debug

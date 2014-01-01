@@ -32,8 +32,8 @@ class Main
 			{
 				window.zoomLevel = 0;
 			}
-			, "Ctrl-Shift-0", "0".code, true, true, false);
-
+			, "Ctrl-Shift-0", 48, true, true, false);
+			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);
 		}
