@@ -1,4 +1,5 @@
-(function () { "use strict";
+(function ($hx_exports) { "use strict";
+var CM = $hx_exports.CM = function() { };
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
@@ -18,7 +19,8 @@ Main.main = function() {
 			textarea.id = "code";
 			Splitpane.components[1].appendChild(textarea);
 			var editor = CodeMirror.fromTextArea(textarea,{ lineNumbers : true, matchBrackets : true, dragDrop : false, autoCloseBrackets : true, foldGutter : { rangeFinder : new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)}, gutters : ["CodeMirror-linenumbers","CodeMirror-foldgutter"], indentUnit : 4, tabSize : 4, mode : "haxe"});
-			TabManager.editor = editor;
+			CM.editor = editor;
+			TabManager.editor = CM.editor;
 			HIDE.notifyLoadingComplete(Main.$name);
 		});
 	});
@@ -34,6 +36,6 @@ Main.loadThemes = function(themes) {
 Main.$name = "boyan.codemirror.editor";
 Main.dependencies = ["boyan.jquery.layout","boyan.bootstrap.tab-manager"];
 Main.main();
-})();
+})(typeof window != "undefined" ? window : exports);
 
 //# sourceMappingURL=Main.js.map

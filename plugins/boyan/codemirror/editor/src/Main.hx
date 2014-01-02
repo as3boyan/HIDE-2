@@ -107,7 +107,8 @@ class Main
 					mode:'haxe',
                  });
 				 
-				TabManager.editor = editor;
+				CM.editor = editor;
+				TabManager.editor = CM.editor;
 				 
 				//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 				HIDE.notifyLoadingComplete(name);

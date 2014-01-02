@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/tern/server/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DAEb;CAAuC,AAAM,AAAc,UAE1D;CAAY,AAAM,AAClB,AACA,AACA,AACA,AACA,AACA,AACA,AACA,AACA,AACA,AACG,UAGF;CAA2B;;;;aAtBE;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DAEb;CAAuC,AAAM,AAAc,UAE1D;CAAY,AAAM,AAClB,AACA,AACA,AACA,AACA,AACA,AACA,AACA,AACA,AACA,AACG,UACH;GACsB,uBAAe,nBAC7B,GACG,IAAc,DAEX,EACE,HACH;GAGZ,FAAa,AAAkB,YAAe;CAAsB;;GAEpE,AAAY;GAGZ,FAA2B;;;;;aAnCE;oBACe,nBAAC;;;;"
 }

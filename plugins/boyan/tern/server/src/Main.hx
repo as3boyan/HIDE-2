@@ -27,6 +27,19 @@ class Main
 			"bin/includes/tern/plugin/doc_comment.js",
 			], function ():Void
 			{
+				var server:Dynamic = new TernServer({
+					defs: [],
+					plugins: {doc_comment: true},
+					//switchToDoc: function(name) { selectDoc(docID(name)); },
+					workerDeps: [],
+					workerScript: "bin/includes/codemirror-3.18/addon/tern/worker.js",
+					useWorker: false
+                });
+				
+				CM.editor.on("cursorActivity", function(cm) { server.updateArgHints(cm); } );
+				
+				TS.server = server;
+				
 				//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 				HIDE.notifyLoadingComplete(name);
 			}
