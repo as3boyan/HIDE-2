@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/as3boyan/HIDE.png?branch=master)](https://travis-ci.org/as3boyan/HIDE)
+[![Build Status](https://travis-ci.org/as3boyan/HIDE-1.png?branch=master)](https://travis-ci.org/as3boyan/HIDE-1)
 
 HIDE
 ====

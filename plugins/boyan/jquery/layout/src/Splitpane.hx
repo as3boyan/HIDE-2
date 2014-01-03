@@ -91,13 +91,22 @@ import jQuery.JQuery;
 		
 		layout = untyped JQuery("#panel").layout(layoutSettings);
 		
-		Timer.delay(function ():Void
+		var timer:Timer = new Timer(250);
+		
+		timer.run = function ():Void
 		{
-			new JQuery(Browser.window).trigger("resize");
-			trace(Browser.document.getElementById("tree-well").clientWidth);
-			layout.resizeAll();
-		},
-		10000);
+			if (Browser.document.getElementById("tree-well").clientHeight < 100)
+			{
+				layout.resizeAll();
+				new JQuery(Browser.window).trigger("resize");
+				
+				trace("layout.resizeAll()");
+			}
+			else 
+			{
+				timer.stop();
+			}
+		};
 	}
 	
 	public static function activateStatePreserving():Void

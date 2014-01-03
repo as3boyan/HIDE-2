@@ -344,4 +344,16 @@ import js.html.UListElement;
 			editor.swapDoc(curDoc.doc);
 		}
 	}
+	
+	public static function getCurrentDocumentPath():String
+	{
+		var path:String = null;
+		
+		if (curDoc != null)
+		{
+			path = curDoc.path;
+		}
+		
+		return path;
+	}
 }

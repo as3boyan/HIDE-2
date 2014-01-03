@@ -55,11 +55,14 @@ Splitpane.createSplitPane = function() {
 Splitpane.activateSplitpane = function() {
 	var layoutSettings = { center__paneSelector : ".outer-center", west__paneSelector : ".outer-west", west__size : 120, spacing_open : 8, spacing_closed : 12, center__childOptions : { center__paneSelector : ".middle-center", south__paneSelector : ".middle-south", south__size : 100, spacing_open : 8, spacing_closed : 12}};
 	Splitpane.layout = $("#panel").layout(layoutSettings);
-	haxe.Timer.delay(function() {
-		new $(window).trigger("resize");
-		console.log(window.document.getElementById("tree-well").clientWidth);
-		Splitpane.layout.resizeAll();
-	},10000);
+	var timer = new haxe.Timer(250);
+	timer.run = function() {
+		if(window.document.getElementById("tree-well").clientHeight < 100) {
+			Splitpane.layout.resizeAll();
+			new $(window).trigger("resize");
+			console.log("layout.resizeAll()");
+		} else timer.stop();
+	};
 };
 Splitpane.activateStatePreserving = function() {
 	var localStorage = js.Browser.getLocalStorage();
@@ -99,14 +102,6 @@ haxe.Timer = function(time_ms) {
 	this.id = setInterval(function() {
 		me.run();
 	},time_ms);
-};
-haxe.Timer.delay = function(f,time_ms) {
-	var t = new haxe.Timer(time_ms);
-	t.run = function() {
-		t.stop();
-		f();
-	};
-	return t;
 };
 haxe.Timer.prototype = {
 	stop: function() {

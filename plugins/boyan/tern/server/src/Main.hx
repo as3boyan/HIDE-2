@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.tern.server";
-	public static var dependencies:Array<String> = ["boyan.codemirror.editor"];
+	public static var dependencies:Array<String> = ["boyan.codemirror.editor", "boyan.bootstrap.tab-manager", "boyan.jquery.xml2json"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -31,14 +31,23 @@ class Main
 					defs: [],
 					plugins: {doc_comment: true},
 					//switchToDoc: function(name) { selectDoc(docID(name)); },
-					workerDeps: [],
-					workerScript: "bin/includes/codemirror-3.18/addon/tern/worker.js",
-					useWorker: false
+					//workerDeps: [],
+					//workerScript: "bin/includes/codemirror-3.18/addon/tern/worker.js",
+					//useWorker: false
                 });
 				
 				CM.editor.on("cursorActivity", function(cm) { server.updateArgHints(cm); } );
 				
+				var keyMap = {
+					"Ctrl-Space": function (cm) { server.complete(cm); },
+					"Ctrl-Q": function(cm) { server.rename(cm); },
+				};
+				
+				CM.editor.setOption("extraKeys", keyMap);
+				
 				TS.server = server;
+				
+				Completion.registerHandlers();
 				
 				//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 				HIDE.notifyLoadingComplete(name);

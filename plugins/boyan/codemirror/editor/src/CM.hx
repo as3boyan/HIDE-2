@@ -6,5 +6,5 @@ package ;
  */
 @:keepSub @:expose class CM
 {
-	public static var editor:Dynamic;	
+	public static var editor:Dynamic;
 }
