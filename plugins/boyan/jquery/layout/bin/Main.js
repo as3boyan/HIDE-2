@@ -47,21 +47,27 @@ Splitpane.createSplitPane = function() {
 	middleSouthPanel.appendChild(middleSouthPanelContent);
 	var outerWestPanel = Splitpane.createComponent("outer","west");
 	Splitpane.panel.appendChild(outerWestPanel);
+	var outerEastPanel = Splitpane.createComponent("outer","east");
+	Splitpane.panel.appendChild(outerEastPanel);
 	Splitpane.components.push(outerWestPanel);
 	Splitpane.components.push(middleCenterPanelContent);
 	Splitpane.components.push(middleSouthPanelContent);
+	Splitpane.components.push(outerEastPanel);
 	window.document.body.appendChild(Splitpane.panel);
 };
 Splitpane.activateSplitpane = function() {
-	var layoutSettings = { center__paneSelector : ".outer-center", west__paneSelector : ".outer-west", west__size : 120, spacing_open : 8, spacing_closed : 12, center__childOptions : { center__paneSelector : ".middle-center", south__paneSelector : ".middle-south", south__size : 100, spacing_open : 8, spacing_closed : 12}};
+	var layoutSettings = { center__paneSelector : ".outer-center", west__paneSelector : ".outer-west", west__size : 120, east__paneSelector : ".outer-east", east__size : 120, spacing_open : 8, spacing_closed : 12, center__childOptions : { center__paneSelector : ".middle-center", south__paneSelector : ".middle-south", south__size : 100, spacing_open : 8, spacing_closed : 12}};
 	Splitpane.layout = $("#panel").layout(layoutSettings);
 	var timer = new haxe.Timer(250);
 	timer.run = function() {
-		if(window.document.getElementById("tree-well").clientHeight < 100) {
-			Splitpane.layout.resizeAll();
-			new $(window).trigger("resize");
-			console.log("layout.resizeAll()");
-		} else timer.stop();
+		var treeWell = window.document.getElementById("tree-well");
+		if(treeWell != null) {
+			if(treeWell.clientHeight < 250) {
+				Splitpane.layout.resizeAll();
+				new $(window).trigger("resize");
+				console.log("layout.resizeAll()");
+			} else timer.stop();
+		}
 	};
 };
 Splitpane.activateStatePreserving = function() {

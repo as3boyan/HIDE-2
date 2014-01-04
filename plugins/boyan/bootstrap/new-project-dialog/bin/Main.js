@@ -248,7 +248,7 @@ NewProjectDialog.showPage2 = function() {
 NewProjectDialog.createProject = function() {
 	if(NewProjectDialog.projectLocation.value != "" && NewProjectDialog.projectName.value != "") js.Node.require("fs").exists(NewProjectDialog.projectLocation.value,function(exists) {
 		if(exists) {
-			js.Node.process.chdir(js.Node.require("path").join(NewProjectDialog.projectLocation.value));
+			js.Node.process.chdir(NewProjectDialog.projectLocation.value);
 			var project = new Project();
 			var item = NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value);
 			if(item.createProjectFunction != null) {
@@ -256,7 +256,7 @@ NewProjectDialog.createProject = function() {
 				var projectCompany = NewProjectDialog.textfieldsWithCheckboxes.get("Company").value;
 				if(!NewProjectDialog.checkboxes.get("Package").checked) projectPackage = "";
 				if(!NewProjectDialog.checkboxes.get("Company").checked) projectCompany = "";
-				item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value, projectPackage : projectPackage, projectCompany : projectCompany});
+				item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value, projectPackage : projectPackage, projectCompany : projectCompany, createDirectory : NewProjectDialog.createDirectoryForProject.checked});
 			}
 			var name = NewProjectDialog.projectName.value;
 			if(name != "") project.name = name;

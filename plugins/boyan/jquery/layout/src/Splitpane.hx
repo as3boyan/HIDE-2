@@ -3,6 +3,7 @@ import haxe.Timer;
 import js.Browser;
 import js.html.DivElement;
 import jQuery.JQuery;
+import js.html.Element;
 
 /**
  * ...
@@ -64,9 +65,13 @@ import jQuery.JQuery;
 		var outerWestPanel:DivElement = createComponent("outer", "west");
 		panel.appendChild(outerWestPanel);
 		
+		var outerEastPanel:DivElement = createComponent("outer", "east");
+		panel.appendChild(outerEastPanel);
+		
 		components.push(outerWestPanel);
 		components.push(middleCenterPanelContent);
 		components.push(middleSouthPanelContent);
+		components.push(outerEastPanel);
 		
 		Browser.document.body.appendChild(panel);
 	}
@@ -77,6 +82,8 @@ import jQuery.JQuery;
 		center__paneSelector:        ".outer-center",
 		west__paneSelector:                ".outer-west",
 		west__size:                                120,
+		east__paneSelector:                ".outer-east",
+		east__size:                                120,
 		spacing_open:                        8,  // ALL panes
 		spacing_closed:                        12, // ALL panes
 		
@@ -95,16 +102,21 @@ import jQuery.JQuery;
 		
 		timer.run = function ():Void
 		{
-			if (Browser.document.getElementById("tree-well").clientHeight < 100)
-			{
-				layout.resizeAll();
-				new JQuery(Browser.window).trigger("resize");
-				
-				trace("layout.resizeAll()");
-			}
-			else 
-			{
-				timer.stop();
+			var treeWell:Element = Browser.document.getElementById("tree-well");
+			
+			if (treeWell != null)
+			{				
+				if (treeWell.clientHeight < 250)
+				{
+					layout.resizeAll();
+					new JQuery(Browser.window).trigger("resize");
+					
+					trace("layout.resizeAll()");
+				}
+				else 
+				{
+					timer.stop();
+				}
 			}
 		};
 	}

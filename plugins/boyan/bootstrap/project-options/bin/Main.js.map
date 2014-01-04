@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"Main.js",
+"sourceRoot":"file://",
+"sources":["C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/bootstrap/project-options/src/Main.hx","C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/bootstrap/project-options/src/ProjectOptions.hx"],
+"names":[],
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC;EAEA,DAA2B;;CAI5B,AAAa,AAAM,AAAC;;;wBCRP,bACd;CACuB;;;CAEG;;;CACzB,EAAO;CACP,EAAc;CACd,AAAiB;CAEN;CAAX,EAAW;CACX,EAAc;CACd,AAAiB;CAEjB,AAAqB,AAAe;;aDnBL;oBACe,nBAAC,AAA0B;;;;"
+}

@@ -212,7 +212,7 @@ import js.html.UListElement;
 			{
 				if (exists)
 				{
-					js.Node.process.chdir(js.Node.path.join(projectLocation.value));
+					js.Node.process.chdir(projectLocation.value);
 					
 					var project:Project = new Project();
 					
@@ -233,7 +233,7 @@ import js.html.UListElement;
 							projectCompany = "";
 						}
 						
-						item.createProjectFunction({projectName: projectName.value, projectLocation: projectLocation.value, projectPackage: projectPackage, projectCompany: projectCompany});
+						item.createProjectFunction({projectName: projectName.value, projectLocation: projectLocation.value, projectPackage: projectPackage, projectCompany: projectCompany, createDirectory: createDirectoryForProject.checked});
 					}
 					
 					//switch (selectedCategory) 
