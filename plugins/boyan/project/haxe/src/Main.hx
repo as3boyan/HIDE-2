@@ -16,7 +16,7 @@ class Main
 		{
 			NewProjectDialog.getCategory("Haxe", 1).addItem("Flash Project", createHaxeProject);
 			
-			//-src src
+			//-cp src
 			//-main Main
 			
 			//-swf FlashProject1.swf

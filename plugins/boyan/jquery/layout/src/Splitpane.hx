@@ -106,7 +106,7 @@ import js.html.Element;
 			
 			if (treeWell != null)
 			{				
-				if (treeWell.clientHeight < 250)
+				if (treeWell.clientHeight < 250 || treeWell.clientWidth < 80)
 				{
 					layout.resizeAll();
 					new JQuery(Browser.window).trigger("resize");

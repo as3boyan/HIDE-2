@@ -62,7 +62,7 @@ Splitpane.activateSplitpane = function() {
 	timer.run = function() {
 		var treeWell = window.document.getElementById("tree-well");
 		if(treeWell != null) {
-			if(treeWell.clientHeight < 250) {
+			if(treeWell.clientHeight < 250 || treeWell.clientWidth < 80) {
 				Splitpane.layout.resizeAll();
 				new $(window).trigger("resize");
 				console.log("layout.resizeAll()");
