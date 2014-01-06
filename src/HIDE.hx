@@ -218,8 +218,12 @@ typedef PluginDependenciesData =
 				var delta:Float = Date.now().getTime() - Main.currentTime;
 				
 				trace("Loading took: " + Std.string(delta) + " ms");
-
-				trace(Main.pluginsTestingData);
+				
+				js.Node.fs.writeFile("../HIDEPlugins.hxml", Main.pluginsTestingData, js.Node.NodeC.UTF8, function (error):Void
+				{
+					
+				}
+				);
 				
 				//js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
 				//{

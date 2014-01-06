@@ -194,7 +194,8 @@ HIDE.checkRequiredPluginsData = function() {
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
 		console.log("Loading took: " + Std.string(delta) + " ms");
-		console.log(Main.pluginsTestingData);
+		js.Node.require("fs").writeFile("../HIDEPlugins.hxml",Main.pluginsTestingData,"utf8",function(error) {
+		});
 		Main.window.show();
 	}
 };
