@@ -15,6 +15,17 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
 			NewProjectDialog.getCategory("Haxe", 1).addItem("Flash Project", createHaxeProject);
+			
+			//-cp src
+			//-main Main
+			
+			//-swf FlashProject1.swf
+			//-js FlashProject1.js
+			//-php FlashProject1.php
+			//-cpp FlashProject1.exe
+			//-java FlashProject1.exe
+			//-cs FlashProject1.exe
+			
 			NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project", createHaxeProject);
 			NewProjectDialog.getCategory("Haxe").addItem("Neko Project", createHaxeProject);
 			NewProjectDialog.getCategory("Haxe").addItem("PHP Project", createHaxeProject);
@@ -33,9 +44,15 @@ class Main
 	private static function createHaxeProject(data:Dynamic):Void
 	{
 		FileTools.createDirectoryRecursively(data.projectLocation, [data.projectName, "src"], function ():Void
-		{				
-			var pathToMain:String  = js.Node.path.join(data.projectLocation, data.projectName, "src");
-			pathToMain = js.Node.path.join(pathToMain, "Main.hx");
+		{
+			var pathToMain:String  = data.projectLocation;
+			
+			if (data.createDirectory)
+			{
+				js.Node.path.join(pathToMain, data.projectName);
+			}
+			
+			pathToMain = js.Node.path.join(pathToMain, "src", "Main.hx");
 			
 			var code:String = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
 			

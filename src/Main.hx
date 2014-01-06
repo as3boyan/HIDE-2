@@ -131,8 +131,36 @@ class Main
 								}
 								//&& !Lambda.has(HIDE.conflictingPlugins, pluginName)
 								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, pluginName))
-								{
-									pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + " && haxe plugin.hxml && popd";
+								{									
+									js.Node.fs.readFile(js.Node.path.join(path, pathToPlugin, item), js.Node.NodeC.UTF8, function (error, data):Void
+									{
+										if (pluginsTestingData != "")
+										{
+											pluginsTestingData += "--next\n";
+										}
+										
+										var currentLine:String;
+										
+										for (line in data.split("\n"))
+										{		
+											currentLine = line;
+											
+											for (argument in ["-cp", "-js"])
+											{
+												if (StringTools.startsWith(line, argument))
+												{												
+													currentLine = argument + " " + js.Node.path.join("plugins", pathToPlugin, line.substr(4));
+												}
+											}
+											
+											pluginsTestingData += currentLine + "\n";
+										}
+										
+										//pluginsTestingData += data;
+									}
+									);
+									
+									//pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + " && haxe plugin.hxml && popd";
 									onLoad(path, pathToPlugin);
 									return;
 								}

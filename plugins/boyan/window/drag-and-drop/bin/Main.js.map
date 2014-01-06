@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/window/drag-and-drop/src/Main.hx"],
+"sources":["C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/window/drag-and-drop/src/Main.hx"],
 "names":[],
 "mappings":";;YAac,DAEb;CAAuC,AAAM,AAAc,UAC3D;EACC,DAAgC,AAAY,WAC5C;GACC;GACA;GACO;;EAIR,DAAgC,AAAQ,WACxC;GACC;GACA;GAEU;GAAI;GAAd,FACA;IADA;IAEC,HAA4B,AAAqB;;GAG3C;;EAKR,DAA2B;;;aA/BG;oBACe,nBAAC;;;;"
 }

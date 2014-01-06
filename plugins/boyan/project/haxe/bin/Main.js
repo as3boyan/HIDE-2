@@ -44,8 +44,9 @@ Main.main = function() {
 };
 Main.createHaxeProject = function(data) {
 	FileTools.createDirectoryRecursively(data.projectLocation,[data.projectName,"src"],function() {
-		var pathToMain = js.Node.require("path").join(data.projectLocation,data.projectName,"src");
-		pathToMain = js.Node.require("path").join(pathToMain,"Main.hx");
+		var pathToMain = data.projectLocation;
+		if(data.createDirectory) js.Node.require("path").join(pathToMain,data.projectName);
+		pathToMain = js.Node.require("path").join(pathToMain,"src","Main.hx");
 		var code = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
 		js.Node.require("fs").writeFile(pathToMain,code,null,function(error) {
 			if(error != null) console.log(error);

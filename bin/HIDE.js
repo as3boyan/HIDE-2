@@ -194,13 +194,7 @@ HIDE.checkRequiredPluginsData = function() {
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
 		console.log("Loading took: " + Std.string(delta) + " ms");
-		js.Node.require("fs").readFile("../.travis.yml.template","utf8",function(error,data) {
-			if(data != null) {
-				var updatedData = StringTools.replace(data,"::plugins::",Main.pluginsTestingData);
-				js.Node.require("fs").writeFile("../.travis.yml",updatedData,"utf8",function(error1) {
-					console.log(".travis.yml was updated according to active plugins list");
-				});
-			} else console.log(error);
+		js.Node.require("fs").writeFile("../HIDEPlugins.hxml",Main.pluginsTestingData,"utf8",function(error) {
 		});
 		Main.window.show();
 	}
@@ -351,7 +345,27 @@ Main.readDir = function(path,pathToPlugin,onLoad) {
 							} else {
 								var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
 								if(stat.isDirectory()) Main.readDir(path,js.Node.require("path").join(pathToPlugin,item[0]),onLoad); else if(item[0] == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins,pluginName)) {
-									Main.pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.require("path").join("plugins",pathToPlugin),js.Node.require("path").sep,"/") + " && haxe plugin.hxml && popd";
+									js.Node.require("fs").readFile(js.Node.require("path").join(path,pathToPlugin,item[0]),"utf8",(function() {
+										return function(error2,data) {
+											if(Main.pluginsTestingData != "") Main.pluginsTestingData += "--next\n";
+											var currentLine;
+											var _g1 = 0;
+											var _g2 = data.split("\n");
+											while(_g1 < _g2.length) {
+												var line = _g2[_g1];
+												++_g1;
+												currentLine = line;
+												var _g3 = 0;
+												var _g4 = ["-cp","-js"];
+												while(_g3 < _g4.length) {
+													var argument = _g4[_g3];
+													++_g3;
+													if(StringTools.startsWith(line,argument)) currentLine = argument + " " + js.Node.require("path").join("plugins",pathToPlugin,HxOverrides.substr(line,4,null));
+												}
+												Main.pluginsTestingData += currentLine + "\n";
+											}
+										};
+									})());
 									onLoad(path,pathToPlugin);
 									return;
 								}
@@ -423,6 +437,9 @@ var StringBuf = function() {
 StringBuf.__name__ = true;
 var StringTools = function() { };
 StringTools.__name__ = true;
+StringTools.startsWith = function(s,start) {
+	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
+};
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 };

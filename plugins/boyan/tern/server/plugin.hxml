@@ -1,7 +1,10 @@
 -cp src
+-cp ../../../../externs/nodejs-std/src
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/tern/server
 -cp ../../../../externs/plugins/boyan/codemirror/editor
+-cp ../../../../externs/plugins/boyan/bootstrap/tab-manager
+-lib jQueryExtern
 -main Main
 -js bin/Main.js
 -dce full

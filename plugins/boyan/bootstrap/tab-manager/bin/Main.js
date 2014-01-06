@@ -333,6 +333,11 @@ TabManager.selectDoc = function(pos) {
 	TabManager.curDoc = TabManager.docs[pos];
 	if(TabManager.editor != null) TabManager.editor.swapDoc(TabManager.curDoc.doc);
 };
+TabManager.getCurrentDocumentPath = function() {
+	var path = null;
+	if(TabManager.curDoc != null) path = TabManager.curDoc.path;
+	return path;
+};
 var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;

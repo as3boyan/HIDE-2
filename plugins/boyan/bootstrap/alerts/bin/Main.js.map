@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/bootstrap/alerts/src/Alerts.hx","C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/bootstrap/alerts/src/Main.hx"],
+"sources":["C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/bootstrap/alerts/src/Alerts.hx","C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/bootstrap/alerts/src/Main.hx"],
 "names":[],
 "mappings":";;mBAac,JACd;CACsB;;;CACrB,EAAgB;CAEW;;;CAC3B,EAAc;CACd,EAAmB;CACnB,AAAoB,AAAgB;CACpC,AAAoB,AAAe;CACnC,EAAmB;CAEnB,AAAgB;CAChB,AAAgB,AAAgC;CAEhD,AAAkC;;;YChBrB,DAGb;CAA2B;;aAPI;;;;"
 }
