@@ -219,31 +219,31 @@ typedef PluginDependenciesData =
 				
 				trace("Loading took: " + Std.string(delta) + " ms");
 				
-				js.Node.fs.writeFile("../HIDEPlugins.hxml", Main.pluginsTestingData, js.Node.NodeC.UTF8, function (error):Void
-				{
-					
-				}
-				);
-				
-				//js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
+				//js.Node.fs.writeFile("../HIDEPlugins.hxml", Main.pluginsTestingData, js.Node.NodeC.UTF8, function (error):Void
 				//{
-					//if (data != null)
-					//{
-						//var updatedData:String = StringTools.replace(data,"::plugins::", Main.pluginsTestingData);
-//
-						//js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
-						//{
-							//trace(".travis.yml was updated according to active plugins list");
-						//}
-						//);
-						//
-					//}
-					//else
-					//{
-						//trace(error);
-					//}
+					//
 				//}
 				//);
+				
+				js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
+				{
+					if (data != null)
+					{
+						var updatedData:String = StringTools.replace(data,"::plugins::", Main.pluginsTestingData);
+
+						js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
+						{
+							trace(".travis.yml was updated according to active plugins list");
+						}
+						);
+						
+					}
+					else
+					{
+						trace(error);
+					}
+				}
+				);
 				
 				Main.window.show();
 			}

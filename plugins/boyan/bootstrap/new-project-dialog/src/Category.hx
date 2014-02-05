@@ -11,13 +11,15 @@ import jQuery.JQuery;
 @:keepSub @:expose class Category
 {
 	public var element:LIElement;
-	public var items:Array<Item> = new Array();
-	public var subcategories:StringMap<Category> = new StringMap();
+	public var items:Array<Item>;
+	public var subcategories:StringMap<Category>;
 	public var position:Int;
 	
 	public function new(_element:LIElement) 
 	{
 		element = _element;
+		subcategories = new StringMap();
+		items  = new Array();
 	}
 	
 	public function getCategory(name:String):Category

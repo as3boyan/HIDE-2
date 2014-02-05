@@ -14,7 +14,7 @@ import js.Lib;
 class Main 
 {
 	public static var currentTime:Float;
-	public static var pluginsTestingData:String = "";
+	public static var pluginsTestingData:String = "  - cd plugins";
 	public static var window:Dynamic;
 	
 	static function main() 
@@ -131,34 +131,42 @@ class Main
 								}
 								//&& !Lambda.has(HIDE.conflictingPlugins, pluginName)
 								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, pluginName))
-								{									
-									js.Node.fs.readFile(js.Node.path.join(path, pathToPlugin, item), js.Node.NodeC.UTF8, function (error, data):Void
+								{	
+									var levels:String = "";
+									for (i in 0...pathToPlugin.split("\\").length)
 									{
-										if (pluginsTestingData != "")
-										{
-											pluginsTestingData += "--next\n";
-										}
-										
-										var currentLine:String;
-										
-										for (line in data.split("\n"))
-										{		
-											currentLine = line;
-											
-											for (argument in ["-cp", "-js"])
-											{
-												if (StringTools.startsWith(line, argument))
-												{												
-													currentLine = argument + " " + js.Node.path.join("plugins", pathToPlugin, line.substr(4));
-												}
-											}
-											
-											pluginsTestingData += currentLine + "\n";
-										}
+										levels += "../";
+									}
+									
+									pluginsTestingData += "\n  - cd " + StringTools.replace(pathToPlugin, "\\", "/") + "\n  - haxe plugin.hxml\n  - cd " + levels;
+									
+									//js.Node.fs.readFile(js.Node.path.join(path, pathToPlugin, item), js.Node.NodeC.UTF8, function (error, data):Void
+									//{
+										//if (pluginsTestingData != "")
+										//{
+											//pluginsTestingData += "--next\n";
+										//}
+										//
+										//var currentLine:String;
+										//
+										//for (line in data.split("\n"))
+										//{		
+											//currentLine = line;
+											//
+											//for (argument in ["-cp", "-js"])
+											//{
+												//if (StringTools.startsWith(line, argument))
+												//{												
+													//currentLine = argument + " " + js.Node.path.join("plugins", pathToPlugin, line.substr(4));
+												//}
+											//}
+											//
+											//pluginsTestingData += currentLine + "\n";
+										//}
 										
 										//pluginsTestingData += data;
-									}
-									);
+									//}
+									//);
 									
 									//pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + " && haxe plugin.hxml && popd";
 									onLoad(path, pathToPlugin);
