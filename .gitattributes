@@ -24,3 +24,4 @@
 Main.js -diff
 HIDE.js -diff
 *.js.map -diff
+.travis.yml -diff

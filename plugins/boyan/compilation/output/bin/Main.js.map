@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/compilation/output/src/Main.hx"],
+"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/compilation/output/src/Main.hx","C:/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
-"mappings":";;YAcc,DACd;CACC,AAAa,AAAM,AAAC;CAEpB,AAAuC,AAAM,AAAc,UAC3D;EAG8B;;;EAC7B,CAAY;EACZ,CAAkB;EAElB,DAAqB,AAAe;;CAKrC,AAA2B;;aArBI;oBACe,nBAAC;;;;"
+"mappings":";;YAcc,DACd;CACC,AAAa,AAAM,AAAC;CAEpB,AAAuC,AAAM,AAAc,UAC3D;EAGC,CAA6B;EAC7B,CAAY;EACZ,CAAkB;EAElB,DAAqB,AAAe;;CAKrC,AAA2B;;;;aArBI;oBACe,nBAAC;sBCkBsB;;;;"
 }

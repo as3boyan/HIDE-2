@@ -27,13 +27,10 @@ script:
   - cd boyan/bootstrap/new-project-dialog
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/bootstrap/project-options
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/bootstrap/script
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/bootstrap/tab-manager
+  - cd boyan/bootstrap/project-options
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/codemirror/editor
@@ -48,6 +45,9 @@ script:
   - cd boyan/compilation/output
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/bootstrap/tab-manager
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/compilation/server
   - haxe plugin.hxml
   - cd ../../../
@@ -60,10 +60,10 @@ script:
   - cd boyan/jquery/layout
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/jquery/ui
+  - cd boyan/jquery/script
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/jquery/script
+  - cd boyan/jquery/ui
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/jquery/xml2json
@@ -84,22 +84,13 @@ script:
   - cd boyan/project/openfl
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/tern/server
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/samples/helloworld
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/webgl/three
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/window/preserve-window-state
+  - cd boyan/window/drag-and-drop
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/window/toggle-fullscreen
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/window/drag-and-drop
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/window/zoom
@@ -108,19 +99,28 @@ script:
   - cd boyan/window/file-dialog
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/webgl/three
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/tern/server
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/window/preserve-window-state
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/presentation/impress/about
+  - haxe plugin.hxml
+  - cd ../../../../
   - cd boyan/presentation/reveal/plugin-development-tutorial
   - haxe plugin.hxml
   - cd ../../../../
   - cd boyan/project/hide/plugin
   - haxe plugin.hxml
   - cd ../../../../
-  - cd boyan/presentation/impress/about
-  - haxe plugin.hxml
-  - cd ../../../../
-  - cd boyan/samples/presentation/reveal/sample
+  - cd boyan/samples/presentation/impress/sample
   - haxe plugin.hxml
   - cd ../../../../../
-  - cd boyan/samples/presentation/impress/sample
+  - cd boyan/samples/presentation/reveal/sample
   - haxe plugin.hxml
   - cd ../../../../../
 

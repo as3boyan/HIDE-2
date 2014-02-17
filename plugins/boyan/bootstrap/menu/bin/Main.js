@@ -1,65 +1,55 @@
-(function ($hx_exports) { "use strict";
-$hx_exports.ui = {menu:{basic:{}}};
-var IMap = function() { };
+(function () { "use strict";
+var IMap = function() { }
 IMap.__name__ = true;
-var haxe = {};
-haxe.ds = {};
+var haxe = {}
+haxe.ds = {}
 haxe.ds.StringMap = function() {
 	this.h = { };
 };
 haxe.ds.StringMap.__name__ = true;
 haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	set: function(key,value) {
-		this.h["$" + key] = value;
-	}
-	,get: function(key) {
-		return this.h["$" + key];
-	}
-	,exists: function(key) {
-		return this.h.hasOwnProperty("$" + key);
-	}
-	,remove: function(key) {
+	remove: function(key) {
 		key = "$" + key;
 		if(!this.h.hasOwnProperty(key)) return false;
 		delete(this.h[key]);
 		return true;
 	}
+	,exists: function(key) {
+		return this.h.hasOwnProperty("$" + key);
+	}
+	,get: function(key) {
+		return this.h["$" + key];
+	}
+	,set: function(key,value) {
+		this.h["$" + key] = value;
+	}
 	,__class__: haxe.ds.StringMap
-};
-var BootstrapMenu = $hx_exports.BootstrapMenu = function() { };
+}
+var BootstrapMenu = function() { }
+$hxExpose(BootstrapMenu, "BootstrapMenu");
 BootstrapMenu.__name__ = true;
 BootstrapMenu.createMenuBar = function() {
-	window.document.body.style.overflow = "hidden";
-	var navbar;
-	var _this = window.document;
-	navbar = _this.createElement("div");
+	js.Browser.document.body.style.overflow = "hidden";
+	var navbar = js.Browser.document.createElement("div");
 	navbar.className = "navbar navbar-default navbar-inverse navbar-fixed-top";
-	var navbarHeader;
-	var _this = window.document;
-	navbarHeader = _this.createElement("div");
+	var navbarHeader = js.Browser.document.createElement("div");
 	navbarHeader.className = "navbar-header";
 	navbar.appendChild(navbarHeader);
-	var a;
-	var _this = window.document;
-	a = _this.createElement("a");
+	var a = js.Browser.document.createElement("a");
 	a.className = "navbar-brand";
 	a.href = "#";
 	a.innerText = "HIDE";
 	navbarHeader.appendChild(a);
-	var div;
-	var _this = window.document;
-	div = _this.createElement("div");
+	var div = js.Browser.document.createElement("div");
 	div.className = "navbar-collapse collapse";
-	var ul;
-	var _this = window.document;
-	ul = _this.createElement("ul");
+	var ul = js.Browser.document.createElement("ul");
 	ul.id = "position-navbar";
 	ul.className = "nav navbar-nav";
 	div.appendChild(ul);
 	navbar.appendChild(div);
-	window.document.body.appendChild(navbar);
-};
+	js.Browser.document.body.appendChild(navbar);
+}
 BootstrapMenu.getMenu = function(name,position) {
 	var menu;
 	if(!BootstrapMenu.menus.exists(name)) {
@@ -78,15 +68,13 @@ BootstrapMenu.getMenu = function(name,position) {
 		}
 	}
 	return menu;
-};
+}
 BootstrapMenu.addMenuToDocument = function(menu) {
-	var div;
-	div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
+	var div = js.Boot.__cast(js.Browser.document.getElementById("position-navbar") , Element);
 	if(menu.position != null && BootstrapMenu.menuArray.length > 0 && div.childNodes.length > 0) {
 		var currentMenu;
 		var added = false;
-		var _g1 = 0;
-		var _g = BootstrapMenu.menuArray.length;
+		var _g1 = 0, _g = BootstrapMenu.menuArray.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			currentMenu = BootstrapMenu.menuArray[i];
@@ -105,8 +93,8 @@ BootstrapMenu.addMenuToDocument = function(menu) {
 		menu.addToDocument();
 		BootstrapMenu.menuArray.push(menu);
 	}
-};
-var HxOverrides = function() { };
+}
+var HxOverrides = function() { }
 HxOverrides.__name__ = true;
 HxOverrides.iter = function(a) {
 	return { cur : 0, arr : a, hasNext : function() {
@@ -114,8 +102,8 @@ HxOverrides.iter = function(a) {
 	}, next : function() {
 		return this.arr[this.cur++];
 	}};
-};
-var Lambda = function() { };
+}
+var Lambda = function() { }
 Lambda.__name__ = true;
 Lambda.indexOf = function(it,v) {
 	var i = 0;
@@ -126,24 +114,24 @@ Lambda.indexOf = function(it,v) {
 		i++;
 	}
 	return -1;
-};
-var Main = function() { };
+}
+var Main = function() { }
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
 	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css"]);
-};
+}
 Main.load = function() {
 	BootstrapMenu.createMenuBar();
 	HIDE.notifyLoadingComplete(Main.$name);
-};
-var Std = function() { };
+}
+var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-};
-var js = {};
-js.Boot = function() { };
+}
+var js = {}
+js.Boot = function() { }
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -157,8 +145,7 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2;
-				var _g = o.length;
+				var _g1 = 2, _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -191,7 +178,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) {
+		for( var k in o ) { ;
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -211,14 +198,13 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-};
+}
 js.Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0;
-		var _g = intf.length;
+		var _g1 = 0, _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
@@ -226,7 +212,7 @@ js.Boot.__interfLoop = function(cc,cl) {
 		}
 	}
 	return js.Boot.__interfLoop(cc.__super__,cl);
-};
+}
 js.Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
@@ -254,30 +240,28 @@ js.Boot.__instanceof = function(o,cl) {
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-};
+}
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-};
-var ui = {};
-ui.menu = {};
-ui.menu.basic = {};
-ui.menu.basic.MenuItem = function() { };
+}
+js.Browser = function() { }
+js.Browser.__name__ = true;
+var ui = {}
+ui.menu = {}
+ui.menu.basic = {}
+ui.menu.basic.MenuItem = function() { }
 ui.menu.basic.MenuItem.__name__ = true;
 ui.menu.basic.MenuButtonItem = function(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
 	var _g = this;
 	var span = null;
 	if(_hotkey != null) {
-		var _this = window.document;
-		span = _this.createElement("span");
+		span = js.Browser.document.createElement("span");
 		span.style.color = "silver";
-		span.style.float = "right";
+		span.style["float"] = "right";
 		span.innerText = _hotkey;
 	}
-	var _this = window.document;
-	this.li = _this.createElement("li");
-	var a;
-	var _this = window.document;
-	a = _this.createElement("a");
+	this.li = js.Browser.document.createElement("li");
+	var a = js.Browser.document.createElement("a");
 	a.style.left = "0";
 	a.setAttribute("text",_text);
 	if(_onClickFunction != null) {
@@ -297,10 +281,9 @@ ui.menu.basic.MenuButtonItem.prototype = {
 		return this.li;
 	}
 	,__class__: ui.menu.basic.MenuButtonItem
-};
+}
 ui.menu.basic.Separator = function() {
-	var _this = window.document;
-	this.li = _this.createElement("li");
+	this.li = js.Browser.document.createElement("li");
 	this.li.className = "divider";
 };
 ui.menu.basic.Separator.__name__ = true;
@@ -310,26 +293,21 @@ ui.menu.basic.Separator.prototype = {
 		return this.li;
 	}
 	,__class__: ui.menu.basic.Separator
-};
-ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText) {
-	var _this = window.document;
-	this.li = _this.createElement("li");
+}
+ui.menu.basic.Menu = function(_text,_headerText) {
+	this.li = js.Browser.document.createElement("li");
 	this.li.className = "dropdown";
-	var a;
-	var _this = window.document;
-	a = _this.createElement("a");
+	var a = js.Browser.document.createElement("a");
 	a.href = "#";
 	a.className = "dropdown-toggle";
 	a.setAttribute("data-toggle","dropdown");
 	a.innerText = _text;
 	this.li.appendChild(a);
-	var _this = window.document;
-	this.ul = _this.createElement("ul");
+	this.ul = js.Browser.document.createElement("ul");
 	this.ul.className = "dropdown-menu";
+	this.ul.classList.add("dropdown-menu-form");
 	if(_headerText != null) {
-		var li_header;
-		var _this = window.document;
-		li_header = _this.createElement("li");
+		var li_header = js.Browser.document.createElement("li");
 		li_header.className = "dropdown-header";
 		li_header.innerText = _headerText;
 		this.ul.appendChild(li_header);
@@ -337,16 +315,55 @@ ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText
 	this.li.appendChild(this.ul);
 	this.items = new Array();
 };
+$hxExpose(ui.menu.basic.Menu, "ui.menu.basic.Menu");
 ui.menu.basic.Menu.__name__ = true;
 ui.menu.basic.Menu.prototype = {
-	addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
+	getElement: function() {
+		return this.li;
+	}
+	,setMenuEnabled: function(enabled) {
+		var childNodes = this.ul.childNodes;
+		var _g1 = 0, _g = childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var child = js.Boot.__cast(childNodes[i] , Element);
+			if(child.className != "divider") {
+				if(enabled) child.className = ""; else child.className = "disabled";
+			}
+		}
+	}
+	,setDisabled: function(menuItemNames) {
+		var childNodes = this.ul.childNodes;
+		var _g1 = 0, _g = childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var child = js.Boot.__cast(childNodes[i] , Element);
+			if(child.className != "divider") {
+				var a = js.Boot.__cast(child.firstChild , HTMLAnchorElement);
+				if(Lambda.indexOf(menuItemNames,a.getAttribute("text")) == -1) child.className = ""; else child.className = "disabled";
+			}
+		}
+	}
+	,setPosition: function(_position) {
+		this.position = _position;
+	}
+	,removeFromDocument: function() {
+		this.li.remove();
+	}
+	,addToDocument: function() {
+		var div = js.Boot.__cast(js.Browser.document.getElementById("position-navbar") , Element);
+		div.appendChild(this.li);
+	}
+	,addSeparator: function() {
+		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
+	}
+	,addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
 		var menuButtonItem = new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt);
 		menuButtonItem.position = _position;
 		if(menuButtonItem.position != null && this.items.length > 0 && this.ul.childNodes.length > 0) {
 			var currentMenuButtonItem;
 			var added = false;
-			var _g1 = 0;
-			var _g = this.items.length;
+			var _g1 = 0, _g = this.items.length;
 			while(_g1 < _g) {
 				var i = _g1++;
 				currentMenuButtonItem = this.items[i];
@@ -366,56 +383,11 @@ ui.menu.basic.Menu.prototype = {
 			this.items.push(menuButtonItem);
 		}
 	}
-	,addSeparator: function() {
-		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
-	}
-	,addToDocument: function() {
-		var div;
-		div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
-		div.appendChild(this.li);
-	}
-	,removeFromDocument: function() {
-		this.li.remove();
-	}
-	,setPosition: function(_position) {
-		this.position = _position;
-	}
-	,setDisabled: function(menuItemNames) {
-		var childNodes = this.ul.childNodes;
-		var _g1 = 0;
-		var _g = childNodes.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var child;
-			child = js.Boot.__cast(childNodes[i] , Element);
-			if(child.className != "divider") {
-				var a;
-				a = js.Boot.__cast(child.firstChild , HTMLAnchorElement);
-				if(Lambda.indexOf(menuItemNames,a.getAttribute("text")) == -1) child.className = ""; else child.className = "disabled";
-			}
-		}
-	}
-	,setMenuEnabled: function(enabled) {
-		var childNodes = this.ul.childNodes;
-		var _g1 = 0;
-		var _g = childNodes.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var child;
-			child = js.Boot.__cast(childNodes[i] , Element);
-			if(child.className != "divider") {
-				if(enabled) child.className = ""; else child.className = "disabled";
-			}
-		}
-	}
-	,getElement: function() {
-		return this.li;
-	}
 	,__class__: ui.menu.basic.Menu
-};
-function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
+}
+function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
 var $_, $fid = 0;
-function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.prototype.__class__ = Array;
@@ -432,7 +404,18 @@ BootstrapMenu.menus = new haxe.ds.StringMap();
 BootstrapMenu.menuArray = new Array();
 Main.$name = "boyan.bootstrap.menu";
 Main.dependencies = ["boyan.bootstrap.script","boyan.events.hotkey"];
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-})(typeof window != "undefined" ? window : exports);
+function $hxExpose(src, path) {
+	var o = typeof window != "undefined" ? window : exports;
+	var parts = path.split(".");
+	for(var ii = 0; ii < parts.length-1; ++ii) {
+		var p = parts[ii];
+		if(typeof o[p] == "undefined") o[p] = {};
+		o = o[p];
+	}
+	o[parts[parts.length-1]] = src;
+}
+})();
 
-//# sourceMappingURL=Main.js.map
+//@ sourceMappingURL=Main.js.map

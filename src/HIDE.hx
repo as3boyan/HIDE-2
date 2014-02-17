@@ -1,5 +1,7 @@
 package ;
 import haxe.ds.StringMap.StringMap;
+import haxe.Json;
+import haxe.Serializer;
 import haxe.Timer;
 import js.Browser;
 import js.html.KeyboardEvent;
@@ -32,6 +34,8 @@ typedef PluginDependenciesData =
 	//public static var conflictingPlugins:Array<String> = [];
 	
 	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
+	
+	public static var pluginsMTime:StringMap<Int> = new StringMap();
 	
 	public static var windows:Array<Dynamic> = [];
 	
@@ -242,6 +246,16 @@ typedef PluginDependenciesData =
 					{
 						trace(error);
 					}
+				}
+				);
+				
+				var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
+				
+				var data:String = Serializer.run(HIDE.pluginsMTime);
+				
+				js.Node.fs.writeFile(pathToPluginsMTime, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+				{
+					
 				}
 				);
 				

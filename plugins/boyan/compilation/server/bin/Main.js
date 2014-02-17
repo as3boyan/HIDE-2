@@ -1,5 +1,5 @@
 (function () { "use strict";
-var HaxeServer = function() { };
+var HaxeServer = function() { }
 HaxeServer.start = function() {
 	var haxeCompletionServer = js.Node.require("child_process").spawn("haxe",["--wait","6001"]);
 	haxeCompletionServer.stdout.setEncoding("utf8");
@@ -19,13 +19,13 @@ HaxeServer.start = function() {
 	js.Node.require("nw.gui").Window.get().on("close",function(e) {
 		if(HaxeServer.processStarted) haxeCompletionServer.kill();
 	});
-};
-var HxOverrides = function() { };
+}
+var HxOverrides = function() { }
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-};
+}
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -34,31 +34,21 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-};
-var Main = function() { };
+}
+var Main = function() { }
 Main.main = function() {
 	HaxeServer.start();
 	HIDE.notifyLoadingComplete(Main.$name);
-};
-var Std = function() { };
+}
+var Std = function() { }
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-};
-var js = {};
-js.Node = function() { };
-if(Array.prototype.map == null) Array.prototype.map = function(f) {
-	var a = [];
-	var _g1 = 0;
-	var _g = this.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		a[i] = f(this[i]);
-	}
-	return a;
-};
+}
+var js = {}
+js.Node = function() { }
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -81,4 +71,4 @@ Main.$name = "boyan.compilation.server";
 Main.main();
 })();
 
-//# sourceMappingURL=Main.js.map
+//@ sourceMappingURL=Main.js.map

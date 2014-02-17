@@ -20,11 +20,23 @@ class Presentation
 			slides.className = "slides";
 			reveal.appendChild(slides);
 			
-			slides.appendChild(createSection("Single Horizontal Slide"));
+			slides.appendChild(createSection("How to develop plugins for HIDE"));
 			
 			var section:Element = createSection();
-			section.appendChild(createSection("Vertical Slide 1"));
-			section.appendChild(createSection("Vertical Slide 2"));
+			section.appendChild(createSection("HIDE API"));
+			section.appendChild(createSection("loadJS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void;"));
+			section.appendChild(createSection("loadCSS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void;"));
+			section.appendChild(createSection("waitForDependentPluginsToBeLoaded(name:String, plugins:Array<String>, onLoaded:Void->Void, ?callOnLoadWhenAtLeastOnePluginLoaded:Bool = false):Void;"));
+			section.appendChild(createSection("notifyLoadingComplete(name:String):Void;"));
+			section.appendChild(createSection("openPageInNewWindow(name:String, url:String, ?params:Dynamic):Void;"));
+			section.appendChild(createSection("compilePlugins(?onComplete:Dynamic, ?onFailed:Dynamic):Void;"));
+			
+			slides.appendChild(section);
+			
+			section = createSection();
+			section.appendChild(createSection("Plugin structure"));
+			section.appendChild(createSection("Each plugin must have plugin.hxml"));
+			section.appendChild(createSection("Plugin should compile to bin/Main.js"));
 			
 			slides.appendChild(section);
 			
@@ -57,7 +69,7 @@ class Presentation
 	{
 		var dependencies:Array<Dynamic> = 
 		[
-		{ src: 'includes/lib/js/classList.js', condition: function() { return Browser.document.body.classList == null; } },
+			{ src: 'includes/lib/js/classList.js', condition: function() { return Browser.document.body.classList == null; } },
 			//{ src: 'includes/plugin/markdown/marked.js', condition: function() { return !!Browser.document.querySelector( '[data-markdown]' ); } },
 			//{ src: 'includes/plugin/markdown/markdown.js', condition: function() { return !!Browser.document.querySelector( '[data-markdown]' ); } },
 			{ src: 'includes/plugin/highlight/highlight.js', async: true, callback: function() { untyped hljs.initHighlightingOnLoad(); } },

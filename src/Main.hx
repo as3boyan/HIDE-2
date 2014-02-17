@@ -1,6 +1,9 @@
 package ;
 
+import haxe.ds.StringMap;
+import haxe.Json;
 import haxe.Timer;
+import haxe.Unserializer;
 import js.Browser;
 import js.html.KeyboardEvent;
 import js.html.LinkElement;
@@ -56,6 +59,16 @@ class Main
 	{
 		var pathToPlugins:String = js.Node.path.join("..", "plugins");
 			
+		var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
+		
+		var args:Array<String>;
+		
+		if (js.Node.fs.existsSync(pathToPluginsMTime))
+		{
+			var data:String = js.Node.fs.readFileSync(pathToPluginsMTime, js.Node.NodeC.UTF8);
+			HIDE.pluginsMTime = Unserializer.run(data);
+		}
+		
 		readDir(pathToPlugins, "", function (path:String, pathToPlugin:String):Void
 		{
 			var pluginName:String = StringTools.replace(pathToPlugin, js.Node.path.sep, ".");
@@ -67,10 +80,13 @@ class Main
 			
 			var absolutePathToPlugin:String = js.Node.require("path").resolve(relativePathToPlugin);
 			
-			if (compile)
-			{
+			if (compile && (!HIDE.pluginsMTime.exists(pluginName) || HIDE.pluginsMTime.get(pluginName) < walk(absolutePathToPlugin)))
+			{				
+				trace(HIDE.pluginsMTime.get(pluginName));
+				trace(walk(absolutePathToPlugin));
+				
 				//Compile each plugin and load
-				compilePlugin(pluginName, absolutePathToPlugin, loadPlugin);	
+				compilePlugin(pluginName, absolutePathToPlugin, loadPlugin);
 			}
 			else 
 			{
@@ -95,6 +111,41 @@ class Main
 			}
 		}
 		, 10000);
+	}
+	
+	private static function walk(pathToPlugin:String):Int
+	{
+		var pathToItem:String;
+		var time:Int = -1;
+		var mtime:Int;
+		
+		for (item in js.Node.fs.readdirSync(pathToPlugin))
+		{
+			pathToItem = js.Node.path.join(pathToPlugin, item);
+			
+			var stat = js.Node.fs.statSync(pathToItem);
+			
+			if (stat.isFile() && js.Node.path.extname(pathToItem) == ".hx")
+			{
+				mtime = stat.mtime.getTime();
+				
+				if (time < mtime)
+				{
+					time = mtime;
+				}
+			}
+			else if (stat.isDirectory()) 
+			{
+				mtime = walk(pathToItem);
+				
+				if (time < mtime)
+				{
+					time = mtime;
+				}
+			}
+		}
+		
+		return time;
 	}
 	
 	private static function readDir(path:String, pathToPlugin:String, onLoad:Dynamic):Void
@@ -224,6 +275,9 @@ class Main
 	
 	private static function startPluginCompilation(name:String, pathToPlugin:String, onSuccess:Dynamic, ?onFailed:String->Void):Void
 	{
+		var startTime:Float = Date.now().getTime();
+		var delta:Float;
+		
 		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
 						
 		var stderrData:String = "";
@@ -237,7 +291,12 @@ class Main
 		{
 			if (code == 0)
 			{
+				delta = Date.now().getTime() - startTime;
+				
+				trace(name + " compilation took " + Std.string(delta)) + " ms";
+				
 				onSuccess(pathToPlugin);
+				HIDE.pluginsMTime.set(name, Std.parseInt(Std.string(Date.now().getTime())));
 			}
 			else
 			{

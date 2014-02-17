@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/HIDE-1/plugins/boyan/jquery/xml2json/src/Main.hx"],
+"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/jquery/xml2json/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DAIb;CAAY,AAAM,AAAC,AAAuC,UAGzD;CAA2B;;;aAXG;;;;"
+"mappings":";;YAYc,DACd;CAGC,AAAY,AAAM,AAAC,AAAuC,UAC1D;EAEC,DAA2B;;;aAXG;;;;"
 }

@@ -27,7 +27,7 @@ class Main
 	{
 		TabManager.init();
 		
-		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.file-tree"], function ():Void
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.file-tree", "boyan.events.hotkey"], function ():Void
 		{
 			FileTree.onFileClick = TabManager.openFileInNewTab;
 			

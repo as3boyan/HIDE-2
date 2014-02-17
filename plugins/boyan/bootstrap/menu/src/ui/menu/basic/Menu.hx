@@ -120,6 +120,7 @@ interface MenuItem
 		
 		ul = Browser.document.createUListElement();
 		ul.className = "dropdown-menu";
+		ul.classList.add("dropdown-menu-form");
 		
 		if (_headerText != null)
 		{
