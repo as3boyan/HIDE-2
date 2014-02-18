@@ -107,6 +107,8 @@ class Main
 					mode:'haxe',
                  });
 				 
+				editor.getWrapperElement().style.display = "none";
+				 
 				CM.editor = editor;
 				TabManager.editor = CM.editor;
 				 

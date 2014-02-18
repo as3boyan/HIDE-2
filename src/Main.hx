@@ -1,13 +1,8 @@
 package ;
 
-import haxe.ds.StringMap;
-import haxe.Json;
 import haxe.Timer;
 import haxe.Unserializer;
 import js.Browser;
-import js.html.KeyboardEvent;
-import js.html.LinkElement;
-import js.Lib;
 
 /**
  * ...
@@ -44,7 +39,7 @@ class Main
 			);
 		}
 		);
-				
+		
 		window.on("close", function (e):Void
 		{
 			for (window in HIDE.windows)
@@ -82,9 +77,6 @@ class Main
 			
 			if (compile && (!HIDE.pluginsMTime.exists(pluginName) || HIDE.pluginsMTime.get(pluginName) < walk(absolutePathToPlugin)))
 			{				
-				trace(HIDE.pluginsMTime.get(pluginName));
-				trace(walk(absolutePathToPlugin));
-				
 				//Compile each plugin and load
 				compilePlugin(pluginName, absolutePathToPlugin, loadPlugin);
 			}

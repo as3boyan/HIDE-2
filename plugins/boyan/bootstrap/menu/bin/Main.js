@@ -119,10 +119,10 @@ var Main = function() { }
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
-	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css"]);
 }
 Main.load = function() {
 	BootstrapMenu.createMenuBar();
+	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css"]);
 	HIDE.notifyLoadingComplete(Main.$name);
 }
 var Std = function() { }

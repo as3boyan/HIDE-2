@@ -16,8 +16,6 @@ class Main
 	{	
 		//Will create menu bar when Bootstrap plugin is loaded
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load);
-		
-		HIDE.loadCSS(name, ["bin/includes/css/menu.css"]);
 	}
 	
 	private static function load():Void
@@ -33,7 +31,9 @@ class Main
 		//var fileMenu:Menu = BootstrapMenu.getMenu("File");
 		//fileMenu.addMenuItem("New Project...", null, "Ctrl-Shift-N");
 		
-		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
+		HIDE.loadCSS(name, ["bin/includes/css/menu.css"]);
+		
+		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
 		HIDE.notifyLoadingComplete(name);
 	}
 	

@@ -194,7 +194,9 @@ HIDE.checkRequiredPluginsData = function() {
 				pluginData.onLoaded();
 			} else j++;
 		}
-	} else if(Lambda.count(HIDE.pathToPlugins) == HIDE.plugins.length) {
+	}
+	if(Lambda.count(HIDE.pathToPlugins) == HIDE.plugins.length) {
+		console.log(HIDE.requestedPluginsData.length);
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
 		console.log("Loading took: " + Std.string(delta) + " ms");
@@ -386,11 +388,7 @@ Main.loadPlugins = function(compile) {
 		var relativePathToPlugin = js.Node.require("path").join(path,pathToPlugin);
 		HIDE.pathToPlugins.set(pluginName,relativePathToPlugin);
 		var absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
-		if(compile && (!HIDE.pluginsMTime.exists(pluginName) || HIDE.pluginsMTime.get(pluginName) < Main.walk(absolutePathToPlugin))) {
-			console.log(HIDE.pluginsMTime.get(pluginName));
-			console.log(Main.walk(absolutePathToPlugin));
-			Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin);
-		} else Main.loadPlugin(absolutePathToPlugin);
+		if(compile && (!HIDE.pluginsMTime.exists(pluginName) || HIDE.pluginsMTime.get(pluginName) < Main.walk(absolutePathToPlugin))) Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin); else Main.loadPlugin(absolutePathToPlugin);
 	});
 	haxe.Timer.delay(function() {
 		if(HIDE.requestedPluginsData.length > 0) {

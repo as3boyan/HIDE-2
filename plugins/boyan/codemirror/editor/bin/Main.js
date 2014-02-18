@@ -17,6 +17,7 @@ Main.main = function() {
 			textarea.id = "code";
 			Splitpane.components[1].appendChild(textarea);
 			var editor = CodeMirror.fromTextArea(textarea,{ lineNumbers : true, matchBrackets : true, dragDrop : false, autoCloseBrackets : true, foldGutter : { rangeFinder : new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)}, gutters : ["CodeMirror-linenumbers","CodeMirror-foldgutter"], indentUnit : 4, tabSize : 4, mode : "haxe"});
+			editor.getWrapperElement().style.display = "none";
 			CM.editor = editor;
 			TabManager.editor = CM.editor;
 			HIDE.notifyLoadingComplete(Main.$name);

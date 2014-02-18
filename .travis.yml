@@ -21,16 +21,19 @@ script:
   - cd boyan/bootstrap/file-tree
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/bootstrap/new-project-dialog
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/bootstrap/menu
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/bootstrap/new-project-dialog
+  - cd boyan/bootstrap/project-options
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/bootstrap/script
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/bootstrap/project-options
+  - cd boyan/bootstrap/tab-manager
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/codemirror/editor
@@ -43,9 +46,6 @@ script:
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/compilation/output
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/bootstrap/tab-manager
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/compilation/server
@@ -69,10 +69,13 @@ script:
   - cd boyan/jquery/xml2json
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/nekotools/server
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/management/open-project
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/nekotools/server
+  - cd boyan/management/project-access
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/openfl/tools
@@ -87,7 +90,16 @@ script:
   - cd boyan/samples/helloworld
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/tern/server
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/window/drag-and-drop
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/window/file-dialog
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/window/preserve-window-state
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/window/toggle-fullscreen
@@ -96,16 +108,7 @@ script:
   - cd boyan/window/zoom
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/window/file-dialog
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/webgl/three
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/tern/server
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/window/preserve-window-state
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/presentation/impress/about

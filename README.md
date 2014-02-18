@@ -173,10 +173,6 @@ HIDE.notifyLoadingComplete(name);
 So if some plugins depend on this plugin, then they can start loading themselves.
 
 ###Known issues
-1. JQuery Layout plugin bug, when HIDE starts, file tree, code editor, output window sometimes have improper sizes.
-
-Workaround: reload HIDE by pressing Ctrl-Shift-R hotkey or use "Developer Menu" -> "Reload HIDE".
-Solutions: use another plugin that can provide split-pane functionality. ("boyan.jquery.split-pane" plugin is already integrated in HIDE, currently inactive).
 
 ###Current TODOs:
 1. Port code from not-plugin-based branch to master(which is plugin based)

@@ -173,7 +173,7 @@ typedef PluginDependenciesData =
 	}
 	
 	private static function checkRequiredPluginsData():Void
-	{				
+	{		
 		if (requestedPluginsData.length > 0)
 		{
 			var pluginData:PluginDependenciesData;
@@ -213,54 +213,54 @@ typedef PluginDependenciesData =
 				}
 			}
 		}
-		else 
+		
+		if (Lambda.count(pathToPlugins) == plugins.length)
 		{
-			if (Lambda.count(pathToPlugins) == plugins.length)
+			trace(requestedPluginsData.length);
+			
+			trace("all plugins loaded");
+			
+			var delta:Float = Date.now().getTime() - Main.currentTime;
+			
+			trace("Loading took: " + Std.string(delta) + " ms");
+			
+			//js.Node.fs.writeFile("../HIDEPlugins.hxml", Main.pluginsTestingData, js.Node.NodeC.UTF8, function (error):Void
+			//{
+				//
+			//}
+			//);
+			
+			js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
 			{
-				trace("all plugins loaded");
-				
-				var delta:Float = Date.now().getTime() - Main.currentTime;
-				
-				trace("Loading took: " + Std.string(delta) + " ms");
-				
-				//js.Node.fs.writeFile("../HIDEPlugins.hxml", Main.pluginsTestingData, js.Node.NodeC.UTF8, function (error):Void
-				//{
-					//
-				//}
-				//);
-				
-				js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
+				if (data != null)
 				{
-					if (data != null)
-					{
-						var updatedData:String = StringTools.replace(data,"::plugins::", Main.pluginsTestingData);
+					var updatedData:String = StringTools.replace(data,"::plugins::", Main.pluginsTestingData);
 
-						js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
-						{
-							trace(".travis.yml was updated according to active plugins list");
-						}
-						);
-						
-					}
-					else
+					js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
 					{
-						trace(error);
+						trace(".travis.yml was updated according to active plugins list");
 					}
-				}
-				);
-				
-				var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
-				
-				var data:String = Serializer.run(HIDE.pluginsMTime);
-				
-				js.Node.fs.writeFile(pathToPluginsMTime, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-				{
+					);
 					
 				}
-				);
-				
-				Main.window.show();
+				else
+				{
+					trace(error);
+				}
 			}
+			);
+			
+			var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
+			
+			var data:String = Serializer.run(HIDE.pluginsMTime);
+			
+			js.Node.fs.writeFile(pathToPluginsMTime, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+			{
+				
+			}
+			);
+			
+			Main.window.show();
 		}
 	}
 	

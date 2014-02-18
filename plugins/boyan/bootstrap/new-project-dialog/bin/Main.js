@@ -226,31 +226,23 @@ NewProjectDialog.showPage2 = function() {
 	NewProjectDialog.backButton.className = "btn btn-default";
 	NewProjectDialog.nextButton.className = "btn btn-default disabled";
 }
+NewProjectDialog.getCheckboxData = function(key) {
+	var data = "";
+	if(NewProjectDialog.checkboxes.get(key).checked) data = NewProjectDialog.textfieldsWithCheckboxes.get(key).value;
+	return data;
+}
 NewProjectDialog.createProject = function() {
 	if(NewProjectDialog.projectLocation.value != "" && NewProjectDialog.projectName.value != "") js.Node.require("fs").exists(NewProjectDialog.projectLocation.value,function(exists) {
 		if(exists) {
 			js.Node.process.chdir(NewProjectDialog.projectLocation.value);
-			var project = new Project();
 			var item = NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value);
 			if(item.createProjectFunction != null) {
-				var projectPackage = NewProjectDialog.textfieldsWithCheckboxes.get("Package").value;
-				var projectCompany = NewProjectDialog.textfieldsWithCheckboxes.get("Company").value;
-				if(!NewProjectDialog.checkboxes.get("Package").checked) projectPackage = "";
-				if(!NewProjectDialog.checkboxes.get("Company").checked) projectCompany = "";
-				item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value, projectPackage : projectPackage, projectCompany : projectCompany, createDirectory : NewProjectDialog.createDirectoryForProject.checked});
+				var projectPackage = NewProjectDialog.getCheckboxData("Package");
+				var projectCompany = NewProjectDialog.getCheckboxData("Company");
+				var projectLicense = NewProjectDialog.getCheckboxData("License");
+				var projectURL = NewProjectDialog.getCheckboxData("URL");
+				item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value, projectPackage : projectPackage, projectCompany : projectCompany, projectLicense : projectLicense, projectURL : projectURL, createDirectory : !NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).showCreateDirectoryOption || NewProjectDialog.createDirectoryForProject.checked});
 			}
-			var name = NewProjectDialog.projectName.value;
-			if(name != "") project.name = name;
-			var projectPackage = NewProjectDialog.textfieldsWithCheckboxes.get("Package").value;
-			if(NewProjectDialog.checkboxes.get("Package").checked && projectPackage != "") project.projectPackage = projectPackage;
-			var company = NewProjectDialog.textfieldsWithCheckboxes.get("Company").value;
-			if(NewProjectDialog.checkboxes.get("Company").checked && company != "") project.company = company;
-			var license = NewProjectDialog.textfieldsWithCheckboxes.get("License").value;
-			if(NewProjectDialog.checkboxes.get("License").checked && license != "") project.license = license;
-			var url = NewProjectDialog.textfieldsWithCheckboxes.get("URL").value;
-			if(NewProjectDialog.checkboxes.get("URL").checked && url != "") project.url = url;
-			var path;
-			if(!NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).showCreateDirectoryOption || NewProjectDialog.createDirectoryForProject.checked) path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,NewProjectDialog.projectName.value,"project.hide"); else path = js.Node.require("path").join(NewProjectDialog.projectLocation.value,"project.hide");
 			NewProjectDialog.saveData("Package");
 			NewProjectDialog.saveData("Company");
 			NewProjectDialog.saveData("License");
@@ -599,14 +591,6 @@ NewProjectDialog.createListItem = function(text) {
 	option.value = text;
 	return option;
 }
-var Project = function() {
-	this.customArgs = false;
-};
-$hxExpose(Project, "Project");
-Project.__name__ = true;
-Project.prototype = {
-	__class__: Project
-}
 var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
@@ -780,12 +764,9 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.bootstrap.new-project-dialog";
-Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog"];
+Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access"];
 NewProjectDialog.categories = new haxe.ds.StringMap();
 NewProjectDialog.categoriesArray = new Array();
-Project.HAXE = 0;
-Project.OPENFL = 1;
-Project.HXML = 2;
 js.Browser.window = typeof window != "undefined" ? window : null;
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();

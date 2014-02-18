@@ -3,6 +3,7 @@ package ;
 //import core.ProjectAccess;
 //import core.TabsManager;
 import haxe.ds.StringMap;
+import haxe.Serializer;
 import haxe.Timer;
 import jQuery.JQuery;
 import js.Browser;
@@ -204,6 +205,18 @@ import js.html.UListElement;
 		nextButton.className = "btn btn-default disabled";
 	}
 	
+	inline private static function getCheckboxData(key:String):String
+	{
+		var data:String = "";
+		
+		if (checkboxes.get(key).checked)
+		{
+			data = textfieldsWithCheckboxes.get(key).value;
+		}
+		
+		return data;
+	}
+	
 	private static function createProject():Void
 	{		
 		if (projectLocation.value != "" && projectName.value != "")
@@ -214,26 +227,24 @@ import js.html.UListElement;
 				{
 					js.Node.process.chdir(projectLocation.value);
 					
-					var project:Project = new Project();
-					
 					var item:Item = selectedCategory.getItem(list.value);
 					
 					if (item.createProjectFunction != null)
 					{
-						var projectPackage:String = textfieldsWithCheckboxes.get("Package").value;
-						var projectCompany:String = textfieldsWithCheckboxes.get("Company").value;
+						var projectPackage:String = getCheckboxData("Package");
+						var projectCompany:String = getCheckboxData("Company");
+						var projectLicense:String = getCheckboxData("License");
+						var projectURL:String = getCheckboxData("URL");
 						
-						if (!checkboxes.get("Package").checked)
-						{
-							projectPackage = "";
-						}
-						
-						if (!checkboxes.get("Company").checked)
-						{
-							projectCompany = "";
-						}
-						
-						item.createProjectFunction({projectName: projectName.value, projectLocation: projectLocation.value, projectPackage: projectPackage, projectCompany: projectCompany, createDirectory: createDirectoryForProject.checked});
+						item.createProjectFunction( { 
+							projectName: projectName.value,
+							projectLocation: projectLocation.value,
+							projectPackage: projectPackage,
+							projectCompany: projectCompany,
+							projectLicense: projectLicense,
+							projectURL: projectURL,
+							createDirectory: !selectedCategory.getItem(list.value).showCreateDirectoryOption || createDirectoryForProject.checked
+							});
 					}
 					
 					//switch (selectedCategory) 
@@ -291,56 +302,7 @@ import js.html.UListElement;
 						//default:
 							//
 					//}
-					//
-					var name:String = projectName.value;
-							
-					if (name != "")
-					{
-						project.name = name;
-					}
 					
-					var projectPackage:String = textfieldsWithCheckboxes.get("Package").value;
-					
-					if (checkboxes.get("Package").checked && projectPackage != "")
-					{
-						project.projectPackage = projectPackage;
-					}
-					
-					var company:String = textfieldsWithCheckboxes.get("Company").value;
-					
-					if (checkboxes.get("Company").checked && company != "")
-					{
-						project.company = company;
-					}
-					
-					var license:String = textfieldsWithCheckboxes.get("License").value;
-					
-					if (checkboxes.get("License").checked && license != "")
-					{
-						project.license = license;
-					}
-					
-					var url:String = textfieldsWithCheckboxes.get("URL").value;
-					
-					if (checkboxes.get("URL").checked && url != "")
-					{
-						project.url = url;
-					}
-					
-					var path:String;
-					
-					if (!selectedCategory.getItem(list.value).showCreateDirectoryOption || createDirectoryForProject.checked)
-					{
-						path = js.Node.path.join(projectLocation.value, projectName.value, "project.hide");
-					}
-					else 
-					{
-						path = js.Node.path.join(projectLocation.value, "project.hide");
-					}
-					
-					//js.Node.system_saveFile(path, js.Node.stringify(project));
-					
-					//ProjectAccess.currentProject = project;
 					//Main.updateMenu();
 					
 					saveData("Package");
