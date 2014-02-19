@@ -358,6 +358,9 @@ ui.menu.basic.Menu.prototype = {
 		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
 	}
 	,addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
+		if(_alt == null) _alt = false;
+		if(_shift == null) _shift = false;
+		if(_ctrl == null) _ctrl = false;
 		var menuButtonItem = new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt);
 		menuButtonItem.position = _position;
 		if(menuButtonItem.position != null && this.items.length > 0 && this.ul.childNodes.length > 0) {

@@ -11,38 +11,47 @@ import js.html.TextAreaElement;
 	public static function buildProject(process:String, params:Array<String>, ?onComplete:Dynamic):Void
 	{
 		//"haxe", "--connect", "6001", "--cwd", "..","HaxeEditor2.hxml"
-		var haxeCompilerClient:Dynamic = Utils.process.spawn(process, params);
-			
-		haxeCompilerClient.stdout.setEncoding('utf8');
-		haxeCompilerClient.stdout.on('data', function (data) {
-				var str:String = data.toString();
-				//var lines = str.split("\n");
-				trace("OUTPUT: " + str);
-				var textarea = cast(Browser.document.getElementById("output").firstElementChild, TextAreaElement);
-				textarea.value += "OUTPUT: " + str;
-		});
 		
-		haxeCompilerClient.stderr.setEncoding('utf8');
-		haxeCompilerClient.stderr.on('data', function (data) {
-				var str:String = data.toString();
-				//var lines = str.split("\n");
-				trace("ERROR: " + str);
-				var textarea = cast(Browser.document.getElementById("output").firstElementChild, TextAreaElement);
-				textarea.value += "ERROR: " + str;
-		});
-
-		haxeCompilerClient.on('close', function (code:Int) {
-				trace('haxeCompilerClient process exit code ' + code);
+		var textarea = cast(Browser.document.getElementById("output"), TextAreaElement);
+		textarea.value = "";
+		
+		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(process + " " + params.join(" "), { }, function (error, stdout:String, stderr:String):Void
+		{			
+			if (stdout != "")
+			{
+				textarea.value += "stdout:\n" + stdout;
+				trace("stdout:\n" + stdout);
+			}
+			
+			if (stderr != "")
+			{
+				textarea.value += "stderr:\n" + stderr;
+				trace("stderr:\n" + stderr);
+			}
+		}
+		);
+		
+		haxeCompilerClient.on("close", function (code:Int):Void
+		{
+			if (code == 0)
+			{
+				textarea.value += "Build complete\n";
 				
-				if (code == 0 && onComplete != null)
+				if (onComplete != null)
 				{
 					onComplete();
 				}
-		});
+			}
+			else 
+			{
+				textarea.value += "Build failed (exit code: " + Std.string(code) +  ")\n" ;
+			}
+		}
+		);
 	}
 	
 	public static function buildOpenFLProject(params:Array<String>, ?onComplete:Dynamic):Void
 	{
-		buildProject("haxelib", ["run", "openfl"].concat(params), onComplete);
+		//buildProject("haxelib", ["run", "openfl"].concat(params), onComplete);
 	}
 }

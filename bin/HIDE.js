@@ -488,13 +488,22 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 			onSuccess(pathToPlugin);
 			HIDE.pluginsMTime.set(name,Std.parseInt(Std.string(new Date().getTime())));
 		} else {
-			var textarea = js.Boot.__cast(js.Browser.document.getElementById("plugin-compilation-console") , HTMLTextAreaElement);
-			if(textarea == null) {
+			var element = js.Browser.document.getElementById("plugin-compilation-console");
+			var textarea;
+			if(element == null) {
 				textarea = js.Browser.document.createElement("textarea");
 				textarea.id = "plugin-compilation-console";
-				js.Browser.document.appendChild(textarea);
-			}
-			textarea.value += name;
+				textarea.style.position = "fixed";
+				textarea.style.width = "100%";
+				textarea.style.height = "15%";
+				textarea.style.backgroundColor = "darkseagreen";
+				textarea.style.opacity = "0.8";
+				textarea.style.bottom = "0";
+				textarea.style.zIndex = "10000";
+				textarea.value = "Plugins compile-time errors:\n";
+				js.Browser.document.body.appendChild(textarea);
+			} else textarea = js.Boot.__cast(element , HTMLTextAreaElement);
+			textarea.value += name + "\n" + stderrData + "\n";
 			console.log("can't load " + name + " plugin, compilation failed");
 			var regex = new EReg("haxelib install (.+) ","gim");
 			regex.map(stderrData,function(ereg) {

@@ -15,7 +15,7 @@ HaxeServer.start = function() {
 		HaxeServer.processStarted = false;
 	});
 	HaxeServer.haxeCompletionServer.on("close",function(code) {
-		console.log("haxeCompletionServer process exit code " + code);
+		if(code != null) console.log("haxeCompletionServer process exit code " + code);
 	});
 	js.Node.require("nw.gui").Window.get().on("close",function(e) {
 		HaxeServer.terminate();

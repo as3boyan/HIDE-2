@@ -3,6 +3,7 @@ package ;
 import haxe.Timer;
 import haxe.Unserializer;
 import js.Browser;
+import js.html.Element;
 import js.html.Text;
 import js.html.TextAreaElement;
 
@@ -294,16 +295,30 @@ class Main
 			}
 			else
 			{
-				var textarea:TextAreaElement = cast(Browser.document.getElementById("plugin-compilation-console"), TextAreaElement);
+				var element:Element = Browser.document.getElementById("plugin-compilation-console");
+
+				var textarea:TextAreaElement;
 				
-				if (textarea == null)
+				if (element == null)
 				{
 					textarea = Browser.document.createTextAreaElement();
 					textarea.id = "plugin-compilation-console";
-					Browser.document.appendChild(textarea);
+					textarea.style.position = "fixed";
+					textarea.style.width = "100%";
+					textarea.style.height = "15%";
+					textarea.style.backgroundColor = "darkseagreen";
+					textarea.style.opacity = "0.8";
+					textarea.style.bottom = "0";
+					textarea.style.zIndex = "10000";
+					textarea.value = "Plugins compile-time errors:\n";
+					Browser.document.body.appendChild(textarea);
+				}
+				else 
+				{
+					textarea = cast(element, TextAreaElement);
 				}
 				
-				textarea.value += name;
+				textarea.value += name + "\n" + stderrData + "\n";
 				
 				trace("can't load " + name + " plugin, compilation failed");
 				

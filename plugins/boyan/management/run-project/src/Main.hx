@@ -1,4 +1,6 @@
 package ;
+import js.Browser;
+import js.html.TextAreaElement;
 
 /**
  * ...
@@ -7,20 +9,33 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.management.run-project";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ()
 		{
-			BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, function () {}, "F5", 116);
-			BootstrapMenu.getMenu("Project").addMenuItem("Build", 1, function () {}, "F8", 119);
+			BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, runProject, "F5", 116);
+			BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, buildProject, "F8", 119);
 			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);
 		}
 		);
+	}
+	
+	private static function runProject():Void
+	{
+		buildProject();
+	}
+	
+	private static function buildProject(?onComplete:Dynamic):Void
+	{		
+		var projectOptions:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
+		var args:Array<String> = projectOptions.value.split("\n");
+		
+		HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", js.Node.process.cwd()].concat(args), onComplete);
 	}
 	
 }

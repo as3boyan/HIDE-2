@@ -10,28 +10,14 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.project.haxe";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.project-options"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.project-options", "boyan.bootstrap.file-tree"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			NewProjectDialog.getCategory("Haxe", 1).addItem("Flash Project", createFlashProject);
-			
-			//-cp src
-			//-main Main
-			
-			//-swf FlashProject1.swf
-			//-js FlashProject1.js
-			//-php FlashProject1.php
-			//-cpp FlashProject1.exe
-			//-java FlashProject1.jar
-			//-cs FlashProject1.exe
-			
-			//-debug
-			//-dce full
-			
+			NewProjectDialog.getCategory("Haxe", 1).addItem("Flash Project", createFlashProject);			
 			NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project", createJavaScriptProject);
 			NewProjectDialog.getCategory("Haxe").addItem("Neko Project", createNekoProject);
 			NewProjectDialog.getCategory("Haxe").addItem("PHP Project", createPhpProject);
@@ -93,6 +79,8 @@ class Main
 				pathToMain = js.Node.path.join(pathToMain, data.projectName);
 			}
 			
+			js.Node.process.chdir(pathToMain);
+			
 			pathToMain = js.Node.path.join(pathToMain, "src", "Main.hx");
 			
 			var code:String = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
@@ -138,6 +126,8 @@ class Main
 			project.url = data.projectURL;
 			project.type = Project.HAXE;
 			project.target = target;
+			
+			FileTree.load(project.name);
 			
 			path = js.Node.path.join(js.Node.path.dirname(path), "project.hide");
 			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void

@@ -29,6 +29,11 @@ Main.main = function() {
 				Alerts.showAlert(data);
 			});
 		},"Shift-F5",116,false,true,false);
+		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console",3,function() {
+			var gui = js.Node.require("nw.gui");
+			var window = gui.Window.get();
+			window.showDevTools();
+		});
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
 }

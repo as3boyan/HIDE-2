@@ -171,6 +171,7 @@ TabManager.createNewTab = function(name,path) {
 	TabManager.tabs.appendChild(li);
 }
 TabManager.openFileInNewTab = function(path) {
+	path = js.Node.require("path").relative(js.Node.process.cwd(),path);
 	if(TabManager.isAlreadyOpened(path)) return;
 	js.Node.require("fs").readFile(path,"utf8",function(error,code) {
 		if(error != null) console.log(error);

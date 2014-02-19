@@ -135,7 +135,7 @@ interface MenuItem
 		items = new Array();
 	}
 	
-	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool):Void
+	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool = false, ?_shift:Bool = false, ?_alt:Bool = false):Void
 	{
 		var menuButtonItem:MenuButtonItem = new MenuButtonItem(_text, _onClickFunction, _hotkey, _keyCode, _ctrl, _shift, _alt);
 				

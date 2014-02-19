@@ -101,6 +101,7 @@ Main.createHaxeProject = function(data,target) {
 	FileTools.createDirectoryRecursively(data.projectLocation,[data.projectName,"src"],function() {
 		var pathToMain = data.projectLocation;
 		if(data.createDirectory) pathToMain = js.Node.require("path").join(pathToMain,data.projectName);
+		js.Node.process.chdir(pathToMain);
 		pathToMain = js.Node.require("path").join(pathToMain,"src","Main.hx");
 		var code = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
 		js.Node.require("fs").writeFile(pathToMain,code,null,function(error) {
@@ -119,6 +120,7 @@ Main.createHaxeProject = function(data,target) {
 		project.url = data.projectURL;
 		project.type = 0;
 		project.target = target;
+		FileTree.load(project.name);
 		path = js.Node.require("path").join(js.Node.require("path").dirname(path),"project.hide");
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 		});
@@ -730,7 +732,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.project.haxe";
-Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager","boyan.bootstrap.project-options"];
+Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager","boyan.bootstrap.project-options","boyan.bootstrap.file-tree"];
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";

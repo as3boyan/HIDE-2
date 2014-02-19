@@ -26,7 +26,10 @@ package ;
 		});
 		
 		haxeCompletionServer.on('close', function (code) {
-				trace('haxeCompletionServer process exit code ' + code);
+				if (code != null)
+				{
+					trace('haxeCompletionServer process exit code ' + code);
+				}
 		});
 
 		js.Node.require('nw.gui').Window.get().on("close", function (e):Void

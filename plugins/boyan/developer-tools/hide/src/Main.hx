@@ -40,6 +40,14 @@ class Main
 				
 			}
 			, "Shift-F5", 116, false, true, false);
+			
+			BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console", 3, function ():Void
+			{
+				var gui:Dynamic = js.Node.require('nw.gui');
+				var window = gui.Window.get();
+				window.showDevTools();
+			}
+			);
 
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);
