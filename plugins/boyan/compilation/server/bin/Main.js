@@ -1,24 +1,28 @@
 (function () { "use strict";
 var HaxeServer = function() { }
+$hxExpose(HaxeServer, "HaxeServer");
 HaxeServer.start = function() {
-	var haxeCompletionServer = js.Node.require("child_process").spawn("haxe",["--wait","6001"]);
-	haxeCompletionServer.stdout.setEncoding("utf8");
-	haxeCompletionServer.stdout.on("data",function(data) {
+	HaxeServer.haxeCompletionServer = js.Node.require("child_process").spawn("haxe",["--wait","6001"]);
+	HaxeServer.haxeCompletionServer.stdout.setEncoding("utf8");
+	HaxeServer.haxeCompletionServer.stdout.on("data",function(data) {
 		console.log("stdout: " + data);
 	});
-	haxeCompletionServer.stderr.setEncoding("utf8");
-	haxeCompletionServer.stderr.on("data",function(data) {
+	HaxeServer.haxeCompletionServer.stderr.setEncoding("utf8");
+	HaxeServer.haxeCompletionServer.stderr.on("data",function(data) {
 		var str = data.toString();
 		var lines = str.split("\n");
 		console.log("ERROR: " + lines.join(""));
 		HaxeServer.processStarted = false;
 	});
-	haxeCompletionServer.on("close",function(code) {
+	HaxeServer.haxeCompletionServer.on("close",function(code) {
 		console.log("haxeCompletionServer process exit code " + code);
 	});
 	js.Node.require("nw.gui").Window.get().on("close",function(e) {
-		if(HaxeServer.processStarted) haxeCompletionServer.kill();
+		HaxeServer.terminate();
 	});
+}
+HaxeServer.terminate = function() {
+	if(HaxeServer.processStarted) HaxeServer.haxeCompletionServer.kill();
 }
 var HxOverrides = function() { }
 HxOverrides.cca = function(s,index) {
@@ -69,6 +73,16 @@ if(version[0] > 0 || version[1] >= 9) {
 HaxeServer.processStarted = true;
 Main.$name = "boyan.compilation.server";
 Main.main();
+function $hxExpose(src, path) {
+	var o = typeof window != "undefined" ? window : exports;
+	var parts = path.split(".");
+	for(var ii = 0; ii < parts.length-1; ++ii) {
+		var p = parts[ii];
+		if(typeof o[p] == "undefined") o[p] = {};
+		o = o[p];
+	}
+	o[parts[parts.length-1]] = src;
+}
 })();
 
 //@ sourceMappingURL=Main.js.map

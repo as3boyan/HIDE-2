@@ -1,0 +1,7 @@
+-cp src
+-cp ../../../../externs/plugins/hide
+-cp ../../../../externs/plugins/boyan/bootstrap/menu
+-main Main
+-js bin/Main.js
+-dce full
+-debug

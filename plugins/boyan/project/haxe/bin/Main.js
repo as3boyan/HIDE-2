@@ -65,18 +65,39 @@ var Main = function() { }
 Main.__name__ = ["Main"];
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		NewProjectDialog.getCategory("Haxe",1).addItem("Flash Project",Main.createHaxeProject);
-		NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project",Main.createHaxeProject);
-		NewProjectDialog.getCategory("Haxe").addItem("Neko Project",Main.createHaxeProject);
-		NewProjectDialog.getCategory("Haxe").addItem("PHP Project",Main.createHaxeProject);
-		NewProjectDialog.getCategory("Haxe").addItem("C++ Project",Main.createHaxeProject);
-		NewProjectDialog.getCategory("Haxe").addItem("Java Project",Main.createHaxeProject);
-		NewProjectDialog.getCategory("Haxe").addItem("C# Project",Main.createHaxeProject);
+		NewProjectDialog.getCategory("Haxe",1).addItem("Flash Project",Main.createFlashProject);
+		NewProjectDialog.getCategory("Haxe").addItem("JavaScript Project",Main.createJavaScriptProject);
+		NewProjectDialog.getCategory("Haxe").addItem("Neko Project",Main.createNekoProject);
+		NewProjectDialog.getCategory("Haxe").addItem("PHP Project",Main.createPhpProject);
+		NewProjectDialog.getCategory("Haxe").addItem("C++ Project",Main.createCppProject);
+		NewProjectDialog.getCategory("Haxe").addItem("Java Project",Main.createJavaProject);
+		NewProjectDialog.getCategory("Haxe").addItem("C# Project",Main.createCSharpProject);
 		NewProjectDialog.getCategory("Haxe").select();
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 }
-Main.createHaxeProject = function(data) {
+Main.createCSharpProject = function(data) {
+	Main.createHaxeProject(data,5);
+}
+Main.createJavaProject = function(data) {
+	Main.createHaxeProject(data,4);
+}
+Main.createCppProject = function(data) {
+	Main.createHaxeProject(data,3);
+}
+Main.createPhpProject = function(data) {
+	Main.createHaxeProject(data,2);
+}
+Main.createNekoProject = function(data) {
+	Main.createHaxeProject(data,6);
+}
+Main.createFlashProject = function(data) {
+	Main.createHaxeProject(data,0);
+}
+Main.createJavaScriptProject = function(data) {
+	Main.createHaxeProject(data,1);
+}
+Main.createHaxeProject = function(data,target) {
 	FileTools.createDirectoryRecursively(data.projectLocation,[data.projectName,"src"],function() {
 		var pathToMain = data.projectLocation;
 		if(data.createDirectory) pathToMain = js.Node.require("path").join(pathToMain,data.projectName);
@@ -97,10 +118,36 @@ Main.createHaxeProject = function(data) {
 		project.license = data.projectLicense;
 		project.url = data.projectURL;
 		project.type = 0;
+		project.target = target;
 		path = js.Node.require("path").join(js.Node.require("path").dirname(path),"project.hide");
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 		});
 		ProjectAccess.currentProject = project;
+		var args = "-cp src\n-main Main\n";
+		switch(project.target) {
+		case 0:
+			args += "-swf " + project.name + ".swf\n";
+			break;
+		case 1:
+			args += "-js " + project.name + ".js\n";
+			break;
+		case 2:
+			args += "-php " + project.name + ".php\n";
+			break;
+		case 3:
+			args += "-cpp " + project.name + ".exe\n";
+			break;
+		case 4:
+			args += "-java " + project.name + ".jar\n";
+			break;
+		case 5:
+			args += "-cs " + project.name + ".exe\n";
+			break;
+		default:
+		}
+		args += "-debug\n -dce full";
+		var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+		textarea.value = args;
 	});
 }
 var IMap = function() { }
@@ -634,6 +681,11 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
+js.Browser = function() { }
+js.Browser.__name__ = ["js","Browser"];
 js.Node = function() { }
 js.Node.__name__ = ["js","Node"];
 Math.__name__ = ["Math"];
@@ -678,10 +730,11 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.project.haxe";
-Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager"];
+Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager","boyan.bootstrap.project-options"];
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
 

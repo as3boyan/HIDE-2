@@ -4,13 +4,14 @@ package ;
  * ...
  * @author AS3Boyan
  */
-class HaxeServer
+@:keepSub @:expose class HaxeServer
 {
 	private static var processStarted:Bool = true;
+	private static var haxeCompletionServer:js.Node.NodeChildProcess;
 
 	public static function start():Void
 	{
-		var haxeCompletionServer:js.Node.NodeChildProcess = js.Node.require('child_process').spawn("haxe", ["--wait", "6001"]);
+		haxeCompletionServer = js.Node.require('child_process').spawn("haxe", ["--wait", "6001"]);
 		
 		haxeCompletionServer.stdout.setEncoding('utf8');
 		haxeCompletionServer.stdout.on('data', function (data) {
@@ -30,11 +31,16 @@ class HaxeServer
 
 		js.Node.require('nw.gui').Window.get().on("close", function (e):Void
 		{
-			if (processStarted)
-			{
-				haxeCompletionServer.kill();
-			}
+			terminate();
 		}
 		);
+	}
+	
+	public static function terminate():Void
+	{
+		if (processStarted)
+		{
+			haxeCompletionServer.kill();
+		}
 	}
 }

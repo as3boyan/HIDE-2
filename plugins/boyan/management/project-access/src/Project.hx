@@ -10,7 +10,15 @@ package ;
 	inline static public var OPENFL:Int = 1;
 	inline static public var HXML:Int = 2;
 	
-	public var target:String;
+	inline static public var FLASH:Int = 0;
+	inline static public var JAVASCRIPT:Int = 1;
+	inline static public var PHP:Int = 2;
+	inline static public var CPP:Int = 3;
+	inline static public var JAVA:Int = 4;
+	inline static public var CSHARP:Int = 5;
+	inline static public var NEKO:Int = 6;
+	
+	public var target:Int;
 	public var type:Int;
 	
 	public var name:String;

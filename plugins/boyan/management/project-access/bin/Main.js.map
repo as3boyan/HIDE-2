@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/management/project-access/src/Main.hx","D:/Denis/PortableSoft/HIDE-master/plugins/boyan/management/project-access/src/Project.hx","D:/Denis/PortableSoft/HIDE-master/plugins/boyan/management/project-access/src/ProjectAccess.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAEC,AAA2B;;UCYrB,CACP;CACC,EAAa;;;gBCnBP,LACP;;;aFHgC;eCAI;iBACE;eACF;;;;;;;;;;;;;;"
+"mappings":";;YAYc,DACd;CAEC,AAA2B;;UCoBrB,CACP;CACC,EAAa;;;gBC3BP,LACP;;;aFHgC;eCAI;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;;;;;;;;;;;;;;"
 }

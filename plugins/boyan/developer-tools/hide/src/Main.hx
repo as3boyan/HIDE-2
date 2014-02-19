@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.developer-tools.hide";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.menu", "boyan.bootstrap.alerts"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.menu", "boyan.bootstrap.alerts", "boyan.compilation.server"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -16,12 +16,16 @@ class Main
 		{
 			BootstrapMenu.getMenu("Developer Tools", 100).addMenuItem("Reload IDE", 1, function ():Void
 			{
+				HaxeServer.terminate();
+				
 				js.Node.require('nw.gui').Window.get().reloadIgnoringCache();
 			}
 			, "Ctrl-Shift-R", "R".code, true, true, false);
 
 			BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE", 2, function ():Void
 			{
+				HaxeServer.terminate();
+				
 				HIDE.compilePlugins(function ():Void
 				{
 					//Only when all plugins successfully loaded

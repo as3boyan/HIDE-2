@@ -3,6 +3,8 @@ package ;
 import haxe.Timer;
 import haxe.Unserializer;
 import js.Browser;
+import js.html.Text;
+import js.html.TextAreaElement;
 
 /**
  * ...
@@ -292,6 +294,17 @@ class Main
 			}
 			else
 			{
+				var textarea:TextAreaElement = cast(Browser.document.getElementById("plugin-compilation-console"), TextAreaElement);
+				
+				if (textarea == null)
+				{
+					textarea = Browser.document.createTextAreaElement();
+					textarea.id = "plugin-compilation-console";
+					Browser.document.appendChild(textarea);
+				}
+				
+				textarea.value += name;
+				
 				trace("can't load " + name + " plugin, compilation failed");
 				
 				var regex:EReg = new EReg("haxelib install (.+) ", "gim");
