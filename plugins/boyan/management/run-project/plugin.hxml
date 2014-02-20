@@ -3,6 +3,7 @@
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/bootstrap/menu
 -cp ../../../../externs/plugins/boyan/compilation/client
+-cp ../../../../externs/plugins/boyan/management/project-access
 -main Main
 -js bin/Main.js
 -dce full

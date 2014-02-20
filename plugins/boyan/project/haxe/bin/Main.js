@@ -73,8 +73,14 @@ Main.main = function() {
 		NewProjectDialog.getCategory("Haxe").addItem("Java Project",Main.createJavaProject);
 		NewProjectDialog.getCategory("Haxe").addItem("C# Project",Main.createCSharpProject);
 		NewProjectDialog.getCategory("Haxe").select();
+		HIDE.readFile(Main.$name,"templates/Main.hx",function(data) {
+			Main.code = data;
+			HIDE.notifyLoadingComplete(Main.$name);
+		});
+		HIDE.readFile(Main.$name,"templates/index.html",function(data) {
+			Main.indexPageCode = data;
+		});
 	});
-	HIDE.notifyLoadingComplete(Main.$name);
 }
 Main.createCSharpProject = function(data) {
 	Main.createHaxeProject(data,5);
@@ -99,19 +105,17 @@ Main.createJavaScriptProject = function(data) {
 }
 Main.createHaxeProject = function(data,target) {
 	FileTools.createDirectoryRecursively(data.projectLocation,[data.projectName,"src"],function() {
-		var pathToMain = data.projectLocation;
-		if(data.createDirectory) pathToMain = js.Node.require("path").join(pathToMain,data.projectName);
+		var pathToProject = data.projectLocation;
+		if(data.createDirectory) pathToProject = js.Node.require("path").join(pathToProject,data.projectName);
+		var pathToMain = pathToProject;
 		js.Node.process.chdir(pathToMain);
 		pathToMain = js.Node.require("path").join(pathToMain,"src","Main.hx");
-		var code = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
-		js.Node.require("fs").writeFile(pathToMain,code,null,function(error) {
+		js.Node.require("fs").writeFile(pathToMain,Main.code,null,function(error) {
 			if(error != null) console.log(error);
 			js.Node.require("fs").exists(pathToMain,function(exists) {
 				if(exists) TabManager.openFileInNewTab(pathToMain); else console.log(pathToMain + " file was not generated");
 			});
 		});
-		var path;
-		if(data.createDirectory) path = js.Node.require("path").join(data.projectLocation,data.projectName,"project.hide"); else path = js.Node.require("path").join(data.projectLocation,"project.hide");
 		var project = new Project();
 		project.name = data.projectName;
 		project.projectPackage = data.projectPackage;
@@ -121,33 +125,42 @@ Main.createHaxeProject = function(data,target) {
 		project.type = 0;
 		project.target = target;
 		FileTree.load(project.name);
-		path = js.Node.require("path").join(js.Node.require("path").dirname(path),"project.hide");
-		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
-		});
-		ProjectAccess.currentProject = project;
+		var pathToBin = js.Node.require("path").join(pathToProject,"bin");
+		js.Node.require("fs").mkdir(pathToBin);
 		var args = "-cp src\n-main Main\n";
 		switch(project.target) {
 		case 0:
-			args += "-swf " + project.name + ".swf\n";
+			args += "-swf " + "bin/" + project.name + ".swf\n";
 			break;
 		case 1:
-			args += "-js " + project.name + ".js\n";
+			var pathToScript = "bin/" + project.name + ".js";
+			args += "-js " + pathToScript + "\n";
+			var updatedPageCode = StringTools.replace(Main.indexPageCode,"::title::",project.name);
+			updatedPageCode = StringTools.replace(Main.indexPageCode,"::script::",pathToScript);
+			js.Node.require("fs").writeFile(js.Node.require("path").join(pathToBin,"index.html"),Main.indexPageCode,"utf8",function(error) {
+			});
 			break;
 		case 2:
-			args += "-php " + project.name + ".php\n";
+			args += "-php " + "bin/" + project.name + ".php\n";
 			break;
 		case 3:
-			args += "-cpp " + project.name + ".exe\n";
+			args += "-cpp " + "bin/" + project.name + ".exe\n";
 			break;
 		case 4:
-			args += "-java " + project.name + ".jar\n";
+			args += "-java " + "bin/" + project.name + ".jar\n";
 			break;
 		case 5:
-			args += "-cs " + project.name + ".exe\n";
+			args += "-cs " + "bin/" + project.name + ".exe\n";
 			break;
 		default:
 		}
 		args += "-debug\n -dce full";
+		project.args = args.split("\n");
+		var path = js.Node.require("path").join(pathToProject,"project.hide");
+		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+		});
+		js.Browser.getLocalStorage().setItem("pathToLastProject",path);
+		ProjectAccess.currentProject = project;
 		var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 		textarea.value = args;
 	});
@@ -204,6 +217,9 @@ var StringTools = function() { }
 StringTools.__name__ = ["StringTools"];
 StringTools.urlEncode = function(s) {
 	return encodeURIComponent(s);
+}
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
 }
 var ValueType = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
 ValueType.TNull = ["TNull",0];
@@ -688,6 +704,15 @@ js.Boot.__cast = function(o,t) {
 }
 js.Browser = function() { }
 js.Browser.__name__ = ["js","Browser"];
+js.Browser.getLocalStorage = function() {
+	try {
+		var s = js.Browser.window.localStorage;
+		s.getItem("");
+		return s;
+	} catch( e ) {
+		return null;
+	}
+}
 js.Node = function() { }
 js.Node.__name__ = ["js","Node"];
 Math.__name__ = ["Math"];
@@ -736,6 +761,7 @@ Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-m
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
+js.Browser.window = typeof window != "undefined" ? window : null;
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();

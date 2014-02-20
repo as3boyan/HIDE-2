@@ -23,6 +23,10 @@ class ProjectOptions
 		
 		textarea = Browser.document.createTextAreaElement();
 		textarea.id = "project-options-textarea";
+		textarea.onchange = function (e)
+		{
+			ProjectAccess.currentProject.args = textarea.value.split("\n");
+		};
 		page.appendChild(textarea);
 		
 		Splitpane.components[3].appendChild(page);

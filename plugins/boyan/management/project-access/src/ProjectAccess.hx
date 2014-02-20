@@ -1,4 +1,5 @@
 package ;
+import js.Browser;
 
 /**
  * ...
@@ -6,11 +7,5 @@ package ;
  */
 @:keepSub @:expose class ProjectAccess
 {
-	public static var currentProject:Project = null;
-	
-	public function new() 
-	{
-		
-	}
-	
+	public static var currentProject:Project = new Project();	
 }

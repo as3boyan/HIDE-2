@@ -2,6 +2,7 @@
 -cp ../../../../externs/nodejs-std/src
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/bootstrap/menu
+-cp ../../../../externs/plugins/boyan/bootstrap/file-tree
 -cp ../../../../externs/plugins/boyan/window/file-dialog
 -cp ../../../../externs/plugins/boyan/management/project-access
 -main Main

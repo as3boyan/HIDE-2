@@ -24,6 +24,7 @@ Presentation.main = function() {
 		var start = js.Browser.document.createElement("div");
 		start.id = "start";
 		start.className = "step";
+		start.setAttribute("data-transition-duration","1000");
 		Presentation.impressDiv.appendChild(start);
 		var p = js.Browser.document.createElement("p");
 		p.style.width = "1000px";
@@ -97,7 +98,7 @@ Presentation.runImpressJS = function() {
 	impressInstance.init();
 	js.Browser.document.addEventListener("impress:stepenter",function(e) {
 		if(Presentation.autoplay) {
-			var duration = e.target.getAttribute("data-transition-duration") != null?e.target.getAttribute("data-transition-duration"):3000 + Std.random(2000);
+			var duration = e.target.getAttribute("data-transition-duration") != null?e.target.getAttribute("data-transition-duration"):1500 + Std.random(2000);
 			haxe.Timer.delay(function() {
 				if(Presentation.autoplay) impressInstance.next();
 			},duration);

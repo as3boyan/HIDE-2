@@ -177,6 +177,17 @@ HIDE.compilePlugins = function(onComplete,onFailed) {
 		},onFailed);
 	}
 }
+HIDE.readFile = function(name,path,onComplete) {
+	js.Node.require("fs").readFile(js.Node.require("path").join(HIDE.pathToPlugins.get(name),path),"utf8",function(error,data) {
+		if(error != null) console.log(error);
+		onComplete(data);
+	});
+}
+HIDE.writeFile = function(name,path,contents,onComplete) {
+	js.Node.require("fs").writeFile(js.Node.require("path").join(HIDE.pathToPlugins.get(name),path),contents,"utf8",function(error) {
+		if(onComplete != null && error == null) onComplete();
+	});
+}
 HIDE.checkRequiredPluginsData = function() {
 	if(HIDE.requestedPluginsData.length > 0) {
 		var pluginData;

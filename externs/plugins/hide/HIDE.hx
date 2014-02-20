@@ -16,4 +16,6 @@ extern class HIDE
 	public static function notifyLoadingComplete(name:String):Void;
 	public static function openPageInNewWindow(name:String, url:String, ?params:Dynamic):Void;
 	public static function compilePlugins(?onComplete:Dynamic, ?onFailed:Dynamic):Void;
+	public static function readFile(name:String, path:String, onComplete:Dynamic):Void;
+	public static function writeFile(name:String, path:String, contents:String, ?onComplete:Dynamic):Void;
 }

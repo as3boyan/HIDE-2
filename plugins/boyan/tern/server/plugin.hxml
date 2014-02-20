@@ -4,6 +4,7 @@
 -cp ../../../../externs/plugins/boyan/tern/server
 -cp ../../../../externs/plugins/boyan/codemirror/editor
 -cp ../../../../externs/plugins/boyan/bootstrap/tab-manager
+-cp ../../../../externs/plugins/boyan/management/project-access
 -lib jQueryExtern
 -main Main
 -js bin/Main.js

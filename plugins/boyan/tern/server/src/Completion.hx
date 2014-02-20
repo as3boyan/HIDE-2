@@ -37,7 +37,7 @@ class Completion
 			{                
 				trace("get Haxe completion");
 				
-				var projectArguments:Array<String> = new Array();
+				var projectArguments:Array<String> = ProjectAccess.currentProject.args;
 		
 				//projectArguments.push("-cp");
 				//projectArguments.push("src");
@@ -75,45 +75,49 @@ class Completion
 				
 				projectArguments.push("--display");
 				
-				projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(data.doc.indexFromPos(data.from)));
+				projectArguments.push(js.Node.path.basename(TabManager.getCurrentDocumentPath()) + "@" + Std.string(data.doc.indexFromPos(data.from)));
 				
 				trace(projectArguments);
 				
-				var haxeCompilerClient = js.Node.childProcess.spawn("haxe", ["--connect", "6001"].concat(projectArguments));
+				//HaxeClient.buildProject(process:String, projectArguments, ?onComplete:Dynamic);
 				
-				var xml:String = "";
+				//HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", js.Node.process.cwd()].concat(args), onComplete);
 				
-				haxeCompilerClient.stderr.setEncoding('utf8');
-				haxeCompilerClient.stderr.on('data', function (data) 
-				{
-					var str:String = data.toString();
-					xml += str;
-				});
+				//var haxeCompilerClient = js.Node.childProcess.spawn("haxe", ["--connect", "6001"].concat(projectArguments));
+				//
+				//var xml:String = "";
+				//
+				//haxeCompilerClient.stderr.setEncoding('utf8');
+				//haxeCompilerClient.stderr.on('data', function (data) 
+				//{
+					//var str:String = data.toString();
+					//xml += str;
+				//});
 
-				haxeCompilerClient.on('close', function (code:Int) 
-				{				
-					if (code == 0)
-					{
-						var obj = untyped JQuery.xml2json(xml);
-						var array:Array<Dynamic> = cast(obj.i, Array<Dynamic>);
-						
-						var completionItem:CompletionItem;
-						
-						for (o in array)
-						{                        
-							data.data.completions.push( {name:o.n, type: "fn()" } );
-						}
-						
-						completions = data.data.completions;
-						
-						new JQuery(Browser.document).triggerHandler("processHint", data);
-					}
-					else
-					{
-						trace('haxeCompilerClient process exit code ' + Std.string(code));
-						trace(xml);
-					}
-				});
+				//haxeCompilerClient.on('close', function (code:Int) 
+				//{				
+					//if (code == 0)
+					//{
+						//var obj = untyped JQuery.xml2json(xml);
+						//var array:Array<Dynamic> = cast(obj.i, Array<Dynamic>);
+						//
+						//var completionItem:CompletionItem;
+						//
+						//for (o in array)
+						//{                        
+							//data.data.completions.push( {name:o.n, type: "fn()" } );
+						//}
+						//
+						//completions = data.data.completions;
+						//
+						//new JQuery(Browser.document).triggerHandler("processHint", data);
+					//}
+					//else
+					//{
+						//trace('haxeCompilerClient process exit code ' + Std.string(code));
+						//trace(xml);
+					//}
+				//});
 			}
 		});
 	}

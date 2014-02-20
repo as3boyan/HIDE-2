@@ -25,7 +25,17 @@ Main.main = function() {
 	});
 }
 Main.runProject = function() {
-	Main.buildProject();
+	Main.buildProject(function() {
+		var _g = ProjectAccess;
+		switch(_g.currentProject.type) {
+		case 0:
+			HaxeClient.buildProject("start",[js.Node.require("path").join("bin",ProjectAccess.currentProject.name + ".swf")]);
+			break;
+		case 1:
+			break;
+		default:
+		}
+	});
 }
 Main.buildProject = function(onComplete) {
 	var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
@@ -191,7 +201,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.run-project";
-Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client"];
+Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();

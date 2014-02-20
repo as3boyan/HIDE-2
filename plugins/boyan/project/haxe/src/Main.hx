@@ -11,6 +11,8 @@ class Main
 {
 	public static var name:String = "boyan.project.haxe";
 	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.project-options", "boyan.bootstrap.file-tree"];
+	private static var code:String;
+	private static var indexPageCode:String;
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -26,11 +28,23 @@ class Main
 			NewProjectDialog.getCategory("Haxe").addItem("C# Project", createCSharpProject);
 			
 			NewProjectDialog.getCategory("Haxe").select();
+			
+			HIDE.readFile(name, "templates/Main.hx", function (data:String):Void
+			{
+				code = data;
+				
+				//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
+				HIDE.notifyLoadingComplete(name);
+			}
+			);
+			
+			HIDE.readFile(name, "templates/index.html", function (data:String):Void
+			{
+				indexPageCode = data;
+			}
+			);
 		}
 		);
-		
-		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
-		HIDE.notifyLoadingComplete(name);
 	}
 	
 	private static function createCSharpProject(data:Dynamic):Void 
@@ -72,18 +86,18 @@ class Main
 	{
 		FileTools.createDirectoryRecursively(data.projectLocation, [data.projectName, "src"], function ():Void
 		{
-			var pathToMain:String  = data.projectLocation;
+			var pathToProject:String  = data.projectLocation;
 			
 			if (data.createDirectory)
 			{
-				pathToMain = js.Node.path.join(pathToMain, data.projectName);
+				pathToProject = js.Node.path.join(pathToProject, data.projectName);
 			}
+			
+			var pathToMain:String = pathToProject;
 			
 			js.Node.process.chdir(pathToMain);
 			
 			pathToMain = js.Node.path.join(pathToMain, "src", "Main.hx");
-			
-			var code:String = "package ;\n\nclass Main\n{\n    static public function main()\n    {\n        \n    }\n}";
 			
 			js.Node.fs.writeFile(pathToMain, code, function (error:js.Node.NodeErr):Void
 			{
@@ -107,17 +121,6 @@ class Main
 			}
 			);
 			
-			var path:String;
-			
-			if (data.createDirectory)
-			{
-				path = js.Node.path.join(data.projectLocation, data.projectName, "project.hide");
-			}
-			else 
-			{
-				path = js.Node.path.join(data.projectLocation, "project.hide");
-			}
-			
 			var project:Project = new Project();
 			project.name = data.projectName;
 			project.projectPackage = data.projectPackage;
@@ -129,37 +132,56 @@ class Main
 			
 			FileTree.load(project.name);
 			
-			path = js.Node.path.join(js.Node.path.dirname(path), "project.hide");
-			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
-			{
-				
-			}
-			);
-			
-			ProjectAccess.currentProject = project;
+			var pathToBin:String = js.Node.path.join(pathToProject, "bin");
+			js.Node.fs.mkdir(pathToBin);
 			
 			var args:String = "-cp src\n-main Main\n"; 
 			
 			switch (project.target) 
 			{
 				case Project.FLASH:
-					args += "-swf " + project.name + ".swf\n";
+					args += "-swf " + "bin/" + project.name + ".swf\n";
 				case Project.JAVASCRIPT:
-					args += "-js " + project.name + ".js\n";
+					var pathToScript:String = "bin/" +  project.name + ".js";
+					
+					args += "-js " + pathToScript + "\n";
+					
+					var updatedPageCode:String = StringTools.replace(indexPageCode, "::title::", project.name);
+					updatedPageCode = StringTools.replace(indexPageCode, "::script::", pathToScript);
+					
+					js.Node.fs.writeFile(js.Node.path.join(pathToBin, "index.html"), indexPageCode, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+					{
+						
+					}
+					);
+					
 				case Project.PHP:
-					args += "-php " + project.name + ".php\n";
+					args += "-php " + "bin/" + project.name + ".php\n";
 				case Project.CPP:
-					args += "-cpp " + project.name + ".exe\n";
+					args += "-cpp " + "bin/" + project.name + ".exe\n";
 				case Project.JAVA:
-					args += "-java " + project.name + ".jar\n";
+					args += "-java " + "bin/" + project.name + ".jar\n";
 				case Project.CSHARP:
-					args += "-cs " + project.name + ".exe\n";
+					args += "-cs " + "bin/" + project.name + ".exe\n";
 					
 				default:
 					
 			}
 			
 			args += "-debug\n -dce full";
+			
+			project.args = args.split("\n");
+			
+			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+			{
+				
+			}
+			);
+			
+			Browser.getLocalStorage().setItem("pathToLastProject", path);
+			
+			ProjectAccess.currentProject = project;
 			
 			var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 			textarea.value = args;

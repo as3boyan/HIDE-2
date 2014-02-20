@@ -9,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.management.run-project";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -27,7 +27,19 @@ class Main
 	
 	private static function runProject():Void
 	{
-		buildProject();
+		buildProject(function ()
+		{
+			switch (ProjectAccess.currentProject.type) 
+			{
+				case Project.FLASH:
+					HaxeClient.buildProject("start", [js.Node.path.join("bin", ProjectAccess.currentProject.name + ".swf")]);
+				case Project.JAVASCRIPT:
+					
+				default:
+					
+			}
+		}
+		);
 	}
 	
 	private static function buildProject(?onComplete:Dynamic):Void

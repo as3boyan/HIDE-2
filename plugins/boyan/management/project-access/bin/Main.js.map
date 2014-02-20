@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/management/project-access/src/Main.hx","C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/management/project-access/src/Project.hx","C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/management/project-access/src/ProjectAccess.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/management/project-access/src/Main.hx","D:/Denis/PortableSoft/HIDE-master/plugins/boyan/management/project-access/src/Project.hx","D:/Denis/PortableSoft/HIDE-master/plugins/boyan/management/project-access/src/ProjectAccess.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAEC,AAA2B;;UCoBrB,CACP;CACC,EAAa;;;gBC3BP,LACP;;;aFHgC;eCAI;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;;;;;;;;;;;;;;"
+"mappings":";;YAac,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EAEC,DAA2B;;;UCiBtB,CACP;CACC,EAAa;CACb,EAAO;;;;;aD7BwB;oBACe;eCFX;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;+BCTO;;;;;;;;;;;;;;"
 }

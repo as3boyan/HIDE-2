@@ -84,8 +84,9 @@ Main.__name__ = ["Main"];
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		BootstrapMenu.getMenu("File").addMenuItem("Open...",2,OpenProject.openProject,"Ctrl-O",79,true,false,false);
+		OpenProject.searchForLastProject();
+		HIDE.notifyLoadingComplete(Main.$name);
 	});
-	HIDE.notifyLoadingComplete(Main.$name);
 }
 var IMap = function() { }
 $hxClasses["IMap"] = IMap;
@@ -93,32 +94,44 @@ IMap.__name__ = ["IMap"];
 var OpenProject = function() { }
 $hxClasses["OpenProject"] = OpenProject;
 OpenProject.__name__ = ["OpenProject"];
-OpenProject.openProject = function() {
-	FileDialog.openFile(function(path) {
-		var filename = js.Node.require("path").basename(path);
-		switch(filename) {
-		case "project.hide":
-			js.Node.require("fs").readFile(path,"utf8",function(error,data) {
-				ProjectAccess.currentProject = js.Boot.__cast(haxe.Unserializer.run(data) , Project);
-			});
+OpenProject.openProject = function(pathToProject) {
+	if(pathToProject == null) FileDialog.openFile(OpenProject.parseProject); else OpenProject.parseProject(pathToProject);
+}
+OpenProject.parseProject = function(path) {
+	var filename = js.Node.require("path").basename(path);
+	switch(filename) {
+	case "project.hide":
+		js.Node.require("fs").readFile(path,"utf8",function(error,data) {
+			var pathToProject = js.Node.require("path").dirname(path);
+			js.Node.process.chdir(pathToProject);
+			js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
+			ProjectAccess.currentProject = haxe.Unserializer.run(data);
+			FileTree.load(ProjectAccess.currentProject.name);
+			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+			textarea.value = ProjectAccess.currentProject.args.join("\n");
+		});
+		break;
+	case "project.xml":
+		var project = new Project();
+		project.type = 1;
+		ProjectAccess.currentProject = project;
+		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+		});
+		break;
+	default:
+		var extension = js.Node.require("path").extname(filename);
+		switch(extension) {
+		case ".hxml":
 			break;
-		case "project.xml":
-			var project = new Project();
-			ProjectAccess.currentProject = project;
-			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
-			});
+		case ".hx":
 			break;
 		default:
-			var extension = js.Node.require("path").extname(filename);
-			switch(extension) {
-			case ".hxml":
-				break;
-			case ".hx":
-				break;
-			default:
-			}
 		}
-	});
+	}
+}
+OpenProject.searchForLastProject = function() {
+	var pathToLastProject = js.Browser.getLocalStorage().getItem("pathToLastProject");
+	if(pathToLastProject != null) OpenProject.openProject(pathToLastProject);
 }
 var Reflect = function() { }
 $hxClasses["Reflect"] = Reflect;
@@ -988,6 +1001,18 @@ js.Boot.__instanceof = function(o,cl) {
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
 }
+js.Browser = function() { }
+$hxClasses["js.Browser"] = js.Browser;
+js.Browser.__name__ = ["js","Browser"];
+js.Browser.getLocalStorage = function() {
+	try {
+		var s = js.Browser.window.localStorage;
+		s.getItem("");
+		return s;
+	} catch( e ) {
+		return null;
+	}
+}
 js.Node = function() { }
 $hxClasses["js.Node"] = js.Node;
 js.Node.__name__ = ["js","Node"];
@@ -1034,13 +1059,15 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.open-project";
-Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access"];
+Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access","boyan.bootstrap.project-options","boyan.bootstrap.file-tree"];
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe.Unserializer.DEFAULT_RESOLVER = Type;
 haxe.Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe.ds.ObjectMap.count = 0;
+js.Browser.window = typeof window != "undefined" ? window : null;
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
 

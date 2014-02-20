@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/window/drag-and-drop/src/Main.hx","C:/HaxeToolkit/haxe/std/js/Browser.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/window/drag-and-drop/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
 "mappings":";;YAac,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC,DAAgC,AAAY,WAC5C;GACC;GACA;GACA,IAAO;;EAIR,DAAgC,AAAQ,WACxC;GACC;GACA;GAEA,AAAU,AAAI;GAAd,FACA;IADA;IAEC,HAA4B,AAAqB;;GAGlD,IAAO;;EAKR,DAA2B;;;;;aA/BG;oBACe,nBAAC;oBCkBqB;;;;"
 }

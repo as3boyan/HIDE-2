@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/bootstrap/project-options/src/Main.hx","C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/bootstrap/project-options/src/ProjectOptions.hx","C:/HaxeToolkit/haxe/std/js/Browser.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/bootstrap/project-options/src/Main.hx","D:/Denis/PortableSoft/HIDE-master/plugins/boyan/bootstrap/project-options/src/ProjectOptions.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC;EAEA,DAA2B;;CAI5B,AAAa,AAAM,AAAC;;;wBCRP,bACd;CACC,EAAsB;CAEtB,EAAyB;CACzB,EAAO;CACP,EAAc;CACd,AAAiB;CAEjB,EAAW;CACX,EAAc;CACd,AAAiB;CAEjB,AAAqB,AAAe;;;;aDnBL;oBACe,nBAAC,AAA0B;sBEoBJ;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC;EAEA,DAA2B;;CAI5B,AAAa,AAAM,AAAC;;;wBCRP,bACd;CACC,EAAsB;CAEtB,EAAyB;CACzB,EAAO;CACP,EAAc;CACd,AAAiB;CAEjB,EAAW;CACX,EAAc;CACd,EAAoB,SACpB;EACC,CAAoC,FAAqB;;CAE1D,AAAiB;CAEjB,AAAqB,AAAe;;;;aDvBL;oBACe,nBAAC,AAA0B,AAAuB;sBEoB3B;;;;"
 }

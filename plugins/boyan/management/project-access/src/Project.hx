@@ -36,6 +36,7 @@ package ;
 	public function new() 
 	{
 		customArgs = false;
+		args = [];
 	}
 	
 }

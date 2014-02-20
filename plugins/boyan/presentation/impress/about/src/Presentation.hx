@@ -29,6 +29,7 @@ class Presentation
 			var start:DivElement = Browser.document.createDivElement();
 			start.id = "start";
 			start.className = "step";
+			start.setAttribute('data-transition-duration', "1000");
 			impressDiv.appendChild(start);
 			
 			var p:ParagraphElement = Browser.document.createParagraphElement();
@@ -186,7 +187,7 @@ class Presentation
 		{			
 			if (autoplay)
 			{
-				var duration:Int = (e.target.getAttribute('data-transition-duration') != null ? e.target.getAttribute('data-transition-duration') : 3000 + Std.random(2000)); // use the set duration or fallback to 2000ms
+				var duration:Int = (e.target.getAttribute('data-transition-duration') != null ? e.target.getAttribute('data-transition-duration') : 1500 + Std.random(2000)); // use the set duration or fallback to 2000ms
 			
 				Timer.delay(function () 
 				{

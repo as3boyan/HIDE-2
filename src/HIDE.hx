@@ -3,6 +3,7 @@ import haxe.ds.StringMap.StringMap;
 import haxe.Json;
 import haxe.Serializer;
 import haxe.Timer;
+import js.Boot;
 import js.Browser;
 import js.html.KeyboardEvent;
 import js.html.LinkElement;
@@ -170,6 +171,32 @@ typedef PluginDependenciesData =
 			}
 			, onFailed);
 		}
+	}
+	
+	public static function readFile(name:String, path:String, onComplete:Dynamic):Void
+	{
+		js.Node.fs.readFile(js.Node.path.join(pathToPlugins.get(name), path), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
+		{
+			if (error != null)
+			{
+				trace(error);
+			}
+			
+			onComplete(data);
+		}
+		);
+	}
+	
+	public static function writeFile(name:String, path:String, contents:String, ?onComplete:Dynamic):Void
+	{
+		js.Node.fs.writeFile(js.Node.path.join(pathToPlugins.get(name), path), contents, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+		{
+			if (onComplete != null && error == null)
+			{
+				onComplete();
+			}
+		}
+		);
 	}
 	
 	private static function checkRequiredPluginsData():Void

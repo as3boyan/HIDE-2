@@ -1,6 +1,8 @@
 package ;
 import haxe.Serializer;
 import haxe.Unserializer;
+import js.Browser;
+import js.html.TextAreaElement;
 
 /**
  * ...
@@ -14,46 +16,72 @@ class OpenProject
 		
 	}
 	
-	public static function openProject():Void
+	public static function openProject(?pathToProject:String):Void
 	{
-		FileDialog.openFile(function (path:String) 
-		{ 
-			var filename:String = js.Node.path.basename(path);
+		if (pathToProject == null)
+		{
+			FileDialog.openFile(parseProject);
+		}
+		else 
+		{
+			parseProject(pathToProject);
+		}
+	}
+	
+	private static function parseProject(path:String):Void
+	{
+		var filename:String = js.Node.path.basename(path);
 			
-			switch (filename) 
-			{
-				case "project.hide":					
-					js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
-					{
-						ProjectAccess.currentProject = cast(Unserializer.run(data), Project);
-					}
-					);
-				case "project.xml":
-					var project:Project = new Project();
+		switch (filename) 
+		{
+			case "project.hide":					
+				js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
+				{
+					var pathToProject:String = js.Node.path.dirname(path);
+					js.Node.process.chdir(pathToProject);
+					Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 					
-					ProjectAccess.currentProject = project;
+					ProjectAccess.currentProject = Unserializer.run(data);
+					FileTree.load(ProjectAccess.currentProject.name);
 					
-					js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-					{
+					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
+					textarea.value = ProjectAccess.currentProject.args.join("\n");
+				}
+				);
+			case "project.xml":
+				var project:Project = new Project();
+				project.type = Project.OPENFL;
+				
+				ProjectAccess.currentProject = project;
+				
+				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+				{
+					
+				}
+				);
+			default:
+				
+				var extension:String = js.Node.path.extname(filename);
+		
+				switch (extension) 
+				{
+					case ".hxml":
+					
+					case ".hx":
 						
-					}
-					);
-				default:
-					
-					var extension:String = js.Node.path.extname(filename);
-			
-					switch (extension) 
-					{
-						case ".hxml":
+					default:
 						
-						case ".hx":
-							
-						default:
-							
-					}
-			}
-		} 
-		);
+				}
+		}
+	}
+	
+	public static function searchForLastProject():Void
+	{
+		var pathToLastProject:String = Browser.getLocalStorage().getItem("pathToLastProject");
+		if (pathToLastProject != null)
+		{
+			openProject(pathToLastProject);
+		}
 	}
 	
 }

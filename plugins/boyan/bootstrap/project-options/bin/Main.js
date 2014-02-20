@@ -16,13 +16,16 @@ ProjectOptions.create = function() {
 	page.appendChild(p);
 	ProjectOptions.textarea = js.Browser.document.createElement("textarea");
 	ProjectOptions.textarea.id = "project-options-textarea";
+	ProjectOptions.textarea.onchange = function(e) {
+		ProjectAccess.currentProject.args = ProjectOptions.textarea.value.split("\n");
+	};
 	page.appendChild(ProjectOptions.textarea);
 	Splitpane.components[3].appendChild(page);
 }
 var js = {}
 js.Browser = function() { }
 Main.$name = "boyan.bootstrap.project-options";
-Main.dependencies = ["boyan.bootstrap.script","boyan.jquery.layout"];
+Main.dependencies = ["boyan.bootstrap.script","boyan.jquery.layout","boyan.management.project-access"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
