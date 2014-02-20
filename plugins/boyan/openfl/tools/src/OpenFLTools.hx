@@ -10,7 +10,7 @@ import js.html.TextAreaElement;
 {	
 	public static function getParams(path:String, target:String, onLoaded:Dynamic):Void
 	{
-		js.Node.process.chdir(path);
+		//js.Node.process.chdir(path);
 		
 		var openFLTools:Dynamic = js.Node.childProcess.spawn("haxelib", ["run", "openfl", "display", target]);
 		

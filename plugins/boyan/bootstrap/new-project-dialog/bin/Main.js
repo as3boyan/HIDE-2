@@ -234,7 +234,6 @@ NewProjectDialog.getCheckboxData = function(key) {
 NewProjectDialog.createProject = function() {
 	if(NewProjectDialog.projectLocation.value != "" && NewProjectDialog.projectName.value != "") js.Node.require("fs").exists(NewProjectDialog.projectLocation.value,function(exists) {
 		if(exists) {
-			js.Node.process.chdir(NewProjectDialog.projectLocation.value);
 			var item = NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value);
 			if(item.createProjectFunction != null) {
 				var projectPackage = NewProjectDialog.getCheckboxData("Package");

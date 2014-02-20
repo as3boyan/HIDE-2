@@ -44,6 +44,7 @@ import js.html.TextAreaElement;
 			}
 			else 
 			{
+				trace(params);
 				textarea.value += "Build failed (exit code: " + Std.string(code) +  ")\n" ;
 			}
 		}

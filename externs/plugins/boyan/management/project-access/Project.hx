@@ -34,6 +34,8 @@ extern class Project
 	public var args:Array<String>;
 	
 	public var files:Array<String>;
+	
+	public var path:String;
 
 	public function new() 
 	{

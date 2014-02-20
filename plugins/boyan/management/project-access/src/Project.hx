@@ -33,6 +33,8 @@ package ;
 	
 	public var files:Array<String>;
 	
+	public var path:String;
+	
 	public function new() 
 	{
 		customArgs = false;

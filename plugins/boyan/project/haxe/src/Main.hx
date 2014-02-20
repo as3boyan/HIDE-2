@@ -95,7 +95,9 @@ class Main
 			
 			var pathToMain:String = pathToProject;
 			
-			js.Node.process.chdir(pathToMain);
+			//js.Node.process.chdir(pathToMain);
+			
+			ProjectAccess.currentProject.path = pathToProject;
 			
 			pathToMain = js.Node.path.join(pathToMain, "src", "Main.hx");
 			
@@ -130,7 +132,7 @@ class Main
 			project.type = Project.HAXE;
 			project.target = target;
 			
-			FileTree.load(project.name);
+			FileTree.load(project.name, pathToProject);
 			
 			var pathToBin:String = js.Node.path.join(pathToProject, "bin");
 			js.Node.fs.mkdir(pathToBin);

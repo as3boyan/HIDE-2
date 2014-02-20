@@ -46,7 +46,7 @@ import js.html.UListElement;
 		load("HIDE");
 	}
 	
-	public static function load(projectName:String):Void
+	public static function load(projectName:String, ?path:String = "./"):Void
 	{		
 		var tree:UListElement = cast(Browser.document.getElementById("tree"), UListElement);
 		
@@ -56,7 +56,7 @@ import js.html.UListElement;
 		
 		tree.appendChild(rootTreeElement);
 		
-		readDir("./", rootTreeElement);
+		readDir(path, rootTreeElement);
 	}
 	
 	private static function createDirectoryElement(text:String):LIElement

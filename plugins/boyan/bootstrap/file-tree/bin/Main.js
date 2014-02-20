@@ -22,12 +22,13 @@ FileTree.init = function() {
 	splitPaneComponent.appendChild(treeWell);
 	FileTree.load("HIDE");
 }
-FileTree.load = function(projectName) {
+FileTree.load = function(projectName,path) {
+	if(path == null) path = "./";
 	var tree = js.Boot.__cast(js.Browser.document.getElementById("tree") , HTMLUListElement);
 	new $(tree).children().remove();
 	var rootTreeElement = FileTree.createDirectoryElement(projectName);
 	tree.appendChild(rootTreeElement);
-	FileTree.readDir("./",rootTreeElement);
+	FileTree.readDir(path,rootTreeElement);
 }
 FileTree.createDirectoryElement = function(text) {
 	var directoryElement = js.Browser.document.createElement("li");

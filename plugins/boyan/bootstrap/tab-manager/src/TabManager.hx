@@ -84,7 +84,8 @@ import js.html.UListElement;
 	
 	public static function openFileInNewTab(path:String):Void
 	{
-		path = js.Node.require('path').relative(js.Node.process.cwd(), path);
+		//path = js.Node.require('path').relative(js.Node.process.cwd(), path);
+		path = StringTools.replace(path, "\\", js.Node.path.sep); 
 		
 		if (isAlreadyOpened(path))
 		{

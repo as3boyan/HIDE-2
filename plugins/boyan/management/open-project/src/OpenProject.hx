@@ -38,11 +38,12 @@ class OpenProject
 				js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
-					js.Node.process.chdir(pathToProject);
+					//js.Node.process.chdir(pathToProject);
 					Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 					
 					ProjectAccess.currentProject = Unserializer.run(data);
-					FileTree.load(ProjectAccess.currentProject.name);
+					ProjectAccess.currentProject.path = pathToProject;
+					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
 					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					textarea.value = ProjectAccess.currentProject.args.join("\n");

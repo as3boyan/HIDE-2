@@ -32,7 +32,7 @@ class Main
 			switch (ProjectAccess.currentProject.type) 
 			{
 				case Project.FLASH:
-					HaxeClient.buildProject("start", [js.Node.path.join("bin", ProjectAccess.currentProject.name + ".swf")]);
+					HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
 				case Project.JAVASCRIPT:
 					
 				default:
@@ -47,7 +47,7 @@ class Main
 		var projectOptions:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 		var args:Array<String> = projectOptions.value.split("\n");
 		
-		HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", js.Node.process.cwd()].concat(args), onComplete);
+		HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", ProjectAccess.currentProject.path].concat(args), onComplete);
 	}
 	
 }

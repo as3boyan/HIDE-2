@@ -225,7 +225,7 @@ import js.html.UListElement;
 			{
 				if (exists)
 				{
-					js.Node.process.chdir(projectLocation.value);
+					//js.Node.process.chdir(projectLocation.value);
 					
 					var item:Item = selectedCategory.getItem(list.value);
 					

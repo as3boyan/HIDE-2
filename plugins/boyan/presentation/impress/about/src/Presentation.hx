@@ -187,7 +187,7 @@ class Presentation
 		{			
 			if (autoplay)
 			{
-				var duration:Int = (e.target.getAttribute('data-transition-duration') != null ? e.target.getAttribute('data-transition-duration') : 1500 + Std.random(2000)); // use the set duration or fallback to 2000ms
+				var duration:Int = (e.target.getAttribute('data-transition-duration') != null ? e.target.getAttribute('data-transition-duration') : 2500 + Std.random(1500)); // use the set duration or fallback to 2000ms
 			
 				Timer.delay(function () 
 				{

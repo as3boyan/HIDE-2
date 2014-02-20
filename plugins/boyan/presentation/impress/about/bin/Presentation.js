@@ -98,7 +98,7 @@ Presentation.runImpressJS = function() {
 	impressInstance.init();
 	js.Browser.document.addEventListener("impress:stepenter",function(e) {
 		if(Presentation.autoplay) {
-			var duration = e.target.getAttribute("data-transition-duration") != null?e.target.getAttribute("data-transition-duration"):1500 + Std.random(2000);
+			var duration = e.target.getAttribute("data-transition-duration") != null?e.target.getAttribute("data-transition-duration"):2500 + Std.random(1500);
 			haxe.Timer.delay(function() {
 				if(Presentation.autoplay) impressInstance.next();
 			},duration);

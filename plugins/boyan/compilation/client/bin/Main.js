@@ -19,7 +19,10 @@ HaxeClient.buildProject = function(process,params,onComplete) {
 		if(code == 0) {
 			textarea.value += "Build complete\n";
 			if(onComplete != null) onComplete();
-		} else textarea.value += "Build failed (exit code: " + Std.string(code) + ")\n";
+		} else {
+			console.log(params);
+			textarea.value += "Build failed (exit code: " + Std.string(code) + ")\n";
+		}
 	});
 }
 HaxeClient.buildOpenFLProject = function(params,onComplete) {

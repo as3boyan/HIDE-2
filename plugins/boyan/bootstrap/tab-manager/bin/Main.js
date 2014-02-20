@@ -132,6 +132,11 @@ Std.parseInt = function(x) {
 	if(isNaN(v)) return null;
 	return v;
 }
+var StringTools = function() { }
+StringTools.__name__ = true;
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
+}
 var TabManager = function() { }
 $hxExpose(TabManager, "TabManager");
 TabManager.__name__ = true;
@@ -171,7 +176,7 @@ TabManager.createNewTab = function(name,path) {
 	TabManager.tabs.appendChild(li);
 }
 TabManager.openFileInNewTab = function(path) {
-	path = js.Node.require("path").relative(js.Node.process.cwd(),path);
+	path = StringTools.replace(path,"\\",js.Node.require("path").sep);
 	if(TabManager.isAlreadyOpened(path)) return;
 	js.Node.require("fs").readFile(path,"utf8",function(error,code) {
 		if(error != null) console.log(error);

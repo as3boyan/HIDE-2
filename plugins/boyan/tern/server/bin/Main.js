@@ -8,28 +8,19 @@ Completion.registerHandlers = function() {
 			new $(js.Browser.document).triggerHandler("processHint",data);
 		} else {
 			console.log("get Haxe completion");
-			var projectArguments = ProjectAccess.currentProject.args;
+			var projectArguments = ProjectAccess.currentProject.args.slice();
 			projectArguments.push("--display");
-			projectArguments.push(js.Node.require("path").basename(TabManager.getCurrentDocumentPath()) + "@" + Std.string(data.doc.indexFromPos(data.from)));
+			projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(data.doc.indexFromPos(data.from)));
 			console.log(projectArguments);
+			console.log(ProjectAccess.currentProject.path);
+			HaxeCompletionClient.runProcess("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(projectArguments),function(stderr) {
+				console.log(stderr);
+			},function(code,stderr) {
+				console.log(code);
+				console.log(stderr);
+			});
 		}
 	});
-}
-var HxOverrides = function() { }
-HxOverrides.__name__ = true;
-HxOverrides.cca = function(s,index) {
-	var x = s.charCodeAt(index);
-	if(x != x) return undefined;
-	return x;
-}
-HxOverrides.substr = function(s,pos,len) {
-	if(pos != null && pos != 0 && len != null && len < 0) return "";
-	if(len == null) len = s.length;
-	if(pos < 0) {
-		pos = s.length + pos;
-		if(pos < 0) pos = 0;
-	} else if(len < 0) len = s.length + len - pos;
-	return s.substr(pos,len);
 }
 var Main = function() { }
 Main.__name__ = true;
@@ -56,12 +47,6 @@ var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
 }
 var TS = function() { }
 $hxExpose(TS, "TS");
@@ -137,29 +122,10 @@ js.Boot.__string_rec = function(o,s) {
 }
 js.Browser = function() { }
 js.Browser.__name__ = true;
-js.Node = function() { }
-js.Node.__name__ = true;
 String.__name__ = true;
 Array.__name__ = true;
-var module, setImmediate, clearImmediate;
-js.Node.setTimeout = setTimeout;
-js.Node.clearTimeout = clearTimeout;
-js.Node.setInterval = setInterval;
-js.Node.clearInterval = clearInterval;
-js.Node.global = global;
-js.Node.process = process;
-js.Node.require = require;
-js.Node.console = console;
-js.Node.module = module;
-js.Node.stringify = JSON.stringify;
-js.Node.parse = JSON.parse;
-var version = HxOverrides.substr(js.Node.process.version,1,null).split(".").map(Std.parseInt);
-if(version[0] > 0 || version[1] >= 9) {
-	js.Node.setImmediate = setImmediate;
-	js.Node.clearImmediate = clearImmediate;
-}
 Main.$name = "boyan.tern.server";
-Main.dependencies = ["boyan.codemirror.editor","boyan.bootstrap.tab-manager","boyan.jquery.xml2json","boyan.management.project-access","boyan.compilation.client"];
+Main.dependencies = ["boyan.codemirror.editor","boyan.bootstrap.tab-manager","boyan.jquery.xml2json","boyan.management.project-access","boyan.completion.client"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 function $hxExpose(src, path) {

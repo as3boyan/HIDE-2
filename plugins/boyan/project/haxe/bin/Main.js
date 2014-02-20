@@ -108,7 +108,7 @@ Main.createHaxeProject = function(data,target) {
 		var pathToProject = data.projectLocation;
 		if(data.createDirectory) pathToProject = js.Node.require("path").join(pathToProject,data.projectName);
 		var pathToMain = pathToProject;
-		js.Node.process.chdir(pathToMain);
+		ProjectAccess.currentProject.path = pathToProject;
 		pathToMain = js.Node.require("path").join(pathToMain,"src","Main.hx");
 		js.Node.require("fs").writeFile(pathToMain,Main.code,null,function(error) {
 			if(error != null) console.log(error);
@@ -124,7 +124,7 @@ Main.createHaxeProject = function(data,target) {
 		project.url = data.projectURL;
 		project.type = 0;
 		project.target = target;
-		FileTree.load(project.name);
+		FileTree.load(project.name,pathToProject);
 		var pathToBin = js.Node.require("path").join(pathToProject,"bin");
 		js.Node.require("fs").mkdir(pathToBin);
 		var args = "-cp src\n-main Main\n";

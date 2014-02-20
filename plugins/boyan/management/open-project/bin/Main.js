@@ -103,10 +103,10 @@ OpenProject.parseProject = function(path) {
 	case "project.hide":
 		js.Node.require("fs").readFile(path,"utf8",function(error,data) {
 			var pathToProject = js.Node.require("path").dirname(path);
-			js.Node.process.chdir(pathToProject);
 			js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
 			ProjectAccess.currentProject = haxe.Unserializer.run(data);
-			FileTree.load(ProjectAccess.currentProject.name);
+			ProjectAccess.currentProject.path = pathToProject;
+			FileTree.load(ProjectAccess.currentProject.name,pathToProject);
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			textarea.value = ProjectAccess.currentProject.args.join("\n");
 		});

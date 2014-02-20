@@ -29,7 +29,7 @@ Main.runProject = function() {
 		var _g = ProjectAccess;
 		switch(_g.currentProject.type) {
 		case 0:
-			HaxeClient.buildProject("start",[js.Node.require("path").join("bin",ProjectAccess.currentProject.name + ".swf")]);
+			HaxeClient.buildProject("start",[js.Node.require("path").join(ProjectAccess.currentProject.path,"bin",ProjectAccess.currentProject.name + ".swf")]);
 			break;
 		case 1:
 			break;
@@ -40,7 +40,7 @@ Main.runProject = function() {
 Main.buildProject = function(onComplete) {
 	var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 	var args = projectOptions.value.split("\n");
-	HaxeClient.buildProject("haxe",["--connect","6001","--cwd",js.Node.process.cwd()].concat(args),onComplete);
+	HaxeClient.buildProject("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(args),onComplete);
 }
 var Std = function() { }
 Std.__name__ = true;

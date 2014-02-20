@@ -37,7 +37,7 @@ class Completion
 			{                
 				trace("get Haxe completion");
 				
-				var projectArguments:Array<String> = ProjectAccess.currentProject.args;
+				var projectArguments:Array<String> = ProjectAccess.currentProject.args.copy();
 		
 				//projectArguments.push("-cp");
 				//projectArguments.push("src");
@@ -75,9 +75,23 @@ class Completion
 				
 				projectArguments.push("--display");
 				
-				projectArguments.push(js.Node.path.basename(TabManager.getCurrentDocumentPath()) + "@" + Std.string(data.doc.indexFromPos(data.from)));
+				//js.Node.path.basename
+				//js.Node.path.join(ProjectAccess.currentProject.path,
+				projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(data.doc.indexFromPos(data.from)));
 				
 				trace(projectArguments);
+				trace(ProjectAccess.currentProject.path);
+				
+				HaxeCompletionClient.runProcess("haxe", ["--connect", "6001", "--cwd", ProjectAccess.currentProject.path].concat(projectArguments), function (stderr:String)
+				{
+					trace(stderr);
+				}, 
+				function (code:Int, stderr:String)
+				{
+					trace(code);
+					trace(stderr);
+				}
+				);
 				
 				//HaxeClient.buildProject(process:String, projectArguments, ?onComplete:Dynamic);
 				
