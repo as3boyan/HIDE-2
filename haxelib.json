@@ -1,0 +1,13 @@
+{
+    "name": "HIDE",
+    "url" : "https://github.com/misterpah/HIDE/tree/master",
+    "license": "MIT",
+    "tags": ["IDE", "node-webkit", "desktop", "html5"],
+    "description": "HIDE - cross platform extensible IDE for Haxe",
+    "version": "0.3.0",
+    "releasenote": "Experimenting with haxelib update system",
+    "contributors": ["as3boyan"],
+    "dependencies": {
+		"node-webkit": ""
+		}
+}

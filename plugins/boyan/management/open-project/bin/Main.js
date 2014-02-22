@@ -111,7 +111,7 @@ OpenProject.parseProject = function(path) {
 			textarea.value = ProjectAccess.currentProject.args.join("\n");
 		});
 		break;
-	case "project.xml":
+	case "project.xml":case "application.xml":
 		var project = new Project();
 		project.type = 1;
 		ProjectAccess.currentProject = project;

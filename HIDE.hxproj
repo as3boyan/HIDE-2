@@ -24,7 +24,7 @@
     <option noInlineOnDebug="False" />
     <option mainClass="Main" />
     <option enabledebug="False" />
-    <option additional="-cp externs/nodejs-std/src&#xA;-dce full" />
+    <option additional="-cp externs/nodejs-std/src&#xA;-dce full&#xA;--next&#xA;-cp src&#xA;-main Run&#xA;-neko run.n&#xA;-debug&#xA;-dce full" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

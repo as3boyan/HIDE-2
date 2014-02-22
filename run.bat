@@ -1,1 +1,2 @@
-start ..\node-webkit-v0.9.1-win-ia32\nw bin
+start haxelib run node-webkit bin
+pause

@@ -49,7 +49,7 @@ class OpenProject
 					textarea.value = ProjectAccess.currentProject.args.join("\n");
 				}
 				);
-			case "project.xml":
+			case "project.xml", "application.xml":
 				var project:Project = new Project();
 				project.type = Project.OPENFL;
 				

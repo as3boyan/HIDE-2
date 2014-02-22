@@ -1406,6 +1406,9 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -1490,5 +1493,3 @@ function $hxExpose(src, path) {
 	o[parts[parts.length-1]] = src;
 }
 })();
-
-//@ sourceMappingURL=HIDE.js.map
