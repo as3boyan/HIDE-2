@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/bootstrap/script/src/Main.hx"],
+"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/bootstrap/script/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAM,AAAc;CAG3D,AAAa,AAAM,AAAC;;qBAIP,VACd;CAGC,AAAY,AAAM,AAAC,AAAqC,UACxD;EAEC,DAA2B;;;aArBG;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAM,AAAc;CAG3D,AAAa,AAAM,AAAC;;qBAIP,VAIb;CAAY,AAAM,AAAC,AAAqC,UAGvD;CAA2B;;;aArBG;oBACe,nBAAC;;;;"
 }

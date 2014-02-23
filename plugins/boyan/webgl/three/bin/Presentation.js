@@ -1,12 +1,13 @@
 (function () { "use strict";
-var Presentation = function() { }
+var Presentation = function() { };
 Presentation.main = function() {
-	var geometry, material;
+	var geometry;
+	var material;
 	var init = function() {
 		Presentation.renderer = new THREE.CanvasRenderer();
-		Presentation.renderer.setSize(js.Browser.window.innerWidth,js.Browser.window.innerHeight);
-		js.Browser.document.body.appendChild(Presentation.renderer.domElement);
-		Presentation.camera = new THREE.PerspectiveCamera(75,js.Browser.window.innerWidth / js.Browser.window.innerHeight,1,1000);
+		Presentation.renderer.setSize(window.innerWidth,window.innerHeight);
+		window.document.body.appendChild(Presentation.renderer.domElement);
+		Presentation.camera = new THREE.PerspectiveCamera(75,window.innerWidth / window.innerHeight,1,1000);
 		Presentation.camera.position.z = 500;
 		Presentation.scene = new THREE.Scene();
 		geometry = new THREE.CubeGeometry(200,200,200);
@@ -16,27 +17,24 @@ Presentation.main = function() {
 	};
 	init();
 	Presentation.animate(null);
-}
+};
 Presentation.animate = function(e) {
-	js.Browser.window.requestAnimationFrame(Presentation.animate);
+	window.requestAnimationFrame(Presentation.animate);
 	Presentation.mesh.rotation.x = new Date().getTime() * 0.0005;
 	Presentation.mesh.rotation.y = new Date().getTime() * 0.001;
 	Presentation.renderer.render(Presentation.scene,Presentation.camera);
 	return true;
-}
-var js = {}
-js.Browser = function() { }
-js.three = {}
-js.three.Renderer = function() { }
-js.three.Three = function() { }
+};
+var js = {};
+js.three = {};
+js.three.Renderer = function() { };
+js.three.Three = function() { };
 js.three.Three.requestAnimationFrame = function(f) {
-	return js.Browser.window.requestAnimationFrame(f);
-}
+	return window.requestAnimationFrame(f);
+};
 js.three.Three.cancelAnimationFrame = function(f) {
-	js.Browser.window.cancelAnimationFrame(id);
-}
-js.Browser.window = typeof window != "undefined" ? window : null;
-js.Browser.document = typeof window != "undefined" ? window.document : null;
+	window.cancelAnimationFrame(id);
+};
 js.three.Three.CullFaceNone = 0;
 js.three.Three.CullFaceBack = 1;
 js.three.Three.CullFaceFront = 2;
@@ -111,4 +109,4 @@ js.three.Three.LinePieces = 1;
 Presentation.main();
 })();
 
-//@ sourceMappingURL=Presentation.js.map
+//# sourceMappingURL=Presentation.js.map

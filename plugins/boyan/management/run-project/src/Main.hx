@@ -32,7 +32,8 @@ class Main
 			switch (ProjectAccess.currentProject.type) 
 			{
 				case Project.FLASH:
-					HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
+					//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
+					js.Node.require('nw.gui').Shell.openItem(js.Node.path.join(ProjectAccess.currentProject.path + "/bin/", ProjectAccess.currentProject.name + ".swf"));
 				case Project.JAVASCRIPT:
 					
 				default:

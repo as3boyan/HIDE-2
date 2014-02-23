@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/samples/helloworld/src/Main.hx"],
+"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/samples/helloworld/src/Main.hx"],
 "names":[],
 "mappings":";;YAYc,DACd;CACC,WAAM;CAGN,AAA2B;;aATI;;;;"
 }

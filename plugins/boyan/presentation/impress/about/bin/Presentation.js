@@ -1,11 +1,11 @@
 (function () { "use strict";
-var HxOverrides = function() { }
+var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -14,19 +14,25 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-var Presentation = function() { }
+};
+Math.__name__ = true;
+var Presentation = function() { };
 Presentation.__name__ = true;
 Presentation.main = function() {
-	js.Browser.window.onload = function(e) {
-		Presentation.impressDiv = js.Browser.document.createElement("div");
+	window.onload = function(e) {
+		var _this = window.document;
+		Presentation.impressDiv = _this.createElement("div");
 		Presentation.impressDiv.id = "impress";
-		var start = js.Browser.document.createElement("div");
+		var start;
+		var _this = window.document;
+		start = _this.createElement("div");
 		start.id = "start";
 		start.className = "step";
 		start.setAttribute("data-transition-duration","1000");
 		Presentation.impressDiv.appendChild(start);
-		var p = js.Browser.document.createElement("p");
+		var p;
+		var _this = window.document;
+		p = _this.createElement("p");
 		p.style.width = "1000px";
 		p.style.fontSize = "80px";
 		p.style.textAlign = "center";
@@ -51,18 +57,20 @@ Presentation.main = function() {
 		slide = Presentation.createSlide("Without your help, this would not have been possible to make it");
 		slide = Presentation.createSlide("Thanks for your support!");
 		slide = Presentation.createSlide("(in case if you want to change website or name, just let me know - AS3Boyan)");
-		js.Browser.document.body.appendChild(Presentation.impressDiv);
+		window.document.body.appendChild(Presentation.impressDiv);
 		Presentation.runImpressJS();
-		var window = js.Node.require("nw.gui").Window.get();
-		window.on("close",function(e1) {
-			window.close(true);
+		var $window = js.Node.require("nw.gui").Window.get();
+		$window.on("close",function(e1) {
+			$window.close(true);
 		});
 	};
-}
+};
 Presentation.createSlide = function(text,url,linkText,_fontSize) {
 	if(_fontSize == null) _fontSize = "80px";
 	Presentation.slidesCount++;
-	var slide = js.Browser.document.createElement("div");
+	var slide;
+	var _this = window.document;
+	slide = _this.createElement("div");
 	slide.id = "slide" + Std.string(Presentation.slidesCount);
 	slide.className = "step";
 	console.log(slide.id);
@@ -73,18 +81,23 @@ Presentation.createSlide = function(text,url,linkText,_fontSize) {
 	slide.setAttribute("data-z",Std.string(-Math.random() * 3000));
 	slide.setAttribute("data-rotate-x",Std.string(Std.random(360)));
 	slide.setAttribute("data-rotate-y",Std.string(Std.random(360)));
-	var p = js.Browser.document.createElement("p");
+	var p;
+	var _this = window.document;
+	p = _this.createElement("p");
 	p.style.width = "1000px";
 	p.style.fontSize = _fontSize;
 	p.innerText = text;
 	slide.appendChild(p);
 	if(url != null) {
-		p = js.Browser.document.createElement("p");
+		var _this = window.document;
+		p = _this.createElement("p");
 		p.className = "footnote";
 		p.innerText = "Website: ";
 		p.style.fontSize = "24px";
 		slide.appendChild(p);
-		var a = js.Browser.document.createElement("a");
+		var a;
+		var _this = window.document;
+		a = _this.createElement("a");
 		a.href = url;
 		a.innerText = linkText;
 		a.target = "_blank";
@@ -92,19 +105,20 @@ Presentation.createSlide = function(text,url,linkText,_fontSize) {
 	}
 	Presentation.impressDiv.appendChild(slide);
 	return slide;
-}
+};
 Presentation.runImpressJS = function() {
 	var impressInstance = impress();
 	impressInstance.init();
-	js.Browser.document.addEventListener("impress:stepenter",function(e) {
+	window.document.addEventListener("impress:stepenter",function(e) {
 		if(Presentation.autoplay) {
-			var duration = e.target.getAttribute("data-transition-duration") != null?e.target.getAttribute("data-transition-duration"):2500 + Std.random(1500);
+			var duration;
+			if(e.target.getAttribute("data-transition-duration") != null) duration = e.target.getAttribute("data-transition-duration"); else duration = 2500 + Std.random(1500);
 			haxe.Timer.delay(function() {
 				if(Presentation.autoplay) impressInstance.next();
 			},duration);
 		}
 	});
-	js.Browser.document.addEventListener("keyup",function(e) {
+	window.document.addEventListener("keyup",function(e) {
 		Presentation.autoplay = false;
 		if(Presentation.timer != null) {
 			Presentation.timer.stop();
@@ -118,22 +132,22 @@ Presentation.runImpressJS = function() {
 			Presentation.timer = null;
 		};
 	});
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
+};
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
+};
 Std.random = function(x) {
-	return x <= 0?0:Math.floor(Math.random() * x);
-}
-var haxe = {}
+	if(x <= 0) return 0; else return Math.floor(Math.random() * x);
+};
+var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;
 	this.id = setInterval(function() {
@@ -148,19 +162,18 @@ haxe.Timer.delay = function(f,time_ms) {
 		f();
 	};
 	return t;
-}
+};
 haxe.Timer.prototype = {
-	run: function() {
-		console.log("run");
-	}
-	,stop: function() {
+	stop: function() {
 		if(this.id == null) return;
 		clearInterval(this.id);
 		this.id = null;
 	}
-}
-var js = {}
-js.Boot = function() { }
+	,run: function() {
+	}
+};
+var js = {};
+js.Boot = function() { };
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -174,7 +187,8 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -207,7 +221,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -227,12 +241,9 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-js.Node = function() { }
+};
+js.Node = function() { };
 js.Node.__name__ = true;
-Math.__name__ = ["Math"];
 Math.NaN = Number.NaN;
 Math.NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
 Math.POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
@@ -244,6 +255,16 @@ Math.isNaN = function(i) {
 };
 String.__name__ = true;
 Array.__name__ = true;
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -262,9 +283,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Presentation.autoplay = true;
-js.Browser.window = typeof window != "undefined" ? window : null;
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Presentation.main();
 })();
 
-//@ sourceMappingURL=Presentation.js.map
+//# sourceMappingURL=Presentation.js.map

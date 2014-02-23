@@ -2,4 +2,11 @@
 -js ./bin/HIDE.js
 -main Main
 -cp externs/nodejs-std/src
+-debug
+-dce full
+--next
+-cp src
+-main Run
+-neko run.n
+-debug
 -dce full

@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/Users/Denis/Documents/GitHub/hide/hide/plugins/boyan/presentation/impress/about/src/Main.hx"],
+"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/presentation/impress/about/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC,DAAsB,AAAoB,AAAiB,AAAG;CAA8B,AAAM,AAAkB,SAAS;;;CAK9H,AAA2B;;aAbI;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAE1D;CAAsB,AAAoB,AAAiB,AAAG;CAA8B,AAAM,AAAkB,SAAS;;;CAK9H,AAA2B;;aAbI;oBACe,nBAAC;;;;"
 }

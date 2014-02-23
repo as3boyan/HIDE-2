@@ -12,6 +12,7 @@ class Run
 {
 	public static function main()
 	{
-		Sys.command("haxelib", ["run", "node-webkit", "bin"]);
+		var output = new sys.io.Process("haxelib", ["path", "HIDE"]).stdout.readAll().toString();
+		Sys.command("haxelib", ["run", "node-webkit", output.split("\n")[0] + "/bin" ]);
 	}
 }

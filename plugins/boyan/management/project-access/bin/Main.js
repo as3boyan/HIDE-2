@@ -1,17 +1,15 @@
-(function () { "use strict";
-var Main = function() { }
+(function ($hx_exports) { "use strict";
+var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
-}
-var Project = function() {
+};
+var Project = $hx_exports.Project = function() {
 	this.customArgs = false;
 	this.args = [];
 };
-$hxExpose(Project, "Project");
-var ProjectAccess = function() { }
-$hxExpose(ProjectAccess, "ProjectAccess");
+var ProjectAccess = $hx_exports.ProjectAccess = function() { };
 Main.$name = "boyan.management.project-access";
 Main.dependencies = [];
 Project.HAXE = 0;
@@ -26,16 +24,6 @@ Project.CSHARP = 5;
 Project.NEKO = 6;
 ProjectAccess.currentProject = new Project();
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

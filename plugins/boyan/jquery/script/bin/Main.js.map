@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/jquery/script/src/Main.hx"],
+"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/jquery/script/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAGC,AAAY,AAAM,AAAC,AAAwC,UAC3D;EAEC,DAA2B;;;aAXG;;;;"
+"mappings":";;YAYc,DAIb;CAAY,AAAM,AAAC,AAAwC,UAG1D;CAA2B;;;aAXG;;;;"
 }

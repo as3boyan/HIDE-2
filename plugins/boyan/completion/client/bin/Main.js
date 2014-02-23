@@ -1,6 +1,5 @@
-(function () { "use strict";
-var HaxeCompletionClient = function() { }
-$hxExpose(HaxeCompletionClient, "HaxeCompletionClient");
+(function ($hx_exports) { "use strict";
+var HaxeCompletionClient = $hx_exports.HaxeCompletionClient = function() { };
 HaxeCompletionClient.runProcess = function(process,params,onComplete,onFailed) {
 	var command = process + " " + params.join(" ");
 	console.log(command);
@@ -13,13 +12,13 @@ HaxeCompletionClient.runProcess = function(process,params,onComplete,onFailed) {
 	haxeCompilerClient.on("close",function(code) {
 		if(code == 0) onComplete(HaxeCompletionClient.processStderr); else onFailed(code,HaxeCompletionClient.processStderr);
 	});
-}
-var HxOverrides = function() { }
+};
+var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -28,20 +27,30 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.main = function() {
 	HIDE.notifyLoadingComplete(Main.$name);
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
-var js = {}
-js.Node = function() { }
+};
+var js = {};
+js.Node = function() { };
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -61,16 +70,6 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 Main.$name = "boyan.completion.client";
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

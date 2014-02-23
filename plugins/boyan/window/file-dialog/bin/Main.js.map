@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE-master/plugins/boyan/window/file-dialog/src/FileDialog.hx","D:/Denis/PortableSoft/HIDE-master/plugins/boyan/window/file-dialog/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
+"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/window/file-dialog/src/FileDialog.hx","/usr/lib/haxe/lib/HIDE/git/plugins/boyan/window/file-dialog/src/Main.hx"],
 "names":[],
-"mappings":";;;oBAac,TACd;CACC,EAAQ;CACR,EAAa;CACb,EAAsB;CACtB,AAAuB,AAAU,WACjC;EACC,CAAmB;EACnB,AAAI,EAAS,HACb,AACC,AAAQ;;CAIV,AAAkC;;sBAGrB,HACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,DAAmB,AACvB,AACC,AAAsB;CAGvB,CAAI,DAAmB,AACvB,AACC,AAAsB;CAGvB;;sBAGa,GACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,EAAS,HACb,AACC,EAAQ;CAGT,CAAI,DAAmB,AACvB,AACC,AAAsB;CAGvB,AAAmB,AAAY;CAC/B;;wBAGa,LACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,DAAmB,AACvB,AACC,AAAsB;CAGvB,AAAmB,AAAe;CAClC;;;YCrEa,DACd;CACC;CAGA,AAA2B;;;;aATI;sBCqBsC;;;;;;;;;;;;;;"
+"mappings":";;oBAac,TACd;CACS;CAAR,EAAQ;CACR,EAAa;CACb,EAAsB;CACtB,AAAuB,AAAU,WACjC;EACoB;EACnB,AAAI,EAAS,HAEZ,AAAQ;;CAIV,AAAkC;;sBAGrB,HACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,DAAmB,AAEtB,AAAsB;CAGvB,CAAI,DAAmB,AAEtB,AAAsB;CAGvB;;sBAGa,GACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,EAAS,HAEZ,EAAQ;CAGT,CAAI,DAAmB,AAEtB,AAAsB;CAGvB,AAAmB,AAAY;CAC/B;;wBAGa,LACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,DAAmB,AAEtB,AAAsB;CAGvB,AAAmB,AAAe;CAClC;;;YCrEa,DACd;CACC;CAGA,AAA2B;;aATI;;;;"
 }

@@ -1,4 +1,4 @@
-(function () { "use strict";
+(function ($hx_exports) { "use strict";
 var CMDoc = function(_name,_doc,_path) {
 	this.name = _name;
 	this.doc = _doc;
@@ -7,22 +7,28 @@ var CMDoc = function(_name,_doc,_path) {
 CMDoc.__name__ = true;
 CMDoc.prototype = {
 	__class__: CMDoc
-}
-var ContextMenu = function() { }
+};
+var ContextMenu = function() { };
 ContextMenu.__name__ = true;
 ContextMenu.createContextMenu = function() {
-	var contextMenu = js.Browser.document.createElement("div");
+	var contextMenu;
+	var _this = window.document;
+	contextMenu = _this.createElement("div");
 	contextMenu.className = "dropdown";
 	contextMenu.style.position = "absolute";
 	contextMenu.style.display = "none";
-	js.Browser.document.onclick = function(e) {
+	window.document.onclick = function(e) {
 		contextMenu.style.display = "none";
 	};
-	var ul = js.Browser.document.createElement("ul");
+	var ul;
+	var _this = window.document;
+	ul = _this.createElement("ul");
 	ul.className = "dropdown-menu";
 	ul.style.display = "block";
 	ul.appendChild(ContextMenu.createContextMenuItem("New File...",TabManager.createFileInNewTab));
-	var li = js.Browser.document.createElement("li");
+	var li;
+	var _this = window.document;
+	li = _this.createElement("li");
 	li.className = "divider";
 	ul.appendChild(li);
 	ul.appendChild(ContextMenu.createContextMenuItem("Close",function() {
@@ -36,11 +42,12 @@ ContextMenu.createContextMenu = function() {
 		TabManager.closeOthers(path);
 	}));
 	contextMenu.appendChild(ul);
-	js.Browser.document.body.appendChild(contextMenu);
+	window.document.body.appendChild(contextMenu);
 	TabManager.tabs.addEventListener("contextmenu",function(ev) {
 		ev.preventDefault();
 		var clickedOnTab = false;
-		var _g = 0, _g1 = TabManager.tabs.childNodes;
+		var _g = 0;
+		var _g1 = TabManager.tabs.childNodes;
 		while(_g < _g1.length) {
 			var li1 = _g1[_g];
 			++_g;
@@ -50,7 +57,8 @@ ContextMenu.createContextMenu = function() {
 			}
 		}
 		if(clickedOnTab) {
-			var li1 = js.Boot.__cast(ev.target , HTMLLIElement);
+			var li1;
+			li1 = js.Boot.__cast(ev.target , HTMLLIElement);
 			contextMenu.setAttribute("path",li1.getAttribute("path"));
 			contextMenu.style.display = "block";
 			contextMenu.style.left = Std.string(ev.pageX) + "px";
@@ -58,25 +66,29 @@ ContextMenu.createContextMenu = function() {
 		}
 		return false;
 	});
-}
+};
 ContextMenu.createContextMenuItem = function(text,onClick) {
-	var li = js.Browser.document.createElement("li");
+	var li;
+	var _this = window.document;
+	li = _this.createElement("li");
 	li.onclick = function(e) {
 		onClick();
 	};
-	var a = js.Browser.document.createElement("a");
+	var a;
+	var _this = window.document;
+	a = _this.createElement("a");
 	a.href = "#";
 	a.textContent = text;
 	li.appendChild(a);
 	return li;
-}
-var HxOverrides = function() { }
+};
+var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -85,15 +97,15 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
+};
 HxOverrides.iter = function(a) {
 	return { cur : 0, arr : a, hasNext : function() {
 		return this.cur < this.arr.length;
 	}, next : function() {
 		return this.arr[this.cur++];
 	}};
-}
-var Lambda = function() { }
+};
+var Lambda = function() { };
 Lambda.__name__ = true;
 Lambda.indexOf = function(it,v) {
 	var i = 0;
@@ -104,13 +116,13 @@ Lambda.indexOf = function(it,v) {
 		i++;
 	}
 	return -1;
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.loadCSS(Main.$name,["bin/includes/css/tabs.css"]);
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout"],Main.load);
-}
+};
 Main.load = function() {
 	TabManager.init();
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.file-tree","boyan.events.hotkey"],function() {
@@ -120,28 +132,28 @@ Main.load = function() {
 		Hotkeys.addHotkey(87,true,false,false,TabManager.closeActiveTab);
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
+};
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
-var StringTools = function() { }
+};
+var StringTools = function() { };
 StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
-}
-var TabManager = function() { }
-$hxExpose(TabManager, "TabManager");
+};
+var TabManager = $hx_exports.TabManager = function() { };
 TabManager.__name__ = true;
 TabManager.init = function() {
-	TabManager.tabs = js.Browser.document.createElement("ul");
+	var _this = window.document;
+	TabManager.tabs = _this.createElement("ul");
 	TabManager.tabs.className = "tabs no-select";
 	TabManager.tabs.onclick = function(e) {
 		var target = e.target || e.srcElement;
@@ -157,24 +169,30 @@ TabManager.init = function() {
 	ContextMenu.createContextMenu();
 	TabManager.docs = [];
 	Splitpane.components[1].appendChild(TabManager.tabs);
-}
+};
 TabManager.createNewTab = function(name,path) {
-	var li = js.Browser.document.createElement("li");
+	var li;
+	var _this = window.document;
+	li = _this.createElement("li");
 	li.title = path;
 	li.innerText = name + "\t";
 	li.setAttribute("path",path);
-	var span = js.Browser.document.createElement("span");
+	var span;
+	var _this = window.document;
+	span = _this.createElement("span");
 	span.style.position = "relative";
 	span.style.top = "2px";
 	span.onclick = function(e) {
 		TabManager.closeTab(path);
 	};
-	var span2 = js.Browser.document.createElement("span");
+	var span2;
+	var _this = window.document;
+	span2 = _this.createElement("span");
 	span2.className = "glyphicon glyphicon-remove-circle";
 	span.appendChild(span2);
 	li.appendChild(span);
 	TabManager.tabs.appendChild(li);
-}
+};
 TabManager.openFileInNewTab = function(path) {
 	path = StringTools.replace(path,"\\",js.Node.require("path").sep);
 	if(TabManager.isAlreadyOpened(path)) return;
@@ -187,7 +205,7 @@ TabManager.openFileInNewTab = function(path) {
 		TabManager.selectDoc(TabManager.docs.length - 1);
 		TabManager.checkTabsCount();
 	});
-}
+};
 TabManager.createFileInNewTab = function() {
 	FileDialog.saveFile(function(path) {
 		var name = js.Node.require("path").basename(path);
@@ -202,7 +220,7 @@ TabManager.createFileInNewTab = function() {
 		TabManager.selectDoc(TabManager.docs.length - 1);
 		TabManager.checkTabsCount();
 	});
-}
+};
 TabManager.checkTabsCount = function() {
 	if(TabManager.editor != null) {
 		if(TabManager.editor.getWrapperElement().style.display == "none" && TabManager.docs.length > 0) {
@@ -210,9 +228,10 @@ TabManager.checkTabsCount = function() {
 			TabManager.editor.refresh();
 		}
 	}
-}
+};
 TabManager.closeAll = function() {
-	var _g1 = 0, _g = TabManager.docs.length;
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
@@ -220,9 +239,10 @@ TabManager.closeAll = function() {
 	if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
 		TabManager.closeAll();
 	},30);
-}
+};
 TabManager.closeOthers = function(path) {
-	var _g1 = 0, _g = TabManager.docs.length;
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(TabManager.docs[i] != null && path != TabManager.docs[i].path) TabManager.closeTab(TabManager.docs[i].path,false);
@@ -230,10 +250,11 @@ TabManager.closeOthers = function(path) {
 	if(TabManager.docs.length > 1) haxe.Timer.delay(function() {
 		TabManager.closeOthers(path);
 	},30); else TabManager.showNextTab();
-}
+};
 TabManager.closeTab = function(path,switchToTab) {
 	if(switchToTab == null) switchToTab = true;
-	var _g1 = 0, _g = TabManager.docs.length;
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(TabManager.docs[i] != null && TabManager.docs[i].path == path) {
@@ -244,28 +265,29 @@ TabManager.closeTab = function(path,switchToTab) {
 	if(TabManager.docs.length > 0) {
 		if(switchToTab) TabManager.showPreviousTab();
 	} else if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
-}
+};
 TabManager.closeActiveTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
 	TabManager.docs.splice(n,1);
 	(js.Boot.__cast(TabManager.tabs.children.item(n) , Element)).remove();
 	if(TabManager.docs.length > 0) TabManager.showPreviousTab(); else if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
-}
+};
 TabManager.showNextTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
 	n++;
 	if(n > TabManager.docs.length - 1) n = 0;
 	TabManager.selectDoc(n);
-}
+};
 TabManager.showPreviousTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
 	n--;
 	if(n < 0) n = TabManager.docs.length - 1;
 	TabManager.selectDoc(n);
-}
+};
 TabManager.isAlreadyOpened = function(path) {
 	var opened = false;
-	var _g1 = 0, _g = TabManager.docs.length;
+	var _g1 = 0;
+	var _g = TabManager.docs.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(TabManager.docs[i].path == path) {
@@ -275,7 +297,7 @@ TabManager.isAlreadyOpened = function(path) {
 		}
 	}
 	return opened;
-}
+};
 TabManager.getMode = function(path) {
 	var mode = "haxe";
 	var _g = js.Node.require("path").extname(path);
@@ -304,23 +326,25 @@ TabManager.getMode = function(path) {
 	default:
 	}
 	return mode;
-}
+};
 TabManager.selectDoc = function(pos) {
-	var _g1 = 0, _g = TabManager.tabs.childNodes.length;
+	var _g1 = 0;
+	var _g = TabManager.tabs.childNodes.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var child = js.Boot.__cast(TabManager.tabs.childNodes[i] , Element);
+		var child;
+		child = js.Boot.__cast(TabManager.tabs.childNodes[i] , Element);
 		if(pos == i) child.className = "selected"; else child.className = "";
 	}
 	TabManager.curDoc = TabManager.docs[pos];
 	if(TabManager.editor != null) TabManager.editor.swapDoc(TabManager.curDoc.doc);
-}
+};
 TabManager.getCurrentDocumentPath = function() {
 	var path = null;
 	if(TabManager.curDoc != null) path = TabManager.curDoc.path;
 	return path;
-}
-var haxe = {}
+};
+var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;
 	this.id = setInterval(function() {
@@ -335,20 +359,19 @@ haxe.Timer.delay = function(f,time_ms) {
 		f();
 	};
 	return t;
-}
+};
 haxe.Timer.prototype = {
-	run: function() {
-		console.log("run");
-	}
-	,stop: function() {
+	stop: function() {
 		if(this.id == null) return;
 		clearInterval(this.id);
 		this.id = null;
 	}
+	,run: function() {
+	}
 	,__class__: haxe.Timer
-}
-var js = {}
-js.Boot = function() { }
+};
+var js = {};
+js.Boot = function() { };
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -362,7 +385,8 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -395,7 +419,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -415,13 +439,14 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
+};
 js.Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0, _g = intf.length;
+		var _g1 = 0;
+		var _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
@@ -429,7 +454,7 @@ js.Boot.__interfLoop = function(cc,cl) {
 		}
 	}
 	return js.Boot.__interfLoop(cc.__super__,cl);
-}
+};
 js.Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
@@ -457,17 +482,15 @@ js.Boot.__instanceof = function(o,cl) {
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-}
+};
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-js.Node = function() { }
+};
+js.Node = function() { };
 js.Node.__name__ = true;
-function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
+function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
-function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.prototype.__class__ = Array;
@@ -480,6 +503,16 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -498,18 +531,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.bootstrap.tab-manager";
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

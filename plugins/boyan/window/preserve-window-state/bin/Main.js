@@ -1,10 +1,10 @@
 (function () { "use strict";
-var HxOverrides = function() { }
+var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -13,22 +13,22 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.main = function() {
 	PreserveWindowState.init();
 	HIDE.notifyLoadingComplete(Main.$name);
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
-var js = {}
-js.Node = function() { }
-var PreserveWindowState = function() { }
+};
+var js = {};
+js.Node = function() { };
+var PreserveWindowState = function() { };
 PreserveWindowState.init = function() {
 	PreserveWindowState.initWindowState();
 	PreserveWindowState.window.on("maximize",function() {
@@ -58,7 +58,7 @@ PreserveWindowState.init = function() {
 		PreserveWindowState.saveWindowState();
 		PreserveWindowState.window.close(true);
 	});
-}
+};
 PreserveWindowState.initWindowState = function() {
 	var windowState = js.Browser.getLocalStorage().getItem("windowState");
 	if(windowState != null) PreserveWindowState.winState = js.Node.parse(windowState);
@@ -70,7 +70,7 @@ PreserveWindowState.initWindowState = function() {
 		PreserveWindowState.dumpWindowState();
 	}
 	PreserveWindowState.window.show();
-}
+};
 PreserveWindowState.dumpWindowState = function() {
 	if(PreserveWindowState.winState == null) PreserveWindowState.winState = { };
 	if(PreserveWindowState.currWinMode == "maximized") PreserveWindowState.winState.mode = "maximized"; else PreserveWindowState.winState.mode = "normal";
@@ -80,16 +80,16 @@ PreserveWindowState.dumpWindowState = function() {
 		PreserveWindowState.winState.width = PreserveWindowState.window.width;
 		PreserveWindowState.winState.height = PreserveWindowState.window.height;
 	}
-}
+};
 PreserveWindowState.restoreWindowState = function() {
 	PreserveWindowState.window.resizeTo(PreserveWindowState.winState.width,PreserveWindowState.winState.height);
 	PreserveWindowState.window.moveTo(PreserveWindowState.winState.x,PreserveWindowState.winState.y);
-}
+};
 PreserveWindowState.saveWindowState = function() {
 	PreserveWindowState.dumpWindowState();
 	js.Browser.getLocalStorage().setItem("windowState",js.Node.stringify(PreserveWindowState.winState));
-}
-var haxe = {}
+};
+var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;
 	this.id = setInterval(function() {
@@ -97,25 +97,34 @@ haxe.Timer = function(time_ms) {
 	},time_ms);
 };
 haxe.Timer.prototype = {
-	run: function() {
-		console.log("run");
-	}
-	,stop: function() {
+	stop: function() {
 		if(this.id == null) return;
 		clearInterval(this.id);
 		this.id = null;
 	}
-}
-js.Browser = function() { }
+	,run: function() {
+	}
+};
+js.Browser = function() { };
 js.Browser.getLocalStorage = function() {
 	try {
-		var s = js.Browser.window.localStorage;
+		var s = window.localStorage;
 		s.getItem("");
 		return s;
 	} catch( e ) {
 		return null;
 	}
-}
+};
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -136,8 +145,7 @@ if(version[0] > 0 || version[1] >= 9) {
 Main.$name = "boyan.window.preserve-window-state";
 PreserveWindowState.isMaximizationEvent = false;
 PreserveWindowState.window = js.Node.require("nw.gui").Window.get();
-js.Browser.window = typeof window != "undefined" ? window : null;
 Main.main();
 })();
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

@@ -1,11 +1,11 @@
-(function () { "use strict";
-var Completion = function() { }
+(function ($hx_exports) { "use strict";
+var Completion = function() { };
 Completion.__name__ = true;
 Completion.registerHandlers = function() {
-	new $(js.Browser.document).on("getCompletion",null,function(event,data) {
+	new $(window.document).on("getCompletion",null,function(event,data) {
 		if(CM.editor.state.completionActive != null && CM.editor.state.completionActive.widget != null) {
 			data.data.completions = Completion.completions;
-			new $(js.Browser.document).triggerHandler("processHint",data);
+			new $(window.document).triggerHandler("processHint",data);
 		} else {
 			console.log("get Haxe completion");
 			var projectArguments = ProjectAccess.currentProject.args.slice();
@@ -21,8 +21,8 @@ Completion.registerHandlers = function() {
 			});
 		}
 	});
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
@@ -42,17 +42,16 @@ Main.main = function() {
 			HIDE.notifyLoadingComplete(Main.$name);
 		});
 	});
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
-var TS = function() { }
-$hxExpose(TS, "TS");
+};
+var TS = $hx_exports.TS = function() { };
 TS.__name__ = true;
-var js = {}
-js.Boot = function() { }
+var js = {};
+js.Boot = function() { };
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -66,7 +65,8 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -99,7 +99,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -119,25 +119,12 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
+};
 String.__name__ = true;
 Array.__name__ = true;
 Main.$name = "boyan.tern.server";
 Main.dependencies = ["boyan.codemirror.editor","boyan.bootstrap.tab-manager","boyan.jquery.xml2json","boyan.management.project-access","boyan.completion.client"];
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map
