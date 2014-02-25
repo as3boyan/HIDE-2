@@ -35,58 +35,19 @@ class ContextMenu
 		ul.className = "dropdown-menu";
 		ul.style.display = "block";
 		
-		ul.appendChild(createContextMenuItem("New File...", TabManager.createFileInNewTab));
-		
-		var li:LIElement = Browser.document.createLIElement();
-		li.className = "divider";
-		
-		ul.appendChild(li);
-		ul.appendChild(createContextMenuItem("Close", function ()
-		{
-			TabManager.closeTab(contextMenu.getAttribute("path"));
-		}
-		));
-		ul.appendChild(createContextMenuItem("Close All", function ()
-		{
-			TabManager.closeAll();
-		}
-		));
-		
-		ul.appendChild(createContextMenuItem("Close Other", function ()
-		{
-			var path = contextMenu.getAttribute("path");
-			TabManager.closeOthers(path);
-		}
-		));
+		ul.appendChild(createContextMenuItem("Refresh", FileTree.load));
 		
 		contextMenu.appendChild(ul);
 		
 		Browser.document.body.appendChild(contextMenu);
 		
-		TabManager.tabs.addEventListener('contextmenu', function(ev:MouseEvent) 
+		FileTree.treeWell.addEventListener('contextmenu', function(ev:MouseEvent) 
 		{ 
 			ev.preventDefault();
-			
-			var clickedOnTab:Bool = false;
-			
-			for (li in TabManager.tabs.childNodes)
-			{
-				if (ev.target == li)
-				{
-					clickedOnTab = true;
-					break;
-				}
-			}
-			
-			if (clickedOnTab)
-			{
-				var li:LIElement = cast(ev.target, LIElement);
-				contextMenu.setAttribute("path", li.getAttribute("path"));
-				
-				contextMenu.style.display = "block";
-				contextMenu.style.left = Std.string(ev.pageX) + "px";
-				contextMenu.style.top = Std.string(ev.pageY) + "px";
-			}
+						
+			contextMenu.style.display = "block";
+			contextMenu.style.left = Std.string(ev.pageX) + "px";
+			contextMenu.style.top = Std.string(ev.pageY) + "px";
 			
 			return false;
 		}

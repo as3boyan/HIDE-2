@@ -2,13 +2,15 @@
 var $estr = function() { return js.Boot.__string_rec(this,''); };
 var CreateOpenFLProject = function() { }
 CreateOpenFLProject.__name__ = ["CreateOpenFLProject"];
-CreateOpenFLProject.createOpenFLProject = function(params,onComplete) {
-	var OpenFLTools = js.Node.require("child_process").exec(["haxelib","run","openfl","create"].concat(params).join(" "),{ },function(error,stdout,stderr) {
+CreateOpenFLProject.createOpenFLProject = function(params,path,onComplete) {
+	var args = ["haxelib","run","openfl","create"].concat(params).join(" ");
+	console.log(args);
+	var OpenFLTools = js.Node.require("child_process").exec(args,{ cwd : path},function(error,stdout,stderr) {
 		console.log(stderr);
 	});
 	OpenFLTools.on("close",function(code) {
 		console.log("exit code: " + Std.string(code));
-		if(onComplete != null) onComplete();
+		if(code == 0 && onComplete != null) onComplete();
 	});
 }
 var HxOverrides = function() { }
@@ -80,9 +82,9 @@ Main.main = function() {
 Main.createOpenFLProject = function(data) {
 	var str = "";
 	if(data.projectPackage != "") str = Std.string(data.projectPackage) + ".";
-	var params = ["project",str + Std.string(data.projectName.value)];
-	if(data.projectCompany != "") params.push(data.projectCompany);
-	CreateOpenFLProject.createOpenFLProject(params,function() {
+	var params = ["project","\"" + str + Std.string(data.projectName) + "\""];
+	if(data.projectCompany != "") params.push("\"" + Std.string(data.projectCompany) + "\"");
+	CreateOpenFLProject.createOpenFLProject(params,data.projectLocation,function() {
 		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
 		ProjectAccess.currentProject.path = pathToProject;
 		var project = new Project();
@@ -96,11 +98,25 @@ Main.createOpenFLProject = function(data) {
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 			FileTree.load(project.name,pathToProject);
 		});
-		TabManager.openFileInNewTab(js.Node.require("path").join(path,"Source","Main.hx"));
+		TabManager.openFileInNewTab(js.Node.require("path").join(pathToProject,"Source","Main.hx"));
 	});
 }
 Main.createOpenFLExtension = function(data) {
-	CreateOpenFLProject.createOpenFLProject(["extension",data.projectName]);
+	CreateOpenFLProject.createOpenFLProject(["extension",data.projectName],data.projectLocation,function() {
+		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
+		ProjectAccess.currentProject.path = pathToProject;
+		var project = new Project();
+		project.name = data.projectName;
+		project.projectPackage = data.projectPackage;
+		project.company = data.projectCompany;
+		project.license = data.projectLicense;
+		project.url = data.projectURL;
+		project.type = 1;
+		var path = js.Node.require("path").join(pathToProject,"project.hide");
+		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+			FileTree.load(project.name,pathToProject);
+		});
+	});
 }
 var IMap = function() { }
 IMap.__name__ = ["IMap"];

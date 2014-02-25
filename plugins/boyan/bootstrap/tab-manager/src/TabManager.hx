@@ -99,16 +99,23 @@ import js.html.UListElement;
 				trace(error);
 			}
 			
-			var mode:String = getMode(path);
-			var name:String = js.Node.path.basename(path);
-			
-			docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
-			
-			createNewTab(name, path);
-			
-			selectDoc(docs.length - 1);
-			
-			checkTabsCount();
+			if (code != null)
+			{
+				var mode:String = getMode(path);
+				var name:String = js.Node.path.basename(path);
+				
+				docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
+				
+				createNewTab(name, path);
+				
+				selectDoc(docs.length - 1);
+				
+				checkTabsCount();
+			}
+			else 
+			{
+				trace("boyan.bootstrap.tab-manager: can't load file " + path);
+			}
 		}
 		);
 	}

@@ -12,9 +12,13 @@ class CreateOpenFLProject
 		
 	}
 	
-	public static function createOpenFLProject(params:Array<String>, ?onComplete:Dynamic):Void
-	{
-		var OpenFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxelib", "run", "openfl", "create"].concat(params).join(" "), { }, function (error, stdout, stderr) 
+	public static function createOpenFLProject(params:Array<String>, path:String, ?onComplete:Dynamic):Void
+	{	
+		var args = ["haxelib", "run", "openfl", "create"].concat(params).join(" ");
+		
+		trace(args);
+		
+		var OpenFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(args, { cwd: path }, function (error, stdout, stderr) 
 		{
 			trace(stderr);
 		}
@@ -24,7 +28,7 @@ class CreateOpenFLProject
 		{
 			trace("exit code: " + Std.string(code));
 			
-			if (onComplete != null) 
+			if (code == 0 && onComplete != null) 
 			{
 				onComplete();
 			}

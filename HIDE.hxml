@@ -2,7 +2,6 @@
 -js ./bin/HIDE.js
 -main Main
 -cp externs/nodejs-std/src
--debug
 -dce full
 --next
 -cp src

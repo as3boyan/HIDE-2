@@ -1,34 +1,73 @@
 (function () { "use strict";
+var ContextMenu = function() { }
+ContextMenu.__name__ = true;
+ContextMenu.createContextMenu = function() {
+	var contextMenu = js.Browser.document.createElement("div");
+	contextMenu.className = "dropdown";
+	contextMenu.style.position = "absolute";
+	contextMenu.style.display = "none";
+	js.Browser.document.addEventListener("click",function(e) {
+		contextMenu.style.display = "none";
+	});
+	var ul = js.Browser.document.createElement("ul");
+	ul.className = "dropdown-menu";
+	ul.style.display = "block";
+	ul.appendChild(ContextMenu.createContextMenuItem("Refresh",FileTree.load));
+	contextMenu.appendChild(ul);
+	js.Browser.document.body.appendChild(contextMenu);
+	FileTree.treeWell.addEventListener("contextmenu",function(ev) {
+		ev.preventDefault();
+		contextMenu.style.display = "block";
+		contextMenu.style.left = Std.string(ev.pageX) + "px";
+		contextMenu.style.top = Std.string(ev.pageY) + "px";
+		return false;
+	});
+}
+ContextMenu.createContextMenuItem = function(text,onClick) {
+	var li = js.Browser.document.createElement("li");
+	li.onclick = function(e) {
+		onClick();
+	};
+	var a = js.Browser.document.createElement("a");
+	a.href = "#";
+	a.textContent = text;
+	li.appendChild(a);
+	return li;
+}
 var FileTree = function() { }
 $hxExpose(FileTree, "FileTree");
 FileTree.__name__ = true;
 FileTree.init = function() {
 	var splitPaneComponent = js.Boot.__cast(Splitpane.components[0] , HTMLDivElement);
-	var treeWell = js.Browser.document.createElement("div");
-	treeWell.id = "tree-well";
-	treeWell.className = "well";
-	treeWell.style.overflow = "auto";
-	treeWell.style.padding = "0";
-	treeWell.style.margin = "0";
-	treeWell.style.width = "100%";
-	treeWell.style.height = "100%";
-	treeWell.style.fontSize = "10pt";
-	treeWell.style.lineHeight = "1";
+	FileTree.treeWell = js.Browser.document.createElement("div");
+	FileTree.treeWell.id = "tree-well";
+	FileTree.treeWell.className = "well";
+	FileTree.treeWell.style.overflow = "auto";
+	FileTree.treeWell.style.padding = "0";
+	FileTree.treeWell.style.margin = "0";
+	FileTree.treeWell.style.width = "100%";
+	FileTree.treeWell.style.height = "100%";
+	FileTree.treeWell.style.fontSize = "10pt";
+	FileTree.treeWell.style.lineHeight = "1";
 	var tree = js.Browser.document.createElement("ul");
 	tree.className = "nav nav-list";
 	tree.id = "tree";
 	tree.style.padding = "5px 0px";
-	treeWell.appendChild(tree);
-	splitPaneComponent.appendChild(treeWell);
-	FileTree.load("HIDE");
+	FileTree.treeWell.appendChild(tree);
+	splitPaneComponent.appendChild(FileTree.treeWell);
+	FileTree.load("HIDE","../");
+	ContextMenu.createContextMenu();
 }
 FileTree.load = function(projectName,path) {
-	if(path == null) path = "./";
+	if(projectName == null) projectName = FileTree.lastProjectName;
+	if(path == null) path = FileTree.lastProjectPath;
 	var tree = js.Boot.__cast(js.Browser.document.getElementById("tree") , HTMLUListElement);
 	new $(tree).children().remove();
 	var rootTreeElement = FileTree.createDirectoryElement(projectName);
 	tree.appendChild(rootTreeElement);
 	FileTree.readDir(path,rootTreeElement);
+	FileTree.lastProjectName = projectName;
+	FileTree.lastProjectPath = path;
 }
 FileTree.createDirectoryElement = function(text) {
 	var directoryElement = js.Browser.document.createElement("li");
@@ -53,53 +92,55 @@ FileTree.createDirectoryElement = function(text) {
 }
 FileTree.readDir = function(path,topElement) {
 	js.Node.require("fs").readdir(path,function(error,files) {
-		var foldersCount = 0;
-		var _g = 0;
-		while(_g < files.length) {
-			var file = [files[_g]];
-			++_g;
-			var filePath = [js.Node.require("path").join(path,file[0])];
-			js.Node.require("fs").stat(filePath[0],(function(filePath,file) {
-				return function(error1,stat) {
-					if(stat.isFile()) {
-						var li = js.Browser.document.createElement("li");
-						var a = js.Browser.document.createElement("a");
-						a.href = "#";
-						a.textContent = file[0];
-						a.title = filePath[0];
-						a.onclick = (function(filePath) {
-							return function(e) {
-								if(FileTree.onFileClick != null) FileTree.onFileClick(filePath[0]);
-							};
-						})(filePath);
-						if(StringTools.endsWith(file[0],".hx")) a.style.fontWeight = "bold"; else if(StringTools.endsWith(file[0],".hxml")) {
-							a.style.fontWeight = "bold";
-							a.style.color = "gray";
-						} else a.style.color = "gray";
-						li.appendChild(a);
-						var ul = js.Boot.__cast(topElement.getElementsByTagName("ul")[0] , HTMLUListElement);
-						ul.appendChild(li);
-					} else if(!StringTools.startsWith(file[0],".")) {
-						var ul = js.Boot.__cast(topElement.getElementsByTagName("ul")[0] , HTMLUListElement);
-						var directoryElement = FileTree.createDirectoryElement(file[0]);
-						directoryElement.onclick = (function(filePath) {
-							return function(e) {
-								if(directoryElement.getElementsByTagName("ul")[0].childNodes.length == 0) {
-									FileTree.readDir(filePath[0],directoryElement);
-									e.stopPropagation();
-									e.preventDefault();
-									directoryElement.onclick = null;
-								}
-							};
-						})(filePath);
-						ul.appendChild(directoryElement);
-						ul.insertBefore(directoryElement,ul.childNodes[foldersCount]);
-						foldersCount++;
-					}
-				};
-			})(filePath,file));
+		if(files != null) {
+			var foldersCount = 0;
+			var _g = 0;
+			while(_g < files.length) {
+				var file = [files[_g]];
+				++_g;
+				var filePath = [js.Node.require("path").join(path,file[0])];
+				js.Node.require("fs").stat(filePath[0],(function(filePath,file) {
+					return function(error1,stat) {
+						if(stat.isFile()) {
+							var li = js.Browser.document.createElement("li");
+							var a = js.Browser.document.createElement("a");
+							a.href = "#";
+							a.textContent = file[0];
+							a.title = filePath[0];
+							a.onclick = (function(filePath) {
+								return function(e) {
+									if(FileTree.onFileClick != null) FileTree.onFileClick(filePath[0]);
+								};
+							})(filePath);
+							if(StringTools.endsWith(file[0],".hx")) a.style.fontWeight = "bold"; else if(StringTools.endsWith(file[0],".hxml")) {
+								a.style.fontWeight = "bold";
+								a.style.color = "gray";
+							} else a.style.color = "gray";
+							li.appendChild(a);
+							var ul = js.Boot.__cast(topElement.getElementsByTagName("ul")[0] , HTMLUListElement);
+							ul.appendChild(li);
+						} else if(!StringTools.startsWith(file[0],".")) {
+							var ul = js.Boot.__cast(topElement.getElementsByTagName("ul")[0] , HTMLUListElement);
+							var directoryElement = FileTree.createDirectoryElement(file[0]);
+							directoryElement.onclick = (function(filePath) {
+								return function(e) {
+									if(directoryElement.getElementsByTagName("ul")[0].childNodes.length == 0) {
+										FileTree.readDir(filePath[0],directoryElement);
+										e.stopPropagation();
+										e.preventDefault();
+										directoryElement.onclick = null;
+									}
+								};
+							})(filePath);
+							ul.appendChild(directoryElement);
+							ul.insertBefore(directoryElement,ul.childNodes[foldersCount]);
+							foldersCount++;
+						}
+					};
+				})(filePath,file));
+			}
+			new $(topElement).children("ul.tree").show(300);
 		}
-		new $(topElement).children("ul.tree").show(300);
 	});
 }
 var HxOverrides = function() { }

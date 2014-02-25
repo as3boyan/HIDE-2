@@ -14,6 +14,9 @@ import js.html.UListElement;
 @:keepSub @:expose class FileTree
 {	
 	public static var onFileClick:Dynamic;
+	private static var lastProjectName:String;
+	private static var lastProjectPath:String;
+	public static var treeWell:DivElement;
 	
 	public static function init():Void
 	{
@@ -24,7 +27,7 @@ import js.html.UListElement;
 		
 		var splitPaneComponent:DivElement = cast(Splitpane.components[0], DivElement);
 		
-		var treeWell:DivElement = Browser.document.createDivElement();
+		treeWell = Browser.document.createDivElement();
 		treeWell.id = "tree-well";
 		treeWell.className = "well";
 		treeWell.style.overflow = "auto";
@@ -43,11 +46,23 @@ import js.html.UListElement;
 		
 		splitPaneComponent.appendChild(treeWell);
 		
-		load("HIDE");
+		load("HIDE", "../");
+		
+		ContextMenu.createContextMenu();
 	}
 	
-	public static function load(projectName:String, ?path:String = "./"):Void
+	public static function load(?projectName:String, ?path:String):Void
 	{		
+		if (projectName == null)
+		{
+			projectName = lastProjectName;
+		}
+		
+		if (path == null)
+		{
+			path = lastProjectPath;
+		}
+		
 		var tree:UListElement = cast(Browser.document.getElementById("tree"), UListElement);
 		
 		new JQuery(tree).children().remove();
@@ -57,6 +72,9 @@ import js.html.UListElement;
 		tree.appendChild(rootTreeElement);
 		
 		readDir(path, rootTreeElement);
+		
+		lastProjectName = projectName;
+		lastProjectPath = path;
 	}
 	
 	private static function createDirectoryElement(text:String):LIElement
@@ -103,79 +121,82 @@ import js.html.UListElement;
 	{
 		js.Node.fs.readdir(path, function (error:js.Node.NodeErr, files:Array<String>):Void
 		{			
-			var foldersCount:Int = 0;
-			
-			for (file in files)
+			if (files != null)
 			{
-				var filePath:String = js.Node.path.join(path, file);
-				
-				js.Node.fs.stat(filePath, function (error:js.Node.NodeErr, stat:js.Node.NodeStat)
-				{					
-					if (stat.isFile())
-					{
-						var li:LIElement = Browser.document.createLIElement();
-						
-						var a:AnchorElement = Browser.document.createAnchorElement();
-						a.href = "#";
-						a.textContent = file;
-						a.title = filePath;
-						a.onclick = function (e):Void
+				var foldersCount:Int = 0;
+			
+				for (file in files)
+				{
+					var filePath:String = js.Node.path.join(path, file);
+					
+					js.Node.fs.stat(filePath, function (error:js.Node.NodeErr, stat:js.Node.NodeStat)
+					{					
+						if (stat.isFile())
 						{
-							if (onFileClick != null)
+							var li:LIElement = Browser.document.createLIElement();
+							
+							var a:AnchorElement = Browser.document.createAnchorElement();
+							a.href = "#";
+							a.textContent = file;
+							a.title = filePath;
+							a.onclick = function (e):Void
 							{
-								onFileClick(filePath);
+								if (onFileClick != null)
+								{
+									onFileClick(filePath);
+								}
+							};
+							
+							if (StringTools.endsWith(file, ".hx"))
+							{
+								a.style.fontWeight = "bold";
 							}
-						};
-						
-						if (StringTools.endsWith(file, ".hx"))
-						{
-							a.style.fontWeight = "bold";
-						}
-						else if (StringTools.endsWith(file, ".hxml"))
-						{
-							a.style.fontWeight = "bold";
-							a.style.color = "gray";
+							else if (StringTools.endsWith(file, ".hxml"))
+							{
+								a.style.fontWeight = "bold";
+								a.style.color = "gray";
+							}
+							else
+							{
+								a.style.color = "gray";
+							}
+							
+							li.appendChild(a);
+							
+							var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
+							ul.appendChild(li);
 						}
 						else
 						{
-							a.style.color = "gray";
-						}
-						
-						li.appendChild(a);
-						
-						var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
-						ul.appendChild(li);
-					}
-					else
-					{
-						if (!StringTools.startsWith(file, "."))
-						{
-							var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
-							
-							var directoryElement:LIElement = createDirectoryElement(file);
-							
-							//Lazy loading
-							directoryElement.onclick = function (e):Void
+							if (!StringTools.startsWith(file, "."))
 							{
-								if (directoryElement.getElementsByTagName("ul")[0].childNodes.length == 0)
+								var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
+								
+								var directoryElement:LIElement = createDirectoryElement(file);
+								
+								//Lazy loading
+								directoryElement.onclick = function (e):Void
 								{
-									readDir(filePath, directoryElement);
-									e.stopPropagation();
-									e.preventDefault();
-									directoryElement.onclick = null;
+									if (directoryElement.getElementsByTagName("ul")[0].childNodes.length == 0)
+									{
+										readDir(filePath, directoryElement);
+										e.stopPropagation();
+										e.preventDefault();
+										directoryElement.onclick = null;
+									}
 								}
+								
+								ul.appendChild(directoryElement);
+								ul.insertBefore(directoryElement, ul.childNodes[foldersCount]);
+								foldersCount++;
 							}
-							
-							ul.appendChild(directoryElement);
-							ul.insertBefore(directoryElement, ul.childNodes[foldersCount]);
-							foldersCount++;
 						}
 					}
+					);
 				}
-				);
+				
+				new JQuery(topElement).children('ul.tree').show(300);
 			}
-			
-			new JQuery(topElement).children('ul.tree').show(300);
 		}
 		);
 	}

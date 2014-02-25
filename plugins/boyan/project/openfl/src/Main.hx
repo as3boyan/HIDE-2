@@ -56,15 +56,15 @@ class Main
 			str = data.projectPackage + ".";
 		}
 		
-		var params:Array<String> = ["project", str + data.projectName.value];
+		var params:Array<String> = ["project", "\"" + str + data.projectName + "\""];
 		
 		if (data.projectCompany != "")
 		{
-			params.push(data.projectCompany);
+			params.push("\"" + data.projectCompany + "\"");
 		}
-		
-		CreateOpenFLProject.createOpenFLProject(params, function ()
-		{
+				
+		CreateOpenFLProject.createOpenFLProject(params, data.projectLocation, function ()
+		{	
 			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
 			ProjectAccess.currentProject.path = pathToProject;
 			
@@ -84,14 +84,35 @@ class Main
 			}
 			);
 			
-			TabManager.openFileInNewTab(js.Node.path.join(path, "Source", "Main.hx"));
+			TabManager.openFileInNewTab(js.Node.path.join(pathToProject, "Source", "Main.hx"));
 		}
 		);
 	}
 	
 	public static function createOpenFLExtension(data:Dynamic):Void
 	{
-		CreateOpenFLProject.createOpenFLProject(["extension", data.projectName]);
+		CreateOpenFLProject.createOpenFLProject(["extension", data.projectName], data.projectLocation, function ()
+		{
+			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
+			ProjectAccess.currentProject.path = pathToProject;
+			
+			var project:Project = new Project();
+			project.name = data.projectName;
+			project.projectPackage = data.projectPackage;
+			project.company = data.projectCompany;
+			project.license = data.projectLicense;
+			project.url = data.projectURL;
+			project.type = Project.OPENFL;
+			//project.target = target;
+			
+			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+			{
+				FileTree.load(project.name, pathToProject);
+			}
+			);
+		}
+		);
 	}
 	
 }

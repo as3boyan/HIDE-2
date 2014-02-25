@@ -15,9 +15,9 @@ ContextMenu.createContextMenu = function() {
 	contextMenu.className = "dropdown";
 	contextMenu.style.position = "absolute";
 	contextMenu.style.display = "none";
-	js.Browser.document.onclick = function(e) {
+	js.Browser.document.addEventListener("click",function(e) {
 		contextMenu.style.display = "none";
-	};
+	});
 	var ul = js.Browser.document.createElement("ul");
 	ul.className = "dropdown-menu";
 	ul.style.display = "block";
@@ -184,12 +184,14 @@ TabManager.openFileInNewTab = function(path) {
 	if(TabManager.isAlreadyOpened(path)) return;
 	js.Node.require("fs").readFile(path,"utf8",function(error,code) {
 		if(error != null) console.log(error);
-		var mode = TabManager.getMode(path);
-		var name = js.Node.require("path").basename(path);
-		TabManager.docs.push(new CMDoc(name,new CodeMirror.Doc(code,mode),path));
-		TabManager.createNewTab(name,path);
-		TabManager.selectDoc(TabManager.docs.length - 1);
-		TabManager.checkTabsCount();
+		if(code != null) {
+			var mode = TabManager.getMode(path);
+			var name = js.Node.require("path").basename(path);
+			TabManager.docs.push(new CMDoc(name,new CodeMirror.Doc(code,mode),path));
+			TabManager.createNewTab(name,path);
+			TabManager.selectDoc(TabManager.docs.length - 1);
+			TabManager.checkTabsCount();
+		} else console.log("boyan.bootstrap.tab-manager: can't load file " + path);
 	});
 }
 TabManager.createFileInNewTab = function() {
