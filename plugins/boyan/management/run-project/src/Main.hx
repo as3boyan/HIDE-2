@@ -9,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.management.run-project";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access", "boyan.bootstrap.menu"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void

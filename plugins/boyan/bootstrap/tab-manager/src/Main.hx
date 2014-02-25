@@ -27,7 +27,7 @@ class Main
 	{
 		TabManager.init();
 		
-		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.file-tree", "boyan.events.hotkey"], function ():Void
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.file-tree", "boyan.bootstrap.menu"], function ():Void
 		{
 			FileTree.onFileClick = TabManager.openFileInNewTab;
 			
@@ -37,12 +37,23 @@ class Main
 			//Ctrl-Shift-Tab
 			Hotkeys.addHotkey(9, true, true, false, TabManager.showPreviousTab);
 			
+			//Ctrl-N
+			BootstrapMenu.getMenu("File").addMenuItem("New File...", 3, TabManager.createFileInNewTab, "Ctrl-N", "N".code, true, false, false);
+			
+			//Ctrl-S
+			BootstrapMenu.getMenu("File").addMenuItem("Save", 4, TabManager.saveActiveFile, "Ctrl-S", "S".code, true, false, false);
+			
+			//Ctrl-Shift-S
+			BootstrapMenu.getMenu("File").addMenuItem("Save As...", 5, TabManager.saveActiveFileAs, "Ctrl-Shift-S", "S".code, true, true, false);
+			
+			BootstrapMenu.getMenu("File").addMenuItem("Save All", 6, TabManager.saveAll);
+			
 			//Ctrl-W
-			Hotkeys.addHotkey("W".code, true, false, false, TabManager.closeActiveTab);
+			BootstrapMenu.getMenu("File").addMenuItem("Close File", 7, TabManager.closeActiveTab, "Ctrl-W", "W".code, true, false, false);
+			
+			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
+			HIDE.notifyLoadingComplete(name);
 		}
 		);
-		
-		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
-		HIDE.notifyLoadingComplete(name);
 	}
 }

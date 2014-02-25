@@ -132,8 +132,6 @@ class Main
 			project.type = Project.HAXE;
 			project.target = target;
 			
-			FileTree.load(project.name, pathToProject);
-			
 			var pathToBin:String = js.Node.path.join(pathToProject, "bin");
 			js.Node.fs.mkdir(pathToBin);
 			
@@ -177,7 +175,7 @@ class Main
 			var path:String = js.Node.path.join(pathToProject, "project.hide");
 			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 			{
-				
+				FileTree.load(project.name, pathToProject);
 			}
 			);
 			

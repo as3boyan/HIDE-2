@@ -1,10 +1,10 @@
-(function ($hx_exports) { "use strict";
-var HxOverrides = function() { };
+(function () { "use strict";
+var HxOverrides = function() { }
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-};
+}
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -13,11 +13,11 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-};
-var Main = function() { };
+}
+var Main = function() { }
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
-};
+}
 Main.load = function() {
 	HIDE.loadJS(Main.$name,["bin/includes/js/jquery.layout-latest.min.js"],function() {
 		Splitpane.createSplitPane();
@@ -26,11 +26,11 @@ Main.load = function() {
 		});
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
-};
-var Splitpane = $hx_exports.Splitpane = function() { };
+}
+var Splitpane = function() { }
+$hxExpose(Splitpane, "Splitpane");
 Splitpane.createSplitPane = function() {
-	var _this = window.document;
-	Splitpane.panel = _this.createElement("div");
+	Splitpane.panel = js.Browser.document.createElement("div");
 	Splitpane.panel.id = "panel";
 	Splitpane.panel.className = "ui-layout-container";
 	Splitpane.panel.style.position = "absolute";
@@ -53,56 +53,52 @@ Splitpane.createSplitPane = function() {
 	Splitpane.components.push(middleCenterPanelContent);
 	Splitpane.components.push(middleSouthPanelContent);
 	Splitpane.components.push(outerEastPanel);
-	window.document.body.appendChild(Splitpane.panel);
-};
+	js.Browser.document.body.appendChild(Splitpane.panel);
+}
 Splitpane.activateSplitpane = function() {
 	var layoutSettings = { center__paneSelector : ".outer-center", west__paneSelector : ".outer-west", west__size : 120, east__paneSelector : ".outer-east", east__size : 120, spacing_open : 8, spacing_closed : 12, center__childOptions : { center__paneSelector : ".middle-center", south__paneSelector : ".middle-south", south__size : 100, spacing_open : 8, spacing_closed : 12}};
 	Splitpane.layout = $("#panel").layout(layoutSettings);
 	var timer = new haxe.Timer(250);
 	timer.run = function() {
-		var treeWell = window.document.getElementById("tree-well");
+		var treeWell = js.Browser.document.getElementById("tree-well");
 		if(treeWell != null) {
 			if(treeWell.clientHeight < 250 || treeWell.clientWidth < 80) {
 				Splitpane.layout.resizeAll();
-				new $(window).trigger("resize");
+				new $(js.Browser.window).trigger("resize");
 				console.log("layout.resizeAll()");
 			} else timer.stop();
 		}
 	};
-};
+}
 Splitpane.activateStatePreserving = function() {
 	var localStorage = js.Browser.getLocalStorage();
-	var $window = js.Node.require("nw.gui").Window.get();
-	$window.on("close",function(e) {
+	var window = js.Node.require("nw.gui").Window.get();
+	window.on("close",function(e) {
 		var stateString = js.Node.stringify(Splitpane.layout.readState());
 		localStorage.setItem("state",stateString);
-		$window.close(true);
+		window.close(true);
 	});
 	var state = localStorage.getItem("state");
 	if(state != null) Splitpane.layout.loadState(js.Node.parse(state));
-};
+}
 Splitpane.createComponent = function(layout,side) {
-	var component;
-	var _this = window.document;
-	component = _this.createElement("div");
+	var component = js.Browser.document.createElement("div");
 	component.className = layout + "-" + side + " " + "ui-layout-" + side;
 	return component;
-};
+}
 Splitpane.createContent = function() {
-	var content;
-	var _this = window.document;
-	content = _this.createElement("div");
+	var content = js.Browser.document.createElement("div");
 	content.className = "ui-layout-content";
 	return content;
-};
-var Std = function() { };
+}
+var Std = function() { }
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-};
-var haxe = {};
+}
+var haxe = {}
 haxe.Timer = function(time_ms) {
 	var me = this;
 	this.id = setInterval(function() {
@@ -110,36 +106,27 @@ haxe.Timer = function(time_ms) {
 	},time_ms);
 };
 haxe.Timer.prototype = {
-	stop: function() {
+	run: function() {
+		console.log("run");
+	}
+	,stop: function() {
 		if(this.id == null) return;
 		clearInterval(this.id);
 		this.id = null;
 	}
-	,run: function() {
-	}
-};
-var js = {};
-js.Browser = function() { };
+}
+var js = {}
+js.Browser = function() { }
 js.Browser.getLocalStorage = function() {
 	try {
-		var s = window.localStorage;
+		var s = js.Browser.window.localStorage;
 		s.getItem("");
 		return s;
 	} catch( e ) {
 		return null;
 	}
-};
-js.Node = function() { };
-if(Array.prototype.map == null) Array.prototype.map = function(f) {
-	var a = [];
-	var _g1 = 0;
-	var _g = this.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		a[i] = f(this[i]);
-	}
-	return a;
-};
+}
+js.Node = function() { }
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -160,7 +147,19 @@ if(version[0] > 0 || version[1] >= 9) {
 Main.$name = "boyan.jquery.layout";
 Main.dependencies = ["boyan.jquery.ui"];
 Splitpane.components = new Array();
+js.Browser.window = typeof window != "undefined" ? window : null;
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-})(typeof window != "undefined" ? window : exports);
+function $hxExpose(src, path) {
+	var o = typeof window != "undefined" ? window : exports;
+	var parts = path.split(".");
+	for(var ii = 0; ii < parts.length-1; ++ii) {
+		var p = parts[ii];
+		if(typeof o[p] == "undefined") o[p] = {};
+		o = o[p];
+	}
+	o[parts[parts.length-1]] = src;
+}
+})();
 
-//# sourceMappingURL=Main.js.map
+//@ sourceMappingURL=Main.js.map

@@ -1,4 +1,5 @@
 package ;
+import haxe.Serializer;
 
 /**
  * ...
@@ -7,7 +8,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.project.openfl";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree", "boyan.bootstrap.project-options"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -62,7 +63,30 @@ class Main
 			params.push(data.projectCompany);
 		}
 		
-		CreateOpenFLProject.createOpenFLProject(params);
+		CreateOpenFLProject.createOpenFLProject(params, function ()
+		{
+			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
+			ProjectAccess.currentProject.path = pathToProject;
+			
+			var project:Project = new Project();
+			project.name = data.projectName;
+			project.projectPackage = data.projectPackage;
+			project.company = data.projectCompany;
+			project.license = data.projectLicense;
+			project.url = data.projectURL;
+			project.type = Project.OPENFL;
+			//project.target = target;
+			
+			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+			{
+				FileTree.load(project.name, pathToProject);
+			}
+			);
+			
+			TabManager.openFileInNewTab(js.Node.path.join(path, "Source", "Main.hx"));
+		}
+		);
 	}
 	
 	public static function createOpenFLExtension(data:Dynamic):Void

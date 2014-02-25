@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/events/hotkey/src/Hotkeys.hx","/usr/lib/haxe/lib/HIDE/git/plugins/boyan/events/hotkey/src/Main.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/events/hotkey/src/Hotkeys.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/events/hotkey/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
-"mappings":";;kBAqBc,PAEb;CAAgC,AAAW,WAC3C;EACC;EAAe;EAAf,CAAe,FACf;GADA,AAAe,FAAf;;GAEC,DAAI,EAAkB,AAAa,AAAe,AAAa,AAAgB,AAAc,AAAc,HAE1G;;EAIF,UAAM;;;oBAKM,uBAEb;CAAa,SAAS,HAAc,CAAY,FAAW,MAAe;;;YC5B7D,DACd;CACC;CAGA,AAA2B;;kBDEe;aCXX;;;;"
+"mappings":";;;kBAqBc,PACd;CACC,AAAgC,AAAW,WAC3C;EACC,CAAe;EAAf,CAAe,FACf;GADA,AAAe,FAAf;;GAEC,DAAI,EAAkB,AAAa,AAAe,AAAa,AAAgB,AAAc,AAAc,HAC3G,AACC;;EAIF,UAAM;;;oBAKM,uBACd;CACC,AAAa,SAAS,HAAc,CAAY,FAAW,MAAe;;;YC5B7D,DACd;CACC;CAGA,AAA2B;;;;kBDEe;aCXX;oBCoBqC;;;;;;;;;;;;;;"
 }

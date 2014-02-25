@@ -1,35 +1,33 @@
 (function () { "use strict";
-var Main = function() { };
+var Main = function() { }
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		ProjectOptions.create();
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
 	HIDE.loadCSS(Main.$name,["bin/includes/css/project-options.css"]);
-};
-var ProjectOptions = function() { };
+}
+var ProjectOptions = function() { }
 ProjectOptions.create = function() {
-	var page;
-	var _this = window.document;
-	page = _this.createElement("div");
-	var p;
-	var _this = window.document;
-	p = _this.createElement("p");
+	var page = js.Browser.document.createElement("div");
+	var p = js.Browser.document.createElement("p");
 	p.id = "project-options-text";
 	p.innerText = "Project arguments:";
 	page.appendChild(p);
-	var _this = window.document;
-	ProjectOptions.textarea = _this.createElement("textarea");
+	ProjectOptions.textarea = js.Browser.document.createElement("textarea");
 	ProjectOptions.textarea.id = "project-options-textarea";
 	ProjectOptions.textarea.onchange = function(e) {
 		ProjectAccess.currentProject.args = ProjectOptions.textarea.value.split("\n");
 	};
 	page.appendChild(ProjectOptions.textarea);
 	Splitpane.components[3].appendChild(page);
-};
+}
+var js = {}
+js.Browser = function() { }
 Main.$name = "boyan.bootstrap.project-options";
 Main.dependencies = ["boyan.bootstrap.script","boyan.jquery.layout","boyan.management.project-access"];
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
 
-//# sourceMappingURL=Main.js.map
+//@ sourceMappingURL=Main.js.map

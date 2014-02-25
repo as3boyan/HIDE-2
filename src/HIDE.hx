@@ -31,7 +31,7 @@ typedef PluginDependenciesData =
 	public static var plugins:Array<String> = new Array();
 	public static var pathToPlugins:StringMap<String> = new StringMap();
 	//"boyan.bootstrap.script"
-	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.split-pane", "boyan.bootstrap.themes.topcoat"];
+	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.split-pane", "boyan.topcoat.script"];
 	//public static var conflictingPlugins:Array<String> = [];
 	
 	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
@@ -39,6 +39,8 @@ typedef PluginDependenciesData =
 	public static var pluginsMTime:StringMap<Int> = new StringMap();
 	
 	public static var windows:Array<Dynamic> = [];
+	
+	public static var firstRun:Bool = false;
 	
 	//Loads JS scripts in specified order and calls onLoad function when last item of urls array was loaded
 	public static function loadJS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
@@ -277,18 +279,23 @@ typedef PluginDependenciesData =
 			}
 			);
 			
-			var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
-			
-			var data:String = Serializer.run(HIDE.pluginsMTime);
-			
-			js.Node.fs.writeFile(pathToPluginsMTime, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-			{
-				
-			}
-			);
+			savePluginsMTime();
 			
 			Main.window.show();
 		}
+	}
+	
+	public static function savePluginsMTime() 
+	{
+		var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
+			
+		var data:String = Serializer.run(HIDE.pluginsMTime);
+		
+		js.Node.fs.writeFile(pathToPluginsMTime, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+		{
+			
+		}
+		);
 	}
 	
 	//Private function which loads JS scripts in strict order

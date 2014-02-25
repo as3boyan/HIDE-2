@@ -1,2 +1,1 @@
-start haxelib run node-webkit bin
-pause
+start ../node-webkit-v0.9.1-win-ia32/nw.exe bin

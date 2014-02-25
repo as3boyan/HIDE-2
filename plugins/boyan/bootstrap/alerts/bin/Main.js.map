@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/bootstrap/alerts/src/Alerts.hx","/usr/lib/haxe/lib/HIDE/git/plugins/boyan/bootstrap/alerts/src/Main.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/alerts/src/Alerts.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/alerts/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
-"mappings":";;mBAac,JACd;CACsB;;;CACrB,EAAgB;CAEW;;;CAC3B,EAAc;CACd,EAAmB;CACnB,AAAoB,AAAgB;CACpC,AAAoB,AAAe;CACnC,EAAmB;CAEnB,AAAgB;CAChB,AAAgB,AAAgC;CAEhD,AAAkC;;;YChBrB,DAGb;CAA2B;;aAPI;;;;"
+"mappings":";;;mBAac,JACd;CACC,EAAqB;CACrB,EAAgB;CAEhB,EAA2B;CAC3B,EAAc;CACd,EAAmB;CACnB,AAAoB,AAAgB;CACpC,AAAoB,AAAe;CACnC,EAAmB;CAEnB,AAAgB;CAChB,AAAgB,AAAgC;CAEhD,AAAkC;;;YChBrB,DACd;CAEC,AAA2B;;;;aAPI;sBCqBsC;;;;;;;;;;;;;;"
 }

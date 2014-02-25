@@ -1,11 +1,11 @@
 (function () { "use strict";
-var HxOverrides = function() { };
+var HxOverrides = function() { }
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-};
+}
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -14,8 +14,8 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-};
-var Main = function() { };
+}
+var Main = function() { }
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
@@ -23,11 +23,11 @@ Main.main = function() {
 		BootstrapMenu.getMenu("Project").addMenuItem("Build",2,Main.buildProject,"F8",119);
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
-};
+}
 Main.runProject = function() {
 	Main.buildProject(function() {
-		var _g = ProjectAccess.currentProject.type;
-		switch(_g) {
+		var _g = ProjectAccess;
+		switch(_g.currentProject.type) {
 		case 0:
 			js.Node.require("nw.gui").Shell.openItem(js.Node.require("path").join(ProjectAccess.currentProject.path + "/bin/",ProjectAccess.currentProject.name + ".swf"));
 			break;
@@ -36,26 +36,25 @@ Main.runProject = function() {
 		default:
 		}
 	});
-};
+}
 Main.buildProject = function(onComplete) {
-	var projectOptions;
-	projectOptions = js.Boot.__cast(window.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+	var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 	var args = projectOptions.value.split("\n");
 	HaxeClient.buildProject("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(args),onComplete);
-};
-var Std = function() { };
+}
+var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-};
+}
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-};
-var js = {};
-js.Boot = function() { };
+}
+var js = {}
+js.Boot = function() { }
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -69,8 +68,7 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2;
-				var _g = o.length;
+				var _g1 = 2, _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -103,7 +101,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) {
+		for( var k in o ) { ;
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -123,14 +121,13 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-};
+}
 js.Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0;
-		var _g = intf.length;
+		var _g1 = 0, _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
@@ -138,7 +135,7 @@ js.Boot.__interfLoop = function(cc,cl) {
 		}
 	}
 	return js.Boot.__interfLoop(cc.__super__,cl);
-};
+}
 js.Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
@@ -166,11 +163,13 @@ js.Boot.__instanceof = function(o,cl) {
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-};
+}
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-};
-js.Node = function() { };
+}
+js.Browser = function() { }
+js.Browser.__name__ = true;
+js.Node = function() { }
 js.Node.__name__ = true;
 String.prototype.__class__ = String;
 String.__name__ = true;
@@ -184,16 +183,6 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
-if(Array.prototype.map == null) Array.prototype.map = function(f) {
-	var a = [];
-	var _g1 = 0;
-	var _g = this.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		a[i] = f(this[i]);
-	}
-	return a;
-};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -212,8 +201,9 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.run-project";
-Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access"];
+Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access","boyan.bootstrap.menu"];
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
 
-//# sourceMappingURL=Main.js.map
+//@ sourceMappingURL=Main.js.map

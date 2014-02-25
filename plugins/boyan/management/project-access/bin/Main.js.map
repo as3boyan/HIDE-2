@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/management/project-access/src/Main.hx","/usr/lib/haxe/lib/HIDE/git/plugins/boyan/management/project-access/src/Project.hx","/usr/lib/haxe/lib/HIDE/git/plugins/boyan/management/project-access/src/ProjectAccess.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/management/project-access/src/Main.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/management/project-access/src/Project.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/management/project-access/src/ProjectAccess.hx"],
 "names":[],
-"mappings":";;YAac,DAEb;CAAuC,AAAM,AAAc,UAG1D;CAA2B;;;sBCmBtB,XACP;CACC,EAAa;CACb,EAAO;;;aD/BwB;oBACe;eCFX;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;+BCTO;;;;"
+"mappings":";;YAac,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EAEC,DAA2B;;;UCmBtB,CACP;CACC,EAAa;CACb,EAAO;;;;;aD/BwB;oBACe;eCFX;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;+BCTO;;;;;;;;;;;;;;"
 }

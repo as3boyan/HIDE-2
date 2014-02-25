@@ -196,7 +196,7 @@ import js.html.UListElement;
 		{
 			Timer.delay(function ()
 			{
-					closeOthers(path);
+				closeOthers(path);
 			}
 			,30);
 		}
@@ -230,24 +230,37 @@ import js.html.UListElement;
 			{
 				editor.getWrapperElement().style.display = "none";
 			}
+			
+			curDoc = null;
 		}
 	}
 	
 	public static function closeActiveTab():Void
 	{
-		var n = Lambda.indexOf(docs, curDoc);
-		docs.splice(n, 1);
-		cast(tabs.children.item(n), Element).remove();
+		var n = -1;
 		
-		if (docs.length > 0)
+		if (curDoc != null)
 		{
-			showPreviousTab();
-		}
-		else 
+			n = Lambda.indexOf(docs, curDoc);
+		}	
+		
+		if (n != -1)
 		{
-			if (editor != null)
+			docs.splice(n, 1);
+			cast(tabs.children.item(n), Element).remove();
+			
+			if (docs.length > 0)
 			{
-				editor.getWrapperElement().style.display = "none";
+				showPreviousTab();
+			}
+			else 
+			{
+				if (editor != null)
+				{
+					editor.getWrapperElement().style.display = "none";
+				}
+				
+				curDoc = null;
 			}
 		}
 	}
@@ -358,5 +371,50 @@ import js.html.UListElement;
 		}
 		
 		return path;
+	}
+	
+	public static function saveActiveFile(?onComplete:Dynamic):Void
+	{
+		if (curDoc != null)
+		{			
+			js.Node.fs.writeFile(curDoc.path, curDoc.doc.cm.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+			{
+				if (onComplete != null)
+				{
+					onComplete();
+				}
+			}
+			);	
+		}	
+	}
+	
+	public static function saveActiveFileAs():Void
+	{
+		FileDialog.saveFile(function (path:String):Void
+		{
+			js.Node.fs.writeFile(path, curDoc.doc.cm.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+			{
+				curDoc.path = path;
+			}
+			);	
+		}
+		, curDoc.name);
+	}
+	
+	public static function saveAll():Void
+	{
+		for (doc in docs)
+		{
+			if (doc != null)
+			{
+				trace(doc.path + " file saved.");
+				
+				js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+				{
+					
+				}
+				);
+			}
+		}
 	}
 }

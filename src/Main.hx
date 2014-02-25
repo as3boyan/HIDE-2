@@ -66,6 +66,10 @@ class Main
 			var data:String = js.Node.fs.readFileSync(pathToPluginsMTime, js.Node.NodeC.UTF8);
 			HIDE.pluginsMTime = Unserializer.run(data);
 		}
+		else 
+		{
+			HIDE.firstRun = true;
+		}
 		
 		readDir(pathToPlugins, "", function (path:String, pathToPlugin:String):Void
 		{
@@ -77,6 +81,11 @@ class Main
 			HIDE.pathToPlugins.set(pluginName, relativePathToPlugin);
 			
 			var absolutePathToPlugin:String = js.Node.require("path").resolve(relativePathToPlugin);
+			
+			if (HIDE.firstRun)
+			{
+				HIDE.pluginsMTime.set(pluginName, Std.parseInt(Std.string(Date.now().getTime())));
+			}
 			
 			if (compile && (!HIDE.pluginsMTime.exists(pluginName) || HIDE.pluginsMTime.get(pluginName) < walk(absolutePathToPlugin)))
 			{				
@@ -103,6 +112,8 @@ class Main
 					
 					window.show();
 				}
+				
+				HIDE.savePluginsMTime();
 			}
 		}
 		, 10000);
@@ -113,6 +124,7 @@ class Main
 		var pathToItem:String;
 		var time:Int = -1;
 		var mtime:Int;
+		var extension:String;
 		
 		for (item in js.Node.fs.readdirSync(pathToPlugin))
 		{
@@ -120,7 +132,9 @@ class Main
 			
 			var stat = js.Node.fs.statSync(pathToItem);
 			
-			if (stat.isFile() && js.Node.path.extname(pathToItem) == ".hx")
+			extension = js.Node.path.extname(pathToItem);
+			
+			if (stat.isFile() && (extension == ".hx" || extension == ".hxml"))
 			{
 				mtime = stat.mtime.getTime();
 				

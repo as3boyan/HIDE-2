@@ -1,12 +1,13 @@
 -cp src
 -cp ../../../../externs/nodejs-std/src
+-cp ../../../../externs/jQueryExtern
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/jquery/split-pane
 -cp ../../../../externs/plugins/boyan/codemirror
 -cp ../../../../externs/plugins/boyan/bootstrap/file-tree
 -cp ../../../../externs/plugins/boyan/window/file-dialog
 -cp ../../../../externs/plugins/boyan/events/hotkey
--lib jQueryExtern
+-cp ../../../../externs/plugins/boyan/bootstrap/menu
 -main Main
 -js bin/Main.js
 -dce full

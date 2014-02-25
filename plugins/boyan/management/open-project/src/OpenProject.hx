@@ -42,6 +42,7 @@ class OpenProject
 					Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 					
 					ProjectAccess.currentProject = Unserializer.run(data);
+					trace(pathToProject);
 					ProjectAccess.currentProject.path = pathToProject;
 					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
@@ -60,18 +61,19 @@ class OpenProject
 					
 				}
 				);
-			default:
-				
+			default:				
 				var extension:String = js.Node.path.extname(filename);
 		
 				switch (extension) 
 				{
-					case ".hxml":
-					
-					case ".hx":
-						
+					//case ".hxml":
+					//
+					//case ".hx":
+						//
+					//case ".xml":
+						//
 					default:
-						
+						TabManager.openFileInNewTab(path);
 				}
 		}
 	}

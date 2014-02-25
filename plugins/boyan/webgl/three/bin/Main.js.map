@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["/usr/lib/haxe/lib/HIDE/git/plugins/boyan/webgl/three/src/Main.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/webgl/three/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAE1D;CAAsB,AAAoB,AAAQ,AAAG;CAA8B,AAAM,AAAkB,SAAS;;;CAKrH,AAA2B;;aAbI;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC,DAAsB,AAAoB,AAAQ,AAAG;CAA8B,AAAM,AAAkB,SAAS;;;CAKrH,AAA2B;;aAbI;oBACe,nBAAC;;;;"
 }

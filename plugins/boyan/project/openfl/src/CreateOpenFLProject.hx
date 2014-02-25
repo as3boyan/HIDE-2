@@ -12,45 +12,22 @@ class CreateOpenFLProject
 		
 	}
 	
-	public static function createOpenFLProject(params:Array<String>):Void
+	public static function createOpenFLProject(params:Array<String>, ?onComplete:Dynamic):Void
 	{
-		var OpenFLTools = js.Node.childProcess.spawn("haxelib", ["run", "openfl", "create"].concat(params));
-										
-		var log:String = "";
-		
-		OpenFLTools.stderr.setEncoding('utf8');
-		OpenFLTools.stderr.on('data', function (data) 
+		var OpenFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxelib", "run", "openfl", "create"].concat(params).join(" "), { }, function (error, stdout, stderr) 
 		{
-			var str:String = data.toString();
-			log += str;
+			trace(stderr);
 		}
 		);
 		
-		OpenFLTools.on('close', function (code:Int) 
+		OpenFLTools.on("close", function (code:Int)
 		{
 			trace("exit code: " + Std.string(code));
 			
-			trace(log);
-			
-			//var path:String = js.Node.path.join(projectLocation.value, projectName.value);
-			
-			//if (list.value != projectName.value)
-			//{                                
-				//js.Node.fs.rename(Utils.path.join(projectLocation.value, list.value), path, function (error):Void
-				//{
-					//if (error != null)
-					//{
-						//trace(error);
-					//}
-					//
-					//TabsManager.openFileInNewTab(Utils.path.join(path, "Source", "Main.hx"));
-				//}
-				//);
-			//}
-			//else
-			//{
-				//TabsManager.openFileInNewTab(Utils.path.join(path, "Source", "Main.hx"));
-			//}
+			if (onComplete != null) 
+			{
+				onComplete();
+			}
 		}
 		);
 	}
