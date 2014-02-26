@@ -72,7 +72,6 @@ Main.main = function() {
 		NewProjectDialog.getCategory("Haxe").addItem("C++ Project",Main.createCppProject);
 		NewProjectDialog.getCategory("Haxe").addItem("Java Project",Main.createJavaProject);
 		NewProjectDialog.getCategory("Haxe").addItem("C# Project",Main.createCSharpProject);
-		NewProjectDialog.getCategory("Haxe").select();
 		HIDE.readFile(Main.$name,"templates/Main.hx",function(data) {
 			Main.code = data;
 			HIDE.notifyLoadingComplete(Main.$name);

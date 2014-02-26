@@ -1,8 +1,9 @@
 (function () { "use strict";
-var Category = function(_element) {
+var Category = function(_name,_element) {
 	this.element = _element;
 	this.subcategories = new haxe.ds.StringMap();
 	this.items = new Array();
+	this.name = _name;
 };
 $hxExpose(Category, "Category");
 Category.__name__ = true;
@@ -23,8 +24,8 @@ Category.prototype = {
 		}
 		return currentItem;
 	}
-	,select: function() {
-		NewProjectDialog.updateListItems(this);
+	,select: function(item) {
+		NewProjectDialog.updateListItems(this,item);
 	}
 	,getItems: function() {
 		var itemNames = new Array();
@@ -40,6 +41,7 @@ Category.prototype = {
 		if(nameLocked == null) nameLocked = false;
 		if(showCreateDirectoryOption == null) showCreateDirectoryOption = true;
 		this.items.push(new Item(name,createProjectFunction,showCreateDirectoryOption,nameLocked));
+		NewProjectDialog.loadProjectCategory();
 	}
 	,getCategory: function(name) {
 		if(!this.subcategories.exists(name)) NewProjectDialog.createSubcategory(name,this);
@@ -82,6 +84,16 @@ $hxExpose(Item, "Item");
 Item.__name__ = true;
 Item.prototype = {
 	__class__: Item
+}
+var Lambda = function() { }
+Lambda.__name__ = true;
+Lambda.has = function(it,elt) {
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(x == elt) return true;
+	}
+	return false;
 }
 var Main = function() { }
 Main.__name__ = true;
@@ -212,6 +224,7 @@ NewProjectDialog.create = function() {
 	NewProjectDialog.loadCheckboxState("License");
 	NewProjectDialog.loadCheckboxState("URL");
 	NewProjectDialog.loadCheckboxState("CreateDirectory");
+	NewProjectDialog.lastProjectCategoryPath = js.Browser.getLocalStorage().getItem("lastProject");
 }
 NewProjectDialog.showPage1 = function() {
 	new $(NewProjectDialog.page1).show(300);
@@ -235,6 +248,7 @@ NewProjectDialog.createProject = function() {
 	if(NewProjectDialog.projectLocation.value != "" && NewProjectDialog.projectName.value != "") js.Node.require("fs").exists(NewProjectDialog.projectLocation.value,function(exists) {
 		if(exists) {
 			var item = NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value);
+			NewProjectDialog.saveProjectCategory();
 			if(item.createProjectFunction != null) {
 				var projectPackage = NewProjectDialog.getCheckboxData("Package");
 				var projectCompany = NewProjectDialog.getCheckboxData("Company");
@@ -254,6 +268,17 @@ NewProjectDialog.createProject = function() {
 			NewProjectDialog.hide();
 		}
 	});
+}
+NewProjectDialog.saveProjectCategory = function() {
+	var fullCategoryPath = "";
+	var root = false;
+	var parentCategory = NewProjectDialog.selectedCategory;
+	while(!root) {
+		fullCategoryPath = parentCategory.name + "/" + fullCategoryPath;
+		if(parentCategory.parent != null) parentCategory = parentCategory.parent; else root = true;
+	}
+	fullCategoryPath += NewProjectDialog.list.value;
+	js.Browser.getLocalStorage().setItem("lastProject",fullCategoryPath);
 }
 NewProjectDialog.generateProjectName = function(onGenerated) {
 	if(NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).nameLocked == false) {
@@ -296,6 +321,32 @@ NewProjectDialog.getCategory = function(name,position) {
 		NewProjectDialog.categories.set(name,category);
 	}
 	return category;
+}
+NewProjectDialog.loadProjectCategory = function() {
+	if(NewProjectDialog.lastProjectCategoryPath != null) {
+		var categoryNames = NewProjectDialog.lastProjectCategoryPath.split("/");
+		if(NewProjectDialog.categories.exists(categoryNames[0])) {
+			var category = NewProjectDialog.categories.get(categoryNames[0]);
+			if(categoryNames.length > 2) {
+				var _g1 = 1, _g = categoryNames.length - 1;
+				while(_g1 < _g) {
+					var i = _g1++;
+					if(category.subcategories.exists(categoryNames[i])) {
+						category = category.subcategories.get(categoryNames[i]);
+						if(Lambda.has(category.getItems(),categoryNames[categoryNames.length - 1])) {
+							category.select(categoryNames[categoryNames.length - 1]);
+							NewProjectDialog.lastProjectCategoryPath = null;
+							new $(category.element).children("ul.tree").show(300);
+						}
+					} else break;
+				}
+			} else if(Lambda.has(category.getItems(),categoryNames[categoryNames.length - 1])) {
+				category.select(categoryNames[categoryNames.length - 1]);
+				NewProjectDialog.lastProjectCategoryPath = null;
+				new $(category.element).children("ul.tree").show(300);
+			}
+		}
+	}
 }
 NewProjectDialog.addCategoryToDocument = function(category) {
 	if(category.position != null && NewProjectDialog.categoriesArray.length > 0 && NewProjectDialog.tree.childNodes.length > 0) {
@@ -485,7 +536,7 @@ NewProjectDialog.createTextWithCheckbox = function(_page2,_text) {
 }
 NewProjectDialog.createCategory = function(text) {
 	var li = js.Browser.document.createElement("li");
-	var category = new Category(li);
+	var category = new Category(text,li);
 	var a = js.Browser.document.createElement("a");
 	a.href = "#";
 	a.addEventListener("click",function(e) {
@@ -522,12 +573,13 @@ NewProjectDialog.createSubcategory = function(text,category) {
 		new $(ul).show(300);
 	};
 	var subcategory = NewProjectDialog.createCategory(text);
+	subcategory.parent = category;
 	category.subcategories.set(text,subcategory);
 }
-NewProjectDialog.updateListItems = function(category) {
+NewProjectDialog.updateListItems = function(category,item) {
 	NewProjectDialog.selectedCategory = category;
 	new $(NewProjectDialog.list).children().remove();
-	NewProjectDialog.setListItems(NewProjectDialog.list,category.getItems());
+	NewProjectDialog.setListItems(NewProjectDialog.list,category.getItems(),item);
 	NewProjectDialog.checkSelectedOptions();
 }
 NewProjectDialog.createCategoryWithSubcategories = function(text,subcategories) {
@@ -574,7 +626,7 @@ NewProjectDialog.checkSelectedOptions = function() {
 NewProjectDialog.updateDescription = function(category,selectedOption) {
 	NewProjectDialog.description.textContent = selectedOption;
 }
-NewProjectDialog.setListItems = function(list,items) {
+NewProjectDialog.setListItems = function(list,items,selectedItem) {
 	var _g = 0;
 	while(_g < items.length) {
 		var item = items[_g];
@@ -733,6 +785,9 @@ js.Browser.getLocalStorage = function() {
 }
 js.Node = function() { }
 js.Node.__name__ = true;
+function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
+var $_, $fid = 0;
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.prototype.__class__ = Array;

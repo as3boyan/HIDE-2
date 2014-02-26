@@ -47,6 +47,7 @@ import js.html.UListElement;
 	private static var tree:UListElement;
 	
 	private static var categoriesArray:Array<Category> = new Array();
+	static private var lastProjectCategoryPath:String;
 	
 	public static function create():Void
 	{
@@ -185,6 +186,8 @@ import js.html.UListElement;
 		loadCheckboxState("License");
 		loadCheckboxState("URL");
 		loadCheckboxState("CreateDirectory");
+		
+		lastProjectCategoryPath = Browser.getLocalStorage().getItem("lastProject");
 	}
 	
 	private static function showPage1() 
@@ -228,6 +231,8 @@ import js.html.UListElement;
 					//js.Node.process.chdir(projectLocation.value);
 					
 					var item:Item = selectedCategory.getItem(list.value);
+					
+					saveProjectCategory();
 					
 					if (item.createProjectFunction != null)
 					{
@@ -323,6 +328,32 @@ import js.html.UListElement;
 		}
 	}
 	
+	static private function saveProjectCategory():Void
+	{
+		var fullCategoryPath:String = "";
+		
+		var root:Bool = false;
+		
+		var parentCategory = selectedCategory;
+		
+		while (!root)
+		{
+			fullCategoryPath = parentCategory.name + "/" + fullCategoryPath;
+			if (parentCategory.parent != null)
+			{
+				parentCategory = parentCategory.parent;
+			}
+			else 
+			{
+				root = true;
+			}
+		}
+		
+		fullCategoryPath += list.value;
+		
+		Browser.getLocalStorage().setItem("lastProject", fullCategoryPath);
+	}
+	
 	private static function generateProjectName(?onGenerated:Dynamic):Void
 	{		
 		if (selectedCategory.getItem(list.value).nameLocked == false)
@@ -413,6 +444,63 @@ import js.html.UListElement;
 		}
 		
 		return category;
+	}
+	
+	public static function loadProjectCategory():Void
+	{
+		if (lastProjectCategoryPath != null)
+		{			
+			var categoryNames:Array<String> = lastProjectCategoryPath.split("/");
+			
+				if (categories.exists(categoryNames[0]))
+				{
+					var category:Category = categories.get(categoryNames[0]);
+					
+					if (categoryNames.length > 2)
+					{
+						for (i in 1...categoryNames.length - 1)
+						{							
+							if (category.subcategories.exists(categoryNames[i]))
+							{
+								category = category.subcategories.get(categoryNames[i]);
+								
+								if (Lambda.has(category.getItems(), categoryNames[categoryNames.length - 1]))
+								{
+									category.select(categoryNames[categoryNames.length - 1]);
+									lastProjectCategoryPath = null;
+									
+									new JQuery(category.element).children('ul.tree').show(300);
+								}
+							}
+							else 
+							{
+								break;
+							}
+						}
+					}
+					else 
+					{
+						if (Lambda.has(category.getItems(), categoryNames[categoryNames.length - 1]))
+						{
+							category.select(categoryNames[categoryNames.length - 1]);
+							lastProjectCategoryPath = null;
+							
+							new JQuery(category.element).children('ul.tree').show(300);
+						}
+					}
+				}
+		}
+		
+		//for (category in categories.iterator())
+					//{
+						//if (Lambda.count(category.subcategories) > 0)
+						//{
+							//
+						//}
+						//trace(category);
+					//}
+					
+					//trace(list.value);
 	}
 	
 	public static function addCategoryToDocument(category:Category):Void
@@ -732,7 +820,7 @@ import js.html.UListElement;
 	{		
 		var li:LIElement = Browser.document.createLIElement();
 		
-		var category:Category = new Category(li);
+		var category:Category = new Category(text, li);
 			
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.href = "#";
@@ -786,25 +874,26 @@ import js.html.UListElement;
 		};
 		
 		var subcategory:Category = createCategory(text);
+		subcategory.parent = category;
 		category.subcategories.set(text, subcategory);
 	}
 	
-	public static function updateListItems(category:Category):Void
+	public static function updateListItems(category:Category, ?item:String):Void
 	{		
 		selectedCategory = category;
 		
 		new JQuery(list).children().remove();
 		
-		setListItems(list, category.getItems());
+		setListItems(list, category.getItems(), item);
 		
 		checkSelectedOptions();
 	}
 	
 	public static function createCategoryWithSubcategories(text:String, subcategories:Array<String>):LIElement
 	{
-		var li:LIElement  = Browser.document.createLIElement();
+		var li:LIElement = Browser.document.createLIElement();
 		
-		var category:Category= createCategory(text);
+		var category:Category = createCategory(text);
 		
 		var a:AnchorElement = cast(li.getElementsByTagName("a")[0], AnchorElement);
 		a.className = "tree-toggler nav-header";
@@ -885,14 +974,23 @@ import js.html.UListElement;
 		description.textContent = selectedOption;
 	}
 	
-	private static function setListItems(list:SelectElement, items:Array<String>):Void
+	private static function setListItems(list:SelectElement, items:Array<String>, ?selectedItem:String):Void
 	{
 		for (item in items)
 		{
 			list.appendChild(createListItem(item));
+			
+			//if (items[i] == selectedItem)
+			//{
+				//list.selectedIndex = i;
+			//}
 		}
 		
-		list.selectedIndex = 0;
+		//if (selectedItem == null)
+		//{
+			list.selectedIndex = 0;
+		//}
+		
 		checkSelectedOptions();
 	}
 	

@@ -27,7 +27,7 @@ class Main
 			NewProjectDialog.getCategory("Haxe").addItem("Java Project", createJavaProject);
 			NewProjectDialog.getCategory("Haxe").addItem("C# Project", createCSharpProject);
 			
-			NewProjectDialog.getCategory("Haxe").select();
+			//NewProjectDialog.getCategory("Haxe").select();
 			
 			HIDE.readFile(name, "templates/Main.hx", function (data:String):Void
 			{
