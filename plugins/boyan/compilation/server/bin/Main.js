@@ -2,20 +2,11 @@
 var HaxeServer = function() { }
 $hxExpose(HaxeServer, "HaxeServer");
 HaxeServer.start = function() {
-	HaxeServer.haxeCompletionServer = js.Node.require("child_process").spawn("haxe",["--wait","6001"]);
-	HaxeServer.haxeCompletionServer.stdout.setEncoding("utf8");
-	HaxeServer.haxeCompletionServer.stdout.on("data",function(data) {
-		console.log("stdout: " + data);
-	});
-	HaxeServer.haxeCompletionServer.stderr.setEncoding("utf8");
-	HaxeServer.haxeCompletionServer.stderr.on("data",function(data) {
-		var str = data.toString();
-		var lines = str.split("\n");
-		console.log("ERROR: " + lines.join(""));
-		HaxeServer.processStarted = false;
-	});
-	HaxeServer.haxeCompletionServer.on("close",function(code) {
-		if(code != null) console.log("haxeCompletionServer process exit code " + code);
+	HaxeServer.haxeCompletionServer = js.Node.require("child_process").exec(["haxe","--wait","6001"].join(" "),{ },function(error,stdout,stderr) {
+		console.log(stdout);
+		console.log(stderr);
+		if(error.code != 0) HaxeServer.processStarted = false;
+		console.log("haxeCompletionServer process exit code " + error.code);
 	});
 	js.Node.require("nw.gui").Window.get().on("close",function(e) {
 		HaxeServer.terminate();

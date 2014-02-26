@@ -296,6 +296,7 @@ NewProjectDialog.generateProjectName = function(onGenerated) {
 }
 NewProjectDialog.show = function() {
 	if(NewProjectDialog.page1.style.display == "none") NewProjectDialog.backButton.click();
+	if(NewProjectDialog.selectedCategory == null && NewProjectDialog.categoriesArray.length > 0) NewProjectDialog.categoriesArray[0].select(); else NewProjectDialog.selectedCategory.select(NewProjectDialog.list.value);
 	new $(NewProjectDialog.modal).modal("show");
 }
 NewProjectDialog.hide = function() {

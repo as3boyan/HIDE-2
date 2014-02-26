@@ -68,22 +68,24 @@ Main.main = function() {
 		var samples = ["ActuateExample","AddingAnimation","AddingText","DisplayingABitmap","HandlingKeyboardEvents","HandlingMouseEvent","HerokuShaders","PiratePig","PlayingSound","SimpleBox2D","SimpleOpenGLView"];
 		var _g = 0;
 		while(_g < samples.length) {
-			var sample = [samples[_g]];
+			var sample = samples[_g];
 			++_g;
-			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem(sample[0],(function(sample) {
-				return function(data) {
-					Main.createOpenFLProject([sample[0]]);
-				};
-			})(sample),false,true);
+			NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem(sample,function(data) {
+				Main.createOpenFLProject(data,true);
+			},false,true);
 		}
 	});
 	HIDE.notifyLoadingComplete(Main.$name);
 }
-Main.createOpenFLProject = function(data) {
-	var str = "";
-	if(data.projectPackage != "") str = Std.string(data.projectPackage) + ".";
-	var params = ["project","\"" + str + Std.string(data.projectName) + "\""];
-	if(data.projectCompany != "") params.push("\"" + Std.string(data.projectCompany) + "\"");
+Main.createOpenFLProject = function(data,sample) {
+	if(sample == null) sample = false;
+	var params;
+	if(!sample) {
+		var str = "";
+		if(data.projectPackage != "") str = Std.string(data.projectPackage) + ".";
+		params = ["project","\"" + str + Std.string(data.projectName) + "\""];
+		if(data.projectCompany != "") params.push("\"" + Std.string(data.projectCompany) + "\"");
+	} else params = [data.projectName];
 	CreateOpenFLProject.createOpenFLProject(params,data.projectLocation,function() {
 		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
 		ProjectAccess.currentProject.path = pathToProject;

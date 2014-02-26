@@ -103,21 +103,23 @@ OpenProject.parseProject = function(path) {
 	case "project.hide":
 		js.Node.require("fs").readFile(path,"utf8",function(error,data) {
 			var pathToProject = js.Node.require("path").dirname(path);
-			js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
 			ProjectAccess.currentProject = haxe.Unserializer.run(data);
 			console.log(pathToProject);
 			ProjectAccess.currentProject.path = pathToProject;
 			FileTree.load(ProjectAccess.currentProject.name,pathToProject);
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			textarea.value = ProjectAccess.currentProject.args.join("\n");
+			js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
 		});
 		break;
 	case "project.xml":case "application.xml":
+		var pathToProject = js.Node.require("path").dirname(path);
 		var project = new Project();
 		project.type = 1;
 		ProjectAccess.currentProject = project;
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 		});
+		js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
 		break;
 	default:
 		var extension = js.Node.require("path").extname(filename);

@@ -401,6 +401,15 @@ import js.html.UListElement;
 			backButton.click();
 		}
 		
+		if (selectedCategory == null && categoriesArray.length > 0)
+		{
+			categoriesArray[0].select();
+		}
+		else 
+		{
+			selectedCategory.select(list.value);
+		}
+		
 		untyped new JQuery(modal).modal("show");
 	}
 	

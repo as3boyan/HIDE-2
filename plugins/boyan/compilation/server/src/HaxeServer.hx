@@ -11,26 +11,19 @@ package ;
 
 	public static function start():Void
 	{
-		haxeCompletionServer = js.Node.require('child_process').spawn("haxe", ["--wait", "6001"]);
-		
-		haxeCompletionServer.stdout.setEncoding('utf8');
-		haxeCompletionServer.stdout.on('data', function (data) {
-		trace("stdout: " + data); } );
-		
-		haxeCompletionServer.stderr.setEncoding('utf8');
-		haxeCompletionServer.stderr.on('data', function (data) {
-				var str:String = data.toString();
-				var lines = str.split("\n");
-				trace("ERROR: " + lines.join(""));
+		haxeCompletionServer = js.Node.childProcess.exec(["haxe", "--wait", "6001"].join(" "), { }, function (error, stdout, stderr)
+		{
+			trace(stdout);
+			trace(stderr);
+			
+			if (error.code != 0)
+			{
 				processStarted = false;
-		});
-		
-		haxeCompletionServer.on('close', function (code) {
-				if (code != null)
-				{
-					trace('haxeCompletionServer process exit code ' + code);
-				}
-		});
+			}
+			
+			trace('haxeCompletionServer process exit code ' + error.code);
+		}
+		);		
 
 		js.Node.require('nw.gui').Window.get().on("close", function (e):Void
 		{

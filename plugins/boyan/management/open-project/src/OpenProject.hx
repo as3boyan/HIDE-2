@@ -39,7 +39,6 @@ class OpenProject
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
 					//js.Node.process.chdir(pathToProject);
-					Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 					
 					ProjectAccess.currentProject = Unserializer.run(data);
 					trace(pathToProject);
@@ -48,9 +47,13 @@ class OpenProject
 					
 					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					textarea.value = ProjectAccess.currentProject.args.join("\n");
+					
+					Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 				}
 				);
 			case "project.xml", "application.xml":
+				var pathToProject:String = js.Node.path.dirname(path);
+				
 				var project:Project = new Project();
 				project.type = Project.OPENFL;
 				
@@ -61,6 +64,8 @@ class OpenProject
 					
 				}
 				);
+				
+				Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 			default:				
 				var extension:String = js.Node.path.extname(filename);
 		

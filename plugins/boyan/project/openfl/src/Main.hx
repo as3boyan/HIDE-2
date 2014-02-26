@@ -36,7 +36,8 @@ class Main
 			{
 				NewProjectDialog.getCategory("OpenFL").getCategory("Samples").addItem(sample, function (data:Dynamic):Void
 				{
-					createOpenFLProject([sample]);
+					//data.projectName = sample;
+					createOpenFLProject(data, true);
 				}
 				, false, true);
 			}
@@ -47,20 +48,29 @@ class Main
 		HIDE.notifyLoadingComplete(name);
 	}
 	
-	public static function createOpenFLProject(data:Dynamic):Void
+	public static function createOpenFLProject(data:Dynamic, sample:Bool = false):Void
 	{	
-		var str:String = "";
+		var params:Array<String>;
 		
-		if (data.projectPackage != "")
+		if (!sample)
 		{
-			str = data.projectPackage + ".";
+			var str:String = "";
+		
+			if (data.projectPackage != "")
+			{
+				str = data.projectPackage + ".";
+			}
+			
+			params = ["project", "\"" + str + data.projectName + "\""];
+			
+			if (data.projectCompany != "")
+			{
+				params.push("\"" + data.projectCompany + "\"");
+			}
 		}
-		
-		var params:Array<String> = ["project", "\"" + str + data.projectName + "\""];
-		
-		if (data.projectCompany != "")
+		else 
 		{
-			params.push("\"" + data.projectCompany + "\"");
+			params = [data.projectName];
 		}
 				
 		CreateOpenFLProject.createOpenFLProject(params, data.projectLocation, function ()
