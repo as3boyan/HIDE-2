@@ -1,7 +1,9 @@
 package ;
 import js.Browser;
 import js.html.DivElement;
+import js.html.OptionElement;
 import js.html.ParagraphElement;
+import js.html.SelectElement;
 import js.html.TextAreaElement;
 
 /**
@@ -29,11 +31,27 @@ class ProjectOptions
 		};
 		page.appendChild(textarea);
 		
+		var list:SelectElement = Browser.document.createSelectElement();
+		
+		for (target in ["Flash", "JavaScript", "Neko", "PHP", "C++", "Java", "C#"])
+		{
+			list.appendChild(createListItem(target));
+		}
+		page.appendChild(list);
+		
 		Splitpane.components[3].appendChild(page);
 	}
 	
 	public static function getProjectArguments():String
 	{
 		return textarea.value;
+	}
+	
+	private static function createListItem(text:String):OptionElement
+	{		
+		var option:OptionElement = Browser.document.createOptionElement();
+		option.textContent = text;
+		option.value = text;
+		return option;
 	}
 }

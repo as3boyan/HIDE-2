@@ -20,7 +20,21 @@ ProjectOptions.create = function() {
 		ProjectAccess.currentProject.args = ProjectOptions.textarea.value.split("\n");
 	};
 	page.appendChild(ProjectOptions.textarea);
+	var list = js.Browser.document.createElement("select");
+	var _g = 0, _g1 = ["Flash","JavaScript","Neko","PHP","C++","Java","C#"];
+	while(_g < _g1.length) {
+		var target = _g1[_g];
+		++_g;
+		list.appendChild(ProjectOptions.createListItem(target));
+	}
+	page.appendChild(list);
 	Splitpane.components[3].appendChild(page);
+}
+ProjectOptions.createListItem = function(text) {
+	var option = js.Browser.document.createElement("option");
+	option.textContent = text;
+	option.value = text;
+	return option;
 }
 var js = {}
 js.Browser = function() { }

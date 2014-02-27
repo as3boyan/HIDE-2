@@ -113,17 +113,53 @@ OpenProject.parseProject = function(path) {
 		});
 		break;
 	case "project.xml":case "application.xml":
-		var pathToProject = js.Node.require("path").dirname(path);
+		var pathToProject1 = js.Node.require("path").dirname(path);
 		var project = new Project();
+		project.name = HxOverrides.substr(pathToProject1,pathToProject1.lastIndexOf(js.Node.require("path").sep),null);
 		project.type = 1;
-		ProjectAccess.currentProject = project;
-		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+		project.path = pathToProject1;
+		OpenFLTools.getParams(pathToProject1,"flash",function(stdout) {
+			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+			var args = [];
+			var currentLine;
+			var _g = 0, _g1 = stdout.split("\n");
+			while(_g < _g1.length) {
+				var line = _g1[_g];
+				++_g;
+				currentLine = StringTools.trim(line);
+				if(!StringTools.startsWith(currentLine,"#")) args.push(currentLine);
+			}
+			textarea.value = args.join("\n");
+			project.args = args;
+			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+				FileTree.load(project.name,pathToProject1);
+			});
 		});
-		js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
+		ProjectAccess.currentProject = project;
+		js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject1,"project.hide"));
 		break;
 	default:
 		var extension = js.Node.require("path").extname(filename);
-		TabManager.openFileInNewTab(path);
+		switch(extension) {
+		case ".hxml":
+			js.Node.require("fs").readFile(path,"utf8",function(error,data) {
+				var pathToProject2 = js.Node.require("path").dirname(path);
+				var project1 = new Project();
+				project1.name = HxOverrides.substr(pathToProject2,pathToProject2.lastIndexOf(js.Node.require("path").sep),null);
+				project1.type = 0;
+				project1.args = data.split("\n");
+				ProjectAccess.currentProject = project1;
+				var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+				textarea.value = project1.args.join("\n");
+				js.Node.require("fs").writeFile(path,haxe.Serializer.run(project1),"utf8",function(error1) {
+					FileTree.load(project1.name,pathToProject2);
+				});
+				js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject2,"project.hide"));
+			});
+			break;
+		default:
+			TabManager.openFileInNewTab(path);
+		}
 	}
 }
 OpenProject.searchForLastProject = function() {
@@ -193,6 +229,28 @@ StringTools.urlEncode = function(s) {
 }
 StringTools.urlDecode = function(s) {
 	return decodeURIComponent(s.split("+").join(" "));
+}
+StringTools.startsWith = function(s,start) {
+	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
+}
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	return c > 8 && c < 14 || c == 32;
+}
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) r++;
+	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
+}
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
+	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
+}
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
 }
 var ValueType = $hxClasses["ValueType"] = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
 ValueType.TNull = ["TNull",0];
@@ -1056,7 +1114,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.open-project";
-Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access","boyan.bootstrap.project-options","boyan.bootstrap.file-tree","boyan.bootstrap.tab-manager"];
+Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access","boyan.bootstrap.project-options","boyan.bootstrap.file-tree","boyan.bootstrap.tab-manager","boyan.openfl.tools"];
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";

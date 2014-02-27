@@ -88,7 +88,6 @@ Main.createOpenFLProject = function(data,sample) {
 	} else params = [data.projectName];
 	CreateOpenFLProject.createOpenFLProject(params,data.projectLocation,function() {
 		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
-		ProjectAccess.currentProject.path = pathToProject;
 		var project = new Project();
 		project.name = data.projectName;
 		project.projectPackage = data.projectPackage;
@@ -96,9 +95,26 @@ Main.createOpenFLProject = function(data,sample) {
 		project.license = data.projectLicense;
 		project.url = data.projectURL;
 		project.type = 1;
+		project.path = pathToProject;
+		js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProject);
+		ProjectAccess.currentProject = project;
 		var path = js.Node.require("path").join(pathToProject,"project.hide");
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 			FileTree.load(project.name,pathToProject);
+		});
+		OpenFLTools.getParams(project.path,"flash",function(stdout) {
+			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+			var args = [];
+			var currentLine;
+			var _g = 0, _g1 = stdout.split("\n");
+			while(_g < _g1.length) {
+				var line = _g1[_g];
+				++_g;
+				currentLine = StringTools.trim(line);
+				if(!StringTools.startsWith(currentLine,"#")) args.push(currentLine);
+			}
+			textarea.value = args.join("\n");
+			project.args = args;
 		});
 		TabManager.openFileInNewTab(js.Node.require("path").join(pathToProject,"Source","Main.hx"));
 	});
@@ -106,7 +122,6 @@ Main.createOpenFLProject = function(data,sample) {
 Main.createOpenFLExtension = function(data) {
 	CreateOpenFLProject.createOpenFLProject(["extension",data.projectName],data.projectLocation,function() {
 		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
-		ProjectAccess.currentProject.path = pathToProject;
 		var project = new Project();
 		project.name = data.projectName;
 		project.projectPackage = data.projectPackage;
@@ -114,9 +129,26 @@ Main.createOpenFLExtension = function(data) {
 		project.license = data.projectLicense;
 		project.url = data.projectURL;
 		project.type = 1;
+		project.path = pathToProject;
+		js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProject);
+		ProjectAccess.currentProject = project;
 		var path = js.Node.require("path").join(pathToProject,"project.hide");
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 			FileTree.load(project.name,pathToProject);
+		});
+		OpenFLTools.getParams(project.path,"flash",function(stdout) {
+			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+			var args = [];
+			var currentLine;
+			var _g = 0, _g1 = stdout.split("\n");
+			while(_g < _g1.length) {
+				var line = _g1[_g];
+				++_g;
+				currentLine = StringTools.trim(line);
+				if(!StringTools.startsWith(currentLine,"#")) args.push(currentLine);
+			}
+			textarea.value = args.join("\n");
+			project.args = args;
 		});
 	});
 }
@@ -172,6 +204,28 @@ var StringTools = function() { }
 StringTools.__name__ = ["StringTools"];
 StringTools.urlEncode = function(s) {
 	return encodeURIComponent(s);
+}
+StringTools.startsWith = function(s,start) {
+	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
+}
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	return c > 8 && c < 14 || c == 32;
+}
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) r++;
+	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
+}
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
+	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
+}
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
 }
 var ValueType = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
 ValueType.TNull = ["TNull",0];
@@ -651,6 +705,20 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
+js.Browser = function() { }
+js.Browser.__name__ = ["js","Browser"];
+js.Browser.getLocalStorage = function() {
+	try {
+		var s = js.Browser.window.localStorage;
+		s.getItem("");
+		return s;
+	} catch( e ) {
+		return null;
+	}
+}
 js.Node = function() { }
 js.Node.__name__ = ["js","Node"];
 Math.__name__ = ["Math"];
@@ -695,10 +763,12 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.project.openfl";
-Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager","boyan.bootstrap.file-tree","boyan.bootstrap.project-options"];
+Main.dependencies = ["boyan.bootstrap.new-project-dialog","boyan.bootstrap.tab-manager","boyan.bootstrap.file-tree","boyan.bootstrap.project-options","boyan.openfl.tools"];
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
+js.Browser.window = typeof window != "undefined" ? window : null;
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
 

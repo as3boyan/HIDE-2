@@ -1,5 +1,7 @@
 package ;
 import haxe.Serializer;
+import js.Browser;
+import js.html.TextAreaElement;
 
 /**
  * ...
@@ -8,7 +10,7 @@ import haxe.Serializer;
 class Main
 {
 	public static var name:String = "boyan.project.openfl";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree", "boyan.bootstrap.project-options"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree", "boyan.bootstrap.project-options", "boyan.openfl.tools"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -76,7 +78,6 @@ class Main
 		CreateOpenFLProject.createOpenFLProject(params, data.projectLocation, function ()
 		{	
 			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
-			ProjectAccess.currentProject.path = pathToProject;
 			
 			var project:Project = new Project();
 			project.name = data.projectName;
@@ -86,11 +87,39 @@ class Main
 			project.url = data.projectURL;
 			project.type = Project.OPENFL;
 			//project.target = target;
+			project.path = pathToProject;
+			
+			Browser.getLocalStorage().setItem("pathToLastProject", pathToProject);
+			
+			ProjectAccess.currentProject = project;
 			
 			var path:String = js.Node.path.join(pathToProject, "project.hide");
 			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 			{
 				FileTree.load(project.name, pathToProject);
+			}
+			);
+			
+			OpenFLTools.getParams(project.path, "flash", function (stdout:String)
+			{
+				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
+						
+				var args:Array<String> = [];
+				
+				var currentLine:String;
+				
+				for (line in stdout.split("\n"))
+				{
+					currentLine = StringTools.trim(line);
+					
+					if (!StringTools.startsWith(currentLine, "#"))
+					{
+						args.push(currentLine);
+					}
+				}
+				
+				textarea.value = args.join("\n");
+				project.args = args;
 			}
 			);
 			
@@ -104,7 +133,6 @@ class Main
 		CreateOpenFLProject.createOpenFLProject(["extension", data.projectName], data.projectLocation, function ()
 		{
 			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
-			ProjectAccess.currentProject.path = pathToProject;
 			
 			var project:Project = new Project();
 			project.name = data.projectName;
@@ -114,11 +142,39 @@ class Main
 			project.url = data.projectURL;
 			project.type = Project.OPENFL;
 			//project.target = target;
+			project.path = pathToProject;
+			
+			Browser.getLocalStorage().setItem("pathToLastProject", pathToProject);
+			
+			ProjectAccess.currentProject = project;
 			
 			var path:String = js.Node.path.join(pathToProject, "project.hide");
 			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 			{
 				FileTree.load(project.name, pathToProject);
+			}
+			);
+			
+			OpenFLTools.getParams(project.path, "flash", function (stdout:String)
+			{
+				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
+						
+				var args:Array<String> = [];
+				
+				var currentLine:String;
+				
+				for (line in stdout.split("\n"))
+				{
+					currentLine = StringTools.trim(line);
+					
+					if (!StringTools.startsWith(currentLine, "#"))
+					{
+						args.push(currentLine);
+					}
+				}
+				
+				textarea.value = args.join("\n");
+				project.args = args;
 			}
 			);
 		}

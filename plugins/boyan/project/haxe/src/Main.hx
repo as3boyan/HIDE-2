@@ -154,7 +154,8 @@ class Main
 						
 					}
 					);
-					
+				case Project.NEKO:
+					args += "-neko " + "bin/" + project.name + ".n\n";
 				case Project.PHP:
 					args += "-php " + "bin/" + project.name + ".php\n";
 				case Project.CPP:

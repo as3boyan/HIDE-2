@@ -55,15 +55,40 @@ class OpenProject
 				var pathToProject:String = js.Node.path.dirname(path);
 				
 				var project:Project = new Project();
+				project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
 				project.type = Project.OPENFL;
+				project.path = pathToProject;
 				
-				ProjectAccess.currentProject = project;
-				
-				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-				{
+				OpenFLTools.getParams(pathToProject, "flash", function (stdout:String)
+				{				
+					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					
+					var args:Array<String> = [];
+				
+					var currentLine:String;
+					
+					for (line in stdout.split("\n"))
+					{
+						currentLine = StringTools.trim(line);
+						
+						if (!StringTools.startsWith(currentLine, "#"))
+						{
+							args.push(currentLine);
+						}
+					}
+					
+					textarea.value = args.join("\n");
+					project.args = args;
+					
+					js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+					{
+						FileTree.load(project.name, pathToProject);
+					}
+					);
 				}
 				);
+				
+				ProjectAccess.currentProject = project;
 				
 				Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 			default:				
@@ -71,8 +96,30 @@ class OpenProject
 		
 				switch (extension) 
 				{
-					//case ".hxml":
-					//
+					case ".hxml":
+						js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String)
+						{
+							var pathToProject:String = js.Node.path.dirname(path);
+				
+							var project:Project = new Project();
+							project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
+							project.type = Project.HAXE;
+							project.args = data.split("\n");
+							
+							ProjectAccess.currentProject = project;
+							
+							var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
+							textarea.value = project.args.join("\n");
+							
+							js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+							{
+								FileTree.load(project.name, pathToProject);
+							}
+							);
+							
+							Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
+						}
+						);
 					//case ".hx":
 						//
 					//case ".xml":

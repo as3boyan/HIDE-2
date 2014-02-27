@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/project-options/src/Main.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/project-options/src/ProjectOptions.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC;EAEA,DAA2B;;CAI5B,AAAa,AAAM,AAAC;;;wBCRP,bACd;CACC,EAAsB;CAEtB,EAAyB;CACzB,EAAO;CACP,EAAc;CACd,AAAiB;CAEjB,EAAW;CACX,EAAc;CACd,EAAoB,SACpB;EACC,CAAoC,FAAqB;;CAE1D,AAAiB;CAEjB,AAAqB,AAAe;;;;aDvBL;oBACe,nBAAC,AAA0B,AAAuB;sBEoB3B;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC;EAEA,DAA2B;;CAI5B,AAAa,AAAM,AAAC;;;wBCNP,bACd;CACC,EAAsB;CAEtB,EAAyB;CACzB,EAAO;CACP,EAAc;CACd,AAAiB;CAEjB,EAAW;CACX,EAAc;CACd,EAAoB,SACpB;EACC,CAAoC,FAAqB;;CAE1D,AAAiB;CAEjB,EAAyB;CAEzB,EAAe,FAAC,AAAS,AAAc,AAAQ,AAAO,AAAO,AAAQ;CAArE,EAAe,FACf;EADA,CAAe,FAAf;;EAEC,DAAiB,AAAe;;CAEjC,AAAiB;CAEjB,AAAqB,AAAe;;gCAQtB,jBACf;CACC,EAA2B;CAC3B,EAAqB;CACrB,EAAe;CACf,MAAO;;;;aD9CwB;oBACe,nBAAC,AAA0B,AAAuB;sBEoB3B;;;;"
 }

@@ -138,6 +138,9 @@ Main.createHaxeProject = function(data,target) {
 			js.Node.require("fs").writeFile(js.Node.require("path").join(pathToBin,"index.html"),Main.indexPageCode,"utf8",function(error) {
 			});
 			break;
+		case 6:
+			args += "-neko " + "bin/" + project.name + ".n\n";
+			break;
 		case 2:
 			args += "-php " + "bin/" + project.name + ".php\n";
 			break;

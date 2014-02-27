@@ -13,14 +13,10 @@ import js.html.TextAreaElement;
 	
 	public static function getParams(path:String, target:String, onLoaded:Dynamic):Void
 	{
-		//js.Node.process.chdir(path);
-		
 		processStdout = "";
 		processStderr = "";
 		
-		var params:Array<String> = new Array();
-		
-		var openFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxelib", "run", "openfl", "display", target], { } function (error, stdout, stderr)
+		var openFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxelib", "run", "openfl", "display", target].join(" "), { cwd: path }, function (error, stdout, stderr)
 		{
 			processStdout = stdout;
 			processStderr = stderr;
@@ -31,17 +27,19 @@ import js.html.TextAreaElement;
 		{
 			trace('OpenFL tools process exit code ' + code);
 			
-			var textarea = cast(Browser.document.getElementById("output").firstElementChild, TextAreaElement);
+			var textarea = cast(Browser.document.getElementById("output"), TextAreaElement);
 			textarea.value += "OUTPUT: " + processStdout;
-			textarea.value += "ERROR: " + processStderr;
-				
-			params = params.concat(processStdout.split("\n"));
+			
+			if (processStderr != "")
+			{
+				textarea.value += "ERROR: " + processStderr;
+			}			
 			
 			if (code == 0)
 			{
 				if (onLoaded != null)
 				{
-					onLoaded(params);
+					onLoaded(processStdout);
 				}
 			}
 		}
