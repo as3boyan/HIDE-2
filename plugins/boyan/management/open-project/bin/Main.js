@@ -95,7 +95,12 @@ var OpenProject = function() { }
 $hxClasses["OpenProject"] = OpenProject;
 OpenProject.__name__ = ["OpenProject"];
 OpenProject.openProject = function(pathToProject) {
-	if(pathToProject == null) FileDialog.openFile(OpenProject.parseProject); else OpenProject.parseProject(pathToProject);
+	if(pathToProject == null) FileDialog.openFile(OpenProject.parseProject); else OpenProject.checkIfFileExists(pathToProject);
+}
+OpenProject.checkIfFileExists = function(path) {
+	js.Node.require("fs").exists(path,function(exists) {
+		if(exists) OpenProject.parseProject(path);
+	});
 }
 OpenProject.parseProject = function(path) {
 	var filename = js.Node.require("path").basename(path);
@@ -104,12 +109,11 @@ OpenProject.parseProject = function(path) {
 		js.Node.require("fs").readFile(path,"utf8",function(error,data) {
 			var pathToProject = js.Node.require("path").dirname(path);
 			ProjectAccess.currentProject = haxe.Unserializer.run(data);
-			console.log(pathToProject);
 			ProjectAccess.currentProject.path = pathToProject;
 			FileTree.load(ProjectAccess.currentProject.name,pathToProject);
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			textarea.value = ProjectAccess.currentProject.args.join("\n");
-			js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject,"project.hide"));
+			js.Browser.getLocalStorage().setItem("pathToLastProject","project.hide");
 		});
 		break;
 	case "project.xml":case "application.xml":

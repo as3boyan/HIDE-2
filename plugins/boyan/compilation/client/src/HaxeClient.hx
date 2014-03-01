@@ -17,7 +17,7 @@ import js.html.TextAreaElement;
 		
 		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(process + " " + params.join(" "), { }, function (error, stdout:String, stderr:String):Void
 		{			
-			if (stdout != "")
+			if (StringTools.trim(stdout) != "")
 			{
 				textarea.value += "stdout:\n" + stdout;
 				trace("stdout:\n" + stdout);

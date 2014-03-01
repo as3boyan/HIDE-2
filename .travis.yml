@@ -75,25 +75,28 @@ script:
   - cd boyan/management/open-project
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/nekotools/server
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/management/project-access
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/project/haxe
+  - cd boyan/management/run-project
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/nekotools/server
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/openfl/tools
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/project/haxe
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/project/openfl
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/tern/server
+  - cd boyan/samples/helloworld
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/samples/helloworld
+  - cd boyan/tern/server
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/webgl/three
@@ -112,9 +115,6 @@ script:
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/window/zoom
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/management/run-project
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/presentation/impress/about

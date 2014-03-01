@@ -24,12 +24,24 @@ class OpenProject
 		}
 		else 
 		{
-			parseProject(pathToProject);
+			checkIfFileExists(pathToProject);
 		}
 	}
 	
-	private static function parseProject(path:String):Void
+	private static function checkIfFileExists(path:String):Void
 	{
+		js.Node.fs.exists(path, function (exists:Bool)
+		{
+			if (exists) 
+			{
+				parseProject(path);
+			}
+		}
+		);
+	}
+	
+	private static function parseProject(path:String):Void
+	{				
 		var filename:String = js.Node.path.basename(path);
 			
 		switch (filename) 
@@ -41,14 +53,14 @@ class OpenProject
 					//js.Node.process.chdir(pathToProject);
 					
 					ProjectAccess.currentProject = Unserializer.run(data);
-					trace(pathToProject);
+					
 					ProjectAccess.currentProject.path = pathToProject;
 					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
 					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					textarea.value = ProjectAccess.currentProject.args.join("\n");
 					
-					Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
+					Browser.getLocalStorage().setItem("pathToLastProject", "project.hide");
 				}
 				);
 			case "project.xml", "application.xml":

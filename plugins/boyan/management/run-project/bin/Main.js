@@ -27,7 +27,7 @@ Main.main = function() {
 Main.runProject = function() {
 	Main.buildProject(function() {
 		var _g = ProjectAccess;
-		switch(_g.currentProject.type) {
+		switch(_g.currentProject.target) {
 		case 0:
 			js.Node.require("nw.gui").Shell.openItem(js.Node.require("path").join(ProjectAccess.currentProject.path + "/bin/",ProjectAccess.currentProject.name + ".swf"));
 			break;
@@ -38,9 +38,11 @@ Main.runProject = function() {
 	});
 }
 Main.buildProject = function(onComplete) {
-	var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
-	var args = projectOptions.value.split("\n");
-	HaxeClient.buildProject("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(args),onComplete);
+	if(ProjectAccess.currentProject.target == 0) {
+		var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+		var args = projectOptions.value.split("\n");
+		HaxeClient.buildProject("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(args),onComplete);
+	} else HaxeClient.buildProject("haxelib",["run","openfl","build",js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml"),"flash"],onComplete);
 }
 var Std = function() { }
 Std.__name__ = true;
@@ -201,7 +203,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.run-project";
-Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access","boyan.bootstrap.menu"];
+Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access","boyan.bootstrap.menu","boyan.bootstrap.tab-manager"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();

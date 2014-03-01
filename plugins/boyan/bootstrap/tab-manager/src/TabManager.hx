@@ -20,6 +20,8 @@ import js.html.UListElement;
 	private static var docs:Array<CMDoc>;
 	public static var editor:Dynamic;
 	
+	private static var filesSavedCount:Int;
+	
 	public static function init():Void
 	{
 		//<ul class="tabs" id="docs" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none;"></ul>
@@ -408,8 +410,10 @@ import js.html.UListElement;
 		, curDoc.name);
 	}
 	
-	public static function saveAll():Void
-	{
+	public static function saveAll(?onComplete:Dynamic):Void
+	{		
+		filesSavedCount = 0;
+		
 		for (doc in docs)
 		{
 			if (doc != null)
@@ -418,7 +422,15 @@ import js.html.UListElement;
 				
 				js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
 				{
+					filesSavedCount++;
 					
+					if (filesSavedCount == docs.length)
+					{
+						if (onComplete != null)
+						{
+							onComplete();
+						}
+					}
 				}
 				);
 			}

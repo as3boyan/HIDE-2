@@ -9,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.management.run-project";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access", "boyan.bootstrap.menu"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access", "boyan.bootstrap.menu", "boyan.bootstrap.tab-manager"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -29,7 +29,7 @@ class Main
 	{
 		buildProject(function ()
 		{
-			switch (ProjectAccess.currentProject.type) 
+			switch (ProjectAccess.currentProject.target) 
 			{
 				case Project.FLASH:
 					//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
@@ -45,10 +45,17 @@ class Main
 	
 	private static function buildProject(?onComplete:Dynamic):Void
 	{		
-		var projectOptions:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-		var args:Array<String> = projectOptions.value.split("\n");
+		if (ProjectAccess.currentProject.target == Project.HAXE)
+		{
+			var projectOptions:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
+			var args:Array<String> = projectOptions.value.split("\n");
 		
-		HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", ProjectAccess.currentProject.path].concat(args), onComplete);
+			HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", ProjectAccess.currentProject.path].concat(args), onComplete);
+		}
+		else 
+		{
+			HaxeClient.buildProject("haxelib", ["run", "openfl", "build", js.Node.path.join(ProjectAccess.currentProject.path, "project.xml"), "flash"], onComplete);
+		}
 	}
 	
 }

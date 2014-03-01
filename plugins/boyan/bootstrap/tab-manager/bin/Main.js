@@ -347,7 +347,8 @@ TabManager.saveActiveFileAs = function() {
 		});
 	},TabManager.curDoc.name);
 }
-TabManager.saveAll = function() {
+TabManager.saveAll = function(onComplete) {
+	TabManager.filesSavedCount = 0;
 	var _g = 0, _g1 = TabManager.docs;
 	while(_g < _g1.length) {
 		var doc = _g1[_g];
@@ -355,6 +356,10 @@ TabManager.saveAll = function() {
 		if(doc != null) {
 			console.log(doc.path + " file saved.");
 			js.Node.require("fs").writeFile(doc.path,doc.doc.getValue(),"utf8",function(error) {
+				TabManager.filesSavedCount++;
+				if(TabManager.filesSavedCount == TabManager.docs.length) {
+					if(onComplete != null) onComplete();
+				}
 			});
 		}
 	}

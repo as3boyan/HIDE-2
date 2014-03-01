@@ -98,10 +98,6 @@ Main.createOpenFLProject = function(data,sample) {
 		project.path = pathToProject;
 		js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProject);
 		ProjectAccess.currentProject = project;
-		var path = js.Node.require("path").join(pathToProject,"project.hide");
-		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
-			FileTree.load(project.name,pathToProject);
-		});
 		OpenFLTools.getParams(project.path,"flash",function(stdout) {
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			var args = [];
@@ -115,6 +111,10 @@ Main.createOpenFLProject = function(data,sample) {
 			}
 			textarea.value = args.join("\n");
 			project.args = args;
+			var path = js.Node.require("path").join(pathToProject,"project.hide");
+			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+				FileTree.load(project.name,pathToProject);
+			});
 		});
 		TabManager.openFileInNewTab(js.Node.require("path").join(pathToProject,"Source","Main.hx"));
 	});
@@ -132,10 +132,6 @@ Main.createOpenFLExtension = function(data) {
 		project.path = pathToProject;
 		js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProject);
 		ProjectAccess.currentProject = project;
-		var path = js.Node.require("path").join(pathToProject,"project.hide");
-		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
-			FileTree.load(project.name,pathToProject);
-		});
 		OpenFLTools.getParams(project.path,"flash",function(stdout) {
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			var args = [];
@@ -149,6 +145,10 @@ Main.createOpenFLExtension = function(data) {
 			}
 			textarea.value = args.join("\n");
 			project.args = args;
+			var path = js.Node.require("path").join(pathToProject,"project.hide");
+			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+				FileTree.load(project.name,pathToProject);
+			});
 		});
 	});
 }

@@ -93,13 +93,6 @@ class Main
 			
 			ProjectAccess.currentProject = project;
 			
-			var path:String = js.Node.path.join(pathToProject, "project.hide");
-			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
-			{
-				FileTree.load(project.name, pathToProject);
-			}
-			);
-			
 			OpenFLTools.getParams(project.path, "flash", function (stdout:String)
 			{
 				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
@@ -120,6 +113,13 @@ class Main
 				
 				textarea.value = args.join("\n");
 				project.args = args;
+				
+				var path:String = js.Node.path.join(pathToProject, "project.hide");
+				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+				{
+					FileTree.load(project.name, pathToProject);
+				}
+				);
 			}
 			);
 			
@@ -148,13 +148,6 @@ class Main
 			
 			ProjectAccess.currentProject = project;
 			
-			var path:String = js.Node.path.join(pathToProject, "project.hide");
-			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
-			{
-				FileTree.load(project.name, pathToProject);
-			}
-			);
-			
 			OpenFLTools.getParams(project.path, "flash", function (stdout:String)
 			{
 				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
@@ -175,6 +168,13 @@ class Main
 				
 				textarea.value = args.join("\n");
 				project.args = args;
+				
+				var path:String = js.Node.path.join(pathToProject, "project.hide");
+				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+				{
+					FileTree.load(project.name, pathToProject);
+				}
+				);
 			}
 			);
 		}

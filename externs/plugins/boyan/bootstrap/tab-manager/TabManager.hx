@@ -10,4 +10,5 @@ extern class TabManager
 	public static function openFileInNewTab(path:String):Void;
 	public static function getCurrentDocumentPath():String;
 	public static function saveActiveFile(?onComplete:Dynamic):Void;
+	public static function saveAll(?onComplete:Dynamic):Void;
 }

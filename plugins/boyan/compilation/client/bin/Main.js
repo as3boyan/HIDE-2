@@ -6,7 +6,7 @@ HaxeClient.buildProject = function(process,params,onComplete) {
 	var textarea = js.Boot.__cast(js.Browser.document.getElementById("output") , HTMLTextAreaElement);
 	textarea.value = "";
 	var haxeCompilerClient = js.Node.require("child_process").exec(process + " " + params.join(" "),{ },function(error,stdout,stderr) {
-		if(stdout != "") {
+		if(StringTools.trim(stdout) != "") {
 			textarea.value += "stdout:\n" + stdout;
 			console.log("stdout:\n" + stdout);
 		}
@@ -60,6 +60,27 @@ Std.parseInt = function(x) {
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
+}
+var StringTools = function() { }
+StringTools.__name__ = true;
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	return c > 8 && c < 14 || c == 32;
+}
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) r++;
+	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
+}
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
+	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
+}
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
 }
 var js = {}
 js.Boot = function() { }
