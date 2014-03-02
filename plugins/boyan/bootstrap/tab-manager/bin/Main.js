@@ -109,7 +109,7 @@ var Main = function() { }
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.loadCSS(Main.$name,["bin/includes/css/tabs.css"]);
-	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout"],Main.load);
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.split-pane","boyan.jquery.layout","boyan.window.splitpane"],Main.load,true);
 }
 Main.load = function() {
 	TabManager.init();

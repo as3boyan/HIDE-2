@@ -19,8 +19,7 @@ class Main
 		HIDE.loadCSS(name, ["bin/includes/css/tabs.css"]);
 		
 		//Will wait for dependent plugins
-		//HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.split-pane", "boyan.jquery.layout"], load, true);
-		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.layout"], load);
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.split-pane", "boyan.jquery.layout", "boyan.window.splitpane"], load, true);
 	}
 	
 	private static function load():Void

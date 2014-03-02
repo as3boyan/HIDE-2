@@ -163,7 +163,7 @@ var Main = function() { }
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout","boyan.jquery.split-pane"],Main.load,true);
+		HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout","boyan.jquery.split-pane","boyan.window.splitpane"],Main.load,true);
 	});
 	HIDE.loadCSS(Main.$name,["bin/includes/css/file-tree.css"]);
 }

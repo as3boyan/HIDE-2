@@ -16,7 +16,7 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
 			//Will wait for one of splitpane plugins
-			HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.layout", "boyan.jquery.split-pane"], load, true);
+			HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.jquery.layout", "boyan.jquery.split-pane", "boyan.window.splitpane"], load, true);
 		}
 		);
 		

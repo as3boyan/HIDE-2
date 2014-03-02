@@ -9,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.compilation.output";
-	public static var dependencies:Array<String> = ["boyan.jquery.layout", "boyan.jquery.split-pane"];
+	public static var dependencies:Array<String> = ["boyan.jquery.layout", "boyan.jquery.split-pane", "boyan.window.splitpane"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void

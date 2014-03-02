@@ -1,0 +1,8 @@
+-cp src
+-cp ../../../../externs/plugins/hide
+-cp ../../../../externs/nodejs-std/src
+-cp ../../../../externs/jQueryExtern
+-main Main
+-js bin/Main.js
+-dce full
+-debug

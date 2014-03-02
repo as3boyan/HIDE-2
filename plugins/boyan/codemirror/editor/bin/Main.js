@@ -3,7 +3,10 @@ var CM = function() { }
 $hxExpose(CM, "CM");
 var Main = function() { }
 Main.main = function() {
-	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load,true);
+}
+Main.load = function() {
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.tab-manager"],function() {
 		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-3.18/lib/codemirror.css","bin/includes/codemirror-3.18/addon/hint/show-hint.css","bin/includes/codemirror-git/addon/dialog/dialog.css","bin/includes/codemirror-git/addon/tern/tern.css","bin/includes/css/editor.css"]);
 		Main.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"]);
 		var modes = ["haxe/haxe.js","javascript/javascript.js","css/css.js","xml/xml.js","htmlmixed/htmlmixed.js","markdown/markdown.js","shell/shell.js","ocaml/ocaml.js"];
@@ -16,7 +19,7 @@ Main.main = function() {
 			var textarea = js.Browser.document.createElement("textarea");
 			textarea.id = "code";
 			Splitpane.components[1].appendChild(textarea);
-			var editor = CodeMirror.fromTextArea(textarea,{ lineNumbers : true, matchBrackets : true, dragDrop : false, autoCloseBrackets : true, foldGutter : { rangeFinder : new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)}, gutters : ["CodeMirror-linenumbers","CodeMirror-foldgutter"], indentUnit : 4, tabSize : 4, mode : "haxe"});
+			var editor = CodeMirror.fromTextArea(textarea,{ lineNumbers : true, matchBrackets : true, dragDrop : false, autoCloseBrackets : true, foldGutter : { rangeFinder : new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)}, gutters : ["CodeMirror-linenumbers","CodeMirror-foldgutter"], indentUnit : 4, tabSize : 4, mode : "haxe", lineWrapping : true});
 			editor.getWrapperElement().style.display = "none";
 			CM.editor = editor;
 			TabManager.editor = CM.editor;
@@ -35,7 +38,7 @@ Main.loadThemes = function(themes) {
 var js = {}
 js.Browser = function() { }
 Main.$name = "boyan.codemirror.editor";
-Main.dependencies = ["boyan.jquery.layout","boyan.bootstrap.tab-manager"];
+Main.dependencies = ["boyan.jquery.layout","boyan.window.splitpane"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 function $hxExpose(src, path) {

@@ -31,7 +31,7 @@ typedef PluginDependenciesData =
 	public static var plugins:Array<String> = new Array();
 	public static var pathToPlugins:StringMap<String> = new StringMap();
 	//"boyan.bootstrap.script"
-	public static var inactivePlugins:Array<String> = ["boyan.ace.editor", "boyan.jquery.split-pane", "boyan.topcoat.script"];
+	public static var inactivePlugins:Array<String> = [];
 	//public static var conflictingPlugins:Array<String> = [];
 	
 	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();

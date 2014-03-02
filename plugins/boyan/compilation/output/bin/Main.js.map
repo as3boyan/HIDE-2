@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/GitHub/HIDE/plugins/boyan/compilation/output/src/Main.hx","C:/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
-"mappings":";;YAcc,DACd;CACC,AAAa,AAAM,AAAC;CAEpB,AAAuC,AAAM,AAAc,UAC3D;EAGC,CAA6B;EAC7B,CAAY;EACZ,CAAkB;EAElB,DAAqB,AAAe;CAEnC;CAGF,AAA2B;;;;aArBI;oBACe,nBAAC,AAAuB;sBCkBD;;;;"
+"mappings":";;YAcc,DACd;CACC,AAAa,AAAM,AAAC;CAEpB,AAAuC,AAAM,AAAc,UAC3D;EAGC,CAA6B;EAC7B,CAAY;EACZ,CAAkB;EAElB,DAAqB,AAAe;CAEnC;CAGF,AAA2B;;;;aArBI;oBACe,nBAAC,AAAuB,AAA2B;sBCkB5B;;;;"
 }

@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.tern.server";
-	public static var dependencies:Array<String> = ["boyan.codemirror.editor", "boyan.bootstrap.tab-manager", "boyan.jquery.xml2json", "boyan.management.project-access", "boyan.completion.client"];
+	public static var dependencies:Array<String> = ["boyan.codemirror.editor", "boyan.bootstrap.tab-manager", "boyan.management.project-access", "boyan.completion.client"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void

@@ -1413,9 +1413,6 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
-js.Boot.__cast = function(o,t) {
-	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -1475,7 +1472,7 @@ if(version[0] > 0 || version[1] >= 9) {
 }
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
-HIDE.inactivePlugins = ["boyan.ace.editor","boyan.jquery.split-pane","boyan.topcoat.script"];
+HIDE.inactivePlugins = [];
 HIDE.requestedPluginsData = new Array();
 HIDE.pluginsMTime = new haxe.ds.StringMap();
 HIDE.windows = [];

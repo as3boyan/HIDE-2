@@ -1,6 +1,9 @@
 (function () { "use strict";
 var Main = function() { }
 Main.main = function() {
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.jquery.layout","boyan.window.splitpane"],Main.load,true);
+}
+Main.load = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		ProjectOptions.create();
 		HIDE.notifyLoadingComplete(Main.$name);
@@ -39,7 +42,7 @@ ProjectOptions.createListItem = function(text) {
 var js = {}
 js.Browser = function() { }
 Main.$name = "boyan.bootstrap.project-options";
-Main.dependencies = ["boyan.bootstrap.script","boyan.jquery.layout","boyan.management.project-access"];
+Main.dependencies = ["boyan.bootstrap.script","boyan.management.project-access"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();

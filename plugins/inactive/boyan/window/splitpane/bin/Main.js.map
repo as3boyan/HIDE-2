@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"Main.js",
+"sourceRoot":"file://",
+"sources":["C:/GitHub/HIDE/plugins/boyan/window/splitpane/src/Main.hx","C:/GitHub/HIDE/plugins/boyan/window/splitpane/src/Splitpane.hx","C:/HaxeToolkit/haxe/std/js/Browser.hx"],
+"names":[],
+"mappings":";;YAcc,DACd;CACC,EAAuB;CAEvB,EAAU;CAAV,EAAc,FACd;EADA;EAEC,CAAqB;EAGrB,CAAmB;EACnB,CAAkB;EAGlB,DAA0B;EAC1B,DAAkC;;CAGnC,AAAqB,EAAiB;CACtC,AAAqB,EAAiB;CACtC,AAAqB,EAAiB;CACtC,AAAqB,EAAiB;CACtC,AAAqB,EAAiB;CAGtC,AAA2B;;;;;;aA5BI;uBCDiB;sBCoBqB;;;;;;;;;;;;;;"
+}

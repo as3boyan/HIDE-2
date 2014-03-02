@@ -10,12 +10,17 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.codemirror.editor";
-	public static var dependencies:Array<String> = ["boyan.jquery.layout", "boyan.bootstrap.tab-manager"];
+	public static var dependencies:Array<String> = ["boyan.jquery.layout", "boyan.window.splitpane"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
 	{	
-		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
+		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, load, true);
+	}
+	
+	private static function load():Void
+	{
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.tab-manager"], function ():Void
 		{
 			HIDE.loadCSS(name, [
 			"bin/includes/codemirror-3.18/lib/codemirror.css", 
@@ -105,6 +110,7 @@ class Main
 					indentUnit:4,
 					tabSize:4,
 					mode:'haxe',
+					lineWrapping: true,
                  });
 				 
 				editor.getWrapperElement().style.display = "none";

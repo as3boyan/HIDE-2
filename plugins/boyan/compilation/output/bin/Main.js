@@ -13,7 +13,7 @@ Main.main = function() {
 var js = {}
 js.Browser = function() { }
 Main.$name = "boyan.compilation.output";
-Main.dependencies = ["boyan.jquery.layout","boyan.jquery.split-pane"];
+Main.dependencies = ["boyan.jquery.layout","boyan.jquery.split-pane","boyan.window.splitpane"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();
