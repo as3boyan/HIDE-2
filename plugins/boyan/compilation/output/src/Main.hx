@@ -9,11 +9,11 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.compilation.output";
-	public static var dependencies:Array<String> = ["boyan.jquery.layout"];
+	public static var dependencies:Array<String> = ["boyan.jquery.layout", "boyan.jquery.split-pane"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
-	{		
+	{
 		HIDE.loadCSS(name, ["bin/includes/css/output.css"]);
 		
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ()
@@ -26,7 +26,7 @@ class Main
 			
 			Splitpane.components[2].appendChild(output);
 		}
-		);
+		, true);
 		
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 		HIDE.notifyLoadingComplete(name);

@@ -60,7 +60,7 @@ class OpenProject
 					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					textarea.value = ProjectAccess.currentProject.args.join("\n");
 					
-					Browser.getLocalStorage().setItem("pathToLastProject", "project.hide");
+					Browser.getLocalStorage().setItem("pathToLastProject", path);
 				}
 				);
 			case "project.xml", "application.xml":
@@ -92,7 +92,9 @@ class OpenProject
 					textarea.value = args.join("\n");
 					project.args = args;
 					
-					js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+					var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.hide");
+					
+					js.Node.fs.writeFile(pathToProjectHide, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
 					{
 						FileTree.load(project.name, pathToProject);
 					}
@@ -117,19 +119,22 @@ class OpenProject
 							project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
 							project.type = Project.HAXE;
 							project.args = data.split("\n");
+							project.path = pathToProject;
 							
 							ProjectAccess.currentProject = project;
 							
 							var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 							textarea.value = project.args.join("\n");
 							
-							js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+							var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.hide");
+							
+							js.Node.fs.writeFile(pathToProjectHide, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
 							{
 								FileTree.load(project.name, pathToProject);
 							}
 							);
 							
-							Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
+							Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
 						}
 						);
 					//case ".hx":

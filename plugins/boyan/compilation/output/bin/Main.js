@@ -7,13 +7,13 @@ Main.main = function() {
 		output.id = "output";
 		output.readOnly = true;
 		Splitpane.components[2].appendChild(output);
-	});
+	},true);
 	HIDE.notifyLoadingComplete(Main.$name);
 }
 var js = {}
 js.Browser = function() { }
 Main.$name = "boyan.compilation.output";
-Main.dependencies = ["boyan.jquery.layout"];
+Main.dependencies = ["boyan.jquery.layout","boyan.jquery.split-pane"];
 js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
 })();

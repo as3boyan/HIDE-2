@@ -4,8 +4,10 @@ $hxExpose(HaxeClient, "HaxeClient");
 HaxeClient.__name__ = true;
 HaxeClient.buildProject = function(process,params,onComplete) {
 	var textarea = js.Boot.__cast(js.Browser.document.getElementById("output") , HTMLTextAreaElement);
-	textarea.value = "";
-	var haxeCompilerClient = js.Node.require("child_process").exec(process + " " + params.join(" "),{ },function(error,stdout,stderr) {
+	textarea.value = "Build started\n";
+	var command = process + " " + params.join(" ");
+	textarea.value += command + "\n";
+	var haxeCompilerClient = js.Node.require("child_process").exec(command,{ },function(error,stdout,stderr) {
 		if(StringTools.trim(stdout) != "") {
 			textarea.value += "stdout:\n" + stdout;
 			console.log("stdout:\n" + stdout);

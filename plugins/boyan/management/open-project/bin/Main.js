@@ -113,7 +113,7 @@ OpenProject.parseProject = function(path) {
 			FileTree.load(ProjectAccess.currentProject.name,pathToProject);
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			textarea.value = ProjectAccess.currentProject.args.join("\n");
-			js.Browser.getLocalStorage().setItem("pathToLastProject","project.hide");
+			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 		});
 		break;
 	case "project.xml":case "application.xml":
@@ -135,7 +135,8 @@ OpenProject.parseProject = function(path) {
 			}
 			textarea.value = args.join("\n");
 			project.args = args;
-			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+			var pathToProjectHide = js.Node.require("path").join(pathToProject1,"project.hide");
+			js.Node.require("fs").writeFile(pathToProjectHide,haxe.Serializer.run(project),"utf8",function(error) {
 				FileTree.load(project.name,pathToProject1);
 			});
 		});
@@ -152,13 +153,15 @@ OpenProject.parseProject = function(path) {
 				project1.name = HxOverrides.substr(pathToProject2,pathToProject2.lastIndexOf(js.Node.require("path").sep),null);
 				project1.type = 0;
 				project1.args = data.split("\n");
+				project1.path = pathToProject2;
 				ProjectAccess.currentProject = project1;
 				var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 				textarea.value = project1.args.join("\n");
-				js.Node.require("fs").writeFile(path,haxe.Serializer.run(project1),"utf8",function(error1) {
+				var pathToProjectHide = js.Node.require("path").join(pathToProject2,"project.hide");
+				js.Node.require("fs").writeFile(pathToProjectHide,haxe.Serializer.run(project1),"utf8",function(error1) {
 					FileTree.load(project1.name,pathToProject2);
 				});
-				js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject2,"project.hide"));
+				js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProjectHide);
 			});
 			break;
 		default:

@@ -218,14 +218,16 @@ TabManager.checkTabsCount = function() {
 	}
 }
 TabManager.closeAll = function() {
-	var _g1 = 0, _g = TabManager.docs.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
-	}
-	if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
-		TabManager.closeAll();
-	},30);
+	TabManager.saveAll(function() {
+		var _g1 = 0, _g = TabManager.docs.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
+		}
+		if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
+			TabManager.closeAll();
+		},30);
+	});
 }
 TabManager.closeOthers = function(path) {
 	var _g1 = 0, _g = TabManager.docs.length;
@@ -255,16 +257,18 @@ TabManager.closeTab = function(path,switchToTab) {
 	}
 }
 TabManager.closeActiveTab = function() {
-	var n = -1;
-	if(TabManager.curDoc != null) n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
-	if(n != -1) {
-		TabManager.docs.splice(n,1);
-		(js.Boot.__cast(TabManager.tabs.children.item(n) , Element)).remove();
-		if(TabManager.docs.length > 0) TabManager.showPreviousTab(); else {
-			if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
-			TabManager.curDoc = null;
+	TabManager.saveActiveFile(function() {
+		var n = -1;
+		if(TabManager.curDoc != null) n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);
+		if(n != -1) {
+			TabManager.docs.splice(n,1);
+			(js.Boot.__cast(TabManager.tabs.children.item(n) , Element)).remove();
+			if(TabManager.docs.length > 0) TabManager.showPreviousTab(); else {
+				if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
+				TabManager.curDoc = null;
+			}
 		}
-	}
+	});
 }
 TabManager.showNextTab = function() {
 	var n = Lambda.indexOf(TabManager.docs,TabManager.curDoc);

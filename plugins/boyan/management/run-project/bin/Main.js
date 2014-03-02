@@ -25,7 +25,7 @@ Main.main = function() {
 	});
 }
 Main.runProject = function() {
-	Main.buildProject(function() {
+	if(ProjectAccess.currentProject.type == 1) HaxeClient.buildProject("haxelib",["run","openfl","test",js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml"),"flash"]); else Main.buildProject(function() {
 		var _g = ProjectAccess;
 		switch(_g.currentProject.target) {
 		case 0:
@@ -38,7 +38,7 @@ Main.runProject = function() {
 	});
 }
 Main.buildProject = function(onComplete) {
-	if(ProjectAccess.currentProject.target == 0) {
+	if(ProjectAccess.currentProject.type == 0) {
 		var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 		var args = projectOptions.value.split("\n");
 		HaxeClient.buildProject("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(args),onComplete);

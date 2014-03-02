@@ -1,16 +1,15 @@
-(function ($hx_exports) { "use strict";
-var Main = function() { };
+(function () { "use strict";
+var Main = function() { }
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
 	HIDE.loadCSS(Main.$name,["bin/includes/css/split-pane.css"]);
-};
+}
 Main.load = function() {
 	HIDE.loadJS(Main.$name,["bin/includes/js/split-pane.js"],function() {
-		var htmlElement;
-		htmlElement = js.Boot.__cast(window.document.documentElement , HTMLHtmlElement);
+		var htmlElement = js.Boot.__cast(js.Browser.document.documentElement , HTMLHtmlElement);
 		htmlElement.style.height = "100%";
-		window.document.body.style.height = "100%";
+		js.Browser.document.body.style.height = "100%";
 		var splitPane = Splitpane.createSplitPane("left");
 		splitPane.style.marginTop = "51px";
 		var leftComponent = Splitpane.createComponent();
@@ -23,44 +22,39 @@ Main.load = function() {
 		rightComponent.style.left = "150px";
 		rightComponent.style.marginLeft = "5px";
 		splitPane.appendChild(rightComponent);
-		window.document.body.appendChild(splitPane);
+		js.Browser.document.body.appendChild(splitPane);
 		$('div.split-pane').splitPane();
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
-};
-var Splitpane = $hx_exports.Splitpane = function() { };
+}
+var Splitpane = function() { }
+$hxExpose(Splitpane, "Splitpane");
 Splitpane.__name__ = true;
 Splitpane.createSplitPane = function(fixedSide) {
-	var splitPaneDiv;
-	var _this = window.document;
-	splitPaneDiv = _this.createElement("div");
+	var splitPaneDiv = js.Browser.document.createElement("div");
 	splitPaneDiv.className = "split-pane fixed-" + fixedSide;
 	return splitPaneDiv;
-};
+}
 Splitpane.createComponent = function() {
-	var splitPaneComponent;
-	var _this = window.document;
-	splitPaneComponent = _this.createElement("div");
+	var splitPaneComponent = js.Browser.document.createElement("div");
 	splitPaneComponent.className = "split-pane-component";
 	Splitpane.components.push(splitPaneComponent);
 	return splitPaneComponent;
-};
+}
 Splitpane.createDivider = function() {
-	var divider;
-	var _this = window.document;
-	divider = _this.createElement("div");
+	var divider = js.Browser.document.createElement("div");
 	divider.className = "split-pane-divider";
 	divider.style.background = "#aaa";
 	divider.style.width = "5px";
 	return divider;
-};
-var Std = function() { };
+}
+var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-};
-var js = {};
-js.Boot = function() { };
+}
+var js = {}
+js.Boot = function() { }
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -74,8 +68,7 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2;
-				var _g = o.length;
+				var _g1 = 2, _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -108,7 +101,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) {
+		for( var k in o ) { ;
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -128,14 +121,13 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-};
+}
 js.Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0;
-		var _g = intf.length;
+		var _g1 = 0, _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
@@ -143,7 +135,7 @@ js.Boot.__interfLoop = function(cc,cl) {
 		}
 	}
 	return js.Boot.__interfLoop(cc.__super__,cl);
-};
+}
 js.Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
@@ -171,10 +163,12 @@ js.Boot.__instanceof = function(o,cl) {
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-};
+}
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-};
+}
+js.Browser = function() { }
+js.Browser.__name__ = true;
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.prototype.__class__ = Array;
@@ -190,7 +184,18 @@ var Enum = { };
 Main.$name = "boyan.jquery.split-pane";
 Main.dependencies = ["boyan.jquery.script"];
 Splitpane.components = new Array();
+js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-})(typeof window != "undefined" ? window : exports);
+function $hxExpose(src, path) {
+	var o = typeof window != "undefined" ? window : exports;
+	var parts = path.split(".");
+	for(var ii = 0; ii < parts.length-1; ++ii) {
+		var p = parts[ii];
+		if(typeof o[p] == "undefined") o[p] = {};
+		o = o[p];
+	}
+	o[parts[parts.length-1]] = src;
+}
+})();
 
-//# sourceMappingURL=Main.js.map
+//@ sourceMappingURL=Main.js.map

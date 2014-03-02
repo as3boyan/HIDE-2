@@ -68,6 +68,10 @@ class Main
 			rightComponent.style.marginLeft = "5px";
 			splitPane.appendChild(rightComponent);
 			
+			//var c:DivElement = Splitpane.createSplitPane("bottom");
+			//c.appendChild(Splitpane.createComponent());
+			//rightComponent.appendChild(c);
+			
 			Browser.document.body.appendChild(splitPane);
 			
 			//Split-pane is a plugin for JQuery, so it extends JQuery with additional function splitPane, which is responsible for creating split panes

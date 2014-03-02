@@ -173,22 +173,26 @@ import js.html.UListElement;
 	
 	public static function closeAll():Void
 	{
-		for (i in 0...docs.length)
+		saveAll(function ()
 		{
-			if (docs[i] != null)
+			for (i in 0...docs.length)
 			{
-				closeTab(docs[i].path, false);
+				if (docs[i] != null)
+				{
+					closeTab(docs[i].path, false);
+				}
+			}
+			
+			if (docs.length > 0)
+			{
+				Timer.delay(function ()
+				{
+					closeAll();
+				}
+				,30);
 			}
 		}
-		
-		if (docs.length > 0)
-		{
-			Timer.delay(function ()
-			{
-				closeAll();
-			}
-			,30);
-		}
+		);
 	}
         
 	public static function closeOthers(path:String):Void
@@ -246,32 +250,36 @@ import js.html.UListElement;
 	
 	public static function closeActiveTab():Void
 	{
-		var n = -1;
-		
-		if (curDoc != null)
+		saveActiveFile(function ()
 		{
-			n = Lambda.indexOf(docs, curDoc);
-		}	
+			var n = -1;
 		
-		if (n != -1)
-		{
-			docs.splice(n, 1);
-			cast(tabs.children.item(n), Element).remove();
+			if (curDoc != null)
+			{
+				n = Lambda.indexOf(docs, curDoc);
+			}	
 			
-			if (docs.length > 0)
+			if (n != -1)
 			{
-				showPreviousTab();
-			}
-			else 
-			{
-				if (editor != null)
-				{
-					editor.getWrapperElement().style.display = "none";
-				}
+				docs.splice(n, 1);
+				cast(tabs.children.item(n), Element).remove();
 				
-				curDoc = null;
+				if (docs.length > 0)
+				{
+					showPreviousTab();
+				}
+				else 
+				{
+					if (editor != null)
+					{
+						editor.getWrapperElement().style.display = "none";
+					}
+					
+					curDoc = null;
+				}
 			}
 		}
+		);
 	}
 	
 	public static function showNextTab():Void

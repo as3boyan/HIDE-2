@@ -13,10 +13,14 @@ import js.html.TextAreaElement;
 		//"haxe", "--connect", "6001", "--cwd", "..","HaxeEditor2.hxml"
 		
 		var textarea = cast(Browser.document.getElementById("output"), TextAreaElement);
-		textarea.value = "";
+		textarea.value = "Build started\n";
 		
-		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(process + " " + params.join(" "), { }, function (error, stdout:String, stderr:String):Void
-		{			
+		var command:String = process + " " + params.join(" ");
+		
+		textarea.value += command + "\n";
+		
+		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(command, { }, function (error, stdout:String, stderr:String):Void
+		{
 			if (StringTools.trim(stdout) != "")
 			{
 				textarea.value += "stdout:\n" + stdout;

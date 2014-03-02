@@ -27,25 +27,32 @@ class Main
 	
 	private static function runProject():Void
 	{
-		buildProject(function ()
+		if (ProjectAccess.currentProject.type == Project.OPENFL) 
 		{
-			switch (ProjectAccess.currentProject.target) 
-			{
-				case Project.FLASH:
-					//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
-					js.Node.require('nw.gui').Shell.openItem(js.Node.path.join(ProjectAccess.currentProject.path + "/bin/", ProjectAccess.currentProject.name + ".swf"));
-				case Project.JAVASCRIPT:
-					
-				default:
-					
-			}
+			HaxeClient.buildProject("haxelib", ["run", "openfl", "test", js.Node.path.join(ProjectAccess.currentProject.path, "project.xml"), "flash"]);
 		}
-		);
+		else 
+		{
+			buildProject(function ()
+			{
+				switch (ProjectAccess.currentProject.target) 
+				{
+					case Project.FLASH:
+						//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
+						js.Node.require('nw.gui').Shell.openItem(js.Node.path.join(ProjectAccess.currentProject.path + "/bin/", ProjectAccess.currentProject.name + ".swf"));
+					case Project.JAVASCRIPT:
+						
+					default:
+						
+				}
+			}
+			);
+		}
 	}
 	
 	private static function buildProject(?onComplete:Dynamic):Void
 	{		
-		if (ProjectAccess.currentProject.target == Project.HAXE)
+		if (ProjectAccess.currentProject.type == Project.HAXE)
 		{
 			var projectOptions:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 			var args:Array<String> = projectOptions.value.split("\n");
