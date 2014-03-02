@@ -24,7 +24,37 @@ Completion.registerHandlers = function() {
 							var $it0 = list.nodes.resolve("i").iterator();
 							while( $it0.hasNext() ) {
 								var item = $it0.next();
-								if(item.has.resolve("n")) data.data.completions.push({ name : item.att.resolve("n"), type : "fn()"});
+								if(item.has.resolve("n")) {
+									var completion = { name : item.att.resolve("n")};
+									if(item.hasNode.resolve("d")) {
+										var str = StringTools.trim(item.node.resolve("d").get_innerHTML());
+										str = StringTools.replace(str,"\t","");
+										str = StringTools.replace(str,"\n","");
+										str = StringTools.replace(str,"*","");
+										str = StringTools.replace(str,"&lt;","<");
+										str = StringTools.replace(str,"&gt;",">");
+										str = StringTools.trim(str);
+										completion.doc = str;
+									}
+									if(item.hasNode.resolve("t")) {
+										var type = item.node.resolve("t").get_innerData();
+										console.log(type);
+										switch(type) {
+										case "Float":case "Int":
+											completion.type = "number";
+											break;
+										case "Bool":
+											completion.type = "bool";
+											break;
+										case "String":
+											completion.type = "string";
+											break;
+										default:
+											completion.type = "fn()";
+										}
+									} else completion.type = "fn()";
+									data.data.completions.push(completion);
+								}
 							}
 						}
 					}
@@ -66,6 +96,13 @@ HxOverrides.remove = function(a,obj) {
 	}
 	return false;
 }
+HxOverrides.iter = function(a) {
+	return { cur : 0, arr : a, hasNext : function() {
+		return this.cur < this.arr.length;
+	}, next : function() {
+		return this.arr[this.cur++];
+	}};
+}
 var List = function() {
 	this.length = 0;
 };
@@ -102,7 +139,17 @@ Main.main = function() {
 				server.complete(cm);
 			}, 'Ctrl-Q' : function(cm) {
 				server.rename(cm);
-			}};
+			}, '.' : (function($this) {
+				var $r;
+				var passAndHint = function(cm1) {
+					setTimeout(function() {
+						server.complete(cm1);
+					},100);
+					return CodeMirror.Pass;
+				};
+				$r = passAndHint;
+				return $r;
+			}(this))};
 			CM.editor.setOption("extraKeys",keyMap);
 			TS.server = server;
 			Completion.registerHandlers();
@@ -132,6 +179,34 @@ StringBuf.prototype = {
 		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
 	}
 	,__class__: StringBuf
+}
+var StringTools = function() { }
+StringTools.__name__ = true;
+StringTools.htmlEscape = function(s,quotes) {
+	s = s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+	return quotes?s.split("\"").join("&quot;").split("'").join("&#039;"):s;
+}
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	return c > 8 && c < 14 || c == 32;
+}
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) r++;
+	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
+}
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
+	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
+}
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
+}
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
 }
 var TS = function() { }
 $hxExpose(TS, "TS");
@@ -188,7 +263,44 @@ Xml.createDocument = function() {
 	return r;
 }
 Xml.prototype = {
-	addChild: function(x) {
+	toString: function() {
+		if(this.nodeType == Xml.PCData) return StringTools.htmlEscape(this._nodeValue);
+		if(this.nodeType == Xml.CData) return "<![CDATA[" + this._nodeValue + "]]>";
+		if(this.nodeType == Xml.Comment) return "<!--" + this._nodeValue + "-->";
+		if(this.nodeType == Xml.DocType) return "<!DOCTYPE " + this._nodeValue + ">";
+		if(this.nodeType == Xml.ProcessingInstruction) return "<?" + this._nodeValue + "?>";
+		var s = new StringBuf();
+		if(this.nodeType == Xml.Element) {
+			s.b += "<";
+			s.b += Std.string(this._nodeName);
+			var $it0 = this._attributes.keys();
+			while( $it0.hasNext() ) {
+				var k = $it0.next();
+				s.b += " ";
+				s.b += Std.string(k);
+				s.b += "=\"";
+				s.b += Std.string(this._attributes.get(k));
+				s.b += "\"";
+			}
+			if(this._children.length == 0) {
+				s.b += "/>";
+				return s.b;
+			}
+			s.b += ">";
+		}
+		var $it1 = this.iterator();
+		while( $it1.hasNext() ) {
+			var x = $it1.next();
+			s.b += Std.string(x.toString());
+		}
+		if(this.nodeType == Xml.Element) {
+			s.b += "</";
+			s.b += Std.string(this._nodeName);
+			s.b += ">";
+		}
+		return s.b;
+	}
+	,addChild: function(x) {
 		if(this._children == null) throw "bad nodetype";
 		if(x._parent != null) HxOverrides.remove(x._parent._children,x);
 		x._parent = this;
@@ -220,6 +332,14 @@ Xml.prototype = {
 			return null;
 		}};
 	}
+	,iterator: function() {
+		if(this._children == null) throw "bad nodetype";
+		return { cur : 0, x : this._children, hasNext : function() {
+			return this.cur < this.x.length;
+		}, next : function() {
+			return this.x[this.cur++];
+		}};
+	}
 	,exists: function(att) {
 		if(this.nodeType != Xml.Element) throw "bad nodeType";
 		return this._attributes.exists(att);
@@ -235,6 +355,10 @@ Xml.prototype = {
 	,set_nodeValue: function(v) {
 		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
 		return this._nodeValue = v;
+	}
+	,get_nodeValue: function() {
+		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
+		return this._nodeValue;
 	}
 	,set_nodeName: function(n) {
 		if(this.nodeType != Xml.Element) throw "bad nodeType";
@@ -254,7 +378,14 @@ haxe.ds.StringMap = function() {
 haxe.ds.StringMap.__name__ = true;
 haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	exists: function(key) {
+	keys: function() {
+		var a = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) a.push(key.substr(1));
+		}
+		return HxOverrides.iter(a);
+	}
+	,exists: function(key) {
 		return this.h.hasOwnProperty("$" + key);
 	}
 	,get: function(key) {
@@ -343,7 +474,34 @@ haxe.xml.Fast = function(x) {
 };
 haxe.xml.Fast.__name__ = true;
 haxe.xml.Fast.prototype = {
-	__class__: haxe.xml.Fast
+	get_innerHTML: function() {
+		var s = new StringBuf();
+		var $it0 = this.x.iterator();
+		while( $it0.hasNext() ) {
+			var x = $it0.next();
+			s.b += Std.string(x.toString());
+		}
+		return s.b;
+	}
+	,get_innerData: function() {
+		var it = this.x.iterator();
+		if(!it.hasNext()) throw this.get_name() + " does not have data";
+		var v = it.next();
+		var n = it.next();
+		if(n != null) {
+			if(v.nodeType == Xml.PCData && n.nodeType == Xml.CData && StringTools.trim(v.get_nodeValue()) == "") {
+				var n2 = it.next();
+				if(n2 == null || n2.nodeType == Xml.PCData && StringTools.trim(n2.get_nodeValue()) == "" && it.next() == null) return n.get_nodeValue();
+			}
+			throw this.get_name() + " does not only have data";
+		}
+		if(v.nodeType != Xml.PCData && v.nodeType != Xml.CData) throw this.get_name() + " does not have data";
+		return v.get_nodeValue();
+	}
+	,get_name: function() {
+		return this.x.nodeType == Xml.Document?"Document":this.x.get_nodeName();
+	}
+	,__class__: haxe.xml.Fast
 }
 haxe.xml.Parser = function() { }
 haxe.xml.Parser.__name__ = true;

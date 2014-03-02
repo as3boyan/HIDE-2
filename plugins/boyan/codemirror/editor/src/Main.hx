@@ -2,6 +2,7 @@ package ;
 import js.Browser;
 import js.html.svg.TextElement;
 import js.html.TextAreaElement;
+import js.Lib;
 
 /**
  * ...

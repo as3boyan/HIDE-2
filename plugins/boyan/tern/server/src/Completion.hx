@@ -65,7 +65,42 @@ class Completion
 								{
 									if (item.has.n)
 									{
-										data.data.completions.push( {name:item.att.n, type: "fn()" } );
+										var completion:Dynamic = { name:item.att.n };
+										
+										if (item.hasNode.d)
+										{
+											var str = StringTools.trim(item.node.d.innerHTML);
+											str = StringTools.replace(str, "\t", "");
+											str = StringTools.replace(str, "\n", "");
+											str = StringTools.replace(str, "*", "");
+											str = StringTools.replace(str, "&lt;", "<");
+											str = StringTools.replace(str, "&gt;", ">");
+											str = StringTools.trim(str);
+											completion.doc = str;
+										}
+										
+										if (item.hasNode.t)
+										{
+											var type = item.node.t.innerData;
+											trace(type);
+											switch (type) 
+											{
+												case "Float", "Int":
+													completion.type = "number";
+												case "Bool":
+													completion.type = "bool";
+												case "String":
+													completion.type = "string";
+												default:
+													completion.type = "fn()";
+											}
+										}
+										else 
+										{
+											completion.type = "fn()";
+										}
+										
+										data.data.completions.push(completion);
 									}
 								}
 							}

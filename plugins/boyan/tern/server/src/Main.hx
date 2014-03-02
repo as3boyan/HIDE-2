@@ -8,7 +8,7 @@ class Main
 {
 	public static var name:String = "boyan.tern.server";
 	public static var dependencies:Array<String> = ["boyan.codemirror.editor", "boyan.bootstrap.tab-manager", "boyan.management.project-access", "boyan.completion.client"];
-	
+		
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
 	{
@@ -41,6 +41,10 @@ class Main
 				var keyMap = {
 					"Ctrl-Space": function (cm) { server.complete(cm); },
 					"Ctrl-Q": function(cm) { server.rename(cm); },
+					"." : function passAndHint(cm) {
+     	untyped setTimeout(function() {server.complete(cm);}, 100);
+      	untyped __js__("return CodeMirror.Pass");
+      }
 				};
 				
 				CM.editor.setOption("extraKeys", keyMap);
