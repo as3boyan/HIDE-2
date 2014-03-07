@@ -18,10 +18,9 @@ class ProjectOptions
 	{
 		var page:DivElement = Browser.document.createDivElement();
 		
-		var p:ParagraphElement = Browser.document.createParagraphElement();
-		p.id = "project-options-text";
-		p.innerText = "Project arguments:";
-		page.appendChild(p);
+		var projectOptionsText:ParagraphElement = Browser.document.createParagraphElement();
+		projectOptionsText.id = "project-options-text";
+		projectOptionsText.innerText = "Project arguments:";
 		
 		textarea = Browser.document.createTextAreaElement();
 		textarea.id = "project-options-textarea";
@@ -29,15 +28,55 @@ class ProjectOptions
 		{
 			ProjectAccess.currentProject.args = textarea.value.split("\n");
 		};
-		page.appendChild(textarea);
 		
-		var list:SelectElement = Browser.document.createSelectElement();
+		var projectTargetText:ParagraphElement = Browser.document.createParagraphElement();
+		projectTargetText.innerText = "Project target:";
+		page.appendChild(projectTargetText);
 		
-		for (target in ["Flash", "JavaScript", "Neko", "PHP", "C++", "Java", "C#"])
+		var projectTargetList:SelectElement = Browser.document.createSelectElement();
+		projectTargetList.id = "project-options-project-target";
+		
+		var openFLTargetList:SelectElement = Browser.document.createSelectElement();
+		openFLTargetList.id = "project-options-openfl-target";
+		
+		var openFLTargetText:ParagraphElement = Browser.document.createParagraphElement();
+		openFLTargetText.innerText = "OpenFL target:";
+		
+		for (target in ["Flash", "JavaScript", "Neko", "OpenFL", "PHP", "C++", "Java", "C#"])
 		{
-			list.appendChild(createListItem(target));
+			projectTargetList.appendChild(createListItem(target));
 		}
-		page.appendChild(list);
+		
+		projectTargetList.onchange = function (e)
+		{
+			if (projectTargetList.selectedIndex == 3)
+			{
+				openFLTargetList.style.display = "";
+				openFLTargetText.style.display = "";
+				textarea.style.display = "none";
+				projectOptionsText.style.display = "none";
+			}
+			else 
+			{
+				openFLTargetList.style.display = "none";
+				openFLTargetText.style.display = "none";
+				textarea.style.display = "";
+				projectOptionsText.style.display = "";
+			}
+		}
+		page.appendChild(projectTargetList);
+		page.appendChild(Browser.document.createBRElement());
+		page.appendChild(Browser.document.createBRElement());
+		page.appendChild(projectOptionsText);
+		page.appendChild(textarea);
+		page.appendChild(Browser.document.createBRElement());
+		page.appendChild(openFLTargetText);
+		
+		for (target in ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"])
+		{
+			openFLTargetList.appendChild(createListItem(target));
+		}
+		page.appendChild(openFLTargetList);
 		
 		Splitpane.components[3].appendChild(page);
 	}

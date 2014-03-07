@@ -13,24 +13,57 @@ Main.load = function() {
 var ProjectOptions = function() { }
 ProjectOptions.create = function() {
 	var page = js.Browser.document.createElement("div");
-	var p = js.Browser.document.createElement("p");
-	p.id = "project-options-text";
-	p.innerText = "Project arguments:";
-	page.appendChild(p);
+	page.style.setProperty("user-select","none","");
+	var projectOptionsText = js.Browser.document.createElement("p");
+	projectOptionsText.id = "project-options-text";
+	projectOptionsText.innerText = "Project arguments:";
 	ProjectOptions.textarea = js.Browser.document.createElement("textarea");
 	ProjectOptions.textarea.id = "project-options-textarea";
 	ProjectOptions.textarea.onchange = function(e) {
 		ProjectAccess.currentProject.args = ProjectOptions.textarea.value.split("\n");
 	};
-	page.appendChild(ProjectOptions.textarea);
-	var list = js.Browser.document.createElement("select");
-	var _g = 0, _g1 = ["Flash","JavaScript","Neko","PHP","C++","Java","C#"];
+	var projectTargetText = js.Browser.document.createElement("p");
+	projectTargetText.innerText = "Project target:";
+	page.appendChild(projectTargetText);
+	var projectTargetList = js.Browser.document.createElement("select");
+	projectTargetList.id = "project-options-project-target";
+	var openFLTargetList = js.Browser.document.createElement("select");
+	openFLTargetList.id = "project-options-openfl-target";
+	var openFLTargetText = js.Browser.document.createElement("p");
+	openFLTargetText.innerText = "OpenFL target:";
+	var _g = 0, _g1 = ["Flash","JavaScript","Neko","OpenFL","PHP","C++","Java","C#"];
 	while(_g < _g1.length) {
 		var target = _g1[_g];
 		++_g;
-		list.appendChild(ProjectOptions.createListItem(target));
+		projectTargetList.appendChild(ProjectOptions.createListItem(target));
 	}
-	page.appendChild(list);
+	projectTargetList.onchange = function(e) {
+		if(projectTargetList.selectedIndex == 3) {
+			openFLTargetList.style.display = "";
+			openFLTargetText.style.display = "";
+			ProjectOptions.textarea.style.display = "none";
+			projectOptionsText.style.display = "none";
+		} else {
+			openFLTargetList.style.display = "none";
+			openFLTargetText.style.display = "none";
+			ProjectOptions.textarea.style.display = "";
+			projectOptionsText.style.display = "";
+		}
+	};
+	page.appendChild(projectTargetList);
+	page.appendChild(js.Browser.document.createElement("br"));
+	page.appendChild(js.Browser.document.createElement("br"));
+	page.appendChild(projectOptionsText);
+	page.appendChild(ProjectOptions.textarea);
+	page.appendChild(js.Browser.document.createElement("br"));
+	page.appendChild(openFLTargetText);
+	var _g = 0, _g1 = ["flash","html5","neko","android","blackberry","emscripten","webos","tizen","ios","windows","mac","linux"];
+	while(_g < _g1.length) {
+		var target = _g1[_g];
+		++_g;
+		openFLTargetList.appendChild(ProjectOptions.createListItem(target));
+	}
+	page.appendChild(openFLTargetList);
 	Splitpane.components[3].appendChild(page);
 }
 ProjectOptions.createListItem = function(text) {

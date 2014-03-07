@@ -18,9 +18,6 @@ script:
   - cd boyan/bootstrap/alerts
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/bootstrap/file-tree
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/bootstrap/menu
   - haxe plugin.hxml
   - cd ../../../
@@ -33,34 +30,43 @@ script:
   - cd boyan/bootstrap/tab-manager
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/bootstrap/new-project-dialog
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/codemirror/editor
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/codemirror/zoom
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/compilation/output
+  - cd boyan/compilation/client
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/compilation/client
+  - cd boyan/compilation/output
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/compilation/server
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/developer-tools/hide
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/completion/client
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/jquery/script
+  - cd boyan/developer-tools/hide
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/events/hotkey
   - haxe plugin.hxml
   - cd ../../../
+  - cd boyan/jquery/script
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/jquery/layout
+  - haxe plugin.hxml
+  - cd ../../../
   - cd boyan/jquery/ui
+  - haxe plugin.hxml
+  - cd ../../../
+  - cd boyan/management/project-access
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/management/open-project
@@ -75,7 +81,7 @@ script:
   - cd boyan/openfl/tools
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/management/project-access
+  - cd boyan/bootstrap/file-tree
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/project/haxe
@@ -87,16 +93,10 @@ script:
   - cd boyan/tern/server
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/webgl/three
-  - haxe plugin.hxml
-  - cd ../../../
   - cd boyan/window/drag-and-drop
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/window/file-dialog
-  - haxe plugin.hxml
-  - cd ../../../
-  - cd boyan/window/preserve-window-state
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/window/toggle-fullscreen
@@ -105,10 +105,10 @@ script:
   - cd boyan/window/zoom
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/bootstrap/new-project-dialog
+  - cd boyan/window/preserve-window-state
   - haxe plugin.hxml
   - cd ../../../
-  - cd boyan/jquery/layout
+  - cd boyan/webgl/three
   - haxe plugin.hxml
   - cd ../../../
   - cd boyan/presentation/impress/about

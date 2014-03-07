@@ -91,6 +91,7 @@ class Main
 			"bin/includes/codemirror-git/addon/search/search.js",
 			"bin/includes/codemirror-git/addon/dialog/dialog.js",
 			"bin/includes/codemirror-3.18/addon/tern/tern.js",
+			"bin/includes/codemirror-git/addon/search/match-highlighter.js",
 			].concat(modes), function ():Void
 			{
 				var textarea:TextAreaElement = Browser.document.createTextAreaElement();
@@ -108,10 +109,11 @@ class Main
 						rangeFinder: untyped __js__("new CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)")
 					},
 					gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-					indentUnit:4,
-					tabSize:4,
-					mode:'haxe',
+					indentUnit: 4,
+					tabSize: 4,
+					mode: 'haxe',
 					lineWrapping: true,
+					highlightSelectionMatches: untyped __js__("{ showToken: /\\w/}")
                  });
 				 
 				editor.getWrapperElement().style.display = "none";
