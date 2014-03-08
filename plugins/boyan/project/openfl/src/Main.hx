@@ -87,13 +87,13 @@ class Main
 			project.url = data.projectURL;
 			project.type = Project.OPENFL;
 			//project.target = target;
+			project.openFLTarget = "flash";
 			project.path = pathToProject;
 			
-			Browser.getLocalStorage().setItem("pathToLastProject", pathToProject);
-			
 			ProjectAccess.currentProject = project;
+			ProjectOptions.updateProjectOptions();
 			
-			OpenFLTools.getParams(project.path, "flash", function (stdout:String)
+			OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
 			{
 				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 						
@@ -115,11 +115,14 @@ class Main
 				project.args = args;
 				
 				var path:String = js.Node.path.join(pathToProject, "project.hide");
+				
 				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 				{
 					FileTree.load(project.name, pathToProject);
 				}
 				);
+				
+				Browser.getLocalStorage().setItem("pathToLastProject", path);
 			}
 			);
 			
@@ -142,13 +145,13 @@ class Main
 			project.url = data.projectURL;
 			project.type = Project.OPENFL;
 			//project.target = target;
+			project.openFLTarget = "flash";
 			project.path = pathToProject;
 			
-			Browser.getLocalStorage().setItem("pathToLastProject", pathToProject);
-			
 			ProjectAccess.currentProject = project;
+			ProjectOptions.updateProjectOptions();
 			
-			OpenFLTools.getParams(project.path, "flash", function (stdout:String)
+			OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
 			{
 				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 						
@@ -175,6 +178,8 @@ class Main
 					FileTree.load(project.name, pathToProject);
 				}
 				);
+				
+				Browser.getLocalStorage().setItem("pathToLastProject", path);
 			}
 			);
 		}

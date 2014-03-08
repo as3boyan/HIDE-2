@@ -36,23 +36,29 @@ class OpenProject
 			{
 				parseProject(path);
 			}
+			else 
+			{
+				trace("previouly opened project: " + path + " was not found");
+			}
 		}
 		);
 	}
 	
 	private static function parseProject(path:String):Void
 	{				
+		trace(path);
+		
 		var filename:String = js.Node.path.basename(path);
 			
 		switch (filename) 
 		{
-			case "project.hide":					
+			case "project.hide":
 				js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
-					//js.Node.process.chdir(pathToProject);
 					
 					ProjectAccess.currentProject = Unserializer.run(data);
+					ProjectOptions.updateProjectOptions();
 					
 					ProjectAccess.currentProject.path = pathToProject;
 					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
@@ -69,9 +75,10 @@ class OpenProject
 				var project:Project = new Project();
 				project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
 				project.type = Project.OPENFL;
+				project.openFLTarget = "flash";
 				project.path = pathToProject;
 				
-				OpenFLTools.getParams(pathToProject, "flash", function (stdout:String)
+				OpenFLTools.getParams(pathToProject, project.openFLTarget, function (stdout:String)
 				{				
 					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					
@@ -103,6 +110,7 @@ class OpenProject
 				);
 				
 				ProjectAccess.currentProject = project;
+				ProjectOptions.updateProjectOptions();
 				
 				Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 			default:				
@@ -122,6 +130,7 @@ class OpenProject
 							project.path = pathToProject;
 							
 							ProjectAccess.currentProject = project;
+							ProjectOptions.updateProjectOptions();
 							
 							var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 							textarea.value = project.args.join("\n");

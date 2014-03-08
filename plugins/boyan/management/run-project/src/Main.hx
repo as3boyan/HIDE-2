@@ -26,25 +26,33 @@ class Main
 	}
 	
 	private static function runProject():Void
-	{
+	{		
 		if (ProjectAccess.currentProject.type == Project.OPENFL) 
 		{
-			HaxeClient.buildProject("haxelib", ["run", "openfl", "test", js.Node.path.join(ProjectAccess.currentProject.path, "project.xml"), "flash"]);
+			TabManager.saveAll(function ()
+			{
+				HaxeClient.buildProject("haxelib", ["run", "openfl", "test", js.Node.path.join(ProjectAccess.currentProject.path, "project.xml"), ProjectAccess.currentProject.openFLTarget]);
+			}
+			);
 		}
 		else 
 		{
-			buildProject(function ()
+			TabManager.saveAll(function ()
 			{
-				switch (ProjectAccess.currentProject.target) 
+				buildProject(function ()
 				{
-					case Project.FLASH:
-						//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
-						js.Node.require('nw.gui').Shell.openItem(js.Node.path.join(ProjectAccess.currentProject.path + "/bin/", ProjectAccess.currentProject.name + ".swf"));
-					case Project.JAVASCRIPT:
-						
-					default:
-						
+					switch (ProjectAccess.currentProject.target) 
+					{
+						case Project.FLASH:
+							//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
+							js.Node.require('nw.gui').Shell.openItem(js.Node.path.join(ProjectAccess.currentProject.path + "/bin/", ProjectAccess.currentProject.name + ".swf"));
+						case Project.JAVASCRIPT:
+							
+						default:
+							
+					}
 				}
+				);
 			}
 			);
 		}
@@ -61,7 +69,7 @@ class Main
 		}
 		else 
 		{
-			HaxeClient.buildProject("haxelib", ["run", "openfl", "build", js.Node.path.join(ProjectAccess.currentProject.path, "project.xml"), "flash"], onComplete);
+			HaxeClient.buildProject("haxelib", ["run", "openfl", "build", js.Node.path.join(ProjectAccess.currentProject.path, "project.xml"), ProjectAccess.currentProject.openFLTarget], onComplete);
 		}
 	}
 	

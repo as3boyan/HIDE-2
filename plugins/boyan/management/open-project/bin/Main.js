@@ -99,16 +99,18 @@ OpenProject.openProject = function(pathToProject) {
 }
 OpenProject.checkIfFileExists = function(path) {
 	js.Node.require("fs").exists(path,function(exists) {
-		if(exists) OpenProject.parseProject(path);
+		if(exists) OpenProject.parseProject(path); else console.log("previouly opened project: " + path + " was not found");
 	});
 }
 OpenProject.parseProject = function(path) {
+	console.log(path);
 	var filename = js.Node.require("path").basename(path);
 	switch(filename) {
 	case "project.hide":
 		js.Node.require("fs").readFile(path,"utf8",function(error,data) {
 			var pathToProject = js.Node.require("path").dirname(path);
 			ProjectAccess.currentProject = haxe.Unserializer.run(data);
+			ProjectOptions.updateProjectOptions();
 			ProjectAccess.currentProject.path = pathToProject;
 			FileTree.load(ProjectAccess.currentProject.name,pathToProject);
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
@@ -121,8 +123,9 @@ OpenProject.parseProject = function(path) {
 		var project = new Project();
 		project.name = HxOverrides.substr(pathToProject1,pathToProject1.lastIndexOf(js.Node.require("path").sep),null);
 		project.type = 1;
+		project.openFLTarget = "flash";
 		project.path = pathToProject1;
-		OpenFLTools.getParams(pathToProject1,"flash",function(stdout) {
+		OpenFLTools.getParams(pathToProject1,project.openFLTarget,function(stdout) {
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			var args = [];
 			var currentLine;
@@ -141,6 +144,7 @@ OpenProject.parseProject = function(path) {
 			});
 		});
 		ProjectAccess.currentProject = project;
+		ProjectOptions.updateProjectOptions();
 		js.Browser.getLocalStorage().setItem("pathToLastProject",js.Node.require("path").join(pathToProject1,"project.hide"));
 		break;
 	default:
@@ -155,6 +159,7 @@ OpenProject.parseProject = function(path) {
 				project1.args = data.split("\n");
 				project1.path = pathToProject2;
 				ProjectAccess.currentProject = project1;
+				ProjectOptions.updateProjectOptions();
 				var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 				textarea.value = project1.args.join("\n");
 				var pathToProjectHide = js.Node.require("path").join(pathToProject2,"project.hide");

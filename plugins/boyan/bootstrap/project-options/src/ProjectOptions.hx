@@ -10,15 +10,20 @@ import js.html.TextAreaElement;
  * ...
  * @author AS3Boyan
  */
-class ProjectOptions
+@:keepSub @:expose class ProjectOptions
 {	
 	private static var textarea:TextAreaElement;
+	private static var projectTargetList:SelectElement;
+	private static var projectTargetText:ParagraphElement;
+	private static var projectOptionsText:ParagraphElement;
+	private static var openFLTargetList:SelectElement;
+	private static var openFLTargetText:ParagraphElement;
 	
 	public static function create():Void
 	{
 		var page:DivElement = Browser.document.createDivElement();
 		
-		var projectOptionsText:ParagraphElement = Browser.document.createParagraphElement();
+		projectOptionsText = Browser.document.createParagraphElement();
 		projectOptionsText.id = "project-options-text";
 		projectOptionsText.innerText = "Project arguments:";
 		
@@ -29,17 +34,17 @@ class ProjectOptions
 			ProjectAccess.currentProject.args = textarea.value.split("\n");
 		};
 		
-		var projectTargetText:ParagraphElement = Browser.document.createParagraphElement();
+		projectTargetText = Browser.document.createParagraphElement();
 		projectTargetText.innerText = "Project target:";
 		page.appendChild(projectTargetText);
 		
-		var projectTargetList:SelectElement = Browser.document.createSelectElement();
+		projectTargetList = Browser.document.createSelectElement();
 		projectTargetList.id = "project-options-project-target";
 		
-		var openFLTargetList:SelectElement = Browser.document.createSelectElement();
+		openFLTargetList = Browser.document.createSelectElement();
 		openFLTargetList.id = "project-options-openfl-target";
 		
-		var openFLTargetText:ParagraphElement = Browser.document.createParagraphElement();
+		openFLTargetText = Browser.document.createParagraphElement();
 		openFLTargetText.innerText = "OpenFL target:";
 		
 		for (target in ["Flash", "JavaScript", "Neko", "OpenFL", "PHP", "C++", "Java", "C#"])
@@ -47,23 +52,9 @@ class ProjectOptions
 			projectTargetList.appendChild(createListItem(target));
 		}
 		
-		projectTargetList.onchange = function (e)
-		{
-			if (projectTargetList.selectedIndex == 3)
-			{
-				openFLTargetList.style.display = "";
-				openFLTargetText.style.display = "";
-				textarea.style.display = "none";
-				projectOptionsText.style.display = "none";
-			}
-			else 
-			{
-				openFLTargetList.style.display = "none";
-				openFLTargetText.style.display = "none";
-				textarea.style.display = "";
-				projectOptionsText.style.display = "";
-			}
-		}
+		projectTargetList.disabled = true;
+		projectTargetList.onchange = update;
+		
 		page.appendChild(projectTargetList);
 		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(Browser.document.createBRElement());
@@ -72,10 +63,18 @@ class ProjectOptions
 		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(openFLTargetText);
 		
-		for (target in ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"])
+		var openFLTargets:Array<String> = ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"];
+		
+		for (target in openFLTargets)
 		{
 			openFLTargetList.appendChild(createListItem(target));
 		}
+		
+		openFLTargetList.onchange = function (_)
+		{
+			ProjectAccess.currentProject.openFLTarget = openFLTargets[openFLTargetList.selectedIndex];
+		};
+		
 		page.appendChild(openFLTargetList);
 		
 		Splitpane.components[3].appendChild(page);
@@ -84,6 +83,56 @@ class ProjectOptions
 	public static function getProjectArguments():String
 	{
 		return textarea.value;
+	}
+	
+	private static function update(_):Void
+	{
+		if (projectTargetList.selectedIndex == 3)
+		{
+			openFLTargetList.style.display = "";
+			openFLTargetText.style.display = "";
+			textarea.style.display = "none";
+			projectOptionsText.style.display = "none";
+		}
+		else 
+		{
+			openFLTargetList.style.display = "none";
+			openFLTargetText.style.display = "none";
+			textarea.style.display = "";
+			projectOptionsText.style.display = "";
+		}
+	}
+	
+	public static function updateProjectOptions():Void
+	{		
+		if (ProjectAccess.currentProject.type == Project.OPENFL)
+		{
+			projectTargetList.selectedIndex = 3;
+		}
+		else 
+		{
+			switch (ProjectAccess.currentProject.target) 
+			{
+				case Project.FLASH:
+					projectTargetList.selectedIndex = 0;
+				case Project.JAVASCRIPT:
+					projectTargetList.selectedIndex = 1;
+				case Project.NEKO:
+					projectTargetList.selectedIndex = 2;
+				case Project.PHP:
+					projectTargetList.selectedIndex = 4;
+				case Project.CPP:
+					projectTargetList.selectedIndex = 5;
+				case Project.JAVA:
+					projectTargetList.selectedIndex = 6;
+				case Project.CSHARP:
+					projectTargetList.selectedIndex = 7;
+				default:
+					
+			}
+		}
+		
+		update(null);
 	}
 	
 	private static function createListItem(text:String):OptionElement

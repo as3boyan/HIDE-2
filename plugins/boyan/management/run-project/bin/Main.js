@@ -25,16 +25,20 @@ Main.main = function() {
 	});
 }
 Main.runProject = function() {
-	if(ProjectAccess.currentProject.type == 1) HaxeClient.buildProject("haxelib",["run","openfl","test",js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml"),"flash"]); else Main.buildProject(function() {
-		var _g = ProjectAccess;
-		switch(_g.currentProject.target) {
-		case 0:
-			js.Node.require("nw.gui").Shell.openItem(js.Node.require("path").join(ProjectAccess.currentProject.path + "/bin/",ProjectAccess.currentProject.name + ".swf"));
-			break;
-		case 1:
-			break;
-		default:
-		}
+	if(ProjectAccess.currentProject.type == 1) TabManager.saveAll(function() {
+		HaxeClient.buildProject("haxelib",["run","openfl","test",js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml"),ProjectAccess.currentProject.openFLTarget]);
+	}); else TabManager.saveAll(function() {
+		Main.buildProject(function() {
+			var _g = ProjectAccess;
+			switch(_g.currentProject.target) {
+			case 0:
+				js.Node.require("nw.gui").Shell.openItem(js.Node.require("path").join(ProjectAccess.currentProject.path + "/bin/",ProjectAccess.currentProject.name + ".swf"));
+				break;
+			case 1:
+				break;
+			default:
+			}
+		});
 	});
 }
 Main.buildProject = function(onComplete) {
@@ -42,7 +46,7 @@ Main.buildProject = function(onComplete) {
 		var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 		var args = projectOptions.value.split("\n");
 		HaxeClient.buildProject("haxe",["--connect","6001","--cwd",ProjectAccess.currentProject.path].concat(args),onComplete);
-	} else HaxeClient.buildProject("haxelib",["run","openfl","build",js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml"),"flash"],onComplete);
+	} else HaxeClient.buildProject("haxelib",["run","openfl","build",js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml"),ProjectAccess.currentProject.openFLTarget],onComplete);
 }
 var Std = function() { }
 Std.__name__ = true;

@@ -95,10 +95,11 @@ Main.createOpenFLProject = function(data,sample) {
 		project.license = data.projectLicense;
 		project.url = data.projectURL;
 		project.type = 1;
+		project.openFLTarget = "flash";
 		project.path = pathToProject;
-		js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProject);
 		ProjectAccess.currentProject = project;
-		OpenFLTools.getParams(project.path,"flash",function(stdout) {
+		ProjectOptions.updateProjectOptions();
+		OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			var args = [];
 			var currentLine;
@@ -115,6 +116,7 @@ Main.createOpenFLProject = function(data,sample) {
 			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 				FileTree.load(project.name,pathToProject);
 			});
+			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 		});
 		TabManager.openFileInNewTab(js.Node.require("path").join(pathToProject,"Source","Main.hx"));
 	});
@@ -129,10 +131,11 @@ Main.createOpenFLExtension = function(data) {
 		project.license = data.projectLicense;
 		project.url = data.projectURL;
 		project.type = 1;
+		project.openFLTarget = "flash";
 		project.path = pathToProject;
-		js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProject);
 		ProjectAccess.currentProject = project;
-		OpenFLTools.getParams(project.path,"flash",function(stdout) {
+		ProjectOptions.updateProjectOptions();
+		OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
 			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 			var args = [];
 			var currentLine;
@@ -149,6 +152,7 @@ Main.createOpenFLExtension = function(data) {
 			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 				FileTree.load(project.name,pathToProject);
 			});
+			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 		});
 	});
 }

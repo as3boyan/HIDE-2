@@ -158,11 +158,13 @@ Main.createHaxeProject = function(data,target) {
 		args += "-debug\n -dce full";
 		project.args = args.split("\n");
 		var path = js.Node.require("path").join(pathToProject,"project.hide");
+		console.log(project);
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 			FileTree.load(project.name,pathToProject);
 		});
 		js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 		ProjectAccess.currentProject = project;
+		ProjectOptions.updateProjectOptions();
 		var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 		textarea.value = args;
 	});

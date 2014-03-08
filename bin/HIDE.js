@@ -493,14 +493,8 @@ Main.compilePlugin = function(name,pathToPlugin,onSuccess,onFailed) {
 Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 	var startTime = new Date().getTime();
 	var delta;
-	var haxeCompilerProcess = js.Node.require("child_process").spawn("haxe",["--cwd",pathToPlugin,"plugin.hxml"]);
-	var stderrData = "";
-	haxeCompilerProcess.stderr.on("data",function(data) {
-		stderrData += data;
-		console.log(pathToPlugin + " stderr: " + data);
-	});
-	haxeCompilerProcess.on("close",function(code) {
-		if(code == 0) {
+	var haxeCompilerProcess = js.Node.require("child_process").exec(["haxe","--cwd",pathToPlugin,"plugin.hxml"].join(" "),{ },function(err,stdout,stderr) {
+		if(err == null) {
 			delta = new Date().getTime() - startTime;
 			Std.string(console.log(name + " compilation took " + Std.string(delta))) + " ms";
 			onSuccess(pathToPlugin);
@@ -521,14 +515,15 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 				textarea.value = "Plugins compile-time errors:\n";
 				js.Browser.document.body.appendChild(textarea);
 			} else textarea = js.Boot.__cast(element , HTMLTextAreaElement);
-			textarea.value += name + "\n" + stderrData + "\n";
+			console.log(pathToPlugin + " stderr: " + stderr);
+			textarea.value += name + "\n" + stderr + "\n";
 			console.log("can't load " + name + " plugin, compilation failed");
 			var regex = new EReg("haxelib install (.+) ","gim");
-			regex.map(stderrData,function(ereg) {
+			regex.map(stderr,function(ereg) {
 				console.log(ereg);
 				return "";
 			});
-			if(onFailed != null) onFailed(stderrData);
+			if(onFailed != null) onFailed(stderr);
 		}
 	});
 }
@@ -1413,6 +1408,9 @@ js.Boot.__instanceof = function(o,cl) {
 		return o.__enum__ == cl;
 	}
 }
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
@@ -1498,3 +1496,5 @@ function $hxExpose(src, path) {
 	o[parts[parts.length-1]] = src;
 }
 })();
+
+//@ sourceMappingURL=HIDE.js.map

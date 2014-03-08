@@ -7,5 +7,5 @@ import js.Browser;
  */
 @:keepSub @:expose class ProjectAccess
 {
-	public static var currentProject:Project = new Project();	
+	public static var currentProject:Project = new Project();
 }

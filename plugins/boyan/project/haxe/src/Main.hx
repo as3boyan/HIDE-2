@@ -171,6 +171,8 @@ class Main
 			project.args = args.split("\n");
 			
 			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			trace(project);
+			
 			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 			{
 				FileTree.load(project.name, pathToProject);
@@ -180,6 +182,7 @@ class Main
 			Browser.getLocalStorage().setItem("pathToLastProject", path);
 			
 			ProjectAccess.currentProject = project;
+			ProjectOptions.updateProjectOptions();
 			
 			var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 			textarea.value = args;

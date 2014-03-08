@@ -287,18 +287,9 @@ class Main
 		var startTime:Float = Date.now().getTime();
 		var delta:Float;
 		
-		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.spawn("haxe", ["--cwd", pathToPlugin, "plugin.hxml"]);
-						
-		var stderrData:String = "";
-
-		haxeCompilerProcess.stderr.on('data', function (data:String):Void {
-			stderrData += data;
-			trace(pathToPlugin + ' stderr: ' + data);
-		});
-		
-		haxeCompilerProcess.on("close", function (code:Int):Void
-		{
-			if (code == 0)
+		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxe", "--cwd", pathToPlugin, "plugin.hxml"].join(" "), { }, function (err, stdout, stderr)
+		{			
+			if (err == null)
 			{
 				delta = Date.now().getTime() - startTime;
 				
@@ -307,7 +298,7 @@ class Main
 				onSuccess(pathToPlugin);
 				HIDE.pluginsMTime.set(name, Std.parseInt(Std.string(Date.now().getTime())));
 			}
-			else
+			else 
 			{
 				var element:Element = Browser.document.getElementById("plugin-compilation-console");
 
@@ -332,12 +323,13 @@ class Main
 					textarea = cast(element, TextAreaElement);
 				}
 				
-				textarea.value += name + "\n" + stderrData + "\n";
+				trace(pathToPlugin + ' stderr: ' + stderr);
 				
+				textarea.value += name + "\n" + stderr + "\n";
 				trace("can't load " + name + " plugin, compilation failed");
 				
 				var regex:EReg = new EReg("haxelib install (.+) ", "gim");
-				regex.map(stderrData, function (ereg:EReg)
+				regex.map(stderr, function (ereg:EReg)
 				{
 					trace(ereg);
 					return "";
@@ -346,7 +338,7 @@ class Main
 				
 				if (onFailed != null)
 				{
-					onFailed(stderrData);
+					onFailed(stderr);
 				}
 			}
 		}

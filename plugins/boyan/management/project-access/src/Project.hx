@@ -35,6 +35,8 @@ package ;
 	
 	public var path:String;
 	
+	public var openFLTarget:String;
+	
 	public function new() 
 	{
 		customArgs = false;

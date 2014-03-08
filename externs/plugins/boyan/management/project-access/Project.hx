@@ -36,6 +36,8 @@ extern class Project
 	public var files:Array<String>;
 	
 	public var path:String;
+	
+	public var openFLTarget:String;
 
 	public function new() 
 	{
