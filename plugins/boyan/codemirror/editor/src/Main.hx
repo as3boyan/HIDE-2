@@ -24,10 +24,10 @@ class Main
 		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.tab-manager"], function ():Void
 		{
 			HIDE.loadCSS(name, [
-			"bin/includes/codemirror-3.18/lib/codemirror.css", 
-			"bin/includes/codemirror-3.18/addon/hint/show-hint.css",
-			"bin/includes/codemirror-git/addon/dialog/dialog.css",
-			"bin/includes/codemirror-git/addon/tern/tern.css",
+			"bin/includes/codemirror-3.22/lib/codemirror.css", 
+			"bin/includes/codemirror-3.22/addon/hint/show-hint.css",
+			"bin/includes/codemirror-3.22/addon/dialog/dialog.css",
+			"bin/includes/codemirror-3.22/addon/tern/tern.css",
 			"bin/includes/css/editor.css"
 			]);
 			
@@ -67,31 +67,30 @@ class Main
 			"htmlmixed/htmlmixed.js",
 			"markdown/markdown.js",
 			"shell/shell.js",
-			"ocaml/ocaml.js",
 			];
 			
 			for (i in 0...modes.length)
 			{
-				modes[i] = "bin/includes/codemirror-git/mode/" + modes[i];
+				modes[i] = "bin/includes/codemirror-3.22/mode/" + modes[i];
 			}
 			
 			HIDE.loadJS(name, [
-			"bin/includes/codemirror-git/lib/codemirror.js",
+			"bin/includes/codemirror-3.22/lib/codemirror.js",
 			"bin/includes/codemirror/addon/hint/show-hint.js",
-			"bin/includes/codemirror-git/addon/edit/matchbrackets.js",
-			"bin/includes/codemirror-git/addon/edit/closebrackets.js",
-			"bin/includes/codemirror-git/addon/comment/comment.js",
-			"bin/includes/codemirror-git/addon/fold/foldcode.js",
-			"bin/includes/codemirror-git/addon/fold/foldgutter.js",
-			"bin/includes/codemirror-git/addon/fold/brace-fold.js",
-			"bin/includes/codemirror-git/addon/fold/comment-fold.js",
-			"bin/includes/codemirror-git/addon/selection/active-line.js",
+			"bin/includes/codemirror-3.22/addon/edit/matchbrackets.js",
+			"bin/includes/codemirror-3.22/addon/edit/closebrackets.js",
+			"bin/includes/codemirror-3.22/addon/comment/comment.js",
+			"bin/includes/codemirror-3.22/addon/fold/foldcode.js",
+			"bin/includes/codemirror-3.22/addon/fold/foldgutter.js",
+			"bin/includes/codemirror-3.22/addon/fold/brace-fold.js",
+			"bin/includes/codemirror-3.22/addon/fold/comment-fold.js",
+			"bin/includes/codemirror-3.22/addon/selection/active-line.js",
 			//CodeMirror addons for Tern
-			"bin/includes/codemirror-git/addon/search/searchcursor.js",
-			"bin/includes/codemirror-git/addon/search/search.js",
-			"bin/includes/codemirror-git/addon/dialog/dialog.js",
+			"bin/includes/codemirror-3.22/addon/search/searchcursor.js",
+			"bin/includes/codemirror-3.22/addon/search/search.js",
+			"bin/includes/codemirror-3.22/addon/dialog/dialog.js",
 			"bin/includes/codemirror-3.18/addon/tern/tern.js",
-			"bin/includes/codemirror-git/addon/search/match-highlighter.js",
+			"bin/includes/codemirror-3.22/addon/search/match-highlighter.js",
 			].concat(modes), function ():Void
 			{
 				var textarea:TextAreaElement = Browser.document.createTextAreaElement();
@@ -133,7 +132,7 @@ class Main
 	{
 		for (theme in themes)
 		{
-			HIDE.loadCSS(name, ["bin/includes/codemirror-git/theme/" + theme + ".css"]);
+			HIDE.loadCSS(name, ["bin/includes/codemirror-3.22/theme/" + theme + ".css"]);
 		}
 	}
 	

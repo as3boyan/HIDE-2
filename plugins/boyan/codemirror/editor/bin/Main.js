@@ -7,15 +7,15 @@ Main.main = function() {
 }
 Main.load = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.tab-manager"],function() {
-		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-3.18/lib/codemirror.css","bin/includes/codemirror-3.18/addon/hint/show-hint.css","bin/includes/codemirror-git/addon/dialog/dialog.css","bin/includes/codemirror-git/addon/tern/tern.css","bin/includes/css/editor.css"]);
+		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-3.22/lib/codemirror.css","bin/includes/codemirror-3.22/addon/hint/show-hint.css","bin/includes/codemirror-3.22/addon/dialog/dialog.css","bin/includes/codemirror-3.22/addon/tern/tern.css","bin/includes/css/editor.css"]);
 		Main.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"]);
-		var modes = ["haxe/haxe.js","javascript/javascript.js","css/css.js","xml/xml.js","htmlmixed/htmlmixed.js","markdown/markdown.js","shell/shell.js","ocaml/ocaml.js"];
+		var modes = ["haxe/haxe.js","javascript/javascript.js","css/css.js","xml/xml.js","htmlmixed/htmlmixed.js","markdown/markdown.js","shell/shell.js"];
 		var _g1 = 0, _g = modes.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			modes[i] = "bin/includes/codemirror-git/mode/" + modes[i];
+			modes[i] = "bin/includes/codemirror-3.22/mode/" + modes[i];
 		}
-		HIDE.loadJS(Main.$name,["bin/includes/codemirror-git/lib/codemirror.js","bin/includes/codemirror/addon/hint/show-hint.js","bin/includes/codemirror-git/addon/edit/matchbrackets.js","bin/includes/codemirror-git/addon/edit/closebrackets.js","bin/includes/codemirror-git/addon/comment/comment.js","bin/includes/codemirror-git/addon/fold/foldcode.js","bin/includes/codemirror-git/addon/fold/foldgutter.js","bin/includes/codemirror-git/addon/fold/brace-fold.js","bin/includes/codemirror-git/addon/fold/comment-fold.js","bin/includes/codemirror-git/addon/selection/active-line.js","bin/includes/codemirror-git/addon/search/searchcursor.js","bin/includes/codemirror-git/addon/search/search.js","bin/includes/codemirror-git/addon/dialog/dialog.js","bin/includes/codemirror-3.18/addon/tern/tern.js","bin/includes/codemirror-git/addon/search/match-highlighter.js"].concat(modes),function() {
+		HIDE.loadJS(Main.$name,["bin/includes/codemirror-3.22/lib/codemirror.js","bin/includes/codemirror/addon/hint/show-hint.js","bin/includes/codemirror-3.22/addon/edit/matchbrackets.js","bin/includes/codemirror-3.22/addon/edit/closebrackets.js","bin/includes/codemirror-3.22/addon/comment/comment.js","bin/includes/codemirror-3.22/addon/fold/foldcode.js","bin/includes/codemirror-3.22/addon/fold/foldgutter.js","bin/includes/codemirror-3.22/addon/fold/brace-fold.js","bin/includes/codemirror-3.22/addon/fold/comment-fold.js","bin/includes/codemirror-3.22/addon/selection/active-line.js","bin/includes/codemirror-3.22/addon/search/searchcursor.js","bin/includes/codemirror-3.22/addon/search/search.js","bin/includes/codemirror-3.22/addon/dialog/dialog.js","bin/includes/codemirror-3.18/addon/tern/tern.js","bin/includes/codemirror-3.22/addon/search/match-highlighter.js"].concat(modes),function() {
 			var textarea = js.Browser.document.createElement("textarea");
 			textarea.id = "code";
 			Splitpane.components[1].appendChild(textarea);
@@ -32,7 +32,7 @@ Main.loadThemes = function(themes) {
 	while(_g < themes.length) {
 		var theme = themes[_g];
 		++_g;
-		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-git/theme/" + theme + ".css"]);
+		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-3.22/theme/" + theme + ".css"]);
 	}
 }
 var js = {}
