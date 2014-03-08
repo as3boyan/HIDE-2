@@ -12,6 +12,8 @@ var Project = function() {
 $hxExpose(Project, "Project");
 var ProjectAccess = function() { }
 $hxExpose(ProjectAccess, "ProjectAccess");
+ProjectAccess.save = function() {
+}
 Main.$name = "boyan.management.project-access";
 Main.dependencies = [];
 Project.HAXE = 0;

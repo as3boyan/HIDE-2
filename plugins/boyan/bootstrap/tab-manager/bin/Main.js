@@ -122,6 +122,9 @@ Main.load = function() {
 		BootstrapMenu.getMenu("File").addMenuItem("Save As...",5,TabManager.saveActiveFileAs,"Ctrl-Shift-S",83,true,true,false);
 		BootstrapMenu.getMenu("File").addMenuItem("Save All",6,TabManager.saveAll);
 		BootstrapMenu.getMenu("File").addMenuItem("Close File",7,TabManager.closeActiveTab,"Ctrl-W",87,true,false,false);
+		js.Node.require("nw.gui").Window.get().on("close",function(e) {
+			TabManager.saveAll();
+		});
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
 }

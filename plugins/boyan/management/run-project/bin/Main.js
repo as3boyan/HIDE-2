@@ -26,7 +26,7 @@ Main.main = function() {
 }
 Main.runProject = function() {
 	if(ProjectAccess.currentProject.type == 1) TabManager.saveAll(function() {
-		HaxeClient.buildProject("haxelib",["run","openfl","test",Main.surroundWithQuotes(js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml")),ProjectAccess.currentProject.openFLTarget]);
+		HaxeClient.buildProject("haxelib",["run","openfl","test",HIDE.surroundWithQuotes(js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml")),ProjectAccess.currentProject.openFLTarget]);
 	}); else TabManager.saveAll(function() {
 		Main.buildProject(function() {
 			var _g = ProjectAccess;
@@ -45,11 +45,8 @@ Main.buildProject = function(onComplete) {
 	if(ProjectAccess.currentProject.type == 0) {
 		var projectOptions = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
 		var args = projectOptions.value.split("\n");
-		HaxeClient.buildProject("haxe",["--connect","6001","--cwd",Main.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(args),onComplete);
-	} else HaxeClient.buildProject("haxelib",["run","openfl","build",Main.surroundWithQuotes(js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml")),ProjectAccess.currentProject.openFLTarget],onComplete);
-}
-Main.surroundWithQuotes = function(path) {
-	return "\"" + path + "\"";
+		HaxeClient.buildProject("haxe",["--connect","6001","--cwd",HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(args),onComplete);
+	} else HaxeClient.buildProject("haxelib",["run","openfl","build",HIDE.surroundWithQuotes(js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml")),ProjectAccess.currentProject.openFLTarget],onComplete);
 }
 var Std = function() { }
 Std.__name__ = true;

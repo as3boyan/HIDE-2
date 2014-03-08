@@ -15,7 +15,7 @@ Completion.registerHandlers = function() {
 				projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(data.doc.indexFromPos(data.from)));
 				console.log(projectArguments);
 				console.log(ProjectAccess.currentProject.path);
-				HaxeCompletionClient.runProcess("haxe",["--connect","6001","--cwd",Completion.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments),function(stderr) {
+				HaxeCompletionClient.runProcess("haxe",["--connect","6001","--cwd",HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments),function(stderr) {
 					var xml = Xml.parse(stderr);
 					var fast = new haxe.xml.Fast(xml);
 					if(fast.hasNode.resolve("list")) {
@@ -67,9 +67,6 @@ Completion.registerHandlers = function() {
 			}
 		});
 	});
-}
-Completion.surroundWithQuotes = function(path) {
-	return "\"" + path + "\"";
 }
 var HxOverrides = function() { }
 HxOverrides.__name__ = true;

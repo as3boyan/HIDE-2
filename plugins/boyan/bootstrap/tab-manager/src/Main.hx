@@ -50,6 +50,12 @@ class Main
 			//Ctrl-W
 			BootstrapMenu.getMenu("File").addMenuItem("Close File", 7, TabManager.closeActiveTab, "Ctrl-W", "W".code, true, false, false);
 			
+			js.Node.require('nw.gui').Window.get().on('close', function (e)
+			{
+				TabManager.saveAll();
+			}
+			);
+			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);
 		}

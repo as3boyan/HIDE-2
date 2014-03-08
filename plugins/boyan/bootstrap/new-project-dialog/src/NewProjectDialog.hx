@@ -1,9 +1,5 @@
 package ;
-//import core.FileDialog;
-//import core.ProjectAccess;
-//import core.TabsManager;
 import haxe.ds.StringMap;
-import haxe.Serializer;
 import haxe.Timer;
 import jQuery.JQuery;
 import js.Browser;
@@ -250,6 +246,8 @@ import js.html.UListElement;
 							projectURL: projectURL,
 							createDirectory: !selectedCategory.getItem(list.value).showCreateDirectoryOption || createDirectoryForProject.checked
 							});
+							
+						Browser.getLocalStorage().setItem("Location", projectLocation.value);
 					}
 					
 					//switch (selectedCategory) 

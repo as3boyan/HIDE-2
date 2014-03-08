@@ -188,6 +188,9 @@ HIDE.writeFile = function(name,path,contents,onComplete) {
 		if(onComplete != null && error == null) onComplete();
 	});
 }
+HIDE.surroundWithQuotes = function(path) {
+	return "\"" + path + "\"";
+}
 HIDE.checkRequiredPluginsData = function() {
 	if(HIDE.requestedPluginsData.length > 0) {
 		var pluginData;
@@ -496,7 +499,7 @@ Main.compilePlugin = function(name,pathToPlugin,onSuccess,onFailed) {
 Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 	var startTime = new Date().getTime();
 	var delta;
-	var command = ["haxe","--cwd",Main.surroundWithQuotes(pathToPlugin),"plugin.hxml"].join(" ");
+	var command = ["haxe","--cwd",HIDE.surroundWithQuotes(pathToPlugin),"plugin.hxml"].join(" ");
 	console.log(command);
 	var haxeCompilerProcess = js.Node.require("child_process").exec(command,{ },function(err,stdout,stderr) {
 		if(err == null) {
@@ -531,9 +534,6 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 			if(onFailed != null) onFailed(stderr);
 		}
 	});
-}
-Main.surroundWithQuotes = function(path) {
-	return "\"" + path + "\"";
 }
 Main.checkHaxeInstalled = function(onSuccess,onFailed) {
 	js.Node.require("child_process").exec("haxe",{ },function(error,stdout,stderr) {

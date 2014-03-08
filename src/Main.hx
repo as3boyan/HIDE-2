@@ -293,7 +293,7 @@ class Main
 		var startTime:Float = Date.now().getTime();
 		var delta:Float;
 		
-		var command:String = ["haxe", "--cwd", surroundWithQuotes(pathToPlugin), "plugin.hxml"].join(" ");
+		var command:String = ["haxe", "--cwd", HIDE.surroundWithQuotes(pathToPlugin), "plugin.hxml"].join(" ");
 		
 		trace(command);
 		
@@ -353,11 +353,6 @@ class Main
 			}
 		}
 		);
-	}
-	
-	private static function surroundWithQuotes(path:String):String
-	{
-		return '"' + path + '"';
 	}
 	
 	private static function checkHaxeInstalled(onSuccess:Dynamic, onFailed:Dynamic):Void

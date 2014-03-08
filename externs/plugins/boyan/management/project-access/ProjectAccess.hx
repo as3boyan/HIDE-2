@@ -7,10 +7,5 @@ package ;
 extern class ProjectAccess
 {
 	public static var currentProject:Project;
-	
-	public function new() 
-	{
-		
-	}
-	
+	public static function save():Void;	
 }

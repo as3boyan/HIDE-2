@@ -1,4 +1,5 @@
 package ;
+import haxe.Timer;
 
 /**
  * ...

@@ -1,5 +1,5 @@
 package ;
-import js.Browser;
+//import haxe.Serializer;
 
 /**
  * ...
@@ -8,4 +8,17 @@ import js.Browser;
 @:keepSub @:expose class ProjectAccess
 {
 	public static var currentProject:Project = new Project();
+	
+	public static function save():Void
+	{
+		//var pathToProjectHide:String = js.Node.path.join(ProjectAccess.currentProject.path, "project.hide");
+		
+		//trace(Serializer.run(ProjectAccess.currentProject));
+		
+		//js.Node.fs.writeFile(pathToProjectHide, Serializer.run(ProjectAccess.currentProject), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+		//{
+			// 
+		//}
+		//);
+	}
 }

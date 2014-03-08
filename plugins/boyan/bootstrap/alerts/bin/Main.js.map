@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/alerts/src/Alerts.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/alerts/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/js/Browser.hx"],
+"sources":["C:/GitHub/HIDE/plugins/boyan/bootstrap/alerts/src/Alerts.hx","C:/GitHub/HIDE/plugins/boyan/bootstrap/alerts/src/Main.hx","C:/HaxeToolkit/haxe/std/js/Browser.hx"],
 "names":[],
 "mappings":";;;mBAac,JACd;CACC,EAAqB;CACrB,EAAgB;CAEhB,EAA2B;CAC3B,EAAc;CACd,EAAmB;CACnB,AAAoB,AAAgB;CACpC,AAAoB,AAAe;CACnC,EAAmB;CAEnB,AAAgB;CAChB,AAAgB,AAAgC;CAEhD,AAAkC;;;YChBrB,DACd;CAEC,AAA2B;;;;aAPI;sBCqBsC;;;;;;;;;;;;;;"
 }

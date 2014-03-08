@@ -255,6 +255,7 @@ NewProjectDialog.createProject = function() {
 				var projectLicense = NewProjectDialog.getCheckboxData("License");
 				var projectURL = NewProjectDialog.getCheckboxData("URL");
 				item.createProjectFunction({ projectName : NewProjectDialog.projectName.value, projectLocation : NewProjectDialog.projectLocation.value, projectPackage : projectPackage, projectCompany : projectCompany, projectLicense : projectLicense, projectURL : projectURL, createDirectory : !NewProjectDialog.selectedCategory.getItem(NewProjectDialog.list.value).showCreateDirectoryOption || NewProjectDialog.createDirectoryForProject.checked});
+				js.Browser.getLocalStorage().setItem("Location",NewProjectDialog.projectLocation.value);
 			}
 			NewProjectDialog.saveData("Package");
 			NewProjectDialog.saveData("Company");

@@ -38,7 +38,7 @@ class OpenProject
 			}
 			else 
 			{
-				trace("previouly opened project: " + path + " was not found");
+				trace("previously opened project: " + path + " was not found");
 			}
 		}
 		);
@@ -157,7 +157,7 @@ class OpenProject
 	}
 	
 	public static function searchForLastProject():Void
-	{
+	{		
 		var pathToLastProject:String = Browser.getLocalStorage().getItem("pathToLastProject");
 		if (pathToLastProject != null)
 		{

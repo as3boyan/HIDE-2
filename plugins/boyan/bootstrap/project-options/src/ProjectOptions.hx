@@ -18,6 +18,7 @@ import js.html.TextAreaElement;
 	private static var projectOptionsText:ParagraphElement;
 	private static var openFLTargetList:SelectElement;
 	private static var openFLTargetText:ParagraphElement;
+	private static var openFLTargets:Array<String>;
 	
 	public static function create():Void
 	{
@@ -32,6 +33,7 @@ import js.html.TextAreaElement;
 		textarea.onchange = function (e)
 		{
 			ProjectAccess.currentProject.args = textarea.value.split("\n");
+			ProjectAccess.save();
 		};
 		
 		projectTargetText = Browser.document.createParagraphElement();
@@ -63,7 +65,7 @@ import js.html.TextAreaElement;
 		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(openFLTargetText);
 		
-		var openFLTargets:Array<String> = ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"];
+		openFLTargets = ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"];
 		
 		for (target in openFLTargets)
 		{
@@ -73,6 +75,7 @@ import js.html.TextAreaElement;
 		openFLTargetList.onchange = function (_)
 		{
 			ProjectAccess.currentProject.openFLTarget = openFLTargets[openFLTargetList.selectedIndex];
+			ProjectAccess.save();
 		};
 		
 		page.appendChild(openFLTargetList);
@@ -108,6 +111,16 @@ import js.html.TextAreaElement;
 		if (ProjectAccess.currentProject.type == Project.OPENFL)
 		{
 			projectTargetList.selectedIndex = 3;
+			
+			var i:Int = Lambda.indexOf(openFLTargets, ProjectAccess.currentProject.openFLTarget);
+			if (i != -1)
+			{
+				openFLTargetList.selectedIndex = i;
+			}
+			else 
+			{
+				openFLTargetList.selectedIndex = 0;
+			}
 		}
 		else 
 		{

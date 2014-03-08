@@ -99,7 +99,7 @@ OpenProject.openProject = function(pathToProject) {
 }
 OpenProject.checkIfFileExists = function(path) {
 	js.Node.require("fs").exists(path,function(exists) {
-		if(exists) OpenProject.parseProject(path); else console.log("previouly opened project: " + path + " was not found");
+		if(exists) OpenProject.parseProject(path); else console.log("previously opened project: " + path + " was not found");
 	});
 }
 OpenProject.parseProject = function(path) {

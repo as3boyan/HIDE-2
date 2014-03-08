@@ -1,11 +1,7 @@
 package ;
 import haxe.ds.StringMap.StringMap;
-import haxe.Json;
 import haxe.Serializer;
-import haxe.Timer;
-import js.Boot;
 import js.Browser;
-import js.html.KeyboardEvent;
 import js.html.LinkElement;
 import js.html.ScriptElement;
 
@@ -130,6 +126,7 @@ typedef PluginDependenciesData =
 	
 	public static function notifyLoadingComplete(name:String):Void
 	{
+		//trace("Object " + name);
 		plugins.push(name);
 		checkRequiredPluginsData();
 	}
@@ -201,6 +198,11 @@ typedef PluginDependenciesData =
 		);
 	}
 	
+	public static function surroundWithQuotes(path:String):String
+	{
+		return '"' + path + '"';
+	}
+	
 	private static function checkRequiredPluginsData():Void
 	{		
 		if (requestedPluginsData.length > 0)
@@ -234,6 +236,7 @@ typedef PluginDependenciesData =
 				if (pluginsLoaded)
 				{
 					requestedPluginsData.splice(j, 1);
+					//trace(pluginData);
 					pluginData.onLoaded();
 				}
 				else 
