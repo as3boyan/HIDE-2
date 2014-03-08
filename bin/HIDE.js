@@ -371,6 +371,9 @@ Main.main = function() {
 	var gui = js.Node.require("nw.gui");
 	Main.window = gui.Window.get();
 	Main.window.showDevTools();
+	js.Node.process.on("uncaughtException",function(err) {
+		console.log(err);
+	});
 	js.Browser.window.addEventListener("load",function(e) {
 		Main.currentTime = new Date().getTime();
 		Main.checkHaxeInstalled(function() {
@@ -493,7 +496,9 @@ Main.compilePlugin = function(name,pathToPlugin,onSuccess,onFailed) {
 Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 	var startTime = new Date().getTime();
 	var delta;
-	var haxeCompilerProcess = js.Node.require("child_process").exec(["haxe","--cwd",pathToPlugin,"plugin.hxml"].join(" "),{ },function(err,stdout,stderr) {
+	var command = ["haxe","--cwd",Main.surroundWithQuotes(pathToPlugin),"plugin.hxml"].join(" ");
+	console.log(command);
+	var haxeCompilerProcess = js.Node.require("child_process").exec(command,{ },function(err,stdout,stderr) {
 		if(err == null) {
 			delta = new Date().getTime() - startTime;
 			Std.string(console.log(name + " compilation took " + Std.string(delta))) + " ms";
@@ -526,6 +531,9 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 			if(onFailed != null) onFailed(stderr);
 		}
 	});
+}
+Main.surroundWithQuotes = function(path) {
+	return "\"" + path + "\"";
 }
 Main.checkHaxeInstalled = function(onSuccess,onFailed) {
 	js.Node.require("child_process").exec("haxe",{ },function(error,stdout,stderr) {

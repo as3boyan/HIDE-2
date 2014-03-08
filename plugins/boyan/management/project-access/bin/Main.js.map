@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/GitHub/HIDE/plugins/boyan/management/project-access/src/Main.hx","C:/GitHub/HIDE/plugins/boyan/management/project-access/src/Project.hx","C:/GitHub/HIDE/plugins/boyan/management/project-access/src/ProjectAccess.hx"],
 "names":[],
-"mappings":";;YAac,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EAeC,DAA2B;;;UCQtB,CACP;CACC,EAAa;CACb,EAAO;;;;;aDjCwB;oBACe;eCFX;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;+BCTO;;;;;;;;;;;;;;"
+"mappings":";;YAac,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EAEC,DAA2B;;;UCqBtB,CACP;CACC,EAAa;CACb,EAAO;;;;;aDjCwB;oBACe;eCFX;iBACE;eACF;gBAEC;qBACK;cACP;cACA;eACC;iBACE;eACF;+BCTO;;;;;;;;;;;;;;"
 }

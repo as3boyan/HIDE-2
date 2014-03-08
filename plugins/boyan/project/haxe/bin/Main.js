@@ -158,7 +158,6 @@ Main.createHaxeProject = function(data,target) {
 		args += "-debug\n -dce full";
 		project.args = args.split("\n");
 		var path = js.Node.require("path").join(pathToProject,"project.hide");
-		console.log(project);
 		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
 			FileTree.load(project.name,pathToProject);
 		});

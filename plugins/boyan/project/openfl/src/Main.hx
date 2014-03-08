@@ -79,52 +79,7 @@ class Main
 		{	
 			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
 			
-			var project:Project = new Project();
-			project.name = data.projectName;
-			project.projectPackage = data.projectPackage;
-			project.company = data.projectCompany;
-			project.license = data.projectLicense;
-			project.url = data.projectURL;
-			project.type = Project.OPENFL;
-			//project.target = target;
-			project.openFLTarget = "flash";
-			project.path = pathToProject;
-			
-			ProjectAccess.currentProject = project;
-			ProjectOptions.updateProjectOptions();
-			
-			OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
-			{
-				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-						
-				var args:Array<String> = [];
-				
-				var currentLine:String;
-				
-				for (line in stdout.split("\n"))
-				{
-					currentLine = StringTools.trim(line);
-					
-					if (!StringTools.startsWith(currentLine, "#"))
-					{
-						args.push(currentLine);
-					}
-				}
-				
-				textarea.value = args.join("\n");
-				project.args = args;
-				
-				var path:String = js.Node.path.join(pathToProject, "project.hide");
-				
-				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
-				{
-					FileTree.load(project.name, pathToProject);
-				}
-				);
-				
-				Browser.getLocalStorage().setItem("pathToLastProject", path);
-			}
-			);
+			createProject(data);
 			
 			TabManager.openFileInNewTab(js.Node.path.join(pathToProject, "Source", "Main.hx"));
 		}
@@ -135,53 +90,59 @@ class Main
 	{
 		CreateOpenFLProject.createOpenFLProject(["extension", data.projectName], data.projectLocation, function ()
 		{
-			var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
+			createProject(data);
+		}
+		);
+	}
+	
+	private static function createProject(data:Dynamic):Void
+	{
+		var pathToProject:String = js.Node.path.join(data.projectLocation, data.projectName);
 			
-			var project:Project = new Project();
-			project.name = data.projectName;
-			project.projectPackage = data.projectPackage;
-			project.company = data.projectCompany;
-			project.license = data.projectLicense;
-			project.url = data.projectURL;
-			project.type = Project.OPENFL;
-			//project.target = target;
-			project.openFLTarget = "flash";
-			project.path = pathToProject;
-			
-			ProjectAccess.currentProject = project;
-			ProjectOptions.updateProjectOptions();
-			
-			OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
-			{
-				var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-						
-				var args:Array<String> = [];
-				
-				var currentLine:String;
-				
-				for (line in stdout.split("\n"))
-				{
-					currentLine = StringTools.trim(line);
+		var project:Project = new Project();
+		project.name = data.projectName;
+		project.projectPackage = data.projectPackage;
+		project.company = data.projectCompany;
+		project.license = data.projectLicense;
+		project.url = data.projectURL;
+		project.type = Project.OPENFL;
+		//project.target = target;
+		project.openFLTarget = "flash";
+		project.path = pathToProject;
+		
+		ProjectAccess.currentProject = project;
+		ProjectOptions.updateProjectOptions();
+		
+		OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
+		{
+			var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
 					
-					if (!StringTools.startsWith(currentLine, "#"))
-					{
-						args.push(currentLine);
-					}
-				}
+			var args:Array<String> = [];
+			
+			var currentLine:String;
+			
+			for (line in stdout.split("\n"))
+			{
+				currentLine = StringTools.trim(line);
 				
-				textarea.value = args.join("\n");
-				project.args = args;
-				
-				var path:String = js.Node.path.join(pathToProject, "project.hide");
-				js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+				if (!StringTools.startsWith(currentLine, "#"))
 				{
-					FileTree.load(project.name, pathToProject);
+					args.push(currentLine);
 				}
-				);
-				
-				Browser.getLocalStorage().setItem("pathToLastProject", path);
+			}
+			
+			textarea.value = args.join("\n");
+			project.args = args;
+			
+			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			
+			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+			{
+				FileTree.load(project.name, pathToProject);
 			}
 			);
+			
+			Browser.getLocalStorage().setItem("pathToLastProject", path);
 		}
 		);
 	}

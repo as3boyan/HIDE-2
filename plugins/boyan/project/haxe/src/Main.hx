@@ -171,7 +171,6 @@ class Main
 			project.args = args.split("\n");
 			
 			var path:String = js.Node.path.join(pathToProject, "project.hide");
-			trace(project);
 			
 			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 			{

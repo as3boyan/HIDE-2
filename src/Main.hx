@@ -25,6 +25,12 @@ class Main
 		
 		window.showDevTools();
 		
+		js.Node.process.on('uncaughtException', function (err)
+		{
+			trace(err);
+		}
+		);
+		
 		Browser.window.addEventListener("load", function (e):Void
 		{
 			//window.show();
@@ -287,7 +293,11 @@ class Main
 		var startTime:Float = Date.now().getTime();
 		var delta:Float;
 		
-		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxe", "--cwd", pathToPlugin, "plugin.hxml"].join(" "), { }, function (err, stdout, stderr)
+		var command:String = ["haxe", "--cwd", surroundWithQuotes(pathToPlugin), "plugin.hxml"].join(" ");
+		
+		trace(command);
+		
+		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.exec(command, { }, function (err, stdout, stderr)
 		{			
 			if (err == null)
 			{
@@ -343,6 +353,11 @@ class Main
 			}
 		}
 		);
+	}
+	
+	private static function surroundWithQuotes(path:String):String
+	{
+		return '"' + path + '"';
 	}
 	
 	private static function checkHaxeInstalled(onSuccess:Dynamic, onFailed:Dynamic):Void

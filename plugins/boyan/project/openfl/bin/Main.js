@@ -88,72 +88,46 @@ Main.createOpenFLProject = function(data,sample) {
 	} else params = [data.projectName];
 	CreateOpenFLProject.createOpenFLProject(params,data.projectLocation,function() {
 		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
-		var project = new Project();
-		project.name = data.projectName;
-		project.projectPackage = data.projectPackage;
-		project.company = data.projectCompany;
-		project.license = data.projectLicense;
-		project.url = data.projectURL;
-		project.type = 1;
-		project.openFLTarget = "flash";
-		project.path = pathToProject;
-		ProjectAccess.currentProject = project;
-		ProjectOptions.updateProjectOptions();
-		OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
-			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
-			var args = [];
-			var currentLine;
-			var _g = 0, _g1 = stdout.split("\n");
-			while(_g < _g1.length) {
-				var line = _g1[_g];
-				++_g;
-				currentLine = StringTools.trim(line);
-				if(!StringTools.startsWith(currentLine,"#")) args.push(currentLine);
-			}
-			textarea.value = args.join("\n");
-			project.args = args;
-			var path = js.Node.require("path").join(pathToProject,"project.hide");
-			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
-				FileTree.load(project.name,pathToProject);
-			});
-			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
-		});
+		Main.createProject(data);
 		TabManager.openFileInNewTab(js.Node.require("path").join(pathToProject,"Source","Main.hx"));
 	});
 }
 Main.createOpenFLExtension = function(data) {
 	CreateOpenFLProject.createOpenFLProject(["extension",data.projectName],data.projectLocation,function() {
-		var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
-		var project = new Project();
-		project.name = data.projectName;
-		project.projectPackage = data.projectPackage;
-		project.company = data.projectCompany;
-		project.license = data.projectLicense;
-		project.url = data.projectURL;
-		project.type = 1;
-		project.openFLTarget = "flash";
-		project.path = pathToProject;
-		ProjectAccess.currentProject = project;
-		ProjectOptions.updateProjectOptions();
-		OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
-			var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
-			var args = [];
-			var currentLine;
-			var _g = 0, _g1 = stdout.split("\n");
-			while(_g < _g1.length) {
-				var line = _g1[_g];
-				++_g;
-				currentLine = StringTools.trim(line);
-				if(!StringTools.startsWith(currentLine,"#")) args.push(currentLine);
-			}
-			textarea.value = args.join("\n");
-			project.args = args;
-			var path = js.Node.require("path").join(pathToProject,"project.hide");
-			js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
-				FileTree.load(project.name,pathToProject);
-			});
-			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
+		Main.createProject(data);
+	});
+}
+Main.createProject = function(data) {
+	var pathToProject = js.Node.require("path").join(data.projectLocation,data.projectName);
+	var project = new Project();
+	project.name = data.projectName;
+	project.projectPackage = data.projectPackage;
+	project.company = data.projectCompany;
+	project.license = data.projectLicense;
+	project.url = data.projectURL;
+	project.type = 1;
+	project.openFLTarget = "flash";
+	project.path = pathToProject;
+	ProjectAccess.currentProject = project;
+	ProjectOptions.updateProjectOptions();
+	OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
+		var textarea = js.Boot.__cast(js.Browser.document.getElementById("project-options-textarea") , HTMLTextAreaElement);
+		var args = [];
+		var currentLine;
+		var _g = 0, _g1 = stdout.split("\n");
+		while(_g < _g1.length) {
+			var line = _g1[_g];
+			++_g;
+			currentLine = StringTools.trim(line);
+			if(!StringTools.startsWith(currentLine,"#")) args.push(currentLine);
+		}
+		textarea.value = args.join("\n");
+		project.args = args;
+		var path = js.Node.require("path").join(pathToProject,"project.hide");
+		js.Node.require("fs").writeFile(path,haxe.Serializer.run(project),"utf8",function(error) {
+			FileTree.load(project.name,pathToProject);
 		});
+		js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 	});
 }
 var IMap = function() { }

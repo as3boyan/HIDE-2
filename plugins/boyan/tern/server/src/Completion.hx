@@ -49,7 +49,7 @@ class Completion
 					trace(projectArguments);
 					trace(ProjectAccess.currentProject.path);
 					
-					HaxeCompletionClient.runProcess("haxe", ["--connect", "6001", "--cwd", ProjectAccess.currentProject.path].concat(projectArguments), function (stderr:String)
+					HaxeCompletionClient.runProcess("haxe", ["--connect", "6001", "--cwd", surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments), function (stderr:String)
 					{
 						var xml:Xml = Xml.parse(stderr);
 						
@@ -122,5 +122,11 @@ class Completion
 			
 		});
 	}
+	
+	private static function surroundWithQuotes(path:String):String
+	{
+		return '"' + path + '"';
+	}
+	
 	
 }
