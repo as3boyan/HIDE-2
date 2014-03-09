@@ -1,0 +1,1 @@
+haxe plugin.hxml --gen-hx-classes

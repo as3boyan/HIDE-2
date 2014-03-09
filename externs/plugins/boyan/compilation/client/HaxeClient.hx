@@ -1,11 +1,4 @@
-package ;
-
-/**
- * ...
- * @author AS3Boyan
- */
-extern class HaxeClient
-{	
-	public static function buildProject(process:String, params:Array<String>, ?onComplete:Dynamic):Void;
-	public static function buildOpenFLProject(params:Array<String>, ?onComplete:Dynamic):Void;
+@:keepSub @:expose extern class HaxeClient {
+	static function buildOpenFLProject(params : Array<String>, ?onComplete : Dynamic) : Void;
+	static function buildProject(command : String, ?onComplete : Dynamic) : Void;
 }

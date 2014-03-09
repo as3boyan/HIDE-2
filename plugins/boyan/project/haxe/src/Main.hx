@@ -1,5 +1,4 @@
 package ;
-import haxe.Serializer;
 import js.Browser;
 import js.html.TextAreaElement;
 
@@ -10,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.project.haxe";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.project-options", "boyan.bootstrap.file-tree"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.project-options", "boyan.bootstrap.file-tree", "boyan.management.project-access", "boyan.codemirror.editor"];
 	private static var code:String;
 	private static var indexPageCode:String;
 	
@@ -128,6 +127,7 @@ class Main
 			project.type = Project.HAXE;
 			project.target = target;
 			project.path = pathToProject;
+			project.buildActionCommand = ["haxe", "--connect", "6001", "--cwd", HIDE.surroundWithQuotes(project.path)].join(" ");
 			
 			var pathToBin:String = js.Node.path.join(pathToProject, "bin");
 			js.Node.fs.mkdir(pathToBin);
@@ -137,26 +137,45 @@ class Main
 			switch (project.target) 
 			{
 				case Project.FLASH:
-					args += "-swf " + "bin/" + project.name + ".swf\n";
-				case Project.JAVASCRIPT:
-					var pathToScript:String = "bin/" +  project.name + ".js";
+					var pathToFile:String = "bin/" + project.name + ".swf";
 					
-					args += "-js " + pathToScript + "\n";
+					args += "-swf " + pathToFile + "\n";
+					
+					project.runActionType = Project.FILE;
+					project.runActionText = js.Node.path.join(project.path, pathToFile);
+				case Project.JAVASCRIPT:
+					var pathToFile:String = "bin/" +  project.name + ".js";
+					
+					args += "-js " + pathToFile + "\n";
 					
 					var updatedPageCode:String = StringTools.replace(indexPageCode, "::title::", project.name);
-					updatedPageCode = StringTools.replace(indexPageCode, "::script::", pathToScript);
+					updatedPageCode = StringTools.replace(updatedPageCode, "::script::", project.name + ".js");
 					
-					js.Node.fs.writeFile(js.Node.path.join(pathToBin, "index.html"), indexPageCode, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+					var pathToWebPage:String = js.Node.path.join(pathToBin, "index.html");
+					
+					js.Node.fs.writeFile(pathToWebPage, updatedPageCode, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 					{
 						
 					}
 					);
+					
+					project.runActionType = Project.FILE;
+					project.runActionText = pathToWebPage;
 				case Project.NEKO:
-					args += "-neko " + "bin/" + project.name + ".n\n";
+					var pathToFile:String  = "bin/" + project.name + ".n";
+					
+					args += "-neko " + pathToFile +  "\n";
+					
+					project.runActionType = Project.COMMAND;
+					project.runActionText = "neko " + js.Node.path.join(project.path, pathToFile);
 				case Project.PHP:
 					args += "-php " + "bin/" + project.name + ".php\n";
 				case Project.CPP:
-					args += "-cpp " + "bin/" + project.name + ".exe\n";
+					var pathToFile:String = "bin/" + project.name + ".exe";
+					args += "-cpp " + pathToFile + "\n";
+					
+					project.runActionType = Project.COMMAND;
+					project.runActionText = js.Node.path.join(project.path, pathToFile);
 				case Project.JAVA:
 					args += "-java " + "bin/" + project.name + ".jar\n";
 				case Project.CSHARP:
@@ -170,21 +189,18 @@ class Main
 			
 			project.args = args.split("\n");
 			
-			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			var path:String = js.Node.path.join(pathToProject, "project.json");
+			Browser.getLocalStorage().setItem("pathToLastProject", path);
 			
-			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+			ProjectAccess.currentProject = project;
+			
+			ProjectAccess.save(function ()
 			{
 				FileTree.load(project.name, pathToProject);
 			}
 			);
 			
-			Browser.getLocalStorage().setItem("pathToLastProject", path);
-			
-			ProjectAccess.currentProject = project;
 			ProjectOptions.updateProjectOptions();
-			
-			var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-			textarea.value = args;
 		}
 		);
 	}

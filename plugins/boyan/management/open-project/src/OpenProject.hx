@@ -45,26 +45,24 @@ class OpenProject
 	}
 	
 	private static function parseProject(path:String):Void
-	{				
+	{	
+		trace("open project: ");
 		trace(path);
 		
 		var filename:String = js.Node.path.basename(path);
 			
 		switch (filename) 
 		{
-			case "project.hide":
+			case "project.json":
 				js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
 					
-					ProjectAccess.currentProject = Unserializer.run(data);
-					ProjectOptions.updateProjectOptions();
-					
+					ProjectAccess.currentProject = js.Node.parse(data);
 					ProjectAccess.currentProject.path = pathToProject;
-					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
-					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-					textarea.value = ProjectAccess.currentProject.args.join("\n");
+					ProjectOptions.updateProjectOptions();
+					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
 					Browser.getLocalStorage().setItem("pathToLastProject", path);
 				}
@@ -79,9 +77,7 @@ class OpenProject
 				project.path = pathToProject;
 				
 				OpenFLTools.getParams(pathToProject, project.openFLTarget, function (stdout:String)
-				{				
-					var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-					
+				{									
 					var args:Array<String> = [];
 				
 					var currentLine:String;
@@ -96,23 +92,23 @@ class OpenProject
 						}
 					}
 					
-					textarea.value = args.join("\n");
 					project.args = args;
 					
-					var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.hide");
+					var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.json");
 					
-					js.Node.fs.writeFile(pathToProjectHide, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+					ProjectAccess.currentProject = project;
+					
+					ProjectOptions.updateProjectOptions();
+					
+					ProjectAccess.save(function ()
 					{
 						FileTree.load(project.name, pathToProject);
 					}
 					);
+					
+					Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
 				}
 				);
-				
-				ProjectAccess.currentProject = project;
-				ProjectOptions.updateProjectOptions();
-				
-				Browser.getLocalStorage().setItem("pathToLastProject", js.Node.path.join(pathToProject, "project.hide"));
 			default:				
 				var extension:String = js.Node.path.extname(filename);
 		
@@ -132,12 +128,9 @@ class OpenProject
 							ProjectAccess.currentProject = project;
 							ProjectOptions.updateProjectOptions();
 							
-							var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-							textarea.value = project.args.join("\n");
+							var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.json");
 							
-							var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.hide");
-							
-							js.Node.fs.writeFile(pathToProjectHide, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+							ProjectAccess.save(function ()
 							{
 								FileTree.load(project.name, pathToProject);
 							}

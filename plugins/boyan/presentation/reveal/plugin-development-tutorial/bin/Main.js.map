@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/GitHub/HIDE/plugins/boyan/presentation/reveal/plugin-development-tutorial/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAC3D;EACC,DAAsB,AAAQ,AAAiB,AAAmC,AAAG;CAA8B,AAAM,AAAkB,SAAS;;;CAKrJ,AAA2B;;aAbI;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CACC,AAAuC,AAAM,AAAc,UAE1D;CAAsB,AAAQ,AAAiB,AAAmC,AAAG;CAA8B,AAAM,AAAkB,SAAS;;;CAKrJ,AAA2B;;aAbI;oBACe,nBAAC;;;;"
 }

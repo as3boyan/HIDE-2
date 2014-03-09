@@ -8,15 +8,10 @@ import js.html.TextAreaElement;
  */
 @:keepSub @:expose class HaxeClient
 {	
-	public static function buildProject(process:String, params:Array<String>, ?onComplete:Dynamic):Void
-	{
-		//"haxe", "--connect", "6001", "--cwd", "..","HaxeEditor2.hxml"
-		
+	public static function buildProject(command:String, ?onComplete:Dynamic):Void
+	{		
 		var textarea = cast(Browser.document.getElementById("output"), TextAreaElement);
 		textarea.value = "Build started\n";
-		
-		var command:String = process + " " + params.join(" ");
-		
 		textarea.value += command + "\n";
 		
 		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(command, { }, function (error, stdout:String, stderr:String):Void
@@ -48,7 +43,7 @@ import js.html.TextAreaElement;
 			}
 			else 
 			{
-				trace(params);
+				trace(command);
 				textarea.value += "Build failed (exit code: " + Std.string(code) +  ")\n" ;
 			}
 		}

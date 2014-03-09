@@ -1,27 +1,21 @@
-package ;
+@:keepSub @:expose extern class Project {
+	inline public static var HAXE:Int = 0;
+	inline public static var OPENFL:Int = 1;
 
-/**
- * ...
- * @author AS3Boyan
- */
-extern class Project
-{
-	//Project type
-	inline static public var HAXE:Int = 0;
-	inline static public var OPENFL:Int = 1;
-	inline static public var HXML:Int = 2;
+	inline public static var FLASH:Int = 0;
+	inline public static var JAVASCRIPT:Int = 1;
+	inline public static var PHP:Int = 2;
+	inline public static var CPP:Int = 3;
+	inline public static var JAVA:Int = 4;
+	inline public static var CSHARP:Int = 5;
+	inline public static var NEKO:Int = 6;
 	
-	//Compilation targets
-	inline static public var FLASH:Int = 0;
-	inline static public var JAVASCRIPT:Int = 1;
-	inline static public var PHP:Int = 2;
-	inline static public var CPP:Int = 3;
-	inline static public var JAVA:Int = 4;
-	inline static public var CSHARP:Int = 5;
-	inline static public var NEKO:Int = 6;
+	inline public static var URL:Int = 0;
+	inline public static var FILE:Int = 1;
+	inline public static var COMMAND:Int = 2;
 	
-	public var target:Int;
 	public var type:Int;
+	public var target:Int;
 	
 	public var name:String;
 	public var main:String;
@@ -38,10 +32,11 @@ extern class Project
 	public var path:String;
 	
 	public var openFLTarget:String;
-
-	public function new() 
-	{
-		
-	}
 	
+	public var runActionType:Int;
+	public var runActionText:String;
+	
+	public var buildActionCommand:String;
+	
+	function new() : Void;
 }

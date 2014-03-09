@@ -1,13 +1,13 @@
-(function () { "use strict";
+(function ($hx_exports) { "use strict";
 var $estr = function() { return js.Boot.__string_rec(this,''); };
-var Completion = function() { }
+var Completion = function() { };
 Completion.__name__ = true;
 Completion.registerHandlers = function() {
-	new $(js.Browser.document).on("getCompletion",null,function(event,data) {
+	new $(window.document).on("getCompletion",null,function(event,data) {
 		TabManager.saveActiveFile(function() {
 			if(CM.editor.state.completionActive != null && CM.editor.state.completionActive.widget != null) {
 				data.data.completions = Completion.completions;
-				new $(js.Browser.document).triggerHandler("processHint",data);
+				new $(window.document).triggerHandler("processHint",data);
 			} else {
 				console.log("get Haxe completion");
 				var projectArguments = ProjectAccess.currentProject.args.slice();
@@ -59,22 +59,22 @@ Completion.registerHandlers = function() {
 						}
 					}
 					Completion.completions = data.data.completions;
-					new $(js.Browser.document).triggerHandler("processHint",data);
-				},function(code,stderr) {
+					new $(window.document).triggerHandler("processHint",data);
+				},function(code,stderr1) {
 					console.log(code);
-					console.log(stderr);
+					console.log(stderr1);
 				});
 			}
 		});
 	});
-}
-var HxOverrides = function() { }
+};
+var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -83,32 +83,44 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-HxOverrides.remove = function(a,obj) {
-	var i = 0;
-	var l = a.length;
-	while(i < l) {
-		if(a[i] == obj) {
-			a.splice(i,1);
-			return true;
-		}
+};
+HxOverrides.indexOf = function(a,obj,i) {
+	var len = a.length;
+	if(i < 0) {
+		i += len;
+		if(i < 0) i = 0;
+	}
+	while(i < len) {
+		if(a[i] === obj) return i;
 		i++;
 	}
-	return false;
-}
+	return -1;
+};
+HxOverrides.remove = function(a,obj) {
+	var i = HxOverrides.indexOf(a,obj,0);
+	if(i == -1) return false;
+	a.splice(i,1);
+	return true;
+};
 HxOverrides.iter = function(a) {
 	return { cur : 0, arr : a, hasNext : function() {
 		return this.cur < this.arr.length;
 	}, next : function() {
 		return this.arr[this.cur++];
 	}};
-}
+};
 var List = function() {
 	this.length = 0;
 };
 List.__name__ = true;
 List.prototype = {
-	iterator: function() {
+	add: function(item) {
+		var x = [item];
+		if(this.h == null) this.h = x; else this.q[1] = x;
+		this.q = x;
+		this.length++;
+	}
+	,iterator: function() {
 		return { h : this.h, hasNext : function() {
 			return this.h != null;
 		}, next : function() {
@@ -118,15 +130,8 @@ List.prototype = {
 			return x;
 		}};
 	}
-	,add: function(item) {
-		var x = [item];
-		if(this.h == null) this.h = x; else this.q[1] = x;
-		this.q = x;
-		this.length++;
-	}
-	,__class__: List
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
@@ -135,15 +140,15 @@ Main.main = function() {
 			CM.editor.on("cursorActivity",function(cm) {
 				server.updateArgHints(cm);
 			});
-			var keyMap = { 'Ctrl-Space' : function(cm) {
-				server.complete(cm);
-			}, 'Ctrl-Q' : function(cm) {
-				server.rename(cm);
+			var keyMap = { 'Ctrl-Space' : function(cm1) {
+				server.complete(cm1);
+			}, 'Ctrl-Q' : function(cm2) {
+				server.rename(cm2);
 			}, '.' : (function($this) {
 				var $r;
-				var passAndHint = function(cm1) {
+				var passAndHint = function(cm3) {
 					setTimeout(function() {
-						server.complete(cm1);
+						server.complete(cm3);
 					},100);
 					return CodeMirror.Pass;
 				};
@@ -156,68 +161,72 @@ Main.main = function() {
 			HIDE.notifyLoadingComplete(Main.$name);
 		});
 	});
-}
-var IMap = function() { }
+};
+var IMap = function() { };
 IMap.__name__ = true;
-var Std = function() { }
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
+};
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
+};
 var StringBuf = function() {
 	this.b = "";
 };
 StringBuf.__name__ = true;
 StringBuf.prototype = {
-	addSub: function(s,pos,len) {
-		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
+	add: function(x) {
+		this.b += Std.string(x);
 	}
-	,__class__: StringBuf
-}
-var StringTools = function() { }
+	,addSub: function(s,pos,len) {
+		if(len == null) this.b += HxOverrides.substr(s,pos,null); else this.b += HxOverrides.substr(s,pos,len);
+	}
+};
+var StringTools = function() { };
 StringTools.__name__ = true;
 StringTools.htmlEscape = function(s,quotes) {
 	s = s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
-	return quotes?s.split("\"").join("&quot;").split("'").join("&#039;"):s;
-}
+	if(quotes) return s.split("\"").join("&quot;").split("'").join("&#039;"); else return s;
+};
 StringTools.isSpace = function(s,pos) {
 	var c = HxOverrides.cca(s,pos);
 	return c > 8 && c < 14 || c == 32;
-}
+};
 StringTools.ltrim = function(s) {
 	var l = s.length;
 	var r = 0;
 	while(r < l && StringTools.isSpace(s,r)) r++;
 	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
-}
+};
 StringTools.rtrim = function(s) {
 	var l = s.length;
 	var r = 0;
 	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
 	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
-}
+};
 StringTools.trim = function(s) {
 	return StringTools.ltrim(StringTools.rtrim(s));
-}
+};
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
-}
-var TS = function() { }
-$hxExpose(TS, "TS");
+};
+StringTools.fastCodeAt = function(s,index) {
+	return s.charCodeAt(index);
+};
+var TS = $hx_exports.TS = function() { };
 TS.__name__ = true;
-var XmlType = { __ename__ : true, __constructs__ : [] }
+var XmlType = { __ename__ : true, __constructs__ : [] };
 var Xml = function() {
 };
 Xml.__name__ = true;
 Xml.parse = function(str) {
 	return haxe.xml.Parser.parse(str);
-}
+};
 Xml.createElement = function(name) {
 	var r = new Xml();
 	r.nodeType = Xml.Element;
@@ -225,86 +234,79 @@ Xml.createElement = function(name) {
 	r._attributes = new haxe.ds.StringMap();
 	r.set_nodeName(name);
 	return r;
-}
+};
 Xml.createPCData = function(data) {
 	var r = new Xml();
 	r.nodeType = Xml.PCData;
 	r.set_nodeValue(data);
 	return r;
-}
+};
 Xml.createCData = function(data) {
 	var r = new Xml();
 	r.nodeType = Xml.CData;
 	r.set_nodeValue(data);
 	return r;
-}
+};
 Xml.createComment = function(data) {
 	var r = new Xml();
 	r.nodeType = Xml.Comment;
 	r.set_nodeValue(data);
 	return r;
-}
+};
 Xml.createDocType = function(data) {
 	var r = new Xml();
 	r.nodeType = Xml.DocType;
 	r.set_nodeValue(data);
 	return r;
-}
+};
 Xml.createProcessingInstruction = function(data) {
 	var r = new Xml();
 	r.nodeType = Xml.ProcessingInstruction;
 	r.set_nodeValue(data);
 	return r;
-}
+};
 Xml.createDocument = function() {
 	var r = new Xml();
 	r.nodeType = Xml.Document;
 	r._children = new Array();
 	return r;
-}
+};
 Xml.prototype = {
-	toString: function() {
-		if(this.nodeType == Xml.PCData) return StringTools.htmlEscape(this._nodeValue);
-		if(this.nodeType == Xml.CData) return "<![CDATA[" + this._nodeValue + "]]>";
-		if(this.nodeType == Xml.Comment) return "<!--" + this._nodeValue + "-->";
-		if(this.nodeType == Xml.DocType) return "<!DOCTYPE " + this._nodeValue + ">";
-		if(this.nodeType == Xml.ProcessingInstruction) return "<?" + this._nodeValue + "?>";
-		var s = new StringBuf();
-		if(this.nodeType == Xml.Element) {
-			s.b += "<";
-			s.b += Std.string(this._nodeName);
-			var $it0 = this._attributes.keys();
-			while( $it0.hasNext() ) {
-				var k = $it0.next();
-				s.b += " ";
-				s.b += Std.string(k);
-				s.b += "=\"";
-				s.b += Std.string(this._attributes.get(k));
-				s.b += "\"";
-			}
-			if(this._children.length == 0) {
-				s.b += "/>";
-				return s.b;
-			}
-			s.b += ">";
-		}
-		var $it1 = this.iterator();
-		while( $it1.hasNext() ) {
-			var x = $it1.next();
-			s.b += Std.string(x.toString());
-		}
-		if(this.nodeType == Xml.Element) {
-			s.b += "</";
-			s.b += Std.string(this._nodeName);
-			s.b += ">";
-		}
-		return s.b;
+	get_nodeName: function() {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._nodeName;
 	}
-	,addChild: function(x) {
+	,set_nodeName: function(n) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._nodeName = n;
+	}
+	,get_nodeValue: function() {
+		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
+		return this._nodeValue;
+	}
+	,set_nodeValue: function(v) {
+		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
+		return this._nodeValue = v;
+	}
+	,get: function(att) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._attributes.get(att);
+	}
+	,set: function(att,value) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		this._attributes.set(att,value);
+	}
+	,exists: function(att) {
+		if(this.nodeType != Xml.Element) throw "bad nodeType";
+		return this._attributes.exists(att);
+	}
+	,iterator: function() {
 		if(this._children == null) throw "bad nodetype";
-		if(x._parent != null) HxOverrides.remove(x._parent._children,x);
-		x._parent = this;
-		this._children.push(x);
+		return { cur : 0, x : this._children, hasNext : function() {
+			return this.cur < this.x.length;
+		}, next : function() {
+			return this.x[this.cur++];
+		}};
 	}
 	,elementsNamed: function(name) {
 		if(this._children == null) throw "bad nodetype";
@@ -319,85 +321,90 @@ Xml.prototype = {
 			this.cur = k;
 			return k < l;
 		}, next : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				k++;
-				if(n.nodeType == Xml.Element && n._nodeName == name) {
-					this.cur = k;
-					return n;
+			var k1 = this.cur;
+			var l1 = this.x.length;
+			while(k1 < l1) {
+				var n1 = this.x[k1];
+				k1++;
+				if(n1.nodeType == Xml.Element && n1._nodeName == name) {
+					this.cur = k1;
+					return n1;
 				}
 			}
 			return null;
 		}};
 	}
-	,iterator: function() {
+	,addChild: function(x) {
 		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			return this.cur < this.x.length;
-		}, next : function() {
-			return this.x[this.cur++];
-		}};
+		if(x._parent != null) HxOverrides.remove(x._parent._children,x);
+		x._parent = this;
+		this._children.push(x);
 	}
-	,exists: function(att) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._attributes.exists(att);
+	,toString: function() {
+		if(this.nodeType == Xml.PCData) return StringTools.htmlEscape(this._nodeValue);
+		if(this.nodeType == Xml.CData) return "<![CDATA[" + this._nodeValue + "]]>";
+		if(this.nodeType == Xml.Comment) return "<!--" + this._nodeValue + "-->";
+		if(this.nodeType == Xml.DocType) return "<!DOCTYPE " + this._nodeValue + ">";
+		if(this.nodeType == Xml.ProcessingInstruction) return "<?" + this._nodeValue + "?>";
+		var s = new StringBuf();
+		if(this.nodeType == Xml.Element) {
+			s.b += "<";
+			s.b += this._nodeName;
+			var $it0 = this._attributes.keys();
+			while( $it0.hasNext() ) {
+				var k = $it0.next();
+				s.b += " ";
+				s.b += k;
+				s.b += "=\"";
+				s.add(this._attributes.get(k));
+				s.b += "\"";
+			}
+			if(this._children.length == 0) {
+				s.b += "/>";
+				return s.b;
+			}
+			s.b += ">";
+		}
+		var $it1 = this.iterator();
+		while( $it1.hasNext() ) {
+			var x = $it1.next();
+			s.add(x.toString());
+		}
+		if(this.nodeType == Xml.Element) {
+			s.b += "</";
+			s.b += this._nodeName;
+			s.b += ">";
+		}
+		return s.b;
 	}
-	,set: function(att,value) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		this._attributes.set(att,value);
-	}
-	,get: function(att) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._attributes.get(att);
-	}
-	,set_nodeValue: function(v) {
-		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
-		return this._nodeValue = v;
-	}
-	,get_nodeValue: function() {
-		if(this.nodeType == Xml.Element || this.nodeType == Xml.Document) throw "bad nodeType";
-		return this._nodeValue;
-	}
-	,set_nodeName: function(n) {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._nodeName = n;
-	}
-	,get_nodeName: function() {
-		if(this.nodeType != Xml.Element) throw "bad nodeType";
-		return this._nodeName;
-	}
-	,__class__: Xml
-}
-var haxe = {}
-haxe.ds = {}
+};
+var haxe = {};
+haxe.ds = {};
 haxe.ds.StringMap = function() {
 	this.h = { };
 };
 haxe.ds.StringMap.__name__ = true;
 haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	keys: function() {
+	set: function(key,value) {
+		this.h["$" + key] = value;
+	}
+	,get: function(key) {
+		return this.h["$" + key];
+	}
+	,exists: function(key) {
+		return this.h.hasOwnProperty("$" + key);
+	}
+	,keys: function() {
 		var a = [];
 		for( var key in this.h ) {
 		if(this.h.hasOwnProperty(key)) a.push(key.substr(1));
 		}
 		return HxOverrides.iter(a);
 	}
-	,exists: function(key) {
-		return this.h.hasOwnProperty("$" + key);
-	}
-	,get: function(key) {
-		return this.h["$" + key];
-	}
-	,set: function(key,value) {
-		this.h["$" + key] = value;
-	}
-	,__class__: haxe.ds.StringMap
-}
-haxe.xml = {}
-haxe.xml._Fast = {}
+};
+haxe.xml = {};
+haxe.xml._Fast = {};
 haxe.xml._Fast.NodeAccess = function(x) {
 	this.__x = x;
 };
@@ -406,13 +413,13 @@ haxe.xml._Fast.NodeAccess.prototype = {
 	resolve: function(name) {
 		var x = this.__x.elementsNamed(name).next();
 		if(x == null) {
-			var xname = this.__x.nodeType == Xml.Document?"Document":this.__x.get_nodeName();
+			var xname;
+			if(this.__x.nodeType == Xml.Document) xname = "Document"; else xname = this.__x.get_nodeName();
 			throw xname + " is missing element " + name;
 		}
 		return new haxe.xml.Fast(x);
 	}
-	,__class__: haxe.xml._Fast.NodeAccess
-}
+};
 haxe.xml._Fast.AttribAccess = function(x) {
 	this.__x = x;
 };
@@ -424,8 +431,7 @@ haxe.xml._Fast.AttribAccess.prototype = {
 		if(v == null) throw this.__x.get_nodeName() + " is missing attribute " + name;
 		return v;
 	}
-	,__class__: haxe.xml._Fast.AttribAccess
-}
+};
 haxe.xml._Fast.HasAttribAccess = function(x) {
 	this.__x = x;
 };
@@ -435,8 +441,7 @@ haxe.xml._Fast.HasAttribAccess.prototype = {
 		if(this.__x.nodeType == Xml.Document) throw "Cannot access document attribute " + name;
 		return this.__x.exists(name);
 	}
-	,__class__: haxe.xml._Fast.HasAttribAccess
-}
+};
 haxe.xml._Fast.HasNodeAccess = function(x) {
 	this.__x = x;
 };
@@ -445,8 +450,7 @@ haxe.xml._Fast.HasNodeAccess.prototype = {
 	resolve: function(name) {
 		return this.__x.elementsNamed(name).hasNext();
 	}
-	,__class__: haxe.xml._Fast.HasNodeAccess
-}
+};
 haxe.xml._Fast.NodeListAccess = function(x) {
 	this.__x = x;
 };
@@ -461,8 +465,7 @@ haxe.xml._Fast.NodeListAccess.prototype = {
 		}
 		return l;
 	}
-	,__class__: haxe.xml._Fast.NodeListAccess
-}
+};
 haxe.xml.Fast = function(x) {
 	if(x.nodeType != Xml.Document && x.nodeType != Xml.Element) throw "Invalid nodeType " + Std.string(x.nodeType);
 	this.x = x;
@@ -474,14 +477,8 @@ haxe.xml.Fast = function(x) {
 };
 haxe.xml.Fast.__name__ = true;
 haxe.xml.Fast.prototype = {
-	get_innerHTML: function() {
-		var s = new StringBuf();
-		var $it0 = this.x.iterator();
-		while( $it0.hasNext() ) {
-			var x = $it0.next();
-			s.b += Std.string(x.toString());
-		}
-		return s.b;
+	get_name: function() {
+		if(this.x.nodeType == Xml.Document) return "Document"; else return this.x.get_nodeName();
 	}
 	,get_innerData: function() {
 		var it = this.x.iterator();
@@ -498,18 +495,23 @@ haxe.xml.Fast.prototype = {
 		if(v.nodeType != Xml.PCData && v.nodeType != Xml.CData) throw this.get_name() + " does not have data";
 		return v.get_nodeValue();
 	}
-	,get_name: function() {
-		return this.x.nodeType == Xml.Document?"Document":this.x.get_nodeName();
+	,get_innerHTML: function() {
+		var s = new StringBuf();
+		var $it0 = this.x.iterator();
+		while( $it0.hasNext() ) {
+			var x = $it0.next();
+			s.add(x.toString());
+		}
+		return s.b;
 	}
-	,__class__: haxe.xml.Fast
-}
-haxe.xml.Parser = function() { }
+};
+haxe.xml.Parser = function() { };
 haxe.xml.Parser.__name__ = true;
 haxe.xml.Parser.parse = function(str) {
 	var doc = Xml.createDocument();
 	haxe.xml.Parser.doParse(str,0,doc);
 	return doc;
-}
+};
 haxe.xml.Parser.doParse = function(str,p,parent) {
 	if(p == null) p = 0;
 	var xml = null;
@@ -561,8 +563,8 @@ haxe.xml.Parser.doParse = function(str,p,parent) {
 			break;
 		case 17:
 			if(c == 93 && str.charCodeAt(p + 1) == 93 && str.charCodeAt(p + 2) == 62) {
-				var child = Xml.createCData(HxOverrides.substr(str,start,p - start));
-				parent.addChild(child);
+				var child1 = Xml.createCData(HxOverrides.substr(str,start,p - start));
+				parent.addChild(child1);
 				nsubs++;
 				p += 2;
 				state = 1;
@@ -728,15 +730,16 @@ haxe.xml.Parser.doParse = function(str,p,parent) {
 			if(c == 59) {
 				var s = HxOverrides.substr(str,start,p - start);
 				if(s.charCodeAt(0) == 35) {
-					var i = s.charCodeAt(1) == 120?Std.parseInt("0" + HxOverrides.substr(s,1,s.length - 1)):Std.parseInt(HxOverrides.substr(s,1,s.length - 1));
-					buf.b += Std.string(String.fromCharCode(i));
-				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += Std.string("&" + s + ";"); else buf.b += Std.string(haxe.xml.Parser.escapes.get(s));
+					var i;
+					if(s.charCodeAt(1) == 120) i = Std.parseInt("0" + HxOverrides.substr(s,1,s.length - 1)); else i = Std.parseInt(HxOverrides.substr(s,1,s.length - 1));
+					buf.add(String.fromCharCode(i));
+				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += "&" + s + ";"; else buf.add(haxe.xml.Parser.escapes.get(s));
 				start = p + 1;
 				state = next;
 			}
 			break;
 		}
-		c = str.charCodeAt(++p);
+		c = StringTools.fastCodeAt(str,++p);
 	}
 	if(state == 1) {
 		start = p;
@@ -747,9 +750,9 @@ haxe.xml.Parser.doParse = function(str,p,parent) {
 		return p;
 	}
 	throw "Unexpected end";
-}
-var js = {}
-js.Boot = function() { }
+};
+var js = {};
+js.Boot = function() { };
 js.Boot.__name__ = true;
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -763,7 +766,8 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -771,16 +775,16 @@ js.Boot.__string_rec = function(o,s) {
 				return str + ")";
 			}
 			var l = o.length;
-			var i;
-			var str = "[";
+			var i1;
+			var str1 = "[";
 			s += "\t";
-			var _g = 0;
-			while(_g < l) {
-				var i1 = _g++;
-				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+			var _g2 = 0;
+			while(_g2 < l) {
+				var i2 = _g2++;
+				str1 += (i2 > 0?",":"") + js.Boot.__string_rec(o[i2],s);
 			}
-			str += "]";
-			return str;
+			str1 += "]";
+			return str1;
 		}
 		var tostr;
 		try {
@@ -793,22 +797,22 @@ js.Boot.__string_rec = function(o,s) {
 			if(s2 != "[object Object]") return s2;
 		}
 		var k = null;
-		var str = "{\n";
+		var str2 = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
 		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
 			continue;
 		}
-		if(str.length != 2) str += ", \n";
-		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
+		if(str2.length != 2) str2 += ", \n";
+		str2 += s + k + " : " + js.Boot.__string_rec(o[k],s);
 		}
 		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
+		str2 += "\n" + s + "}";
+		return str2;
 	case "function":
 		return "<function>";
 	case "string":
@@ -816,69 +820,12 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
-js.Boot.__interfLoop = function(cc,cl) {
-	if(cc == null) return false;
-	if(cc == cl) return true;
-	var intf = cc.__interfaces__;
-	if(intf != null) {
-		var _g1 = 0, _g = intf.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var i1 = intf[i];
-			if(i1 == cl || js.Boot.__interfLoop(i1,cl)) return true;
-		}
-	}
-	return js.Boot.__interfLoop(cc.__super__,cl);
-}
-js.Boot.__instanceof = function(o,cl) {
-	if(cl == null) return false;
-	switch(cl) {
-	case Int:
-		return (o|0) === o;
-	case Float:
-		return typeof(o) == "number";
-	case Bool:
-		return typeof(o) == "boolean";
-	case String:
-		return typeof(o) == "string";
-	case Dynamic:
-		return true;
-	default:
-		if(o != null) {
-			if(typeof(cl) == "function") {
-				if(o instanceof cl) {
-					if(cl == Array) return o.__enum__ == null;
-					return true;
-				}
-				if(js.Boot.__interfLoop(o.__class__,cl)) return true;
-			}
-		} else return false;
-		if(cl == Class && o.__name__ != null) return true;
-		if(cl == Enum && o.__ename__ != null) return true;
-		return o.__enum__ == cl;
-	}
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-if(Array.prototype.indexOf) HxOverrides.remove = function(a,o) {
-	var i = a.indexOf(o);
-	if(i == -1) return false;
-	a.splice(i,1);
-	return true;
 };
-String.prototype.__class__ = String;
+if(Array.prototype.indexOf) HxOverrides.indexOf = function(a,o,i) {
+	return Array.prototype.indexOf.call(a,o,i);
+};
 String.__name__ = true;
-Array.prototype.__class__ = Array;
 Array.__name__ = true;
-var Int = { __name__ : ["Int"]};
-var Dynamic = { __name__ : ["Dynamic"]};
-var Float = Number;
-Float.__name__ = ["Float"];
-var Bool = Boolean;
-Bool.__ename__ = ["Bool"];
-var Class = { __name__ : ["Class"]};
-var Enum = { };
 Xml.Element = "element";
 Xml.PCData = "pcdata";
 Xml.CData = "cdata";
@@ -900,18 +847,7 @@ haxe.xml.Parser.escapes = (function($this) {
 	$r = h;
 	return $r;
 }(this));
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

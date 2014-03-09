@@ -1,11 +1,4 @@
-package ;
-
-/**
- * ...
- * @author AS3Boyan
- */
-extern class ProjectAccess
-{
-	public static var currentProject:Project;
-	public static function save():Void;	
+@:keepSub @:expose extern class ProjectAccess {
+	static var currentProject : Project;
+	public static function save(?onComplete:Dynamic):Void;
 }

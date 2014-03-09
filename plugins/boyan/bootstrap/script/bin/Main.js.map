@@ -4,5 +4,5 @@
 "sourceRoot":"file://",
 "sources":["C:/GitHub/HIDE/plugins/boyan/bootstrap/script/src/Main.hx"],
 "names":[],
-"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAM,AAAc;CAG3D,AAAa,AAAM,AAAC;;qBAIP,VACd;CAGC,AAAY,AAAM,AAAC,AAAqC,UACxD;EAEC,DAA2B;;;aArBG;oBACe,nBAAC;;;;"
+"mappings":";;YAYc,DACd;CAEC,AAAuC,AAAM,AAAc;CAG3D,AAAa,AAAM,AAAC;;qBAIP,VAIb;CAAY,AAAM,AAAC,AAAqC,UAGvD;CAA2B;;;aArBG;oBACe,nBAAC;;;;"
 }

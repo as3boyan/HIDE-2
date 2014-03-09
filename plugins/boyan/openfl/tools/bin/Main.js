@@ -1,11 +1,11 @@
-(function () { "use strict";
-var HxOverrides = function() { }
+(function ($hx_exports) { "use strict";
+var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -14,14 +14,13 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.notifyLoadingComplete(Main.$name);
-}
-var OpenFLTools = function() { }
-$hxExpose(OpenFLTools, "OpenFLTools");
+};
+var OpenFLTools = $hx_exports.OpenFLTools = function() { };
 OpenFLTools.__name__ = true;
 OpenFLTools.getParams = function(path,target,onLoaded) {
 	OpenFLTools.processStdout = "";
@@ -32,28 +31,32 @@ OpenFLTools.getParams = function(path,target,onLoaded) {
 	});
 	openFLTools.on("close",function(code) {
 		console.log("OpenFL tools process exit code " + code);
-		var textarea = js.Boot.__cast(js.Browser.document.getElementById("output") , HTMLTextAreaElement);
+		var textarea;
+		textarea = js.Boot.__cast(window.document.getElementById("output") , HTMLTextAreaElement);
 		textarea.value += "OUTPUT: " + OpenFLTools.processStdout;
 		if(OpenFLTools.processStderr != "") textarea.value += "ERROR: " + OpenFLTools.processStderr;
 		if(code == 0) {
 			if(onLoaded != null) onLoaded(OpenFLTools.processStdout);
 		}
 	});
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
+};
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
-var js = {}
-js.Boot = function() { }
+};
+var js = {};
+js.Boot = function() { };
 js.Boot.__name__ = true;
+js.Boot.getClass = function(o) {
+	if((o instanceof Array) && o.__enum__ == null) return Array; else return o.__class__;
+};
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
 	if(s.length >= 5) return "<...>";
@@ -66,7 +69,8 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -74,16 +78,16 @@ js.Boot.__string_rec = function(o,s) {
 				return str + ")";
 			}
 			var l = o.length;
-			var i;
-			var str = "[";
+			var i1;
+			var str1 = "[";
 			s += "\t";
-			var _g = 0;
-			while(_g < l) {
-				var i1 = _g++;
-				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+			var _g2 = 0;
+			while(_g2 < l) {
+				var i2 = _g2++;
+				str1 += (i2 > 0?",":"") + js.Boot.__string_rec(o[i2],s);
 			}
-			str += "]";
-			return str;
+			str1 += "]";
+			return str1;
 		}
 		var tostr;
 		try {
@@ -96,22 +100,22 @@ js.Boot.__string_rec = function(o,s) {
 			if(s2 != "[object Object]") return s2;
 		}
 		var k = null;
-		var str = "{\n";
+		var str2 = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
 		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
 			continue;
 		}
-		if(str.length != 2) str += ", \n";
-		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
+		if(str2.length != 2) str2 += ", \n";
+		str2 += s + k + " : " + js.Boot.__string_rec(o[k],s);
 		}
 		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
+		str2 += "\n" + s + "}";
+		return str2;
 	case "function":
 		return "<function>";
 	case "string":
@@ -119,13 +123,14 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
+};
 js.Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0, _g = intf.length;
+		var _g1 = 0;
+		var _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
@@ -133,7 +138,7 @@ js.Boot.__interfLoop = function(cc,cl) {
 		}
 	}
 	return js.Boot.__interfLoop(cc.__super__,cl);
-}
+};
 js.Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
@@ -145,33 +150,29 @@ js.Boot.__instanceof = function(o,cl) {
 		return typeof(o) == "boolean";
 	case String:
 		return typeof(o) == "string";
+	case Array:
+		return (o instanceof Array) && o.__enum__ == null;
 	case Dynamic:
 		return true;
 	default:
 		if(o != null) {
 			if(typeof(cl) == "function") {
-				if(o instanceof cl) {
-					if(cl == Array) return o.__enum__ == null;
-					return true;
-				}
-				if(js.Boot.__interfLoop(o.__class__,cl)) return true;
+				if(o instanceof cl) return true;
+				if(js.Boot.__interfLoop(js.Boot.getClass(o),cl)) return true;
 			}
 		} else return false;
 		if(cl == Class && o.__name__ != null) return true;
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-}
+};
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-js.Node = function() { }
+};
+js.Node = function() { };
 js.Node.__name__ = true;
 String.prototype.__class__ = String;
 String.__name__ = true;
-Array.prototype.__class__ = Array;
 Array.__name__ = true;
 var Int = { __name__ : ["Int"]};
 var Dynamic = { __name__ : ["Dynamic"]};
@@ -181,6 +182,16 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -199,18 +210,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.openfl.tools";
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

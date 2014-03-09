@@ -1,24 +1,90 @@
-(function () { "use strict";
-var Main = function() { }
+(function ($hx_exports) { "use strict";
+var HxOverrides = function() { };
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) return undefined;
+	return x;
+};
+HxOverrides.substr = function(s,pos,len) {
+	if(pos != null && pos != 0 && len != null && len < 0) return "";
+	if(len == null) len = s.length;
+	if(pos < 0) {
+		pos = s.length + pos;
+		if(pos < 0) pos = 0;
+	} else if(len < 0) len = s.length + len - pos;
+	return s.substr(pos,len);
+};
+var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
+		ProjectAccess.registerSaveOnCloseListener();
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
-}
-var Project = function() {
+};
+var Project = $hx_exports.Project = function() {
 	this.customArgs = false;
 	this.args = [];
 };
-$hxExpose(Project, "Project");
-var ProjectAccess = function() { }
-$hxExpose(ProjectAccess, "ProjectAccess");
-ProjectAccess.save = function() {
+var ProjectAccess = $hx_exports.ProjectAccess = function() { };
+ProjectAccess.registerSaveOnCloseListener = function() {
+	window.document.addEventListener("load",function(e) {
+		js.Node.require("nw.gui").gui.Window.get().on("close",function(e1) {
+			ProjectAccess.save();
+		});
+	});
+};
+ProjectAccess.save = function(onComplete) {
+	console.log("path to project:");
+	console.log(ProjectAccess.currentProject.path);
+	if(ProjectAccess.currentProject.path != null) {
+		var pathToProjectHide = js.Node.require("path").join(ProjectAccess.currentProject.path,"project.json");
+		js.Node.require("fs").writeFile(pathToProjectHide,js.Node.stringify(ProjectAccess.currentProject),"utf8",function(error) {
+			if(onComplete != null) onComplete();
+		});
+	} else console.log("project path is null");
+};
+ProjectAccess.load = function(path,onComplete) {
+};
+var Std = function() { };
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+};
+var js = {};
+js.Node = function() { };
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
+var module, setImmediate, clearImmediate;
+js.Node.setTimeout = setTimeout;
+js.Node.clearTimeout = clearTimeout;
+js.Node.setInterval = setInterval;
+js.Node.clearInterval = clearInterval;
+js.Node.global = global;
+js.Node.process = process;
+js.Node.require = require;
+js.Node.console = console;
+js.Node.module = module;
+js.Node.stringify = JSON.stringify;
+js.Node.parse = JSON.parse;
+var version = HxOverrides.substr(js.Node.process.version,1,null).split(".").map(Std.parseInt);
+if(version[0] > 0 || version[1] >= 9) {
+	js.Node.setImmediate = setImmediate;
+	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.project-access";
 Main.dependencies = [];
 Project.HAXE = 0;
 Project.OPENFL = 1;
-Project.HXML = 2;
 Project.FLASH = 0;
 Project.JAVASCRIPT = 1;
 Project.PHP = 2;
@@ -26,18 +92,11 @@ Project.CPP = 3;
 Project.JAVA = 4;
 Project.CSHARP = 5;
 Project.NEKO = 6;
+Project.URL = 0;
+Project.FILE = 1;
+Project.COMMAND = 2;
 ProjectAccess.currentProject = new Project();
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

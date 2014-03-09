@@ -105,7 +105,7 @@ typedef PluginDependenciesData =
 		trace(str);
 	}
 	
-	private static function getPluginPath(name):String
+	public static function getPluginPath(name:String):String
 	{
 		var pathToPlugin:String = pathToPlugins.get(name);
 				
@@ -132,8 +132,15 @@ typedef PluginDependenciesData =
 	}
 	
 	public static function openPageInNewWindow(name:String, url:String, ?params:Dynamic):Dynamic
-	{
-		var window = js.Node.require("nw.gui").Window.open(js.Node.path.join(getPluginPath(name), url), params);
+	{	
+		var fullPath:String = url;
+		
+		if (!StringTools.startsWith(url, "http") && name != null)
+		{
+			fullPath = js.Node.path.join(getPluginPath(name), url);
+		}
+		
+		var window = js.Node.require("nw.gui").Window.open(fullPath, params);
 		windows.push(window);
 		
 		window.on("close", function (e):Void

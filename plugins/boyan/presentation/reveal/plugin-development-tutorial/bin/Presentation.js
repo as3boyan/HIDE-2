@@ -1,10 +1,10 @@
 (function () { "use strict";
-var HxOverrides = function() { }
+var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -13,13 +13,17 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-var Presentation = function() { }
+};
+var Presentation = function() { };
 Presentation.main = function() {
-	js.Browser.window.onload = function(e) {
-		var reveal = js.Browser.document.createElement("div");
+	window.onload = function(e) {
+		var reveal;
+		var _this = window.document;
+		reveal = _this.createElement("div");
 		reveal.className = "reveal";
-		var slides = js.Browser.document.createElement("div");
+		var slides;
+		var _this1 = window.document;
+		slides = _this1.createElement("div");
 		slides.className = "slides";
 		reveal.appendChild(slides);
 		slides.appendChild(Presentation.createSection("How to develop plugins for HIDE"));
@@ -37,41 +41,50 @@ Presentation.main = function() {
 		section.appendChild(Presentation.createSection("Each plugin must have plugin.hxml"));
 		section.appendChild(Presentation.createSection("Plugin should compile to bin/Main.js"));
 		slides.appendChild(section);
-		js.Browser.document.body.appendChild(reveal);
+		window.document.body.appendChild(reveal);
 		Presentation.runRevealJS();
-		var window = js.Node.require("nw.gui").Window.get();
-		window.on("close",function(e1) {
-			window.close(true);
+		var $window = js.Node.require("nw.gui").Window.get();
+		$window.on("close",function(e1) {
+			$window.close(true);
 		});
 	};
-}
+};
 Presentation.createSection = function(text) {
-	var section = js.Browser.document.createElement("section");
+	var section = window.document.createElement("section");
 	if(text != null) section.innerText = text;
 	return section;
-}
+};
 Presentation.runRevealJS = function() {
 	var dependencies = [{ src : "includes/lib/js/classList.js", condition : function() {
-		return js.Browser.document.body.classList == null;
+		return window.document.body.classList == null;
 	}},{ src : "includes/plugin/highlight/highlight.js", async : true, callback : function() {
 		hljs.initHighlightingOnLoad();
 	}},{ src : "includes/plugin/zoom-js/zoom.js", async : true, condition : function() {
-		return js.Browser.document.body.classList != null;
+		return window.document.body.classList != null;
 	}},{ src : "includes/plugin/notes/notes.js", async : true, condition : function() {
-		return js.Browser.document.body.classList != null;
+		return window.document.body.classList != null;
 	}}];
 	Reveal.initialize({ controls : true, progress : true, history : true, center : true, theme : Reveal.getQueryHash().theme, dependencies : dependencies});
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
-var js = {}
-js.Browser = function() { }
-js.Node = function() { }
+};
+var js = {};
+js.Node = function() { };
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -89,9 +102,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
-js.Browser.window = typeof window != "undefined" ? window : null;
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Presentation.main();
 })();
 
-//@ sourceMappingURL=Presentation.js.map
+//# sourceMappingURL=Presentation.js.map

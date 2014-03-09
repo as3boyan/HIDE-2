@@ -27,49 +27,38 @@ class Main
 	
 	private static function runProject():Void
 	{		
-		if (ProjectAccess.currentProject.type == Project.OPENFL) 
+		buildProject(function ()
 		{
-			TabManager.saveAll(function ()
+			var gui = js.Node.require('nw.gui');
+			
+			switch (ProjectAccess.currentProject.runActionType) 
 			{
-				HaxeClient.buildProject("haxelib", ["run", "openfl", "test", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget]);
+				case Project.URL:
+					gui.Shell.openExternal(ProjectAccess.currentProject.runActionText);
+				case Project.FILE:
+					gui.Shell.openItem(ProjectAccess.currentProject.runActionText);
+				case Project.COMMAND:
+					HaxeClient.buildProject(ProjectAccess.currentProject.runActionText);
+				default:
+					
 			}
-			);
 		}
-		else 
-		{
-			TabManager.saveAll(function ()
-			{
-				buildProject(function ()
-				{
-					switch (ProjectAccess.currentProject.target) 
-					{
-						case Project.FLASH:
-							//HaxeClient.buildProject("start", [js.Node.path.join(ProjectAccess.currentProject.path, "bin", ProjectAccess.currentProject.name + ".swf")]);
-							js.Node.require('nw.gui').Shell.openItem(js.Node.path.join(ProjectAccess.currentProject.path + "/bin/", ProjectAccess.currentProject.name + ".swf"));
-						case Project.JAVASCRIPT:
-							
-						default:
-							
-					}
-				}
-				);
-			}
-			);
-		}
+		);
 	}
 	
 	private static function buildProject(?onComplete:Dynamic):Void
 	{		
-		if (ProjectAccess.currentProject.type == Project.HAXE)
+		TabManager.saveAll(function ()
 		{
-			var projectOptions:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-			var args:Array<String> = projectOptions.value.split("\n");
-		
-			HaxeClient.buildProject("haxe", ["--connect", "6001", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(args), onComplete);
+			var command:String = ProjectAccess.currentProject.buildActionCommand;
+			
+			if (ProjectAccess.currentProject.type == Project.HAXE)
+			{
+				command = [command].concat(ProjectAccess.currentProject.args).join(" ");
+			}
+			
+			HaxeClient.buildProject(command, onComplete);			
 		}
-		else 
-		{
-			HaxeClient.buildProject("haxelib", ["run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget], onComplete);
-		}
+		);
 	}	
 }

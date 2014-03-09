@@ -1,11 +1,10 @@
 (function () { "use strict";
-var HxOverrides = function() { }
-HxOverrides.__name__ = true;
+var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
 	return x;
-}
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -14,19 +13,23 @@ HxOverrides.substr = function(s,pos,len) {
 		if(pos < 0) pos = 0;
 	} else if(len < 0) len = s.length + len - pos;
 	return s.substr(pos,len);
-}
-var Presentation = function() { }
-Presentation.__name__ = true;
+};
+var Presentation = function() { };
 Presentation.main = function() {
-	js.Browser.window.onload = function(e) {
-		Presentation.impressDiv = js.Browser.document.createElement("div");
+	window.onload = function(e) {
+		var _this = window.document;
+		Presentation.impressDiv = _this.createElement("div");
 		Presentation.impressDiv.id = "impress";
-		var start = js.Browser.document.createElement("div");
+		var start;
+		var _this1 = window.document;
+		start = _this1.createElement("div");
 		start.id = "start";
 		start.className = "step";
 		start.setAttribute("data-transition-duration","1000");
 		Presentation.impressDiv.appendChild(start);
-		var p = js.Browser.document.createElement("p");
+		var p;
+		var _this2 = window.document;
+		p = _this2.createElement("p");
 		p.style.width = "1000px";
 		p.style.fontSize = "80px";
 		p.style.textAlign = "center";
@@ -51,40 +54,47 @@ Presentation.main = function() {
 		slide = Presentation.createSlide("Without your help, this would not have been possible to make it");
 		slide = Presentation.createSlide("Thanks for your support!");
 		slide = Presentation.createSlide("(in case if you want to change website or name, just let me know - AS3Boyan)");
-		js.Browser.document.body.appendChild(Presentation.impressDiv);
+		window.document.body.appendChild(Presentation.impressDiv);
 		Presentation.runImpressJS();
-		var window = js.Node.require("nw.gui").Window.get();
-		window.on("close",function(e1) {
-			window.close(true);
+		var $window = js.Node.require("nw.gui").Window.get();
+		$window.on("close",function(e1) {
+			$window.close(true);
 		});
 	};
-}
+};
 Presentation.createSlide = function(text,url,linkText,_fontSize) {
 	if(_fontSize == null) _fontSize = "80px";
 	Presentation.slidesCount++;
-	var slide = js.Browser.document.createElement("div");
-	slide.id = "slide" + Std.string(Presentation.slidesCount);
+	var slide;
+	var _this = window.document;
+	slide = _this.createElement("div");
+	slide.id = "slide" + ("" + Presentation.slidesCount);
 	slide.className = "step";
 	console.log(slide.id);
-	slide.setAttribute("data-rotate",Std.string(Std.random(360)));
-	slide.setAttribute("data-scale",Std.string(Math.random() * 25 + 1));
-	slide.setAttribute("data-x",Std.string(Math.random() * 100000));
-	slide.setAttribute("data-y",Std.string(Math.random() * 100000));
-	slide.setAttribute("data-z",Std.string(-Math.random() * 3000));
-	slide.setAttribute("data-rotate-x",Std.string(Std.random(360)));
-	slide.setAttribute("data-rotate-y",Std.string(Std.random(360)));
-	var p = js.Browser.document.createElement("p");
+	slide.setAttribute("data-rotate","" + Std.random(360));
+	slide.setAttribute("data-scale","" + (Math.random() * 25 + 1));
+	slide.setAttribute("data-x","" + Math.random() * 100000);
+	slide.setAttribute("data-y","" + Math.random() * 100000);
+	slide.setAttribute("data-z","" + -Math.random() * 3000);
+	slide.setAttribute("data-rotate-x","" + Std.random(360));
+	slide.setAttribute("data-rotate-y","" + Std.random(360));
+	var p;
+	var _this1 = window.document;
+	p = _this1.createElement("p");
 	p.style.width = "1000px";
 	p.style.fontSize = _fontSize;
 	p.innerText = text;
 	slide.appendChild(p);
 	if(url != null) {
-		p = js.Browser.document.createElement("p");
+		var _this2 = window.document;
+		p = _this2.createElement("p");
 		p.className = "footnote";
 		p.innerText = "Website: ";
 		p.style.fontSize = "24px";
 		slide.appendChild(p);
-		var a = js.Browser.document.createElement("a");
+		var a;
+		var _this3 = window.document;
+		a = _this3.createElement("a");
 		a.href = url;
 		a.innerText = linkText;
 		a.target = "_blank";
@@ -92,19 +102,20 @@ Presentation.createSlide = function(text,url,linkText,_fontSize) {
 	}
 	Presentation.impressDiv.appendChild(slide);
 	return slide;
-}
+};
 Presentation.runImpressJS = function() {
 	var impressInstance = impress();
 	impressInstance.init();
-	js.Browser.document.addEventListener("impress:stepenter",function(e) {
+	window.document.addEventListener("impress:stepenter",function(e) {
 		if(Presentation.autoplay) {
-			var duration = e.target.getAttribute("data-transition-duration") != null?e.target.getAttribute("data-transition-duration"):2500 + Std.random(1500);
+			var duration;
+			if(e.target.getAttribute("data-transition-duration") != null) duration = e.target.getAttribute("data-transition-duration"); else duration = 2500 + Std.random(1500);
 			haxe.Timer.delay(function() {
 				if(Presentation.autoplay) impressInstance.next();
 			},duration);
 		}
 	});
-	js.Browser.document.addEventListener("keyup",function(e) {
+	window.document.addEventListener("keyup",function(e1) {
 		Presentation.autoplay = false;
 		if(Presentation.timer != null) {
 			Presentation.timer.stop();
@@ -118,29 +129,24 @@ Presentation.runImpressJS = function() {
 			Presentation.timer = null;
 		};
 	});
-}
-var Std = function() { }
-Std.__name__ = true;
-Std.string = function(s) {
-	return js.Boot.__string_rec(s,"");
-}
+};
+var Std = function() { };
 Std.parseInt = function(x) {
 	var v = parseInt(x,10);
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
-}
+};
 Std.random = function(x) {
-	return x <= 0?0:Math.floor(Math.random() * x);
-}
-var haxe = {}
+	if(x <= 0) return 0; else return Math.floor(Math.random() * x);
+};
+var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;
 	this.id = setInterval(function() {
 		me.run();
 	},time_ms);
 };
-haxe.Timer.__name__ = true;
 haxe.Timer.delay = function(f,time_ms) {
 	var t = new haxe.Timer(time_ms);
 	t.run = function() {
@@ -148,102 +154,37 @@ haxe.Timer.delay = function(f,time_ms) {
 		f();
 	};
 	return t;
-}
+};
 haxe.Timer.prototype = {
-	run: function() {
-		console.log("run");
-	}
-	,stop: function() {
+	stop: function() {
 		if(this.id == null) return;
 		clearInterval(this.id);
 		this.id = null;
 	}
-}
-var js = {}
-js.Boot = function() { }
-js.Boot.__name__ = true;
-js.Boot.__string_rec = function(o,s) {
-	if(o == null) return "null";
-	if(s.length >= 5) return "<...>";
-	var t = typeof(o);
-	if(t == "function" && (o.__name__ || o.__ename__)) t = "object";
-	switch(t) {
-	case "object":
-		if(o instanceof Array) {
-			if(o.__enum__) {
-				if(o.length == 2) return o[0];
-				var str = o[0] + "(";
-				s += "\t";
-				var _g1 = 2, _g = o.length;
-				while(_g1 < _g) {
-					var i = _g1++;
-					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
-				}
-				return str + ")";
-			}
-			var l = o.length;
-			var i;
-			var str = "[";
-			s += "\t";
-			var _g = 0;
-			while(_g < l) {
-				var i1 = _g++;
-				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
-			}
-			str += "]";
-			return str;
-		}
-		var tostr;
-		try {
-			tostr = o.toString;
-		} catch( e ) {
-			return "???";
-		}
-		if(tostr != null && tostr != Object.toString) {
-			var s2 = o.toString();
-			if(s2 != "[object Object]") return s2;
-		}
-		var k = null;
-		var str = "{\n";
-		s += "\t";
-		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
-		if(hasp && !o.hasOwnProperty(k)) {
-			continue;
-		}
-		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
-			continue;
-		}
-		if(str.length != 2) str += ", \n";
-		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
-		}
-		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
-	case "function":
-		return "<function>";
-	case "string":
-		return o;
-	default:
-		return String(o);
+	,run: function() {
 	}
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-js.Node = function() { }
-js.Node.__name__ = true;
-Math.__name__ = ["Math"];
+};
+var js = {};
+js.Node = function() { };
 Math.NaN = Number.NaN;
 Math.NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
 Math.POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
 Math.isFinite = function(i) {
 	return isFinite(i);
 };
-Math.isNaN = function(i) {
-	return isNaN(i);
+Math.isNaN = function(i1) {
+	return isNaN(i1);
 };
-String.__name__ = true;
-Array.__name__ = true;
+if(Array.prototype.map == null) Array.prototype.map = function(f) {
+	var a = [];
+	var _g1 = 0;
+	var _g = this.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		a[i] = f(this[i]);
+	}
+	return a;
+};
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
 js.Node.clearTimeout = clearTimeout;
@@ -262,9 +203,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Presentation.autoplay = true;
-js.Browser.window = typeof window != "undefined" ? window : null;
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Presentation.main();
 })();
 
-//@ sourceMappingURL=Presentation.js.map
+//# sourceMappingURL=Presentation.js.map

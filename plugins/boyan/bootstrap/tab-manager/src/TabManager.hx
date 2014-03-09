@@ -422,26 +422,37 @@ import js.html.UListElement;
 	{		
 		filesSavedCount = 0;
 		
-		for (doc in docs)
+		if (docs.length > 0)
 		{
-			if (doc != null)
+			for (doc in docs)
 			{
-				trace(doc.path + " file saved.");
-				
-				js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+				if (doc != null)
 				{
-					filesSavedCount++;
+					trace(doc.path + " file saved.");
 					
-					if (filesSavedCount == docs.length)
+					js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
 					{
-						if (onComplete != null)
+						filesSavedCount++;
+						
+						if (filesSavedCount == docs.length)
 						{
-							onComplete();
+							if (onComplete != null)
+							{
+								onComplete();
+							}
 						}
 					}
+					);
 				}
-				);
 			}
 		}
+		else 
+		{
+			if (onComplete != null)
+			{
+				onComplete();
+			}
+		}
+		
 	}
 }

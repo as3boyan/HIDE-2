@@ -15,6 +15,8 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ()
 		{			
+			ProjectAccess.registerSaveOnCloseListener();
+			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);
 		}

@@ -14,7 +14,7 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{
-			NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("HIDE plugin");
+			NewProjectDialog.getCategory("Haxe").getCategory("HIDE").addItem("Plugin");
 		}
 		);
 		

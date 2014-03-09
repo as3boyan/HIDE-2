@@ -1,10 +1,10 @@
 (function () { "use strict";
-var Main = function() { }
+var Main = function() { };
 Main.main = function() {
 	HIDE.notifyLoadingComplete(Main.$name);
-}
+};
 Main.$name = "boyan.nekotools.server";
 Main.main();
 })();
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

@@ -6,7 +6,7 @@ package ;
  */
 @:keepSub @:expose class HaxeServer
 {
-	private static var processStarted:Bool = true;
+	//private static var processStarted:Bool = true;
 	private static var haxeCompletionServer:js.Node.NodeChildProcess;
 
 	public static function start():Void
@@ -15,11 +15,11 @@ package ;
 		{
 			trace(stdout);
 			trace(stderr);
-			
-			if (error.code != 0)
-			{
-				processStarted = false;
-			}
+			//
+			//if (error.code != 0)
+			//{
+				//processStarted = false;
+			//}
 			
 			trace('haxeCompletionServer process exit code ' + error.code);
 		}
@@ -34,9 +34,9 @@ package ;
 	
 	public static function terminate():Void
 	{
-		if (processStarted)
-		{
+		//if (processStarted)
+		//{
 			haxeCompletionServer.kill();
-		}
+		//}
 	}
 }

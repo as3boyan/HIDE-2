@@ -1,55 +1,65 @@
-(function () { "use strict";
-var IMap = function() { }
+(function ($hx_exports) { "use strict";
+$hx_exports.ui = {menu:{basic:{}}};
+var IMap = function() { };
 IMap.__name__ = true;
-var haxe = {}
-haxe.ds = {}
+var haxe = {};
+haxe.ds = {};
 haxe.ds.StringMap = function() {
 	this.h = { };
 };
 haxe.ds.StringMap.__name__ = true;
 haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	remove: function(key) {
+	set: function(key,value) {
+		this.h["$" + key] = value;
+	}
+	,get: function(key) {
+		return this.h["$" + key];
+	}
+	,exists: function(key) {
+		return this.h.hasOwnProperty("$" + key);
+	}
+	,remove: function(key) {
 		key = "$" + key;
 		if(!this.h.hasOwnProperty(key)) return false;
 		delete(this.h[key]);
 		return true;
 	}
-	,exists: function(key) {
-		return this.h.hasOwnProperty("$" + key);
-	}
-	,get: function(key) {
-		return this.h["$" + key];
-	}
-	,set: function(key,value) {
-		this.h["$" + key] = value;
-	}
 	,__class__: haxe.ds.StringMap
-}
-var BootstrapMenu = function() { }
-$hxExpose(BootstrapMenu, "BootstrapMenu");
+};
+var BootstrapMenu = $hx_exports.BootstrapMenu = function() { };
 BootstrapMenu.__name__ = true;
 BootstrapMenu.createMenuBar = function() {
-	js.Browser.document.body.style.overflow = "hidden";
-	var navbar = js.Browser.document.createElement("div");
+	window.document.body.style.overflow = "hidden";
+	var navbar;
+	var _this = window.document;
+	navbar = _this.createElement("div");
 	navbar.className = "navbar navbar-default navbar-inverse navbar-fixed-top";
-	var navbarHeader = js.Browser.document.createElement("div");
+	var navbarHeader;
+	var _this1 = window.document;
+	navbarHeader = _this1.createElement("div");
 	navbarHeader.className = "navbar-header";
 	navbar.appendChild(navbarHeader);
-	var a = js.Browser.document.createElement("a");
+	var a;
+	var _this2 = window.document;
+	a = _this2.createElement("a");
 	a.className = "navbar-brand";
 	a.href = "#";
 	a.innerText = "HIDE";
 	navbarHeader.appendChild(a);
-	var div = js.Browser.document.createElement("div");
+	var div;
+	var _this3 = window.document;
+	div = _this3.createElement("div");
 	div.className = "navbar-collapse collapse";
-	var ul = js.Browser.document.createElement("ul");
+	var ul;
+	var _this4 = window.document;
+	ul = _this4.createElement("ul");
 	ul.id = "position-navbar";
 	ul.className = "nav navbar-nav";
 	div.appendChild(ul);
 	navbar.appendChild(div);
-	js.Browser.document.body.appendChild(navbar);
-}
+	window.document.body.appendChild(navbar);
+};
 BootstrapMenu.getMenu = function(name,position) {
 	var menu;
 	if(!BootstrapMenu.menus.exists(name)) {
@@ -68,13 +78,15 @@ BootstrapMenu.getMenu = function(name,position) {
 		}
 	}
 	return menu;
-}
+};
 BootstrapMenu.addMenuToDocument = function(menu) {
-	var div = js.Boot.__cast(js.Browser.document.getElementById("position-navbar") , Element);
+	var div;
+	div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
 	if(menu.position != null && BootstrapMenu.menuArray.length > 0 && div.childNodes.length > 0) {
 		var currentMenu;
 		var added = false;
-		var _g1 = 0, _g = BootstrapMenu.menuArray.length;
+		var _g1 = 0;
+		var _g = BootstrapMenu.menuArray.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			currentMenu = BootstrapMenu.menuArray[i];
@@ -93,8 +105,8 @@ BootstrapMenu.addMenuToDocument = function(menu) {
 		menu.addToDocument();
 		BootstrapMenu.menuArray.push(menu);
 	}
-}
-var HxOverrides = function() { }
+};
+var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.iter = function(a) {
 	return { cur : 0, arr : a, hasNext : function() {
@@ -102,8 +114,8 @@ HxOverrides.iter = function(a) {
 	}, next : function() {
 		return this.arr[this.cur++];
 	}};
-}
-var Lambda = function() { }
+};
+var Lambda = function() { };
 Lambda.__name__ = true;
 Lambda.indexOf = function(it,v) {
 	var i = 0;
@@ -114,25 +126,28 @@ Lambda.indexOf = function(it,v) {
 		i++;
 	}
 	return -1;
-}
-var Main = function() { }
+};
+var Main = function() { };
 Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load);
-}
+};
 Main.load = function() {
 	BootstrapMenu.createMenuBar();
 	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css"]);
 	HIDE.notifyLoadingComplete(Main.$name);
-}
-var Std = function() { }
+};
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
-}
-var js = {}
-js.Boot = function() { }
+};
+var js = {};
+js.Boot = function() { };
 js.Boot.__name__ = true;
+js.Boot.getClass = function(o) {
+	if((o instanceof Array) && o.__enum__ == null) return Array; else return o.__class__;
+};
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
 	if(s.length >= 5) return "<...>";
@@ -145,7 +160,8 @@ js.Boot.__string_rec = function(o,s) {
 				if(o.length == 2) return o[0];
 				var str = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
 					var i = _g1++;
 					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
@@ -153,16 +169,16 @@ js.Boot.__string_rec = function(o,s) {
 				return str + ")";
 			}
 			var l = o.length;
-			var i;
-			var str = "[";
+			var i1;
+			var str1 = "[";
 			s += "\t";
-			var _g = 0;
-			while(_g < l) {
-				var i1 = _g++;
-				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+			var _g2 = 0;
+			while(_g2 < l) {
+				var i2 = _g2++;
+				str1 += (i2 > 0?",":"") + js.Boot.__string_rec(o[i2],s);
 			}
-			str += "]";
-			return str;
+			str1 += "]";
+			return str1;
 		}
 		var tostr;
 		try {
@@ -175,22 +191,22 @@ js.Boot.__string_rec = function(o,s) {
 			if(s2 != "[object Object]") return s2;
 		}
 		var k = null;
-		var str = "{\n";
+		var str2 = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
 		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
 			continue;
 		}
-		if(str.length != 2) str += ", \n";
-		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
+		if(str2.length != 2) str2 += ", \n";
+		str2 += s + k + " : " + js.Boot.__string_rec(o[k],s);
 		}
 		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
+		str2 += "\n" + s + "}";
+		return str2;
 	case "function":
 		return "<function>";
 	case "string":
@@ -198,13 +214,14 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
+};
 js.Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0, _g = intf.length;
+		var _g1 = 0;
+		var _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
@@ -212,7 +229,7 @@ js.Boot.__interfLoop = function(cc,cl) {
 		}
 	}
 	return js.Boot.__interfLoop(cc.__super__,cl);
-}
+};
 js.Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
@@ -224,44 +241,45 @@ js.Boot.__instanceof = function(o,cl) {
 		return typeof(o) == "boolean";
 	case String:
 		return typeof(o) == "string";
+	case Array:
+		return (o instanceof Array) && o.__enum__ == null;
 	case Dynamic:
 		return true;
 	default:
 		if(o != null) {
 			if(typeof(cl) == "function") {
-				if(o instanceof cl) {
-					if(cl == Array) return o.__enum__ == null;
-					return true;
-				}
-				if(js.Boot.__interfLoop(o.__class__,cl)) return true;
+				if(o instanceof cl) return true;
+				if(js.Boot.__interfLoop(js.Boot.getClass(o),cl)) return true;
 			}
 		} else return false;
 		if(cl == Class && o.__name__ != null) return true;
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-}
+};
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-var ui = {}
-ui.menu = {}
-ui.menu.basic = {}
-ui.menu.basic.MenuItem = function() { }
+};
+var ui = {};
+ui.menu = {};
+ui.menu.basic = {};
+ui.menu.basic.MenuItem = function() { };
 ui.menu.basic.MenuItem.__name__ = true;
 ui.menu.basic.MenuButtonItem = function(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
 	var _g = this;
 	var span = null;
 	if(_hotkey != null) {
-		span = js.Browser.document.createElement("span");
+		var _this = window.document;
+		span = _this.createElement("span");
 		span.style.color = "silver";
-		span.style["float"] = "right";
+		span.style.float = "right";
 		span.innerText = _hotkey;
 	}
-	this.li = js.Browser.document.createElement("li");
-	var a = js.Browser.document.createElement("a");
+	var _this1 = window.document;
+	this.li = _this1.createElement("li");
+	var a;
+	var _this2 = window.document;
+	a = _this2.createElement("a");
 	a.style.left = "0";
 	a.setAttribute("text",_text);
 	if(_onClickFunction != null) {
@@ -281,9 +299,10 @@ ui.menu.basic.MenuButtonItem.prototype = {
 		return this.li;
 	}
 	,__class__: ui.menu.basic.MenuButtonItem
-}
+};
 ui.menu.basic.Separator = function() {
-	this.li = js.Browser.document.createElement("li");
+	var _this = window.document;
+	this.li = _this.createElement("li");
 	this.li.className = "divider";
 };
 ui.menu.basic.Separator.__name__ = true;
@@ -293,21 +312,27 @@ ui.menu.basic.Separator.prototype = {
 		return this.li;
 	}
 	,__class__: ui.menu.basic.Separator
-}
-ui.menu.basic.Menu = function(_text,_headerText) {
-	this.li = js.Browser.document.createElement("li");
+};
+ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText) {
+	var _this = window.document;
+	this.li = _this.createElement("li");
 	this.li.className = "dropdown";
-	var a = js.Browser.document.createElement("a");
+	var a;
+	var _this1 = window.document;
+	a = _this1.createElement("a");
 	a.href = "#";
 	a.className = "dropdown-toggle";
 	a.setAttribute("data-toggle","dropdown");
 	a.innerText = _text;
 	this.li.appendChild(a);
-	this.ul = js.Browser.document.createElement("ul");
+	var _this2 = window.document;
+	this.ul = _this2.createElement("ul");
 	this.ul.className = "dropdown-menu";
 	this.ul.classList.add("dropdown-menu-form");
 	if(_headerText != null) {
-		var li_header = js.Browser.document.createElement("li");
+		var li_header;
+		var _this3 = window.document;
+		li_header = _this3.createElement("li");
 		li_header.className = "dropdown-header";
 		li_header.innerText = _headerText;
 		this.ul.appendChild(li_header);
@@ -315,49 +340,9 @@ ui.menu.basic.Menu = function(_text,_headerText) {
 	this.li.appendChild(this.ul);
 	this.items = new Array();
 };
-$hxExpose(ui.menu.basic.Menu, "ui.menu.basic.Menu");
 ui.menu.basic.Menu.__name__ = true;
 ui.menu.basic.Menu.prototype = {
-	getElement: function() {
-		return this.li;
-	}
-	,setMenuEnabled: function(enabled) {
-		var childNodes = this.ul.childNodes;
-		var _g1 = 0, _g = childNodes.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var child = js.Boot.__cast(childNodes[i] , Element);
-			if(child.className != "divider") {
-				if(enabled) child.className = ""; else child.className = "disabled";
-			}
-		}
-	}
-	,setDisabled: function(menuItemNames) {
-		var childNodes = this.ul.childNodes;
-		var _g1 = 0, _g = childNodes.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var child = js.Boot.__cast(childNodes[i] , Element);
-			if(child.className != "divider") {
-				var a = js.Boot.__cast(child.firstChild , HTMLAnchorElement);
-				if(Lambda.indexOf(menuItemNames,a.getAttribute("text")) == -1) child.className = ""; else child.className = "disabled";
-			}
-		}
-	}
-	,setPosition: function(_position) {
-		this.position = _position;
-	}
-	,removeFromDocument: function() {
-		this.li.remove();
-	}
-	,addToDocument: function() {
-		var div = js.Boot.__cast(js.Browser.document.getElementById("position-navbar") , Element);
-		div.appendChild(this.li);
-	}
-	,addSeparator: function() {
-		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
-	}
-	,addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
+	addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
 		if(_alt == null) _alt = false;
 		if(_shift == null) _shift = false;
 		if(_ctrl == null) _ctrl = false;
@@ -366,7 +351,8 @@ ui.menu.basic.Menu.prototype = {
 		if(menuButtonItem.position != null && this.items.length > 0 && this.ul.childNodes.length > 0) {
 			var currentMenuButtonItem;
 			var added = false;
-			var _g1 = 0, _g = this.items.length;
+			var _g1 = 0;
+			var _g = this.items.length;
 			while(_g1 < _g) {
 				var i = _g1++;
 				currentMenuButtonItem = this.items[i];
@@ -386,14 +372,58 @@ ui.menu.basic.Menu.prototype = {
 			this.items.push(menuButtonItem);
 		}
 	}
+	,addSeparator: function() {
+		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
+	}
+	,addToDocument: function() {
+		var div;
+		div = js.Boot.__cast(window.document.getElementById("position-navbar") , Element);
+		div.appendChild(this.li);
+	}
+	,removeFromDocument: function() {
+		this.li.remove();
+	}
+	,setPosition: function(_position) {
+		this.position = _position;
+	}
+	,setDisabled: function(menuItemNames) {
+		var childNodes = this.ul.childNodes;
+		var _g1 = 0;
+		var _g = childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var child;
+			child = js.Boot.__cast(childNodes[i] , Element);
+			if(child.className != "divider") {
+				var a;
+				a = js.Boot.__cast(child.firstChild , HTMLAnchorElement);
+				if(Lambda.indexOf(menuItemNames,a.getAttribute("text")) == -1) child.className = ""; else child.className = "disabled";
+			}
+		}
+	}
+	,setMenuEnabled: function(enabled) {
+		var childNodes = this.ul.childNodes;
+		var _g1 = 0;
+		var _g = childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var child;
+			child = js.Boot.__cast(childNodes[i] , Element);
+			if(child.className != "divider") {
+				if(enabled) child.className = ""; else child.className = "disabled";
+			}
+		}
+	}
+	,getElement: function() {
+		return this.li;
+	}
 	,__class__: ui.menu.basic.Menu
-}
-function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
+};
+function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
-function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.prototype.__class__ = String;
 String.__name__ = true;
-Array.prototype.__class__ = Array;
 Array.__name__ = true;
 var Int = { __name__ : ["Int"]};
 var Dynamic = { __name__ : ["Dynamic"]};
@@ -407,18 +437,7 @@ BootstrapMenu.menus = new haxe.ds.StringMap();
 BootstrapMenu.menuArray = new Array();
 Main.$name = "boyan.bootstrap.menu";
 Main.dependencies = ["boyan.bootstrap.script","boyan.events.hotkey"];
-js.Browser.document = typeof window != "undefined" ? window.document : null;
 Main.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof window != "undefined" ? window : exports);
 
-//@ sourceMappingURL=Main.js.map
+//# sourceMappingURL=Main.js.map

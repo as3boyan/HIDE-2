@@ -30,13 +30,6 @@ import js.html.UListElement;
 		treeWell = Browser.document.createDivElement();
 		treeWell.id = "tree-well";
 		treeWell.className = "well";
-		treeWell.style.overflow = "auto";
-		treeWell.style.padding = "0";
-		treeWell.style.margin = "0";
-		treeWell.style.width = "100%";
-		treeWell.style.height = "100%";
-		treeWell.style.fontSize = "10pt";
-		treeWell.style.lineHeight = "1";
 		
 		var tree:UListElement = Browser.document.createUListElement();
 		tree.className = "nav nav-list";

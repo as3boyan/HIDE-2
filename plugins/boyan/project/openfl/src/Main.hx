@@ -1,5 +1,4 @@
 package ;
-import haxe.Serializer;
 import js.Browser;
 import js.html.TextAreaElement;
 
@@ -10,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.project.openfl";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree", "boyan.bootstrap.project-options", "boyan.openfl.tools"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.new-project-dialog", "boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree", "boyan.bootstrap.project-options", "boyan.openfl.tools", "boyan.management.project-access", "boyan.codemirror.editor"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -109,14 +108,14 @@ class Main
 		//project.target = target;
 		project.openFLTarget = "flash";
 		project.path = pathToProject;
+		project.buildActionCommand = ["haxelib", "run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(project.path, "project.xml")), project.openFLTarget].join(" ");
+		project.runActionType = Project.COMMAND;
+		project.runActionText = ["haxelib", "run", "openfl", "test", HIDE.surroundWithQuotes(js.Node.path.join(project.path, "project.xml")), project.openFLTarget].join(" ");
 		
 		ProjectAccess.currentProject = project;
-		ProjectOptions.updateProjectOptions();
 		
 		OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
 		{
-			var textarea:TextAreaElement = cast(Browser.document.getElementById("project-options-textarea"), TextAreaElement);
-					
 			var args:Array<String> = [];
 			
 			var currentLine:String;
@@ -131,18 +130,17 @@ class Main
 				}
 			}
 			
-			textarea.value = args.join("\n");
 			project.args = args;
+			ProjectOptions.updateProjectOptions();
 			
-			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			var path:String = js.Node.path.join(pathToProject, "project.json");
+			Browser.getLocalStorage().setItem("pathToLastProject", path);
 			
-			js.Node.fs.writeFile(path, Serializer.run(project), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+			ProjectAccess.save(function ()
 			{
 				FileTree.load(project.name, pathToProject);
 			}
 			);
-			
-			Browser.getLocalStorage().setItem("pathToLastProject", path);
 		}
 		);
 	}
