@@ -41,7 +41,7 @@ Main.runProject = function() {
 	});
 };
 Main.buildProject = function(onComplete) {
-	TabManager.saveAll(function() {
+	if(ProjectAccess.currentProject.path == null) Alerts.showAlert("Please open or create project first!"); else TabManager.saveAll(function() {
 		var command = ProjectAccess.currentProject.buildActionCommand;
 		if(ProjectAccess.currentProject.type == 0) command = [command].concat(ProjectAccess.currentProject.args).join(" ");
 		HaxeClient.buildProject(command,onComplete);
@@ -84,7 +84,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.run-project";
-Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access","boyan.bootstrap.menu","boyan.bootstrap.tab-manager"];
+Main.dependencies = ["boyan.bootstrap.project-options","boyan.compilation.client","boyan.management.project-access","boyan.bootstrap.menu","boyan.bootstrap.tab-manager","boyan.bootstrap.alerts"];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

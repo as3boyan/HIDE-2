@@ -9,7 +9,7 @@ import js.html.TextAreaElement;
 class Main
 {
 	public static var name:String = "boyan.management.run-project";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access", "boyan.bootstrap.menu", "boyan.bootstrap.tab-manager"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.project-options", "boyan.compilation.client", "boyan.management.project-access", "boyan.bootstrap.menu", "boyan.bootstrap.tab-manager", "boyan.bootstrap.alerts"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -48,17 +48,24 @@ class Main
 	
 	private static function buildProject(?onComplete:Dynamic):Void
 	{		
-		TabManager.saveAll(function ()
+		if (ProjectAccess.currentProject.path == null)
 		{
-			var command:String = ProjectAccess.currentProject.buildActionCommand;
-			
-			if (ProjectAccess.currentProject.type == Project.HAXE)
-			{
-				command = [command].concat(ProjectAccess.currentProject.args).join(" ");
-			}
-			
-			HaxeClient.buildProject(command, onComplete);			
+			Alerts.showAlert("Please open or create project first!");
 		}
-		);
+		else 
+		{
+			TabManager.saveAll(function ()
+			{
+				var command:String = ProjectAccess.currentProject.buildActionCommand;
+				
+				if (ProjectAccess.currentProject.type == Project.HAXE)
+				{
+					command = [command].concat(ProjectAccess.currentProject.args).join(" ");
+				}
+				
+				HaxeClient.buildProject(command, onComplete);			
+			}
+			);
+		}
 	}	
 }
