@@ -7,11 +7,10 @@ HaxeServer.start = function() {
 		console.log("haxeCompletionServer process exit code " + error.code);
 	});
 	js.Node.require("nw.gui").Window.get().on("close",function(e) {
-		HaxeServer.terminate();
+		HaxeServer.haxeCompletionServer.kill();
 	});
 };
 HaxeServer.terminate = function() {
-	HaxeServer.haxeCompletionServer.kill();
 };
 var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {

@@ -77,9 +77,9 @@ Main.createProject = function(data) {
 	project.type = 1;
 	project.openFLTarget = "flash";
 	project.path = pathToProject;
-	project.buildActionCommand = ["haxelib","run","openfl","build",HIDE.surroundWithQuotes(js.Node.require("path").join(project.path,"project.xml")),project.openFLTarget].join(" ");
+	project.buildActionCommand = ["haxelib","run","openfl","build","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
 	project.runActionType = 2;
-	project.runActionText = ["haxelib","run","openfl","test",HIDE.surroundWithQuotes(js.Node.require("path").join(project.path,"project.xml")),project.openFLTarget].join(" ");
+	project.runActionText = ["haxelib","run","openfl","run","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
 	ProjectAccess.currentProject = project;
 	OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
 		var args = [];

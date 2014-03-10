@@ -60,7 +60,7 @@ import js.html.UListElement;
 		
 		new JQuery(tree).children().remove();
 		
-		var rootTreeElement:LIElement = createDirectoryElement(projectName);		
+		var rootTreeElement:LIElement = createDirectoryElement(projectName, path);		
 		
 		tree.appendChild(rootTreeElement);
 		
@@ -70,21 +70,27 @@ import js.html.UListElement;
 		lastProjectPath = path;
 	}
 	
-	private static function createDirectoryElement(text:String):LIElement
+	private static function createDirectoryElement(text:String, path:String):LIElement
 	{
 		var directoryElement:LIElement = Browser.document.createLIElement();
 		
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.className = "tree-toggler nav-header";
 		a.href = "#";
+		a.setAttribute("path", path);
+		a.setAttribute("itemType", "folder");
 		
 		var span = Browser.document.createSpanElement();
 		span.className = "glyphicon glyphicon-folder-open";
+		span.setAttribute("path", path);
+		span.setAttribute("itemType", "folder");
 		a.appendChild(span);
 		
 		span = Browser.document.createSpanElement();
 		span.textContent = text;
 		span.style.marginLeft = "5px";
+		span.setAttribute("path", path);
+		span.setAttribute("itemType", "folder");
 		a.appendChild(span);
 		
 		//var textNode = Browser.document.createTextNode(text);
@@ -132,6 +138,8 @@ import js.html.UListElement;
 							a.href = "#";
 							a.textContent = file;
 							a.title = filePath;
+							a.setAttribute("path", filePath);
+							a.setAttribute("itemType", "file");
 							a.onclick = function (e):Void
 							{
 								if (onFileClick != null)
@@ -165,7 +173,7 @@ import js.html.UListElement;
 							{
 								var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
 								
-								var directoryElement:LIElement = createDirectoryElement(file);
+								var directoryElement:LIElement = createDirectoryElement(file, filePath);
 								
 								//Lazy loading
 								directoryElement.onclick = function (e):Void

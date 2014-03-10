@@ -16,10 +16,74 @@ ContextMenu.createContextMenu = function() {
 	ul = _this1.createElement("ul");
 	ul.className = "dropdown-menu";
 	ul.style.display = "block";
-	ul.appendChild(ContextMenu.createContextMenuItem("Refresh",FileTree.load));
+	ContextMenu.menuItems = new haxe.ds.StringMap();
+	ContextMenu.addContextMenuItemToStringMap("New File...",function() {
+		var filename = window.prompt("Filename:","New File.hx");
+		var template = "";
+		if(filename != null) {
+			var extname = js.Node.require("path").extname(filename);
+			var pathToFile;
+			if(extname == ".hx") {
+				var name = js.Node.require("path").basename(filename,extname);
+				name = HxOverrides.substr(name,0,1).toUpperCase() + HxOverrides.substr(name,1,null).toLowerCase();
+				name = StringTools.replace(name," ","");
+				template = "package ;\n\nclass " + name + "\n{\n    public function new()\n    {\n\n    }\n}";
+				pathToFile = js.Node.require("path").join(ContextMenu.path,name + ".hx");
+			} else pathToFile = js.Node.require("path").join(ContextMenu.path,filename);
+			js.Node.require("fs").writeFile(pathToFile,template,"utf8",function(error) {
+				FileTree.onFileClick(pathToFile);
+				FileTree.load();
+			});
+		}
+	});
+	ContextMenu.addContextMenuItemToStringMap("New Folder...",function() {
+		var dirname = window.prompt("Filename:","New Folder");
+		if(dirname != null) js.Node.require("fs").mkdir(js.Node.require("path").join(ContextMenu.path,dirname),null,function(error1) {
+			FileTree.load();
+		});
+	});
+	ContextMenu.addContextMenuItemToStringMap("Open File",function() {
+		FileTree.onFileClick(ContextMenu.path);
+	});
+	ContextMenu.addContextMenuItemToStringMap("Open using OS",function() {
+		js.Node.require("nw.gui").Shell.openItem(ContextMenu.path);
+	});
+	ContextMenu.addContextMenuItemToStringMap("Show Item In Folder",function() {
+		js.Node.require("nw.gui").Shell.showItemInFolder(ContextMenu.path);
+	});
+	ContextMenu.addContextMenuItemToStringMap("Refresh",FileTree.load);
+	ul.appendChild(ContextMenu.menuItems.get("New File..."));
+	ul.appendChild(ContextMenu.menuItems.get("New Folder..."));
+	ul.appendChild(ContextMenu.menuItems.get("Open File"));
+	ul.appendChild(ContextMenu.menuItems.get("Open using OS"));
+	ul.appendChild(ContextMenu.menuItems.get("Show Item In Folder"));
+	ul.appendChild(ContextMenu.menuItems.get("Refresh"));
 	contextMenu.appendChild(ul);
 	window.document.body.appendChild(contextMenu);
 	FileTree.treeWell.addEventListener("contextmenu",function(ev) {
+		ContextMenu.itemType = (js.Boot.__cast(ev.target , Element)).getAttribute("itemType");
+		ContextMenu.path = (js.Boot.__cast(ev.target , Element)).getAttribute("path");
+		ContextMenu.menuItems.get("New File...").style.display = "none";
+		ContextMenu.menuItems.get("New Folder...").style.display = "none";
+		ContextMenu.menuItems.get("Open File").style.display = "none";
+		ContextMenu.menuItems.get("Open using OS").style.display = "none";
+		ContextMenu.menuItems.get("Show Item In Folder").style.display = "none";
+		if(ContextMenu.itemType != null) {
+			var _g = ContextMenu.itemType;
+			switch(_g) {
+			case "file":
+				ContextMenu.menuItems.get("Open File").style.display = "";
+				ContextMenu.menuItems.get("Open using OS").style.display = "";
+				ContextMenu.menuItems.get("Show Item In Folder").style.display = "";
+				break;
+			case "folder":
+				ContextMenu.menuItems.get("New File...").style.display = "";
+				ContextMenu.menuItems.get("New Folder...").style.display = "";
+				ContextMenu.menuItems.get("Show Item In Folder").style.display = "";
+				break;
+			default:
+			}
+		}
 		ev.preventDefault();
 		contextMenu.style.display = "block";
 		contextMenu.style.left = "" + ev.pageX + "px";
@@ -41,6 +105,9 @@ ContextMenu.createContextMenuItem = function(text,onClick) {
 	a.textContent = text;
 	li.appendChild(a);
 	return li;
+};
+ContextMenu.addContextMenuItemToStringMap = function(text,onClick) {
+	ContextMenu.menuItems.set(text,ContextMenu.createContextMenuItem(text,onClick));
 };
 var FileTree = $hx_exports.FileTree = function() { };
 FileTree.__name__ = true;
@@ -68,13 +135,13 @@ FileTree.load = function(projectName,path) {
 	var tree;
 	tree = js.Boot.__cast(window.document.getElementById("tree") , HTMLUListElement);
 	new $(tree).children().remove();
-	var rootTreeElement = FileTree.createDirectoryElement(projectName);
+	var rootTreeElement = FileTree.createDirectoryElement(projectName,path);
 	tree.appendChild(rootTreeElement);
 	FileTree.readDir(path,rootTreeElement);
 	FileTree.lastProjectName = projectName;
 	FileTree.lastProjectPath = path;
 };
-FileTree.createDirectoryElement = function(text) {
+FileTree.createDirectoryElement = function(text,path) {
 	var directoryElement;
 	var _this = window.document;
 	directoryElement = _this.createElement("li");
@@ -83,15 +150,21 @@ FileTree.createDirectoryElement = function(text) {
 	a = _this1.createElement("a");
 	a.className = "tree-toggler nav-header";
 	a.href = "#";
+	a.setAttribute("path",path);
+	a.setAttribute("itemType","folder");
 	var span;
 	var _this2 = window.document;
 	span = _this2.createElement("span");
 	span.className = "glyphicon glyphicon-folder-open";
+	span.setAttribute("path",path);
+	span.setAttribute("itemType","folder");
 	a.appendChild(span);
 	var _this3 = window.document;
 	span = _this3.createElement("span");
 	span.textContent = text;
 	span.style.marginLeft = "5px";
+	span.setAttribute("path",path);
+	span.setAttribute("itemType","folder");
 	a.appendChild(span);
 	a.onclick = function(e) {
 		new $(directoryElement).children("ul.tree").toggle(300);
@@ -125,6 +198,8 @@ FileTree.readDir = function(path,topElement) {
 							a.href = "#";
 							a.textContent = file[0];
 							a.title = filePath[0];
+							a.setAttribute("path",filePath[0]);
+							a.setAttribute("itemType","file");
 							a.onclick = (function(filePath) {
 								return function(e) {
 									if(FileTree.onFileClick != null) FileTree.onFileClick(filePath[0]);
@@ -141,7 +216,7 @@ FileTree.readDir = function(path,topElement) {
 						} else if(!StringTools.startsWith(file[0],".")) {
 							var ul1;
 							ul1 = js.Boot.__cast(topElement.getElementsByTagName("ul")[0] , HTMLUListElement);
-							var directoryElement = FileTree.createDirectoryElement(file[0]);
+							var directoryElement = FileTree.createDirectoryElement(file[0],filePath[0]);
 							directoryElement.onclick = (function(filePath) {
 								return function(e1) {
 									if(directoryElement.getElementsByTagName("ul")[0].childNodes.length == 0) {
@@ -191,6 +266,8 @@ Main.load = function() {
 	FileTree.init();
 	HIDE.notifyLoadingComplete(Main.$name);
 };
+var IMap = function() { };
+IMap.__name__ = true;
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
@@ -211,6 +288,25 @@ StringTools.endsWith = function(s,end) {
 	var elen = end.length;
 	var slen = s.length;
 	return slen >= elen && HxOverrides.substr(s,slen - elen,elen) == end;
+};
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
+};
+var haxe = {};
+haxe.ds = {};
+haxe.ds.StringMap = function() {
+	this.h = { };
+};
+haxe.ds.StringMap.__name__ = true;
+haxe.ds.StringMap.__interfaces__ = [IMap];
+haxe.ds.StringMap.prototype = {
+	set: function(key,value) {
+		this.h["$" + key] = value;
+	}
+	,get: function(key) {
+		return this.h["$" + key];
+	}
+	,__class__: haxe.ds.StringMap
 };
 var js = {};
 js.Boot = function() { };

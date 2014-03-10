@@ -36,9 +36,20 @@ class Main
 				case Project.URL:
 					gui.Shell.openExternal(ProjectAccess.currentProject.runActionText);
 				case Project.FILE:
-					gui.Shell.openItem(ProjectAccess.currentProject.runActionText);
+					var path:String = ProjectAccess.currentProject.runActionText;
+					
+					js.Node.fs.exists(path, function (exists:Bool)
+					{
+						if (!exists)
+						{
+							path = js.Node.path.join(ProjectAccess.currentProject.path, path);
+						}
+						
+						gui.Shell.openItem(path);
+					}
+					);
 				case Project.COMMAND:
-					HaxeClient.buildProject(ProjectAccess.currentProject.runActionText);
+					HaxeClient.buildProject(preprocessCommand(ProjectAccess.currentProject.runActionText));
 				default:
 					
 			}
@@ -57,6 +68,7 @@ class Main
 			TabManager.saveAll(function ()
 			{
 				var command:String = ProjectAccess.currentProject.buildActionCommand;
+				command = preprocessCommand(command);
 				
 				if (ProjectAccess.currentProject.type == Project.HAXE)
 				{
@@ -67,5 +79,24 @@ class Main
 			}
 			);
 		}
-	}	
+	}
+	
+	private static function preprocessCommand(command:String):String
+	{
+		var processedCommand:String = command;
+		
+		processedCommand = StringTools.replace(processedCommand, "%path%", ProjectAccess.currentProject.path);
+		
+		var ereg:EReg = ~/%join%[(](.+)[)]/;
+		
+		if (ereg.match(processedCommand))
+		{
+			var matchedString:String = ereg.matched(1);
+			var arguments = matchedString.split(",");
+			
+			processedCommand = StringTools.replace(processedCommand, ereg.matched(0), js.Node.path.join(arguments[0], arguments[1]));
+		}
+		
+		return processedCommand;
+	}
 }

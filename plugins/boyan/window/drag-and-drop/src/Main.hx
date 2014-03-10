@@ -8,7 +8,7 @@ import js.Browser;
 class Main
 {
 	public static var name:String = "boyan.window.drag-and-drop";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.tab-manager"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -27,10 +27,24 @@ class Main
 			{
 				e.preventDefault();
 				e.stopPropagation();
-
+				
 				for (i in 0...e.dataTransfer.files.length) 
 				{
-					TabManager.openFileInNewTab(e.dataTransfer.files[i].path);
+					var path:String = e.dataTransfer.files[i].path;
+					js.Node.fs.stat(path, function (err, stats:js.Node.NodeStat)
+					{
+						if (stats.isDirectory())
+						{
+							FileTree.load(js.Node.path.basename(path), path);
+						}
+						else 
+						{
+							TabManager.openFileInNewTab(path);
+						}
+					}
+					);
+					
+					
 				}
 
 				return false;

@@ -175,9 +175,9 @@ So if some plugins depend on this plugin, then they can start loading themselves
 ###Known issues
 
 ###Current TODOs:
-1. Port code from not-plugin-based branch to master(which is plugin based)
-2. Project Management
-3. Code completion(Haxe completion + hxparse)
+1. Port code from not-plugin-based branch to master(which is plugin based) - done.
+2. Project Management - done, needs testing(and probably some adjusting)
+3. Code completion(Haxe completion + hxparse) - HIDE gets completion from Haxe(doesn't use hxparse for anything yet)
 
 ###License:
 HIDE is licensed under the terms of the MIT License.

@@ -239,46 +239,43 @@ TabManager.checkTabsCount = function() {
 	}
 };
 TabManager.closeAll = function() {
-	TabManager.saveAll(function() {
-		var _g1 = 0;
-		var _g = TabManager.docs.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
-		}
-		if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
-			TabManager.closeAll();
-		},30);
-	});
-};
-TabManager.closeOthers = function(path) {
 	var _g1 = 0;
 	var _g = TabManager.docs.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		if(TabManager.docs[i] != null && path != TabManager.docs[i].path) TabManager.closeTab(TabManager.docs[i].path,false);
+		if(TabManager.docs[i] != null) TabManager.closeTab(TabManager.docs[i].path,false);
 	}
+	if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
+		TabManager.closeAll();
+	},30);
+};
+TabManager.closeOthers = function(path) {
 	if(TabManager.docs.length > 1) haxe.Timer.delay(function() {
 		TabManager.closeOthers(path);
 	},30); else TabManager.showNextTab();
 };
 TabManager.closeTab = function(path,switchToTab) {
 	if(switchToTab == null) switchToTab = true;
+	var j = -1;
 	var _g1 = 0;
 	var _g = TabManager.docs.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(TabManager.docs[i] != null && TabManager.docs[i].path == path) {
-			TabManager.docs.splice(i,1);
-			(js.Boot.__cast(TabManager.tabs.children.item(i) , Element)).remove();
+			j = i;
+			break;
 		}
 	}
-	if(TabManager.docs.length > 0) {
-		if(switchToTab) TabManager.showPreviousTab();
-	} else {
-		if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
-		TabManager.curDoc = null;
-	}
+	if(j != -1) TabManager.saveDoc(TabManager.docs[j],function() {
+		TabManager.docs.splice(j,1);
+		(js.Boot.__cast(TabManager.tabs.children.item(j) , Element)).remove();
+		if(TabManager.docs.length > 0) {
+			if(switchToTab) TabManager.showPreviousTab();
+		} else {
+			if(TabManager.editor != null) TabManager.editor.getWrapperElement().style.display = "none";
+			TabManager.curDoc = null;
+		}
+	});
 };
 TabManager.closeActiveTab = function() {
 	TabManager.saveActiveFile(function() {
@@ -366,16 +363,18 @@ TabManager.getCurrentDocumentPath = function() {
 	if(TabManager.curDoc != null) path = TabManager.curDoc.path;
 	return path;
 };
-TabManager.saveActiveFile = function(onComplete) {
-	if(TabManager.curDoc != null) js.Node.require("fs").writeFile(TabManager.curDoc.path,TabManager.curDoc.doc.cm.getValue(),"utf8",function(error) {
+TabManager.saveDoc = function(doc,onComplete) {
+	if(doc != null) js.Node.require("fs").writeFile(doc.path,doc.doc.cm.getValue(),"utf8",function(error) {
 		if(onComplete != null) onComplete();
 	});
 };
+TabManager.saveActiveFile = function(onComplete) {
+	TabManager.saveDoc(TabManager.curDoc,onComplete);
+};
 TabManager.saveActiveFileAs = function() {
 	FileDialog.saveFile(function(path) {
-		js.Node.require("fs").writeFile(path,TabManager.curDoc.doc.cm.getValue(),"utf8",function(error) {
-			TabManager.curDoc.path = path;
-		});
+		TabManager.curDoc.path = path;
+		TabManager.saveDoc(TabManager.curDoc);
 	},TabManager.curDoc.name);
 };
 TabManager.saveAll = function(onComplete) {
@@ -387,8 +386,9 @@ TabManager.saveAll = function(onComplete) {
 			var doc = _g1[_g];
 			++_g;
 			if(doc != null) {
+				if(doc.doc.getValue() == "") js.Node.console.warn(doc.path + " will be empty");
 				console.log(doc.path + " file saved.");
-				js.Node.require("fs").writeFile(doc.path,doc.doc.getValue(),"utf8",function(error) {
+				TabManager.saveDoc(doc,function() {
 					TabManager.filesSavedCount++;
 					if(TabManager.filesSavedCount == TabManager.docs.length) {
 						if(onComplete != null) onComplete();

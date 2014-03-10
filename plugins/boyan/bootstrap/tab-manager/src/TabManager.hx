@@ -173,38 +173,26 @@ import js.html.UListElement;
 	
 	public static function closeAll():Void
 	{
-		saveAll(function ()
-		{
-			for (i in 0...docs.length)
-			{
-				if (docs[i] != null)
-				{
-					closeTab(docs[i].path, false);
-				}
-			}
-			
-			if (docs.length > 0)
-			{
-				Timer.delay(function ()
-				{
-					closeAll();
-				}
-				,30);
-			}
-		}
-		);
-	}
-        
-	public static function closeOthers(path:String):Void
-	{
 		for (i in 0...docs.length)
 		{
-			if (docs[i] != null && path != docs[i].path)
+			if (docs[i] != null)
 			{
 				closeTab(docs[i].path, false);
 			}
 		}
 		
+		if (docs.length > 0)
+		{
+			Timer.delay(function ()
+			{
+				closeAll();
+			}
+			,30);
+		}
+	}
+        
+	public static function closeOthers(path:String):Void
+	{		
 		if (docs.length > 1)
 		{
 			Timer.delay(function ()
@@ -221,30 +209,42 @@ import js.html.UListElement;
 	
 	public static function closeTab(path:String, ?switchToTab:Bool = true):Void
 	{
+		var j:Int = -1;
+		
 		for (i in 0...docs.length)
 		{                                
 			if (docs[i] != null && docs[i].path == path)
 			{
-				docs.splice(i, 1);
-				cast(tabs.children.item(i), Element).remove();
+				j = i;
+				break;
 			}
 		}
 		
-		if (docs.length > 0)
+		if (j != -1) 
 		{
-			if (switchToTab)
+			saveDoc(docs[j], function ()
 			{
-				showPreviousTab();
+				docs.splice(j, 1);
+				cast(tabs.children.item(j), Element).remove();
+				
+				if (docs.length > 0)
+				{
+					if (switchToTab)
+					{
+						showPreviousTab();
+					}
+				}
+				else 
+				{
+					if (editor != null)
+					{
+						editor.getWrapperElement().style.display = "none";
+					}
+					
+					curDoc = null;
+				}
 			}
-		}
-		else 
-		{
-			if (editor != null)
-			{
-				editor.getWrapperElement().style.display = "none";
-			}
-			
-			curDoc = null;
+			);
 		}
 	}
 	
@@ -390,11 +390,11 @@ import js.html.UListElement;
 		return path;
 	}
 	
-	public static function saveActiveFile(?onComplete:Dynamic):Void
+	public static function saveDoc(doc:CMDoc, ?onComplete:Dynamic):Void
 	{
-		if (curDoc != null)
+		if (doc != null)
 		{			
-			js.Node.fs.writeFile(curDoc.path, curDoc.doc.cm.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+			js.Node.fs.writeFile(doc.path, doc.doc.cm.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
 			{
 				if (onComplete != null)
 				{
@@ -405,15 +405,17 @@ import js.html.UListElement;
 		}	
 	}
 	
+	public static function saveActiveFile(?onComplete:Dynamic):Void
+	{
+		saveDoc(curDoc, onComplete);
+	}
+	
 	public static function saveActiveFileAs():Void
 	{
 		FileDialog.saveFile(function (path:String):Void
 		{
-			js.Node.fs.writeFile(path, curDoc.doc.cm.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-			{
-				curDoc.path = path;
-			}
-			);	
+			curDoc.path = path;
+			saveDoc(curDoc);
 		}
 		, curDoc.name);
 	}
@@ -428,9 +430,14 @@ import js.html.UListElement;
 			{
 				if (doc != null)
 				{
+					if (doc.doc.getValue() == "") 
+					{
+						js.Node.console.warn(doc.path + " will be empty");
+					}
+					
 					trace(doc.path + " file saved.");
 					
-					js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+					saveDoc(doc, function ()
 					{
 						filesSavedCount++;
 						

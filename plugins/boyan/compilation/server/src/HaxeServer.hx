@@ -27,7 +27,7 @@ package ;
 
 		js.Node.require('nw.gui').Window.get().on("close", function (e):Void
 		{
-			terminate();
+			haxeCompletionServer.kill();
 		}
 		);
 	}
@@ -36,7 +36,7 @@ package ;
 	{
 		//if (processStarted)
 		//{
-			haxeCompletionServer.kill();
+			//haxeCompletionServer.kill();
 		//}
 	}
 }

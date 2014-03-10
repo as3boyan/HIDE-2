@@ -39,6 +39,7 @@ Main.main = function() {
 		NewProjectDialog.getCategory("Haxe").addItem("Java Project",Main.createJavaProject);
 		NewProjectDialog.getCategory("Haxe").addItem("C# Project",Main.createCSharpProject);
 		HIDE.readFile(Main.$name,"templates/Main.hx",function(data) {
+			window.console.warn(data == "");
 			Main.code = data;
 			HIDE.notifyLoadingComplete(Main.$name);
 		});
@@ -89,61 +90,62 @@ Main.createHaxeProject = function(data,target) {
 		project.type = 0;
 		project.target = target;
 		project.path = pathToProject;
-		project.buildActionCommand = ["haxe","--connect","6001","--cwd",HIDE.surroundWithQuotes(project.path)].join(" ");
+		project.buildActionCommand = ["haxe","--connect","6001","--cwd","\"%path%\""].join(" ");
 		var pathToBin = js.Node.require("path").join(pathToProject,"bin");
-		js.Node.require("fs").mkdir(pathToBin);
-		var args = "-cp src\n-main Main\n";
-		var _g = project.target;
-		switch(_g) {
-		case 0:
-			var pathToFile = "bin/" + project.name + ".swf";
-			args += "-swf " + pathToFile + "\n";
-			project.runActionType = 1;
-			project.runActionText = js.Node.require("path").join(project.path,pathToFile);
-			break;
-		case 1:
-			var pathToFile1 = "bin/" + project.name + ".js";
-			args += "-js " + pathToFile1 + "\n";
-			var updatedPageCode = StringTools.replace(Main.indexPageCode,"::title::",project.name);
-			updatedPageCode = StringTools.replace(updatedPageCode,"::script::",project.name + ".js");
-			var pathToWebPage = js.Node.require("path").join(pathToBin,"index.html");
-			js.Node.require("fs").writeFile(pathToWebPage,updatedPageCode,"utf8",function(error1) {
+		js.Node.require("fs").mkdir(pathToBin,null,function(error1) {
+			var args = "-cp src\n-main Main\n";
+			var _g = project.target;
+			switch(_g) {
+			case 0:
+				var pathToFile = "bin/" + project.name + ".swf";
+				args += "-swf " + pathToFile + "\n";
+				project.runActionType = 1;
+				project.runActionText = pathToFile;
+				break;
+			case 1:
+				var pathToFile1 = "bin/" + project.name + ".js";
+				args += "-js " + pathToFile1 + "\n";
+				var updatedPageCode = StringTools.replace(Main.indexPageCode,"::title::",project.name);
+				updatedPageCode = StringTools.replace(updatedPageCode,"::script::",project.name + ".js");
+				var pathToWebPage = js.Node.require("path").join(pathToBin,"index.html");
+				js.Node.require("fs").writeFile(pathToWebPage,updatedPageCode,"utf8",function(error2) {
+				});
+				project.runActionType = 1;
+				project.runActionText = js.Node.require("path").join("bin","index.html");
+				break;
+			case 6:
+				var pathToFile2 = "bin/" + project.name + ".n";
+				args += "-neko " + pathToFile2 + "\n";
+				project.runActionType = 2;
+				project.runActionText = "neko " + js.Node.require("path").join(project.path,pathToFile2);
+				break;
+			case 2:
+				args += "-php " + "bin/" + project.name + ".php\n";
+				break;
+			case 3:
+				var pathToFile3 = "bin/" + project.name + ".exe";
+				args += "-cpp " + pathToFile3 + "\n";
+				project.runActionType = 2;
+				project.runActionText = js.Node.require("path").join(project.path,pathToFile3);
+				break;
+			case 4:
+				args += "-java " + "bin/" + project.name + ".jar\n";
+				break;
+			case 5:
+				args += "-cs " + "bin/" + project.name + ".exe\n";
+				break;
+			default:
+			}
+			args += "-debug\n -dce full";
+			project.args = args.split("\n");
+			var path = js.Node.require("path").join(pathToProject,"project.json");
+			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
+			ProjectAccess.currentProject = project;
+			ProjectAccess.save(function() {
+				FileTree.load(project.name,pathToProject);
 			});
-			project.runActionType = 1;
-			project.runActionText = pathToWebPage;
-			break;
-		case 6:
-			var pathToFile2 = "bin/" + project.name + ".n";
-			args += "-neko " + pathToFile2 + "\n";
-			project.runActionType = 2;
-			project.runActionText = "neko " + js.Node.require("path").join(project.path,pathToFile2);
-			break;
-		case 2:
-			args += "-php " + "bin/" + project.name + ".php\n";
-			break;
-		case 3:
-			var pathToFile3 = "bin/" + project.name + ".exe";
-			args += "-cpp " + pathToFile3 + "\n";
-			project.runActionType = 2;
-			project.runActionText = js.Node.require("path").join(project.path,pathToFile3);
-			break;
-		case 4:
-			args += "-java " + "bin/" + project.name + ".jar\n";
-			break;
-		case 5:
-			args += "-cs " + "bin/" + project.name + ".exe\n";
-			break;
-		default:
-		}
-		args += "-debug\n -dce full";
-		project.args = args.split("\n");
-		var path = js.Node.require("path").join(pathToProject,"project.json");
-		js.Browser.getLocalStorage().setItem("pathToLastProject",path);
-		ProjectAccess.currentProject = project;
-		ProjectAccess.save(function() {
-			FileTree.load(project.name,pathToProject);
+			ProjectOptions.updateProjectOptions();
 		});
-		ProjectOptions.updateProjectOptions();
 	});
 };
 var Std = function() { };

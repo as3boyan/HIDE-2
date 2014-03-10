@@ -1,4 +1,19 @@
 (function ($hx_exports) { "use strict";
+var EReg = function(r,opt) {
+	opt = opt.split("u").join("");
+	this.r = new RegExp(r,opt);
+};
+EReg.prototype = {
+	match: function(s) {
+		if(this.r.global) this.r.lastIndex = 0;
+		this.r.m = this.r.exec(s);
+		this.r.s = s;
+		return this.r.m != null;
+	}
+	,matched: function(n) {
+		if(this.r.m != null && n >= 0 && n < this.r.m.length) return this.r.m[n]; else throw "EReg::matched";
+	}
+};
 var HxOverrides = function() { };
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
@@ -31,10 +46,14 @@ Main.runProject = function() {
 			gui.Shell.openExternal(ProjectAccess.currentProject.runActionText);
 			break;
 		case 1:
-			gui.Shell.openItem(ProjectAccess.currentProject.runActionText);
+			var path = ProjectAccess.currentProject.runActionText;
+			js.Node.require("fs").exists(path,function(exists) {
+				if(!exists) path = js.Node.require("path").join(ProjectAccess.currentProject.path,path);
+				gui.Shell.openItem(path);
+			});
 			break;
 		case 2:
-			HaxeClient.buildProject(ProjectAccess.currentProject.runActionText);
+			HaxeClient.buildProject(Main.preprocessCommand(ProjectAccess.currentProject.runActionText));
 			break;
 		default:
 		}
@@ -43,9 +62,21 @@ Main.runProject = function() {
 Main.buildProject = function(onComplete) {
 	if(ProjectAccess.currentProject.path == null) Alerts.showAlert("Please open or create project first!"); else TabManager.saveAll(function() {
 		var command = ProjectAccess.currentProject.buildActionCommand;
+		command = Main.preprocessCommand(command);
 		if(ProjectAccess.currentProject.type == 0) command = [command].concat(ProjectAccess.currentProject.args).join(" ");
 		HaxeClient.buildProject(command,onComplete);
 	});
+};
+Main.preprocessCommand = function(command) {
+	var processedCommand = command;
+	processedCommand = StringTools.replace(processedCommand,"%path%",ProjectAccess.currentProject.path);
+	var ereg = new EReg("%join%[(](.+)[)]","");
+	if(ereg.match(processedCommand)) {
+		var matchedString = ereg.matched(1);
+		var $arguments = matchedString.split(",");
+		processedCommand = StringTools.replace(processedCommand,ereg.matched(0),js.Node.require("path").join($arguments[0],$arguments[1]));
+	}
+	return processedCommand;
 };
 var Std = function() { };
 Std.parseInt = function(x) {
@@ -53,6 +84,10 @@ Std.parseInt = function(x) {
 	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
 	if(isNaN(v)) return null;
 	return v;
+};
+var StringTools = function() { };
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
 };
 var js = {};
 js.Node = function() { };
