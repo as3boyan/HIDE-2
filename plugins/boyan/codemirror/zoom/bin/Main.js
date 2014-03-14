@@ -29,12 +29,12 @@ Main.main = function() {
 			var fontSize2 = Std.parseInt(new $(".CodeMirror").css("font-size"));
 			fontSize2++;
 			Main.setFontSize(fontSize2);
-		},"Ctrl-+",187,true,false,false);
+		},"Ctrl-+");
 		BootstrapMenu.getMenu("View").addMenuItem("Decrease Font Size",10002,function() {
 			var fontSize3 = Std.parseInt(new $(".CodeMirror").css("font-size"));
 			fontSize3--;
 			Main.setFontSize(fontSize3);
-		},"Ctrl--",189,true,false,false);
+		},"Ctrl--");
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
 };

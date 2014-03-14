@@ -47,7 +47,7 @@ class Main
 				fontSize++;
 				setFontSize(fontSize);
 			}
-			, "Ctrl-+", 187, true, false, false);
+			, "Ctrl-+");
 			
 			BootstrapMenu.getMenu("View").addMenuItem("Decrease Font Size", 10002, function ()
 			{
@@ -55,7 +55,7 @@ class Main
 				fontSize--;
 				setFontSize(fontSize);
 			}
-			, "Ctrl--", 189, true, false, false);
+			, "Ctrl--");
 			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);

@@ -1,4 +1,5 @@
 package ui.menu.basic;
+import haxe.ds.StringMap.StringMap;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
@@ -9,7 +10,9 @@ import js.html.MouseEvent;
 import js.html.NodeList;
 import js.html.SpanElement;
 import js.html.UListElement;
+import js.Node;
 import ui.menu.basic.Menu.MenuButtonItem;
+import ui.menu.basic.Menu.Submenu;
 
 /**
  * ...
@@ -30,19 +33,20 @@ interface MenuItem
 	var li:LIElement;
 	public var position:Int;
 	
-	public function new(_text:String, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool, ?_shift:Bool, ?_alt:Bool)
+	public function new(_menu:String, _text:String, _onClickFunction:Dynamic, ?_hotkey:String = "")
 	{		
-		var span:SpanElement = null;
+		var hotkeyText:String = _hotkey;
 		
-		if (_hotkey != null)
-		{
-			span = Browser.document.createSpanElement();
-			span.style.color = "silver";
-			span.style.float = "right";
-			span.innerText = _hotkey;
-		}
+		var menuItem:String = _menu + "->" + _text;
 		
-		li = Browser.document.createLIElement();		
+		var span:SpanElement = Browser.document.createSpanElement();
+		span.style.color = "silver";
+		span.style.float = "right";
+		
+		Hotkeys.add(menuItem, hotkeyText, span, _onClickFunction);
+		
+		li = Browser.document.createLIElement();	
+		li.classList.add("menu-item");
 		
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.style.left = "0";
@@ -57,19 +61,11 @@ interface MenuItem
 					_onClickFunction();
 				}
 			};
-			
-			if (_hotkey != null && _keyCode != null)
-			{
-				Hotkeys.addHotkey(_keyCode, _ctrl, _shift, _alt, _onClickFunction);
-			}
 		}
 		
 		a.innerText = _text;
-		
-		if (span != null)
-		{
-			a.appendChild(span);
-		}
+
+		a.appendChild(span);
 		
 		li.appendChild(a);
 	}
@@ -96,6 +92,79 @@ interface MenuItem
 		return li;
 	}
 }
+
+@:keepSub @:expose class Submenu
+{
+	var ul:UListElement;
+	var li:LIElement;
+	var name:String;
+	var parentMenu:String;
+	
+	public function new(_parentMenu:String, _name:String)
+	{
+		name = _name;
+		parentMenu = _parentMenu;
+		
+		//http://stackoverflow.com/questions/18023493/bootstrap-3-dropdown-sub-menu-missing
+		
+		var li2:LIElement = Browser.document.createLIElement();
+		li2.classList.add("menu-item");
+		li2.classList.add("dropdown");
+		li2.classList.add("dropdown-submenu");
+		
+		li = li2;
+		
+		ul = Browser.document.createUListElement();
+		
+		var a2:AnchorElement = Browser.document.createAnchorElement();
+		a2.href = "#";
+		a2.classList.add("dropdown-toggle");
+		a2.setAttribute("data-toggle", "dropdown");
+		a2.innerHTML = name;
+		a2.onclick = function (event:MouseEvent)
+		{
+			// Avoid following the href location when clicking
+			event.preventDefault(); 
+			// Avoid having the menu to close when clicking
+			event.stopPropagation(); 
+			// If a menu is already open we close it
+			//$('ul.dropdown-menu [data-toggle=dropdown]').parent().removeClass('open');
+			// opening the one you clicked on
+			
+			li2.classList.add('open');
+
+			var menu:UListElement = ul;
+			var newpos:Int;
+			
+			if ((menu.offsetLeft + menu.clientWidth) + 30 > Browser.window.innerWidth) 
+			{
+				newpos = -menu.clientWidth;
+			}
+			else 
+			{
+				newpos = li2.clientWidth;
+			}
+			
+			menu.style.left = Std.string(newpos) + "px";
+		}
+		
+		li2.appendChild(a2);
+		
+		ul.classList.add("dropdown-menu");
+		li2.appendChild(ul);
+	}
+	
+	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String):Void
+	{
+		var menuButtonItem:MenuButtonItem = new MenuButtonItem(parentMenu + "->" + name, _text, _onClickFunction, _hotkey);
+		ul.appendChild(menuButtonItem.getElement());
+	}
+	
+	public function getElement():Element
+	{
+		return li;
+	}
+}
  
 //@:expose makes this class available in global scope
 //@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
@@ -104,10 +173,14 @@ interface MenuItem
 	var li:LIElement;
 	var ul:UListElement;
 	var items:Array<MenuButtonItem>;
+	var name:String;
+	var submenus:StringMap<Submenu>;
 	public var position:Int;
 	
 	public function new(_text:String, ?_headerText:String) 
 	{
+		name = _text;
+		
 		li = Browser.document.createLIElement();
 		li.className = "dropdown";
 		
@@ -133,11 +206,12 @@ interface MenuItem
 		li.appendChild(ul);
 		
 		items = new Array();
+		submenus = new StringMap();
 	}
 	
-	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String, ?_keyCode:Int, ?_ctrl:Bool = false, ?_shift:Bool = false, ?_alt:Bool = false):Void
+	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String):Void
 	{
-		var menuButtonItem:MenuButtonItem = new MenuButtonItem(_text, _onClickFunction, _hotkey, _keyCode, _ctrl, _shift, _alt);
+		var menuButtonItem:MenuButtonItem = new MenuButtonItem(name, _text, _onClickFunction, _hotkey);
 				
 		menuButtonItem.position = _position;
 		
@@ -176,6 +250,13 @@ interface MenuItem
 	public function addSeparator():Void
 	{
 		ul.appendChild(new Separator().getElement());
+	}
+	
+	public function addSubmenu(_text:String):Submenu
+	{
+		var submenu = new Submenu(name, _text);
+		ul.appendChild(submenu.getElement());
+		return submenu;
 	}
 	
 	public function addToDocument():Void
@@ -239,6 +320,16 @@ interface MenuItem
 			}
 			
 		}
+	}
+	
+	public function getSubmenu(name:String):Submenu
+	{
+		if (!submenus.exists(name)) 
+		{
+			submenus.set(name, addSubmenu(name));
+		}
+		
+		return submenus.get(name);
 	}
 	
 	public function getElement():Element

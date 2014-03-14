@@ -54,7 +54,7 @@ class Presentation
 			
 			runImpressJS();
 			
-			var window = js.Node.require('nw.gui').Window.get();
+			var window = nodejs.webkit.Window.get();
 			window.on("close", function (e):Void
 			{
 				window.close(true);

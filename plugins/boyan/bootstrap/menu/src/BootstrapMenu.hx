@@ -4,6 +4,8 @@ import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
 import js.html.UListElement;
+import js.Node;
+import js.Node.NodeFsFileOptions;
 import ui.menu.basic.Menu;
 import js.html.Element;
 
@@ -20,7 +22,7 @@ import js.html.Element;
 {
 	private static var menus:StringMap<Menu> = new StringMap();
 	private static var menuArray:Array<Menu> = new Array();
-	
+		
 	public static function createMenuBar():Void
 	{
 		//We use overflow: hidden; to hide window scrollbars

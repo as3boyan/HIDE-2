@@ -6,8 +6,10 @@ HaxeServer.start = function() {
 		console.log(stderr);
 		console.log("haxeCompletionServer process exit code " + error.code);
 	});
-	js.Node.require("nw.gui").Window.get().on("close",function(e) {
-		HaxeServer.haxeCompletionServer.kill();
+	var $window = nodejs.webkit.Window.get();
+	$window.on("close",function(e) {
+		HaxeServer.haxeCompletionServer.kill("SIGKILL");
+		$window.close();
 	});
 };
 HaxeServer.terminate = function() {
@@ -41,6 +43,9 @@ Std.parseInt = function(x) {
 };
 var js = {};
 js.Node = function() { };
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
 if(Array.prototype.map == null) Array.prototype.map = function(f) {
 	var a = [];
 	var _g1 = 0;
@@ -68,6 +73,10 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 Main.$name = "boyan.compilation.server";
 Main.main();
 })(typeof window != "undefined" ? window : exports);

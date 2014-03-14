@@ -23,6 +23,8 @@ import js.html.TextAreaElement;
 	private static var actionTextArea:TextAreaElement;
 	private static var runActionList:SelectElement;
 	private static var runActionTextAreaDescription:ParagraphElement;
+	static private var buildActionDescription:ParagraphElement;
+	static private var runActionDescription:ParagraphElement;
 	
 	public static function create():Void
 	{
@@ -87,7 +89,7 @@ import js.html.TextAreaElement;
 			updateProjectOptions();
 		};
 		
-		var runActionDescription = Browser.document.createParagraphElement();
+		runActionDescription = Browser.document.createParagraphElement();
 		runActionDescription.className = "custom-font-size";
 		runActionDescription.innerText = "Run action:";
 		
@@ -116,7 +118,7 @@ import js.html.TextAreaElement;
 			ProjectAccess.save();
 		};
 		
-		var buildActionDescription = Browser.document.createParagraphElement();
+		buildActionDescription = Browser.document.createParagraphElement();
 		buildActionDescription.className = "custom-font-size";
 		buildActionDescription.innerText = "Build command:";
 		
@@ -173,6 +175,34 @@ import js.html.TextAreaElement;
 			openFLTargetText.style.display = "none";
 			textarea.style.display = "";
 			projectOptionsText.style.display = "";
+		}
+		
+		if (ProjectAccess.currentProject.type == Project.HXML) 
+		{
+			openFLTargetList.style.display = "none";
+			openFLTargetText.style.display = "none";
+			textarea.style.display = "none";
+			projectOptionsText.style.display = "none";
+			
+			buildActionTextArea.style.display = "none";
+			buildActionDescription.style.display = "none";
+			runActionTextAreaDescription.style.display = "none";
+			runActionList.style.display = "none";
+			runActionDescription.style.display = "none";
+			projectTargetList.style.display = "none";
+			projectTargetText.style.display = "none";
+			actionTextArea.style.display = "none";
+		}
+		else 
+		{
+			buildActionTextArea.style.display = "";
+			buildActionDescription.style.display = "";
+			runActionTextAreaDescription.style.display = "";
+			runActionList.style.display = "";
+			runActionDescription.style.display = "";
+			projectTargetList.style.display = "";
+			projectTargetText.style.display = "";
+			actionTextArea.style.display = "";
 		}
 		
 		switch (runActionList.selectedIndex) 

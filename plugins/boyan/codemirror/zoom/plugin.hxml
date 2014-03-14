@@ -1,5 +1,5 @@
 -cp src
--cp ../../../../externs/jQueryExtern
+-lib jQueryExtern
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/bootstrap/menu
 -main Main

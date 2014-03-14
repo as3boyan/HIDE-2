@@ -100,7 +100,7 @@ Main.__name__ = true;
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
 		NewProjectDialog.create();
-		BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,NewProjectDialog.show,"Ctrl-Shift-N",78,true,true,false);
+		BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,NewProjectDialog.show,"Ctrl-Shift-N");
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
 	HIDE.loadCSS(Main.$name,["bin/includes/css/new-project-dialog.css"]);

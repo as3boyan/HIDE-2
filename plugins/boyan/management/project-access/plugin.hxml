@@ -1,5 +1,5 @@
 -cp src
--cp ../../../../externs/nodejs-std/src
+-lib nodejs
 -cp ../../../../externs/plugins/hide
 -main Main
 -js bin/Main.js

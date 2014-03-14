@@ -20,4 +20,5 @@ extern class HIDE
 	public static function writeFile(name:String, path:String, contents:String, ?onComplete:Dynamic):Void;
 	public static function surroundWithQuotes(path:String):String;
 	public static function getPluginPath(name:String):String;
+	public static function stringifyAndFormat(object:Dynamic):String;
 }

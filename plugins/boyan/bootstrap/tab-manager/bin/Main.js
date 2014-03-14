@@ -127,15 +127,18 @@ Main.load = function() {
 	TabManager.init();
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.file-tree","boyan.bootstrap.menu"],function() {
 		FileTree.onFileClick = TabManager.openFileInNewTab;
-		Hotkeys.addHotkey(9,true,false,false,TabManager.showNextTab);
-		Hotkeys.addHotkey(9,true,true,false,TabManager.showPreviousTab);
-		BootstrapMenu.getMenu("File").addMenuItem("New File...",3,TabManager.createFileInNewTab,"Ctrl-N",78,true,false,false);
-		BootstrapMenu.getMenu("File").addMenuItem("Save",4,TabManager.saveActiveFile,"Ctrl-S",83,true,false,false);
-		BootstrapMenu.getMenu("File").addMenuItem("Save As...",5,TabManager.saveActiveFileAs,"Ctrl-Shift-S",83,true,true,false);
+		Hotkeys.add("Tab Manager->Show Next Tab","Ctrl-Tab",null,TabManager.showNextTab);
+		Hotkeys.add("Tab Manager->Show Previous Tab","Ctrl-Shift-Tab",null,TabManager.showPreviousTab);
+		BootstrapMenu.getMenu("File").addMenuItem("New File...",3,TabManager.createFileInNewTab,"Ctrl-N");
+		BootstrapMenu.getMenu("File").addMenuItem("Save",4,TabManager.saveActiveFile,"Ctrl-S");
+		BootstrapMenu.getMenu("File").addMenuItem("Save As...",5,TabManager.saveActiveFileAs,"Ctrl-Shift-S");
 		BootstrapMenu.getMenu("File").addMenuItem("Save All",6,TabManager.saveAll);
-		BootstrapMenu.getMenu("File").addMenuItem("Close File",7,TabManager.closeActiveTab,"Ctrl-W",87,true,false,false);
-		js.Node.require("nw.gui").Window.get().on("close",function(e) {
+		BootstrapMenu.getMenu("File").addMenuItem("Close File",7,TabManager.closeActiveTab,"Ctrl-W");
+		nodejs.webkit.Window.get().on("close",function(e) {
 			TabManager.saveAll();
+		});
+		BootstrapMenu.getMenu("Options",90).addMenuItem("Open hotkey configuration file",1,function() {
+			TabManager.openFileInNewTab(js.Node.require("path").join(HIDE.getPluginPath("boyan.events.hotkey"),"config.json"));
 		});
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
@@ -203,7 +206,9 @@ TabManager.createNewTab = function(name,path) {
 TabManager.openFileInNewTab = function(path) {
 	path = StringTools.replace(path,"\\",js.Node.require("path").sep);
 	if(TabManager.isAlreadyOpened(path)) return;
-	js.Node.require("fs").readFile(path,"utf8",function(error,code) {
+	var options = { };
+	options.encoding = "utf8";
+	js.Node.require("fs").readFile(path,options,function(error,code) {
 		if(error != null) console.log(error);
 		if(code != null) {
 			var mode = TabManager.getMode(path);
@@ -247,12 +252,12 @@ TabManager.closeAll = function() {
 	}
 	if(TabManager.docs.length > 0) haxe.Timer.delay(function() {
 		TabManager.closeAll();
-	},30);
+	},300);
 };
 TabManager.closeOthers = function(path) {
 	if(TabManager.docs.length > 1) haxe.Timer.delay(function() {
 		TabManager.closeOthers(path);
-	},30); else TabManager.showNextTab();
+	},300); else TabManager.showNextTab();
 };
 TabManager.closeTab = function(path,switchToTab) {
 	if(switchToTab == null) switchToTab = true;
@@ -363,10 +368,14 @@ TabManager.getCurrentDocumentPath = function() {
 	if(TabManager.curDoc != null) path = TabManager.curDoc.path;
 	return path;
 };
+TabManager.getCurrentDocument = function() {
+	return TabManager.curDoc;
+};
 TabManager.saveDoc = function(doc,onComplete) {
-	if(doc != null) js.Node.require("fs").writeFile(doc.path,doc.doc.cm.getValue(),"utf8",function(error) {
+	if(doc != null) {
+		js.Node.require("fs").writeFileSync(doc.path,doc.doc.getValue(),"utf8");
 		if(onComplete != null) onComplete();
-	});
+	}
 };
 TabManager.saveActiveFile = function(onComplete) {
 	TabManager.saveDoc(TabManager.curDoc,onComplete);
@@ -544,6 +553,10 @@ js.Boot.__cast = function(o,t) {
 };
 js.Node = function() { };
 js.Node.__name__ = true;
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
+nodejs.webkit.$ui.__name__ = true;
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
@@ -585,6 +598,10 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 Main.$name = "boyan.bootstrap.tab-manager";
 Main.main();
 })(typeof window != "undefined" ? window : exports);

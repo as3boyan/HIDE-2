@@ -19,7 +19,7 @@ import js.html.TextAreaElement;
 		
 		trace(command);
 		
-		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(command, { }, function (error, stdout:String, stderr:String):Void
+		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.child_process.exec(command, { }, function (error, stdout:String, stderr:String):Void
 		{	
 			processStdout = stdout;
 			processStderr = stderr;

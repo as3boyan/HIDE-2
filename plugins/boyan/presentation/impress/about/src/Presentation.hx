@@ -7,6 +7,7 @@ import js.html.KeyboardEvent;
 import js.html.ParagraphElement;
 import js.html.AnchorElement;
 import js.Lib;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -124,10 +125,10 @@ class Presentation
 			
 			runImpressJS();
 			
-			var window = js.Node.require('nw.gui').Window.get();
-			window.on("close", function (e):Void
+			var window = Window.get();
+			window.on("close", function (e)
 			{
-				window.close(true);
+				window.close();
 			}
 			);
 		};

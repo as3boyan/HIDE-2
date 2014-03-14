@@ -8,6 +8,7 @@ import js.html.LIElement;
 import js.html.MouseEvent;
 import js.html.SpanElement;
 import js.html.UListElement;
+import js.Node;
 
 /**
  * ...
@@ -94,7 +95,10 @@ import js.html.UListElement;
 			return;
 		}
 		
-		js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, code:String):Void
+		var options:js.Node.NodeFsFileOptions = { };
+		options.encoding = js.Node.NodeC.UTF8;
+		
+		js.Node.fs.readFile(path, options, function (error:js.Node.NodeErr, code:String):Void
 		{
 			if (error != null)
 			{
@@ -187,7 +191,7 @@ import js.html.UListElement;
 			{
 				closeAll();
 			}
-			,30);
+			,300);
 		}
 	}
         
@@ -199,7 +203,7 @@ import js.html.UListElement;
 			{
 				closeOthers(path);
 			}
-			,30);
+			,300);
 		}
 		else 
 		{
@@ -390,18 +394,24 @@ import js.html.UListElement;
 		return path;
 	}
 	
+	public static function getCurrentDocument():CMDoc
+	{
+		return curDoc;
+	}
+	
 	public static function saveDoc(doc:CMDoc, ?onComplete:Dynamic):Void
 	{
 		if (doc != null)
-		{			
-			js.Node.fs.writeFile(doc.path, doc.doc.cm.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+		{
+			Node.fs.writeFileSync(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8);
+			//js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+			//{				
+			if (onComplete != null)
 			{
-				if (onComplete != null)
-				{
-					onComplete();
-				}
+				onComplete();
 			}
-			);	
+			//}
+			//);	
 		}	
 	}
 	

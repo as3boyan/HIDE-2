@@ -1,4 +1,5 @@
 package ;
+import js.html.SpanElement;
 
 /**
  * ...
@@ -6,5 +7,5 @@ package ;
  */
 extern class Hotkeys
 {
-	public static function addHotkey(keyCode:Int, ctrl:Bool, shift:Bool, alt:Bool, onKeyDown:Dynamic):Void;
+	public static function add(menuItem:String, hotkeyText:String, span:SpanElement, onKeyDown:Dynamic):Void;
 }

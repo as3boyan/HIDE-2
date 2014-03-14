@@ -1,4 +1,5 @@
 -cp src
+-lib nodejs
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/events/hotkey
 -main Main

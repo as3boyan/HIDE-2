@@ -7,7 +7,7 @@ package ;
 class Main
 {
 	public static var name:String = "boyan.bootstrap.file-tree";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.script"];
+	public static var dependencies:Array<String> = ["boyan.bootstrap.script", "boyan.bootstrap.bootbox"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void

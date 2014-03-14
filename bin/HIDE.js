@@ -179,7 +179,9 @@ HIDE.compilePlugins = function(onComplete,onFailed) {
 	}
 };
 HIDE.readFile = function(name,path,onComplete) {
-	js.Node.require("fs").readFile(js.Node.require("path").join(HIDE.pathToPlugins.get(name),path),"utf8",function(error,data) {
+	var options = { };
+	options.encoding = "utf8";
+	js.Node.require("fs").readFile(js.Node.require("path").join(HIDE.pathToPlugins.get(name),path),options,function(error,data) {
 		if(error != null) console.log(error);
 		onComplete(data);
 	});
@@ -191,6 +193,15 @@ HIDE.writeFile = function(name,path,contents,onComplete) {
 };
 HIDE.surroundWithQuotes = function(path) {
 	return "\"" + path + "\"";
+};
+HIDE.stringifyAndFormat = function(object) {
+	var data = js.Node.stringify(object);
+	data = StringTools.replace(data,",",",\n");
+	data = StringTools.replace(data,"{","{\n");
+	data = StringTools.replace(data,"}","\n}\n");
+	data = StringTools.replace(data,"[","\n[\n");
+	data = StringTools.replace(data,"]","\n]");
+	return data;
 };
 HIDE.checkRequiredPluginsData = function() {
 	if(HIDE.requestedPluginsData.length > 0) {
@@ -215,7 +226,9 @@ HIDE.checkRequiredPluginsData = function() {
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
 		console.log("Loading took: " + ("" + delta) + " ms");
-		js.Node.require("fs").readFile("../.travis.yml.template","utf8",function(error,data) {
+		var options = { };
+		options.encoding = "utf8";
+		js.Node.require("fs").readFile("../.travis.yml.template",options,function(error,data) {
 			if(data != null) {
 				var updatedData = StringTools.replace(data,"::plugins::",Main.pluginsTestingData);
 				js.Node.require("fs").writeFile("../.travis.yml",updatedData,"utf8",function(error1) {
@@ -381,10 +394,10 @@ var Main = function() { };
 $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
 Main.main = function() {
-	var gui = js.Node.require("nw.gui");
-	Main.window = gui.Window.get();
+	Main.window = nodejs.webkit.Window.get();
 	Main.window.showDevTools();
 	js.Node.process.on("uncaughtException",function(err) {
+		Main.window.show();
 		console.log(err);
 	});
 	window.addEventListener("load",function(e) {
@@ -399,10 +412,11 @@ Main.main = function() {
 		var _g = 0;
 		var _g1 = HIDE.windows;
 		while(_g < _g1.length) {
-			var $window = _g1[_g];
+			var w = _g1[_g];
 			++_g;
-			$window.close(true);
+			w.close(true);
 		}
+		Main.window.close();
 	});
 };
 Main.loadPlugins = function(compile) {
@@ -411,8 +425,10 @@ Main.loadPlugins = function(compile) {
 	var pathToPluginsMTime = js.Node.require("path").join("..","pluginsMTime.dat");
 	var args;
 	if(js.Node.require("fs").existsSync(pathToPluginsMTime)) {
-		var data = js.Node.require("fs").readFileSync(pathToPluginsMTime,"utf8");
-		HIDE.pluginsMTime = haxe.Unserializer.run(data);
+		var options = { };
+		options.encoding = "utf8";
+		var data = js.Node.require("fs").readFileSync(pathToPluginsMTime,options);
+		if(data != "") HIDE.pluginsMTime = haxe.Unserializer.run(data);
 	} else HIDE.firstRun = true;
 	Main.readDir(pathToPlugins,"",function(path,pathToPlugin) {
 		var pluginName = StringTools.replace(pathToPlugin,js.Node.require("path").sep,".");
@@ -1322,20 +1338,14 @@ haxe.io.Bytes = function(length,b) {
 $hxClasses["haxe.io.Bytes"] = haxe.io.Bytes;
 haxe.io.Bytes.__name__ = ["haxe","io","Bytes"];
 haxe.io.Bytes.alloc = function(length) {
-	var a = new Array();
-	var _g = 0;
-	while(_g < length) {
-		var i = _g++;
-		a.push(0);
-	}
-	return new haxe.io.Bytes(length,a);
+	return new haxe.io.Bytes(length,new Buffer(length));
 };
 haxe.io.Bytes.prototype = {
 	get: function(pos) {
 		return this.b[pos];
 	}
 	,set: function(pos,v) {
-		this.b[pos] = v & 255;
+		this.b[pos] = v;
 	}
 	,__class__: haxe.io.Bytes
 };
@@ -1461,6 +1471,11 @@ js.Boot.__cast = function(o,t) {
 js.Node = function() { };
 $hxClasses["js.Node"] = js.Node;
 js.Node.__name__ = ["js","Node"];
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
+$hxClasses["nodejs.webkit.$ui"] = nodejs.webkit.$ui;
+nodejs.webkit.$ui.__name__ = ["nodejs","webkit","$ui"];
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
@@ -1518,6 +1533,10 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 HIDE.plugins = new Array();
 HIDE.pathToPlugins = new haxe.ds.StringMap();
 HIDE.inactivePlugins = [];

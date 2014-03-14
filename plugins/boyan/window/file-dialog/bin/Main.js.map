@@ -2,7 +2,7 @@
 "version":3,
 "file":"Main.js",
 "sourceRoot":"file://",
-"sources":["C:/GitHub/HIDE/plugins/boyan/window/file-dialog/src/FileDialog.hx","C:/GitHub/HIDE/plugins/boyan/window/file-dialog/src/Main.hx"],
+"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/window/file-dialog/src/FileDialog.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/window/file-dialog/src/Main.hx"],
 "names":[],
 "mappings":";;oBAac,TACd;CACS;CAAR,EAAQ;CACR,EAAa;CACb,EAAsB;CACtB,AAAuB,AAAU,WACjC;EACoB;EACnB,AAAI,EAAS,HAEZ,AAAQ;;CAIV,AAAkC;;sBAGrB,HACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,DAAmB,AAEtB,AAAsB;CAGvB,CAAI,DAAmB,AAEtB,AAAsB;CAGvB;;sBAGa,GACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,EAAS,HAEZ,EAAQ;CAGT,CAAI,DAAmB,AAEtB,AAAsB;CAGvB,AAAmB,AAAY;CAC/B;;wBAGa,LACd;CACC,EAAc;CAEd,EAAU;CAEV,CAAI,DAAmB,AAEtB,AAAsB;CAGvB,AAAmB,AAAe;CAClC;;;YCrEa,DACd;CACC;CAGA,AAA2B;;aATI;;;;"
 }

@@ -1,4 +1,5 @@
 package ;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -14,25 +15,25 @@ class Main
 	{
 		HIDE.waitForDependentPluginsToBeLoaded(name, dependencies, function ():Void
 		{	
-			var window = js.Node.require('nw.gui').Window.get();
+			var window = Window.get();
 
 			BootstrapMenu.getMenu("View").addMenuItem("Zoom In", 2, function ():Void
 			{
 				window.zoomLevel += 1;
 			}
-			, "Ctrl-Shift-+", 187, true, true, false);
+			, "Ctrl-Shift-+");
 
 			BootstrapMenu.getMenu("View").addMenuItem("Zoom Out", 3, function ():Void
 			{
 				window.zoomLevel -= 1;
 			}
-			, "Ctrl-Shift--", 189, true, true, false);
+			, "Ctrl-Shift--");
 
 			BootstrapMenu.getMenu("View").addMenuItem("Reset", 4, function ():Void
 			{
 				window.zoomLevel = 0;
 			}
-			, "Ctrl-Shift-0", 48, true, true, false);
+			, "Ctrl-Shift-0");
 			
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);

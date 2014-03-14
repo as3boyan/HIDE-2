@@ -1,6 +1,6 @@
 -cp src
--cp ../../../../externs/jQueryExtern
--cp ../../../../externs/nodejs-std/src
+-lib jQueryExtern
+-lib nodejs
 -cp ../../../../externs/plugins/hide
 -main Main
 -js bin/Main.js

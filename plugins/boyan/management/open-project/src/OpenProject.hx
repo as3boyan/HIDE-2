@@ -3,6 +3,7 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import js.Browser;
 import js.html.TextAreaElement;
+import js.Node;
 
 /**
  * ...
@@ -54,7 +55,10 @@ class OpenProject
 		switch (filename) 
 		{
 			case "project.json":
-				js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
+				var options:js.Node.NodeFsFileOptions = { };
+				options.encoding = js.Node.NodeC.UTF8;
+				
+				js.Node.fs.readFile(path, options, function (error:js.Node.NodeErr, data:String):Void
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
 					
@@ -115,37 +119,41 @@ class OpenProject
 				switch (extension) 
 				{
 					case ".hxml":
-						js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String)
-						{
+						//js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String)
+						//{
 							var pathToProject:String = js.Node.path.dirname(path);
-				
+				//
 							var project:Project = new Project();
 							project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
-							project.type = Project.HAXE;
-							project.args = data.split("\n");
+							project.type = Project.HXML;
+							//project.args = data.split("\n");
 							project.path = pathToProject;
+							project.main = Node.path.basename(path);
 							
 							ProjectAccess.currentProject = project;
 							ProjectOptions.updateProjectOptions();
-							
-							var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.json");
-							
-							ProjectAccess.save(function ()
-							{
+							//
+							//var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.json");
+							//
+							//ProjectAccess.save(function ()
+							//{
 								FileTree.load(project.name, pathToProject);
-							}
-							);
+							//}
+							//);
+							//
 							
-							Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
-						}
-						);
+							Browser.getLocalStorage().setItem("pathToLastProject", path);
+						//}
+						//);
 					//case ".hx":
 						//
 					//case ".xml":
 						//
 					default:
-						TabManager.openFileInNewTab(path);
+						
 				}
+				
+				TabManager.openFileInNewTab(path);
 		}
 	}
 	

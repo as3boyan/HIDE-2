@@ -104,11 +104,10 @@ ProjectOptions.create = function() {
 		ProjectAccess.currentProject.runActionText = ["haxelib","run","openfl","test",HIDE.surroundWithQuotes(js.Node.require("path").join(ProjectAccess.currentProject.path,"project.xml")),ProjectAccess.currentProject.openFLTarget].join(" ");
 		ProjectOptions.updateProjectOptions();
 	};
-	var runActionDescription;
 	var _this7 = window.document;
-	runActionDescription = _this7.createElement("p");
-	runActionDescription.className = "custom-font-size";
-	runActionDescription.innerText = "Run action:";
+	ProjectOptions.runActionDescription = _this7.createElement("p");
+	ProjectOptions.runActionDescription.className = "custom-font-size";
+	ProjectOptions.runActionDescription.innerText = "Run action:";
 	var _this8 = window.document;
 	ProjectOptions.runActionTextAreaDescription = _this8.createElement("p");
 	ProjectOptions.runActionTextAreaDescription.innerText = "URL:";
@@ -132,11 +131,10 @@ ProjectOptions.create = function() {
 		ProjectAccess.currentProject.runActionText = ProjectOptions.actionTextArea.value;
 		ProjectAccess.save();
 	};
-	var buildActionDescription;
 	var _this11 = window.document;
-	buildActionDescription = _this11.createElement("p");
-	buildActionDescription.className = "custom-font-size";
-	buildActionDescription.innerText = "Build command:";
+	ProjectOptions.buildActionDescription = _this11.createElement("p");
+	ProjectOptions.buildActionDescription.className = "custom-font-size";
+	ProjectOptions.buildActionDescription.innerText = "Build command:";
 	var _this12 = window.document;
 	ProjectOptions.buildActionTextArea = _this12.createElement("textarea");
 	ProjectOptions.buildActionTextArea.id = "project-options-build-action-textarea";
@@ -158,7 +156,7 @@ ProjectOptions.create = function() {
 		$r = _this14.createElement("br");
 		return $r;
 	}(this)));
-	page.appendChild(buildActionDescription);
+	page.appendChild(ProjectOptions.buildActionDescription);
 	page.appendChild(ProjectOptions.buildActionTextArea);
 	page.appendChild((function($this) {
 		var $r;
@@ -194,7 +192,7 @@ ProjectOptions.create = function() {
 		$r = _this19.createElement("br");
 		return $r;
 	}(this)));
-	page.appendChild(runActionDescription);
+	page.appendChild(ProjectOptions.runActionDescription);
 	page.appendChild(ProjectOptions.runActionList);
 	page.appendChild((function($this) {
 		var $r;
@@ -226,6 +224,29 @@ ProjectOptions.update = function(_) {
 		ProjectOptions.openFLTargetText.style.display = "none";
 		ProjectOptions.textarea.style.display = "";
 		ProjectOptions.projectOptionsText.style.display = "";
+	}
+	if(ProjectAccess.currentProject.type == 2) {
+		ProjectOptions.openFLTargetList.style.display = "none";
+		ProjectOptions.openFLTargetText.style.display = "none";
+		ProjectOptions.textarea.style.display = "none";
+		ProjectOptions.projectOptionsText.style.display = "none";
+		ProjectOptions.buildActionTextArea.style.display = "none";
+		ProjectOptions.buildActionDescription.style.display = "none";
+		ProjectOptions.runActionTextAreaDescription.style.display = "none";
+		ProjectOptions.runActionList.style.display = "none";
+		ProjectOptions.runActionDescription.style.display = "none";
+		ProjectOptions.projectTargetList.style.display = "none";
+		ProjectOptions.projectTargetText.style.display = "none";
+		ProjectOptions.actionTextArea.style.display = "none";
+	} else {
+		ProjectOptions.buildActionTextArea.style.display = "";
+		ProjectOptions.buildActionDescription.style.display = "";
+		ProjectOptions.runActionTextAreaDescription.style.display = "";
+		ProjectOptions.runActionList.style.display = "";
+		ProjectOptions.runActionDescription.style.display = "";
+		ProjectOptions.projectTargetList.style.display = "";
+		ProjectOptions.projectTargetText.style.display = "";
+		ProjectOptions.actionTextArea.style.display = "";
 	}
 	var _g = ProjectOptions.runActionList.selectedIndex;
 	switch(_g) {

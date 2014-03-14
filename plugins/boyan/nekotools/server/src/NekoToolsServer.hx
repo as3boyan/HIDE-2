@@ -16,7 +16,7 @@ package ;
 			nekoToolsClient = null;
 		}
 		
-		nekoToolsClient = js.Node.childProcess.spawn("nekotools", ["server", "-p", "8000"]);
+		nekoToolsClient = js.Node.child_process.spawn("nekotools", ["server", "-p", "8000"]);
 		
 		nekoToolsClient.stdout.setEncoding('utf8');
 		nekoToolsClient.stdout.on('data', function (data) 

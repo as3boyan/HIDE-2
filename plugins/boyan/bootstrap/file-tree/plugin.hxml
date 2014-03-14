@@ -2,8 +2,9 @@
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/jquery/split-pane
 -cp ../../../../externs/plugins/boyan/bootstrap/menu
--cp ../../../../externs/nodejs-std/src
--cp ../../../../externs/jQueryExtern
+-cp ../../../../externs/plugins/boyan/bootstrap/bootbox
+-lib nodejs
+-lib jQueryExtern
 -main Main
 -js bin/Main.js
 -dce full

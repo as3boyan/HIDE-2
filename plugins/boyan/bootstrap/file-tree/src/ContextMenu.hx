@@ -8,6 +8,7 @@ import js.html.LIElement;
 import js.html.MouseEvent;
 import js.html.UListElement;
 import js.Lib;
+import nodejs.webkit.Shell;
 
 /**
  * ...
@@ -46,50 +47,60 @@ class ContextMenu
 		
 		addContextMenuItemToStringMap("New File...", function ()
 		{
-			var filename:String = Browser.window.prompt("Filename:", "New File.hx");
-			
-			var template:String = "";
-			
-			if (filename != null) 
+			Bootbox.prompt("Filename:", "New.hx", function (result:String)
 			{
-				var extname = js.Node.path.extname(filename);
-				var pathToFile:String;
-				
-				if (extname == ".hx")
+				var filename:String = result;
+			
+				var template:String = "";
+			
+				if (filename != null) 
 				{
-					var name:String = js.Node.path.basename(filename, extname);
-					name = name.substr(0, 1).toUpperCase() + name.substr(1).toLowerCase();
-					name = StringTools.replace(name, " ", "");
+					var extname = js.Node.path.extname(filename);
+					var pathToFile:String;
 					
-					template = "package ;\n\nclass " + name + "\n{\n    public function new()\n    {\n\n    }\n}";
+					if (extname == ".hx")
+					{
+						var name:String = js.Node.path.basename(filename, extname);
+						name = name.substr(0, 1).toUpperCase() + name.substr(1).toLowerCase();
+						name = StringTools.replace(name, " ", "");
+						
+						template = "package ;\n\nclass " + name + "\n{\n    public function new()\n    {\n\n    }\n}";
+						
+						pathToFile = js.Node.path.join(path, name + ".hx");
+					}
+					else 
+					{
+						pathToFile = js.Node.path.join(path, filename);
+					}
 					
-					pathToFile = js.Node.path.join(path, name + ".hx");
+					js.Node.fs.writeFile(pathToFile, template, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+					{
+						FileTree.onFileClick(pathToFile);
+						FileTree.load();
+					}
+					);
 				}
-				else 
-				{
-					pathToFile = js.Node.path.join(path, filename);
-				}
-				
-				js.Node.fs.writeFile(pathToFile, template, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
-				{
-					FileTree.onFileClick(pathToFile);
-					FileTree.load();
-				}
-				);
-			}
+			});
+			
+			
 		});
 		
 		addContextMenuItemToStringMap("New Folder...", function ()
 		{
-			var dirname:String = Browser.window.prompt("Filename:", "New Folder");
-			
-			if (dirname != null)
+			Bootbox.prompt("Folder name:", "New Folder", function (result:String)
 			{
-				js.Node.fs.mkdir(js.Node.path.join(path, dirname), function (error):Void
+				var dirname:String = result;
+			
+				if (dirname != null)
 				{
-					FileTree.load();
-				});
+					js.Node.fs.mkdir(js.Node.path.join(path, dirname), function (error):Void
+					{
+						FileTree.load();
+					});
+				}
 			}
+			);
+			
 		});
 		
 		addContextMenuItemToStringMap("Open File", function ()
@@ -99,12 +110,12 @@ class ContextMenu
 		
 		addContextMenuItemToStringMap("Open using OS", function ()
 		{
-			js.Node.require('nw.gui').Shell.openItem(path);
+			Shell.openItem(path);
 		});
 		
 		addContextMenuItemToStringMap("Show Item In Folder", function ()
 		{
-			js.Node.require('nw.gui').Shell.showItemInFolder(path);
+			Shell.showItemInFolder(path);
 		});
 		
 		addContextMenuItemToStringMap("Refresh", FileTree.load);

@@ -16,7 +16,7 @@ import js.html.TextAreaElement;
 		processStdout = "";
 		processStderr = "";
 		
-		var openFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(["haxelib", "run", "openfl", "display", target].join(" "), { cwd: path }, function (error, stdout, stderr)
+		var openFLTools:js.Node.NodeChildProcess = js.Node.child_process.exec(["haxelib", "run", "openfl", "display", target].join(" "), { cwd: path }, function (error, stdout, stderr)
 		{
 			processStdout = stdout;
 			processStderr = stderr;

@@ -17,7 +17,7 @@ HxOverrides.substr = function(s,pos,len) {
 var Main = function() { };
 Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,function() {
-		BootstrapMenu.getMenu("File").addMenuItem("Open...",2,OpenProject.openProject,"Ctrl-O",79,true,false,false);
+		BootstrapMenu.getMenu("File").addMenuItem("Open...",2,OpenProject.openProject,"Ctrl-O");
 		OpenProject.searchForLastProject();
 		HIDE.notifyLoadingComplete(Main.$name);
 	});
@@ -37,7 +37,9 @@ OpenProject.parseProject = function(path) {
 	var filename = js.Node.require("path").basename(path);
 	switch(filename) {
 	case "project.json":
-		js.Node.require("fs").readFile(path,"utf8",function(error,data) {
+		var options = { };
+		options.encoding = "utf8";
+		js.Node.require("fs").readFile(path,options,function(error,data) {
 			var pathToProject = js.Node.require("path").dirname(path);
 			ProjectAccess.currentProject = js.Node.parse(data);
 			ProjectAccess.currentProject.path = pathToProject;
@@ -79,26 +81,21 @@ OpenProject.parseProject = function(path) {
 		var extension = js.Node.require("path").extname(filename);
 		switch(extension) {
 		case ".hxml":
-			js.Node.require("fs").readFile(path,"utf8",function(error1,data1) {
-				var pathToProject2 = js.Node.require("path").dirname(path);
-				var project1 = new Project();
-				var pos1 = pathToProject2.lastIndexOf(js.Node.require("path").sep);
-				project1.name = HxOverrides.substr(pathToProject2,pos1,null);
-				project1.type = 0;
-				project1.args = data1.split("\n");
-				project1.path = pathToProject2;
-				ProjectAccess.currentProject = project1;
-				ProjectOptions.updateProjectOptions();
-				var pathToProjectHide1 = js.Node.require("path").join(pathToProject2,"project.json");
-				ProjectAccess.save(function() {
-					FileTree.load(project1.name,pathToProject2);
-				});
-				js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProjectHide1);
-			});
+			var pathToProject2 = js.Node.require("path").dirname(path);
+			var project1 = new Project();
+			var pos1 = pathToProject2.lastIndexOf(js.Node.require("path").sep);
+			project1.name = HxOverrides.substr(pathToProject2,pos1,null);
+			project1.type = 2;
+			project1.path = pathToProject2;
+			project1.main = js.Node.require("path").basename(path);
+			ProjectAccess.currentProject = project1;
+			ProjectOptions.updateProjectOptions();
+			FileTree.load(project1.name,pathToProject2);
+			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 			break;
 		default:
-			TabManager.openFileInNewTab(path);
 		}
+		TabManager.openFileInNewTab(path);
 	}
 };
 OpenProject.searchForLastProject = function() {
@@ -175,7 +172,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.management.open-project";
-Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access","boyan.bootstrap.project-options","boyan.bootstrap.file-tree","boyan.bootstrap.tab-manager","boyan.openfl.tools"];
+Main.dependencies = ["boyan.bootstrap.menu","boyan.window.file-dialog","boyan.management.project-access","boyan.bootstrap.project-options","boyan.bootstrap.file-tree","boyan.bootstrap.tab-manager","boyan.openfl.tools","boyan.codemirror.editor"];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

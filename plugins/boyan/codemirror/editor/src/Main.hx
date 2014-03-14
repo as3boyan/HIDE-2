@@ -21,7 +21,7 @@ class Main
 	
 	private static function load():Void
 	{
-		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.tab-manager"], function ():Void
+		HIDE.waitForDependentPluginsToBeLoaded(name, ["boyan.bootstrap.tab-manager", "boyan.bootstrap.menu"], function ():Void
 		{
 			HIDE.loadCSS(name, [
 			"bin/includes/codemirror-3.22/lib/codemirror.css", 
@@ -57,7 +57,7 @@ class Main
 			"vibrant-ink",
 			"xq-dark",
 			"xq-light",
-			]);
+			], loadTheme);
 			
 			var modes:Array<String> = [
 			"haxe/haxe.js",
@@ -116,7 +116,7 @@ class Main
                  });
 				 
 				editor.getWrapperElement().style.display = "none";
-				 
+				
 				CM.editor = editor;
 				TabManager.editor = CM.editor;
 				 
@@ -128,12 +128,45 @@ class Main
 		);
 	}
 	
-	private static function loadThemes(themes:Array<String>):Void
+	private static function loadTheme() 
 	{
-		for (theme in themes)
+		var localStorage = Browser.getLocalStorage();
+		
+		if (localStorage != null)
 		{
-			HIDE.loadCSS(name, ["bin/includes/codemirror-3.22/theme/" + theme + ".css"]);
+			var theme:String = localStorage.getItem("theme");
+			
+			if (theme != null) 
+			{
+				setTheme(theme);
+			}
 		}
+		
+	}
+	
+	private static function loadThemes(themes:Array<String>, onComplete:Dynamic):Void
+	{
+		var themesSubmenu = BootstrapMenu.getMenu("View").getSubmenu("Themes");
+		var theme:String;
+		
+		var pathToThemeArray:Array<String> = new Array();
+		
+		themesSubmenu.addMenuItem("default", 0, setTheme.bind("default"));
+		
+		for (i in 0...themes.length)
+		{
+			theme = themes[i];
+			pathToThemeArray.push("bin/includes/codemirror-3.22/theme/" + theme + ".css");
+			themesSubmenu.addMenuItem(theme, i + 1, setTheme.bind(theme));
+		}
+		
+		HIDE.loadCSS(name, pathToThemeArray, onComplete);
+	}
+	
+	private static function setTheme(theme:String):Void
+	{
+		CM.editor.setOption("theme", theme);
+		Browser.getLocalStorage().setItem("theme", theme);
 	}
 	
 }

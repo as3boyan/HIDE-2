@@ -8,7 +8,7 @@
 --next
 -cp src
 -cp externs
--cp ../../../../../../externs/nodejs-std/src
+-lib nodejs
 -main Presentation
 -js bin/Presentation.js
 -dce full

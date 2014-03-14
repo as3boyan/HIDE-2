@@ -2,6 +2,7 @@ package ;
 import js.Browser;
 import js.html.DivElement;
 import js.html.Element;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -44,8 +45,8 @@ class Presentation
 			
 			runRevealJS();
 			
-			var window = js.Node.require('nw.gui').Window.get();
-			window.on("close", function (e):Void
+			var window = Window.get();
+			window.on("close", function (e)
 			{
 				window.close(true);
 			}

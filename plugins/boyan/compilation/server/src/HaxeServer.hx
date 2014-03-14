@@ -1,4 +1,5 @@
 package ;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -11,7 +12,7 @@ package ;
 
 	public static function start():Void
 	{
-		haxeCompletionServer = js.Node.childProcess.exec(["haxe", "--wait", "6001"].join(" "), { }, function (error, stdout, stderr)
+		haxeCompletionServer = js.Node.child_process.exec(["haxe", "--wait", "6001"].join(" "), { }, function (error, stdout, stderr)
 		{
 			trace(stdout);
 			trace(stderr);
@@ -25,9 +26,12 @@ package ;
 		}
 		);		
 
-		js.Node.require('nw.gui').Window.get().on("close", function (e):Void
+		var window:Window = Window.get();
+		
+		window.on("close", function (e)
 		{
-			haxeCompletionServer.kill();
+			haxeCompletionServer.kill('SIGKILL');
+			window.close();
 		}
 		);
 	}

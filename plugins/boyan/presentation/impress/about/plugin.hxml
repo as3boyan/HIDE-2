@@ -1,5 +1,5 @@
 -cp src
--cp ../../../../../externs/nodejs-std/src
+-lib nodejs
 -cp ../../../../../externs/plugins/hide
 -cp ../../../../../externs/plugins/boyan/bootstrap/menu
 -main Main
@@ -8,7 +8,7 @@
 -debug
 --next
 -cp src
--cp ../../../../../externs/nodejs-std/src
+-lib nodejs
 -main Presentation
 -js bin/Presentation.js
 -dce full

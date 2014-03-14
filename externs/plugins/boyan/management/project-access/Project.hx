@@ -1,7 +1,8 @@
 @:keepSub @:expose extern class Project {
 	inline public static var HAXE:Int = 0;
 	inline public static var OPENFL:Int = 1;
-
+	inline public static var HXML:Int = 2;
+	
 	inline public static var FLASH:Int = 0;
 	inline public static var JAVASCRIPT:Int = 1;
 	inline public static var PHP:Int = 2;

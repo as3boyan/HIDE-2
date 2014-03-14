@@ -1,5 +1,6 @@
 package ;
 import js.Browser;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -13,7 +14,7 @@ import js.Browser;
 	{
 		Browser.document.addEventListener("load", function (e)
 		{
-			js.Node.require('nw.gui').gui.Window.get().on("close", function (e)
+			Window.get().on("close", function (e)
 			{
 				save();
 			}
@@ -23,15 +24,14 @@ import js.Browser;
 	}
 	
 	public static function save(?onComplete:Dynamic):Void
-	{
-		trace("path to project:");
-		trace(ProjectAccess.currentProject.path);
-		
+	{		
 		if (ProjectAccess.currentProject.path != null)
 		{
 			var pathToProjectHide:String = js.Node.path.join(ProjectAccess.currentProject.path, "project.json");
 		
-			js.Node.fs.writeFile(pathToProjectHide, js.Node.stringify(ProjectAccess.currentProject), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+			var data:String = HIDE.stringifyAndFormat(ProjectAccess.currentProject);
+			
+			js.Node.fs.writeFile(pathToProjectHide, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
 			{
 				 if (onComplete != null)
 				{

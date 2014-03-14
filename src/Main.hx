@@ -2,10 +2,13 @@ package ;
 
 import haxe.Timer;
 import haxe.Unserializer;
+import js.Boot;
 import js.Browser;
 import js.html.Element;
 import js.html.Text;
 import js.html.TextAreaElement;
+import js.Node;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -16,24 +19,23 @@ class Main
 {
 	public static var currentTime:Float;
 	public static var pluginsTestingData:String = "  - cd plugins";
-	public static var window:Dynamic;
+	public static var window:Window;
 	
 	static function main() 
 	{
-		var gui:Dynamic = js.Node.require('nw.gui');
-		window = gui.Window.get();
+		window = Window.get();
 		
 		window.showDevTools();
 		
 		js.Node.process.on('uncaughtException', function (err)
 		{
+			window.show();
 			trace(err);
 		}
 		);
 		
 		Browser.window.addEventListener("load", function (e):Void
 		{
-			//window.show();
 			currentTime = Date.now().getTime();
 			
 			checkHaxeInstalled(function ()
@@ -49,12 +51,14 @@ class Main
 		}
 		);
 		
-		window.on("close", function (e):Void
+		window.on("close", function (e)
 		{
-			for (window in HIDE.windows)
+			for (w in HIDE.windows)
 			{
-				window.close(true);
+				w.close(true);
 			}
+			
+			window.close();
 		}
 		);
 	}
@@ -69,8 +73,14 @@ class Main
 		
 		if (js.Node.fs.existsSync(pathToPluginsMTime))
 		{
-			var data:String = js.Node.fs.readFileSync(pathToPluginsMTime, js.Node.NodeC.UTF8);
-			HIDE.pluginsMTime = Unserializer.run(data);
+			var options:js.Node.NodeFsFileOptions = { };
+			options.encoding = js.Node.NodeC.UTF8;
+			var data:String = js.Node.fs.readFileSync(pathToPluginsMTime, options);
+			
+			if (data != "") 
+			{
+				HIDE.pluginsMTime = Unserializer.run(data);
+			}
 		}
 		else 
 		{
@@ -297,7 +307,7 @@ class Main
 		
 		trace(command);
 		
-		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.childProcess.exec(command, { }, function (err, stdout, stderr)
+		var haxeCompilerProcess:js.Node.NodeChildProcess = js.Node.child_process.exec(command, { }, function (err, stdout, stderr)
 		{			
 			if (err == null)
 			{
@@ -357,7 +367,7 @@ class Main
 	
 	private static function checkHaxeInstalled(onSuccess:Dynamic, onFailed:Dynamic):Void
 	{
-		js.Node.childProcess.exec("haxe", { }, function (error, stdout, stderr) 
+		js.Node.child_process.exec("haxe", { }, function (error, stdout, stderr) 
 		{			
 			if (error == null)
 			{

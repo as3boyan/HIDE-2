@@ -1,19 +1,4 @@
 (function () { "use strict";
-var HxOverrides = function() { };
-HxOverrides.cca = function(s,index) {
-	var x = s.charCodeAt(index);
-	if(x != x) return undefined;
-	return x;
-};
-HxOverrides.substr = function(s,pos,len) {
-	if(pos != null && pos != 0 && len != null && len < 0) return "";
-	if(len == null) len = s.length;
-	if(pos < 0) {
-		pos = s.length + pos;
-		if(pos < 0) pos = 0;
-	} else if(len < 0) len = s.length + len - pos;
-	return s.substr(pos,len);
-};
 var Presentation = function() { };
 Presentation.main = function() {
 	window.onload = function(e) {
@@ -56,9 +41,9 @@ Presentation.main = function() {
 		slide = Presentation.createSlide("(in case if you want to change website or name, just let me know - AS3Boyan)");
 		window.document.body.appendChild(Presentation.impressDiv);
 		Presentation.runImpressJS();
-		var $window = js.Node.require("nw.gui").Window.get();
+		var $window = nodejs.webkit.Window.get();
 		$window.on("close",function(e1) {
-			$window.close(true);
+			$window.close();
 		});
 	};
 };
@@ -131,12 +116,6 @@ Presentation.runImpressJS = function() {
 	});
 };
 var Std = function() { };
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
-};
 Std.random = function(x) {
 	if(x <= 0) return 0; else return Math.floor(Math.random() * x);
 };
@@ -164,8 +143,9 @@ haxe.Timer.prototype = {
 	,run: function() {
 	}
 };
-var js = {};
-js.Node = function() { };
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
 Math.NaN = Number.NaN;
 Math.NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
 Math.POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
@@ -175,33 +155,10 @@ Math.isFinite = function(i) {
 Math.isNaN = function(i1) {
 	return isNaN(i1);
 };
-if(Array.prototype.map == null) Array.prototype.map = function(f) {
-	var a = [];
-	var _g1 = 0;
-	var _g = this.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		a[i] = f(this[i]);
-	}
-	return a;
-};
-var module, setImmediate, clearImmediate;
-js.Node.setTimeout = setTimeout;
-js.Node.clearTimeout = clearTimeout;
-js.Node.setInterval = setInterval;
-js.Node.clearInterval = clearInterval;
-js.Node.global = global;
-js.Node.process = process;
-js.Node.require = require;
-js.Node.console = console;
-js.Node.module = module;
-js.Node.stringify = JSON.stringify;
-js.Node.parse = JSON.parse;
-var version = HxOverrides.substr(js.Node.process.version,1,null).split(".").map(Std.parseInt);
-if(version[0] > 0 || version[1] >= 9) {
-	js.Node.setImmediate = setImmediate;
-	js.Node.clearImmediate = clearImmediate;
-}
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 Presentation.autoplay = true;
 Presentation.main();
 })();

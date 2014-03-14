@@ -134,7 +134,7 @@ Main.main = function() {
 };
 Main.load = function() {
 	BootstrapMenu.createMenuBar();
-	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css"]);
+	HIDE.loadCSS(Main.$name,["bin/includes/css/menu.css","bin/includes/css/submenu.css"]);
 	HIDE.notifyLoadingComplete(Main.$name);
 };
 var Std = function() { };
@@ -265,31 +265,30 @@ ui.menu = {};
 ui.menu.basic = {};
 ui.menu.basic.MenuItem = function() { };
 ui.menu.basic.MenuItem.__name__ = true;
-ui.menu.basic.MenuButtonItem = function(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
+ui.menu.basic.MenuButtonItem = function(_menu,_text,_onClickFunction,_hotkey) {
+	if(_hotkey == null) _hotkey = "";
 	var _g = this;
-	var span = null;
-	if(_hotkey != null) {
-		var _this = window.document;
-		span = _this.createElement("span");
-		span.style.color = "silver";
-		span.style.float = "right";
-		span.innerText = _hotkey;
-	}
+	var hotkeyText = _hotkey;
+	var menuItem = _menu + "->" + _text;
+	var span;
+	var _this = window.document;
+	span = _this.createElement("span");
+	span.style.color = "silver";
+	span.style.float = "right";
+	Hotkeys.add(menuItem,hotkeyText,span,_onClickFunction);
 	var _this1 = window.document;
 	this.li = _this1.createElement("li");
+	this.li.classList.add("menu-item");
 	var a;
 	var _this2 = window.document;
 	a = _this2.createElement("a");
 	a.style.left = "0";
 	a.setAttribute("text",_text);
-	if(_onClickFunction != null) {
-		a.onclick = function(e) {
-			if(_g.li.className != "disabled") _onClickFunction();
-		};
-		if(_hotkey != null && _keyCode != null) Hotkeys.addHotkey(_keyCode,_ctrl,_shift,_alt,_onClickFunction);
-	}
+	if(_onClickFunction != null) a.onclick = function(e) {
+		if(_g.li.className != "disabled") _onClickFunction();
+	};
 	a.innerText = _text;
-	if(span != null) a.appendChild(span);
+	a.appendChild(span);
 	this.li.appendChild(a);
 };
 ui.menu.basic.MenuButtonItem.__name__ = true;
@@ -313,7 +312,52 @@ ui.menu.basic.Separator.prototype = {
 	}
 	,__class__: ui.menu.basic.Separator
 };
+ui.menu.basic.Submenu = $hx_exports.ui.menu.basic.Submenu = function(_parentMenu,_name) {
+	var _g = this;
+	this.name = _name;
+	this.parentMenu = _parentMenu;
+	var li2;
+	var _this = window.document;
+	li2 = _this.createElement("li");
+	li2.classList.add("menu-item");
+	li2.classList.add("dropdown");
+	li2.classList.add("dropdown-submenu");
+	this.li = li2;
+	var _this1 = window.document;
+	this.ul = _this1.createElement("ul");
+	var a2;
+	var _this2 = window.document;
+	a2 = _this2.createElement("a");
+	a2.href = "#";
+	a2.classList.add("dropdown-toggle");
+	a2.setAttribute("data-toggle","dropdown");
+	a2.innerHTML = this.name;
+	a2.onclick = function(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		li2.classList.add("open");
+		var menu = _g.ul;
+		var newpos;
+		if(menu.offsetLeft + menu.clientWidth + 30 > window.innerWidth) newpos = -menu.clientWidth; else newpos = li2.clientWidth;
+		menu.style.left = "" + newpos + "px";
+	};
+	li2.appendChild(a2);
+	this.ul.classList.add("dropdown-menu");
+	li2.appendChild(this.ul);
+};
+ui.menu.basic.Submenu.__name__ = true;
+ui.menu.basic.Submenu.prototype = {
+	addMenuItem: function(_text,_position,_onClickFunction,_hotkey) {
+		var menuButtonItem = new ui.menu.basic.MenuButtonItem(this.parentMenu + "->" + this.name,_text,_onClickFunction,_hotkey);
+		this.ul.appendChild(menuButtonItem.getElement());
+	}
+	,getElement: function() {
+		return this.li;
+	}
+	,__class__: ui.menu.basic.Submenu
+};
 ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText) {
+	this.name = _text;
 	var _this = window.document;
 	this.li = _this.createElement("li");
 	this.li.className = "dropdown";
@@ -339,14 +383,12 @@ ui.menu.basic.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText
 	}
 	this.li.appendChild(this.ul);
 	this.items = new Array();
+	this.submenus = new haxe.ds.StringMap();
 };
 ui.menu.basic.Menu.__name__ = true;
 ui.menu.basic.Menu.prototype = {
-	addMenuItem: function(_text,_position,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt) {
-		if(_alt == null) _alt = false;
-		if(_shift == null) _shift = false;
-		if(_ctrl == null) _ctrl = false;
-		var menuButtonItem = new ui.menu.basic.MenuButtonItem(_text,_onClickFunction,_hotkey,_keyCode,_ctrl,_shift,_alt);
+	addMenuItem: function(_text,_position,_onClickFunction,_hotkey) {
+		var menuButtonItem = new ui.menu.basic.MenuButtonItem(this.name,_text,_onClickFunction,_hotkey);
 		menuButtonItem.position = _position;
 		if(menuButtonItem.position != null && this.items.length > 0 && this.ul.childNodes.length > 0) {
 			var currentMenuButtonItem;
@@ -374,6 +416,11 @@ ui.menu.basic.Menu.prototype = {
 	}
 	,addSeparator: function() {
 		this.ul.appendChild(new ui.menu.basic.Separator().getElement());
+	}
+	,addSubmenu: function(_text) {
+		var submenu = new ui.menu.basic.Submenu(this.name,_text);
+		this.ul.appendChild(submenu.getElement());
+		return submenu;
 	}
 	,addToDocument: function() {
 		var div;
@@ -413,6 +460,10 @@ ui.menu.basic.Menu.prototype = {
 				if(enabled) child.className = ""; else child.className = "disabled";
 			}
 		}
+	}
+	,getSubmenu: function(name) {
+		if(!this.submenus.exists(name)) this.submenus.set(name,this.addSubmenu(name));
+		return this.submenus.get(name);
 	}
 	,getElement: function() {
 		return this.li;

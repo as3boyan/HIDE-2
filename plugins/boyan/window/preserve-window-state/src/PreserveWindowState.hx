@@ -17,7 +17,7 @@ class PreserveWindowState
 	private static var currWinMode:String;
 	private static var resizeTimeout:Timer;
 	private static var isMaximizationEvent:Bool = false;
-	private static var window:Dynamic = js.Node.require('nw.gui').Window.get();
+	private static var window:Dynamic = nodejs.webkit.Window.get();
 	
 	public static function init():Void
 	{                

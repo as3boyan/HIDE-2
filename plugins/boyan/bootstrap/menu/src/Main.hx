@@ -21,8 +21,9 @@ class Main
 	private static function load():Void
 	{
 		//Create menubar(navbar) using Bootstrap
-		BootstrapMenu.createMenuBar();
 		
+		BootstrapMenu.createMenuBar();
+	
 		//Example on how to create menu
 		//BootstrapMenu.getMenu(name:String) function will create menu if it doesn't exists or return existing one
 		//You can add menu items to menu using addMenuItem function:
@@ -31,7 +32,7 @@ class Main
 		//var fileMenu:Menu = BootstrapMenu.getMenu("File");
 		//fileMenu.addMenuItem("New Project...", null, "Ctrl-Shift-N");
 		
-		HIDE.loadCSS(name, ["bin/includes/css/menu.css"]);
+		HIDE.loadCSS(name, ["bin/includes/css/menu.css", "bin/includes/css/submenu.css"]);
 		
 		//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves
 		HIDE.notifyLoadingComplete(name);

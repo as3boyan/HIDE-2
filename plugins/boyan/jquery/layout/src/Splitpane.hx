@@ -4,6 +4,7 @@ import js.Browser;
 import js.html.DivElement;
 import jQuery.JQuery;
 import js.html.Element;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -125,13 +126,13 @@ import js.html.Element;
 	{
 		var localStorage = Browser.getLocalStorage();
         
-        var window = js.Node.require('nw.gui').Window.get();
+        var window = Window.get();
 		
-		window.on("close", function (e):Void
+		window.on("close", function (e)
 		{
 			var stateString = js.Node.stringify(layout.readState());
 			localStorage.setItem("state", stateString);
-			window.close(true);
+			window.close();
 		});
 		
 		var state = localStorage.getItem("state");

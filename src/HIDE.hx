@@ -4,6 +4,7 @@ import haxe.Serializer;
 import js.Browser;
 import js.html.LinkElement;
 import js.html.ScriptElement;
+import js.Node;
 
 /**
  * ...
@@ -181,7 +182,10 @@ typedef PluginDependenciesData =
 	
 	public static function readFile(name:String, path:String, onComplete:Dynamic):Void
 	{
-		js.Node.fs.readFile(js.Node.path.join(pathToPlugins.get(name), path), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String):Void
+		var options:js.Node.NodeFsFileOptions = { };
+		options.encoding = js.Node.NodeC.UTF8;
+		
+		js.Node.fs.readFile(js.Node.path.join(pathToPlugins.get(name), path), options, function (error:js.Node.NodeErr, data:String):Void
 		{
 			if (error != null)
 			{
@@ -208,6 +212,20 @@ typedef PluginDependenciesData =
 	public static function surroundWithQuotes(path:String):String
 	{
 		return '"' + path + '"';
+	}
+	
+	//Stringify and format json data
+	public static function stringifyAndFormat(object:Dynamic):String
+	{
+		var data:String = Node.stringify(object);
+		
+		data = StringTools.replace(data, ",", ",\n");
+		data = StringTools.replace(data, "{", "{\n");
+		data = StringTools.replace(data, "}", "\n}\n");
+		data = StringTools.replace(data, "[", "\n[\n");
+		data = StringTools.replace(data, "]", "\n]");
+		
+		return data;
 	}
 	
 	private static function checkRequiredPluginsData():Void
@@ -269,7 +287,9 @@ typedef PluginDependenciesData =
 			//}
 			//);
 			
-			js.Node.fs.readFile("../.travis.yml.template", js.Node.NodeC.UTF8, function(error, data:String):Void
+			var options:js.Node.NodeFsFileOptions = { };
+			options.encoding = js.Node.NodeC.UTF8;
+			js.Node.fs.readFile("../.travis.yml.template", options, function(error, data:String):Void
 			{
 				if (data != null)
 				{

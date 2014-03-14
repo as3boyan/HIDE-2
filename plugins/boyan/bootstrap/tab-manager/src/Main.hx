@@ -2,6 +2,8 @@ package ;
 import js.Browser;
 import js.html.Element;
 import js.html.UListElement;
+import js.Node;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -31,28 +33,34 @@ class Main
 			FileTree.onFileClick = TabManager.openFileInNewTab;
 			
 			//Ctrl-Tab
-			Hotkeys.addHotkey(9, true, false, false, TabManager.showNextTab);
+			Hotkeys.add("Tab Manager->Show Next Tab", "Ctrl-Tab", null, TabManager.showNextTab);
 			
 			//Ctrl-Shift-Tab
-			Hotkeys.addHotkey(9, true, true, false, TabManager.showPreviousTab);
+			Hotkeys.add("Tab Manager->Show Previous Tab", "Ctrl-Shift-Tab", null, TabManager.showPreviousTab);
 			
 			//Ctrl-N
-			BootstrapMenu.getMenu("File").addMenuItem("New File...", 3, TabManager.createFileInNewTab, "Ctrl-N", "N".code, true, false, false);
+			BootstrapMenu.getMenu("File").addMenuItem("New File...", 3, TabManager.createFileInNewTab, "Ctrl-N");
 			
 			//Ctrl-S
-			BootstrapMenu.getMenu("File").addMenuItem("Save", 4, TabManager.saveActiveFile, "Ctrl-S", "S".code, true, false, false);
+			BootstrapMenu.getMenu("File").addMenuItem("Save", 4, TabManager.saveActiveFile, "Ctrl-S");
 			
 			//Ctrl-Shift-S
-			BootstrapMenu.getMenu("File").addMenuItem("Save As...", 5, TabManager.saveActiveFileAs, "Ctrl-Shift-S", "S".code, true, true, false);
+			BootstrapMenu.getMenu("File").addMenuItem("Save As...", 5, TabManager.saveActiveFileAs, "Ctrl-Shift-S");
 			
 			BootstrapMenu.getMenu("File").addMenuItem("Save All", 6, TabManager.saveAll);
 			
 			//Ctrl-W
-			BootstrapMenu.getMenu("File").addMenuItem("Close File", 7, TabManager.closeActiveTab, "Ctrl-W", "W".code, true, false, false);
+			BootstrapMenu.getMenu("File").addMenuItem("Close File", 7, TabManager.closeActiveTab, "Ctrl-W");
 			
-			js.Node.require('nw.gui').Window.get().on('close', function (e)
+			Window.get().on('close', function (e)
 			{
 				TabManager.saveAll();
+			}
+			);
+			
+			BootstrapMenu.getMenu("Options", 90).addMenuItem("Open hotkey configuration file", 1, function ()
+			{
+				TabManager.openFileInNewTab(Node.path.join(HIDE.getPluginPath("boyan.events.hotkey"), "config.json"));
 			}
 			);
 			

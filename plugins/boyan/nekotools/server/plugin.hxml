@@ -1,6 +1,6 @@
 -cp src
+-lib nodejs
 -cp ../../../../externs/plugins/hide
--cp ../../../../externs/nodejs-std/src
 -main Main
 -js bin/Main.js
 -dce full

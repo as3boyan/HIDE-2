@@ -18,38 +18,42 @@ ContextMenu.createContextMenu = function() {
 	ul.style.display = "block";
 	ContextMenu.menuItems = new haxe.ds.StringMap();
 	ContextMenu.addContextMenuItemToStringMap("New File...",function() {
-		var filename = window.prompt("Filename:","New File.hx");
-		var template = "";
-		if(filename != null) {
-			var extname = js.Node.require("path").extname(filename);
-			var pathToFile;
-			if(extname == ".hx") {
-				var name = js.Node.require("path").basename(filename,extname);
-				name = HxOverrides.substr(name,0,1).toUpperCase() + HxOverrides.substr(name,1,null).toLowerCase();
-				name = StringTools.replace(name," ","");
-				template = "package ;\n\nclass " + name + "\n{\n    public function new()\n    {\n\n    }\n}";
-				pathToFile = js.Node.require("path").join(ContextMenu.path,name + ".hx");
-			} else pathToFile = js.Node.require("path").join(ContextMenu.path,filename);
-			js.Node.require("fs").writeFile(pathToFile,template,"utf8",function(error) {
-				FileTree.onFileClick(pathToFile);
-				FileTree.load();
-			});
-		}
+		Bootbox.prompt("Filename:","New.hx",function(result) {
+			var filename = result;
+			var template = "";
+			if(filename != null) {
+				var extname = js.Node.require("path").extname(filename);
+				var pathToFile;
+				if(extname == ".hx") {
+					var name = js.Node.require("path").basename(filename,extname);
+					name = HxOverrides.substr(name,0,1).toUpperCase() + HxOverrides.substr(name,1,null).toLowerCase();
+					name = StringTools.replace(name," ","");
+					template = "package ;\n\nclass " + name + "\n{\n    public function new()\n    {\n\n    }\n}";
+					pathToFile = js.Node.require("path").join(ContextMenu.path,name + ".hx");
+				} else pathToFile = js.Node.require("path").join(ContextMenu.path,filename);
+				js.Node.require("fs").writeFile(pathToFile,template,"utf8",function(error) {
+					FileTree.onFileClick(pathToFile);
+					FileTree.load();
+				});
+			}
+		});
 	});
 	ContextMenu.addContextMenuItemToStringMap("New Folder...",function() {
-		var dirname = window.prompt("Filename:","New Folder");
-		if(dirname != null) js.Node.require("fs").mkdir(js.Node.require("path").join(ContextMenu.path,dirname),null,function(error1) {
-			FileTree.load();
+		Bootbox.prompt("Folder name:","New Folder",function(result1) {
+			var dirname = result1;
+			if(dirname != null) js.Node.require("fs").mkdir(js.Node.require("path").join(ContextMenu.path,dirname),null,function(error1) {
+				FileTree.load();
+			});
 		});
 	});
 	ContextMenu.addContextMenuItemToStringMap("Open File",function() {
 		FileTree.onFileClick(ContextMenu.path);
 	});
 	ContextMenu.addContextMenuItemToStringMap("Open using OS",function() {
-		js.Node.require("nw.gui").Shell.openItem(ContextMenu.path);
+		nodejs.webkit.Shell.openItem(ContextMenu.path);
 	});
 	ContextMenu.addContextMenuItemToStringMap("Show Item In Folder",function() {
-		js.Node.require("nw.gui").Shell.showItemInFolder(ContextMenu.path);
+		nodejs.webkit.Shell.showItemInFolder(ContextMenu.path);
 	});
 	ContextMenu.addContextMenuItemToStringMap("Refresh",FileTree.load);
 	ul.appendChild(ContextMenu.menuItems.get("New File..."));
@@ -428,6 +432,10 @@ js.Boot.__cast = function(o,t) {
 };
 js.Node = function() { };
 js.Node.__name__ = true;
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
+nodejs.webkit.$ui.__name__ = true;
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.__name__ = true;
@@ -466,8 +474,10 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Shell = nodejs.webkit.$ui.Shell;
 Main.$name = "boyan.bootstrap.file-tree";
-Main.dependencies = ["boyan.bootstrap.script"];
+Main.dependencies = ["boyan.bootstrap.script","boyan.bootstrap.bootbox"];
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

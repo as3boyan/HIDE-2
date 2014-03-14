@@ -1,4 +1,5 @@
 package ;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -18,9 +19,9 @@ class Main
 			{
 				HaxeServer.terminate();
 				
-				js.Node.require('nw.gui').Window.get().reloadIgnoringCache();
+				Window.get().reloadIgnoringCache();
 			}
-			, "Ctrl-Shift-R", "R".code, true, true, false);
+			, "Ctrl-Shift-R");
 
 			BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE", 2, function ():Void
 			{
@@ -29,22 +30,21 @@ class Main
 				HIDE.compilePlugins(function ():Void
 				{
 					//Only when all plugins successfully loaded
-					js.Node.require('nw.gui').Window.get().reloadIgnoringCache();
+					Window.get().reloadIgnoringCache();
 				}
 				//On plugin compilation failed
 				, function (data:String):Void
 				{
-					Alerts.showAlert(data);
+					
 				}
 				);
 				
 			}
-			, "Shift-F5", 116, false, true, false);
+			, "Shift-F5");
 			
 			BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console", 3, function ():Void
 			{
-				var gui:Dynamic = js.Node.require('nw.gui');
-				var window = gui.Window.get();
+				var window = Window.get();
 				window.showDevTools();
 			}
 			);

@@ -28,17 +28,16 @@ var Project = $hx_exports.Project = function() {
 var ProjectAccess = $hx_exports.ProjectAccess = function() { };
 ProjectAccess.registerSaveOnCloseListener = function() {
 	window.document.addEventListener("load",function(e) {
-		js.Node.require("nw.gui").gui.Window.get().on("close",function(e1) {
+		nodejs.webkit.Window.get().on("close",function(e1) {
 			ProjectAccess.save();
 		});
 	});
 };
 ProjectAccess.save = function(onComplete) {
-	console.log("path to project:");
-	console.log(ProjectAccess.currentProject.path);
 	if(ProjectAccess.currentProject.path != null) {
 		var pathToProjectHide = js.Node.require("path").join(ProjectAccess.currentProject.path,"project.json");
-		js.Node.require("fs").writeFile(pathToProjectHide,js.Node.stringify(ProjectAccess.currentProject),"utf8",function(error) {
+		var data = HIDE.stringifyAndFormat(ProjectAccess.currentProject);
+		js.Node.require("fs").writeFile(pathToProjectHide,data,"utf8",function(error) {
 			if(onComplete != null) onComplete();
 		});
 	} else console.log("project path is null");
@@ -54,6 +53,9 @@ Std.parseInt = function(x) {
 };
 var js = {};
 js.Node = function() { };
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
 if(Array.prototype.map == null) Array.prototype.map = function(f) {
 	var a = [];
 	var _g1 = 0;
@@ -81,10 +83,15 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 Main.$name = "boyan.management.project-access";
 Main.dependencies = [];
 Project.HAXE = 0;
 Project.OPENFL = 1;
+Project.HXML = 2;
 Project.FLASH = 0;
 Project.JAVASCRIPT = 1;
 Project.PHP = 2;

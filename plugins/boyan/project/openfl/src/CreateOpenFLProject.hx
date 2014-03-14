@@ -18,7 +18,7 @@ class CreateOpenFLProject
 		
 		trace(args);
 		
-		var OpenFLTools:js.Node.NodeChildProcess = js.Node.childProcess.exec(args, { cwd: path }, function (error, stdout, stderr) 
+		var OpenFLTools:js.Node.NodeChildProcess = js.Node.child_process.exec(args, { cwd: path }, function (error, stdout, stderr) 
 		{
 			trace(stderr);
 		}

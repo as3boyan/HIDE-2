@@ -8,7 +8,7 @@ import js.Browser;
 class Main
 {
 	public static var name:String = "boyan.window.drag-and-drop";
-	public static var dependencies:Array<String> = ["boyan.bootstrap.tab-manager", "boyan.bootstrap.file-tree"];
+	public static var dependencies:Array<String> = ["boyan.management.open-project", "boyan.bootstrap.file-tree"];
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function main():Void
@@ -39,7 +39,7 @@ class Main
 						}
 						else 
 						{
-							TabManager.openFileInNewTab(path);
+							OpenProject.openProject(path);
 						}
 					}
 					);

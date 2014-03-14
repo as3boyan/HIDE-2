@@ -1,5 +1,5 @@
 -cp src
--cp ../../../../externs/nodejs-std/src
+-lib nodejs
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/bootstrap/menu
 -cp ../../../../externs/plugins/boyan/bootstrap/file-tree

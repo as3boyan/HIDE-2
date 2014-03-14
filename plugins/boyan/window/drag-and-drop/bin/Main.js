@@ -32,7 +32,7 @@ Main.main = function() {
 				var path = [e1.dataTransfer.files[i].path];
 				js.Node.require("fs").stat(path[0],(function(path) {
 					return function(err,stats) {
-						if(stats.isDirectory()) FileTree.load(js.Node.require("path").basename(path[0]),path[0]); else TabManager.openFileInNewTab(path[0]);
+						if(stats.isDirectory()) FileTree.load(js.Node.require("path").basename(path[0]),path[0]); else OpenProject.openProject(path[0]);
 					};
 				})(path));
 			}
@@ -78,7 +78,7 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.clearImmediate = clearImmediate;
 }
 Main.$name = "boyan.window.drag-and-drop";
-Main.dependencies = ["boyan.bootstrap.tab-manager","boyan.bootstrap.file-tree"];
+Main.dependencies = ["boyan.management.open-project","boyan.bootstrap.file-tree"];
 Main.main();
 })();
 

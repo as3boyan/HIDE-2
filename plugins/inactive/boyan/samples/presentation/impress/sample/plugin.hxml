@@ -7,7 +7,7 @@
 -debug
 --next
 -cp src
--cp ../../../../../../externs/nodejs-std/src
+-lib nodejs
 -main Presentation
 -js bin/Presentation.js
 -dce full

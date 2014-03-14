@@ -19,15 +19,9 @@ Main.main = function() {
 	PreserveWindowState.init();
 	HIDE.notifyLoadingComplete(Main.$name);
 };
-var Std = function() { };
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
-};
-var js = {};
-js.Node = function() { };
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
 var PreserveWindowState = function() { };
 PreserveWindowState.init = function() {
 	PreserveWindowState.initWindowState();
@@ -89,6 +83,13 @@ PreserveWindowState.saveWindowState = function() {
 	PreserveWindowState.dumpWindowState();
 	js.Browser.getLocalStorage().setItem("windowState",js.Node.stringify(PreserveWindowState.winState));
 };
+var Std = function() { };
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+};
 var haxe = {};
 haxe.Timer = function(time_ms) {
 	var me = this;
@@ -105,6 +106,7 @@ haxe.Timer.prototype = {
 	,run: function() {
 	}
 };
+var js = {};
 js.Browser = function() { };
 js.Browser.getLocalStorage = function() {
 	try {
@@ -115,6 +117,9 @@ js.Browser.getLocalStorage = function() {
 		return null;
 	}
 };
+js.Node = function() { };
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 if(Array.prototype.map == null) Array.prototype.map = function(f) {
 	var a = [];
 	var _g1 = 0;
@@ -142,9 +147,11 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
 Main.$name = "boyan.window.preserve-window-state";
 PreserveWindowState.isMaximizationEvent = false;
-PreserveWindowState.window = js.Node.require("nw.gui").Window.get();
+PreserveWindowState.window = nodejs.webkit.Window.get();
 Main.main();
 })();
 

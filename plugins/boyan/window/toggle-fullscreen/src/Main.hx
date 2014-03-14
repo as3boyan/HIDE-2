@@ -16,9 +16,9 @@ class Main
 		{	
 			BootstrapMenu.getMenu("View", 2).addMenuItem("Toggle Fullscreen", 1, function ():Void
 			{
-				js.Node.require('nw.gui').Window.get().toggleFullscreen();
+				nodejs.webkit.Window.get().toggleFullscreen();
 			}
-			, "F11", 122, false, false, false);
+			, "F11");
 
 			//Notify HIDE that plugin is ready for use, so plugins that depend on this plugin can start load themselves		
 			HIDE.notifyLoadingComplete(name);

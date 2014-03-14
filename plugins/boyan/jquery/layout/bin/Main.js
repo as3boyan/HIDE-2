@@ -72,11 +72,11 @@ Splitpane.activateSplitpane = function() {
 };
 Splitpane.activateStatePreserving = function() {
 	var localStorage = js.Browser.getLocalStorage();
-	var $window = js.Node.require("nw.gui").Window.get();
+	var $window = nodejs.webkit.Window.get();
 	$window.on("close",function(e) {
 		var stateString = js.Node.stringify(Splitpane.layout.readState());
 		localStorage.setItem("state",stateString);
-		$window.close(true);
+		$window.close();
 	});
 	var state = localStorage.getItem("state");
 	if(state != null) Splitpane.layout.loadState(js.Node.parse(state));
@@ -130,6 +130,9 @@ js.Browser.getLocalStorage = function() {
 	}
 };
 js.Node = function() { };
+var nodejs = {};
+nodejs.webkit = {};
+nodejs.webkit.$ui = function() { };
 if(Array.prototype.map == null) Array.prototype.map = function(f) {
 	var a = [];
 	var _g1 = 0;
@@ -157,6 +160,10 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
+nodejs.webkit.$ui = require('nw.gui');
+nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
+nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
+nodejs.webkit.Window = nodejs.webkit.$ui.Window;
 Main.$name = "boyan.jquery.layout";
 Main.dependencies = ["boyan.jquery.ui"];
 Splitpane.components = new Array();

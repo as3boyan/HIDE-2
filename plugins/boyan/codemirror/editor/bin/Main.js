@@ -5,9 +5,9 @@ Main.main = function() {
 	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,Main.dependencies,Main.load,true);
 };
 Main.load = function() {
-	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.tab-manager"],function() {
+	HIDE.waitForDependentPluginsToBeLoaded(Main.$name,["boyan.bootstrap.tab-manager","boyan.bootstrap.menu"],function() {
 		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-3.22/lib/codemirror.css","bin/includes/codemirror-3.22/addon/hint/show-hint.css","bin/includes/codemirror-3.22/addon/dialog/dialog.css","bin/includes/codemirror-3.22/addon/tern/tern.css","bin/includes/css/editor.css"]);
-		Main.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"]);
+		Main.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"],Main.loadTheme);
 		var modes = ["haxe/haxe.js","javascript/javascript.js","css/css.js","xml/xml.js","htmlmixed/htmlmixed.js","markdown/markdown.js","shell/shell.js"];
 		var _g1 = 0;
 		var _g = modes.length;
@@ -29,12 +29,47 @@ Main.load = function() {
 		});
 	});
 };
-Main.loadThemes = function(themes) {
-	var _g = 0;
-	while(_g < themes.length) {
-		var theme = themes[_g];
-		++_g;
-		HIDE.loadCSS(Main.$name,["bin/includes/codemirror-3.22/theme/" + theme + ".css"]);
+Main.loadTheme = function() {
+	var localStorage = js.Browser.getLocalStorage();
+	if(localStorage != null) {
+		var theme = localStorage.getItem("theme");
+		if(theme != null) Main.setTheme(theme);
+	}
+};
+Main.loadThemes = function(themes,onComplete) {
+	var themesSubmenu = BootstrapMenu.getMenu("View").getSubmenu("Themes");
+	var theme;
+	var pathToThemeArray = new Array();
+	themesSubmenu.addMenuItem("default",0,function() {
+		return Main.setTheme("default");
+	});
+	var _g1 = 0;
+	var _g = themes.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		theme = themes[i];
+		pathToThemeArray.push("bin/includes/codemirror-3.22/theme/" + theme + ".css");
+		themesSubmenu.addMenuItem(theme,i + 1,(function(f,a1) {
+			return function() {
+				return f(a1);
+			};
+		})(Main.setTheme,theme));
+	}
+	HIDE.loadCSS(Main.$name,pathToThemeArray,onComplete);
+};
+Main.setTheme = function(theme) {
+	CM.editor.setOption("theme",theme);
+	js.Browser.getLocalStorage().setItem("theme",theme);
+};
+var js = {};
+js.Browser = function() { };
+js.Browser.getLocalStorage = function() {
+	try {
+		var s = window.localStorage;
+		s.getItem("");
+		return s;
+	} catch( e ) {
+		return null;
 	}
 };
 Main.$name = "boyan.codemirror.editor";

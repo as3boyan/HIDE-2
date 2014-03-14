@@ -1,11 +1,13 @@
 -cp src
--cp ../../../../externs/nodejs-std/src
+-lib nodejs
 -cp ../../../../externs/plugins/hide
 -cp ../../../../externs/plugins/boyan/bootstrap/menu
 -cp ../../../../externs/plugins/boyan/bootstrap/tab-manager
 -cp ../../../../externs/plugins/boyan/bootstrap/alerts
 -cp ../../../../externs/plugins/boyan/compilation/client
 -cp ../../../../externs/plugins/boyan/management/project-access
+-cp ../../../../externs/plugins/boyan/utils
+-cp ../../../../externs/plugins/boyan/codemirror/editor
 -main Main
 -js bin/Main.js
 -dce full

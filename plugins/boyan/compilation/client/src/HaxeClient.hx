@@ -14,7 +14,7 @@ import js.html.TextAreaElement;
 		textarea.value = "Build started\n";
 		textarea.value += command + "\n";
 		
-		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.childProcess.exec(command, { }, function (error, stdout:String, stderr:String):Void
+		var haxeCompilerClient:js.Node.NodeChildProcess = js.Node.child_process.exec(command, { }, function (error, stdout:String, stderr:String):Void
 		{
 			if (StringTools.trim(stdout) != "")
 			{
