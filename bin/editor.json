@@ -1,0 +1,16 @@
+{
+	"lineNumbers": true,
+	"matchBrackets": true,
+	"dragDrop": false,
+	"autoCloseBrackets": true,
+	"gutters": ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+	"indentUnit": 4,
+	"tabSize": 4,
+	"mode": "haxe",
+	"lineWrapping": true,
+	//"highlightSelectionMatches": {"showToken": "regexp\\w"},
+	"foldGutter": {"rangeFinder": "evalnew CodeMirror.fold.combine(CodeMirror.fold.brace, CodeMirror.fold.comment)"},
+	"showCursorWhenSelecting": true,
+	"keyMap": "sublime",
+	"lint": true
+}

@@ -1,7 +1,0 @@
-<project name="three.js" url="https://github.com/labe-me/haxe-three.js" license="BSD">
-  <user name="threejs"/>
-  <description>Externs for three.js</description>
-  <version name="0.4.57">Updated to three.js r57 and haxe 3</version>
-  <tag v="js"/>
-  <tag v="three"/>
-</project>

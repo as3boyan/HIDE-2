@@ -1,9 +1,0 @@
--cp src
--lib nodejs
--cp ../../../../externs/plugins/hide
--cp ../../../../externs/plugins/boyan/jquery/split-pane
--cp ../../../../externs/plugins/boyan/management/project-access
--main Main
--js bin/Main.js
--dce full
--debug

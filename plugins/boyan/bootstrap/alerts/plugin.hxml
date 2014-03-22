@@ -1,9 +1,0 @@
--cp src
--lib jQueryExtern
--lib nodejs
--cp ../../../../externs/plugins/hide
--main Main
--js bin/Main.js
--dce full
--debug
-Alerts

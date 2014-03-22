@@ -1,8 +1,0 @@
-{
-"version":3,
-"file":"Main.js",
-"sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/bootbox/src/Bootbox.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/bootbox/src/Main.hx"],
-"names":[],
-"mappings":";;iBAQc,uBACd;CACqC;CAEpC,AACA,OACS,AACA,GACG,MACX;EAAI,EAAU,HAEb,AAAQ;;;;YCPG,DAEb;CAAuC,AAAM,AAAc,UAE1D;CAAY,AAAM,AAAC,AAA0B,UAG5C;CAA2B;;;;aAXE;oBACe,nBAAC;;;;"
-}

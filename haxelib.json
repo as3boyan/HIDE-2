@@ -4,12 +4,10 @@
     "license": "MIT",
     "tags": ["IDE", "node-webkit", "desktop", "html5"],
     "description": "HIDE - cross platform extensible IDE for Haxe",
-    "version": "0.3.2",
-    "releasenote": "See Changes.md",
+    "version": "0.3.4",
+    "releasenote": "See changes.md",
     "contributors": ["as3boyan"],
     "dependencies": {
-		"node-webkit": "",
-		"jQueryExtern": "",
-		"nodejs": ""
+		"node-webkit": ""
 		}
 }

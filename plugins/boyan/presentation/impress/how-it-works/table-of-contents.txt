@@ -1,7 +1,0 @@
-What is HIDE
-
-node-webkit introduction:
-
-index.html
-page reload ignoring cache
-each window has it's own context

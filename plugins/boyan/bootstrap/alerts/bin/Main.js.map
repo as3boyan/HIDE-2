@@ -1,8 +1,0 @@
-{
-"version":3,
-"file":"Main.js",
-"sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/alerts/src/Alerts.hx","D:/Denis/PortableSoft/HIDE/plugins/boyan/bootstrap/alerts/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/std/haxe/Timer.hx"],
-"names":[],
-"mappings":";;mBAcc,JACd;CACsB;;;CACrB,EAAgB;CAChB,EAAqB;CACrB,EAAmB;CACnB,EAAgB;CAChB,EAAiB;CAEU;;;CAC3B,EAAc;CACd,EAAmB;CACnB,AAAoB,AAAgB;CACpC,AAAoB,AAAe;CACnC,EAAmB;CAEnB,AAAgB;CAChB,AAAgB,AAAgC;CAEhD,AAAkC;CAElC,EAAsB,AAAW,FAAQ,AAAC,EAAmB,AAA5B,AAAkC;CACnE,EAAwB,AAAW,FAAQ,AAAC,EAAkB,AAA3B,AAAiC;CAGpE,AAAY,UAEX;EAAI,EAAqB,HAExB,KAAW,LAAa,AAAxB,AAA6B,UAE5B;CAAkC;;CAInC;;;YCrCW,DAGb;CAA2B;;;aC2CrB,KAA6B;CAQzB;CACT,EAAa,FAAY,UAAW;;CAAS;;mBA0DjC,CAAkD;CACvD,cAAe;CACvB,EAAQ,QAAW;EAClB;EACA;;CAEM;;;MAjDD,KAAgB;EAErB,AAAI,EAAM,HACT;EAMQ,DAAc;EAEvB,CAAK;;KAmBQ,MAAe;;;aDxGE;;;;"
-}

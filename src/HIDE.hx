@@ -5,6 +5,7 @@ import js.Browser;
 import js.html.LinkElement;
 import js.html.ScriptElement;
 import js.Node;
+import nodejs.webkit.Window;
 
 /**
  * ...
@@ -27,9 +28,7 @@ typedef PluginDependenciesData =
 {	
 	public static var plugins:Array<String> = new Array();
 	public static var pathToPlugins:StringMap<String> = new StringMap();
-	//"boyan.bootstrap.script"
 	public static var inactivePlugins:Array<String> = [];
-	//public static var conflictingPlugins:Array<String> = [];
 	
 	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
 	
@@ -103,7 +102,7 @@ typedef PluginDependenciesData =
 			str = url + " loaded";
 		}
 		
-		trace(str);
+		//trace(str);
 	}
 	
 	public static function getPluginPath(name:String):String
@@ -141,10 +140,10 @@ typedef PluginDependenciesData =
 			fullPath = js.Node.path.join(getPluginPath(name), url);
 		}
 		
-		var window = js.Node.require("nw.gui").Window.open(fullPath, params);
+		var window = Window.open(fullPath, params);
 		windows.push(window);
 		
-		window.on("close", function (e):Void
+		window.on("close", function (e)
 		{
 			windows.remove(window);
 			window.close(true);
@@ -185,14 +184,23 @@ typedef PluginDependenciesData =
 		var options:js.Node.NodeFsFileOptions = { };
 		options.encoding = js.Node.NodeC.UTF8;
 		
-		js.Node.fs.readFile(js.Node.path.join(pathToPlugins.get(name), path), options, function (error:js.Node.NodeErr, data:String):Void
+		var fullPath:String = path;
+		
+		if (name != null) 
+		{
+			fullPath = js.Node.path.join(pathToPlugins.get(name), path);
+		}
+		
+		js.Node.fs.readFile(fullPath, options, function (error:js.Node.NodeErr, data:String):Void
 		{
 			if (error != null)
 			{
 				trace(error);
 			}
-			
-			onComplete(data);
+			else 
+			{
+				onComplete(data);
+			}
 		}
 		);
 	}
@@ -212,20 +220,6 @@ typedef PluginDependenciesData =
 	public static function surroundWithQuotes(path:String):String
 	{
 		return '"' + path + '"';
-	}
-	
-	//Stringify and format json data
-	public static function stringifyAndFormat(object:Dynamic):String
-	{
-		var data:String = Node.stringify(object);
-		
-		data = StringTools.replace(data, ",", ",\n");
-		data = StringTools.replace(data, "{", "{\n");
-		data = StringTools.replace(data, "}", "\n}\n");
-		data = StringTools.replace(data, "[", "\n[\n");
-		data = StringTools.replace(data, "]", "\n]");
-		
-		return data;
 	}
 	
 	private static function checkRequiredPluginsData():Void
@@ -261,7 +255,7 @@ typedef PluginDependenciesData =
 				if (pluginsLoaded)
 				{
 					requestedPluginsData.splice(j, 1);
-					//trace(pluginData);
+					trace(pluginData.name);
 					pluginData.onLoaded();
 				}
 				else 
@@ -272,20 +266,12 @@ typedef PluginDependenciesData =
 		}
 		
 		if (Lambda.count(pathToPlugins) == plugins.length)
-		{
-			trace(requestedPluginsData.length);
-			
+		{			
 			trace("all plugins loaded");
 			
 			var delta:Float = Date.now().getTime() - Main.currentTime;
 			
 			trace("Loading took: " + Std.string(delta) + " ms");
-			
-			//js.Node.fs.writeFile("../HIDEPlugins.hxml", Main.pluginsTestingData, js.Node.NodeC.UTF8, function (error):Void
-			//{
-				//
-			//}
-			//);
 			
 			var options:js.Node.NodeFsFileOptions = { };
 			options.encoding = js.Node.NodeC.UTF8;
@@ -332,7 +318,7 @@ typedef PluginDependenciesData =
 	private static function loadJSAsync(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
 	{
 		var script:ScriptElement = Browser.document.createScriptElement();
-		script.src = urls.splice(0, 1)[0]; //+ "?" + Std.string(Std.random(100000))
+		script.src = urls.splice(0, 1)[0];
 		script.onload = function (e)
 		{			
 			traceScriptLoadingInfo(name, script.src);

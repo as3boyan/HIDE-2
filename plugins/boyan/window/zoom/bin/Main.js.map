@@ -1,8 +1,0 @@
-{
-"version":3,
-"file":"Main.js",
-"sourceRoot":"file://",
-"sources":["D:/Denis/PortableSoft/HIDE/plugins/boyan/window/zoom/src/Main.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/lib/nodejs/2,2,4/nodejs/webkit/UI.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/lib/nodejs/2,2,4/nodejs/webkit/Menu.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/lib/nodejs/2,2,4/nodejs/webkit/MenuItem.hx","D:/Denis/PortableSoft/HaxeToolkit/haxe/lib/nodejs/2,2,4/nodejs/webkit/Window.hx"],
-"names":[],
-"mappings":";;YAac,DAEb;CAAuC,AAAM,AAAc,UAC3D;EACc;EAEb,DAAsB,AAAoB,AAAW,AAAG,UAEvD;IAAoB;CAEnB;EAEF,DAAsB,AAAoB,AAAY,AAAG,UAExD;IAAoB;CAEnB;EAEF,DAAsB,AAAoB,AAAS,AAAG,UAErD;GAAmB;CAElB;EAGF,DAA2B;;;;;;AChC5B;ACYA,GAAO;ACAP,GAAW;ACwBX,GAAS;aJjCsB;oBACe,nBAAC;;;;"
-}

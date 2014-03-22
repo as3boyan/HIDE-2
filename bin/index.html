@@ -2,7 +2,81 @@
 <head>
 	<title>HIDE - cross platform extensible IDE for Haxe</title>
 	<meta charset="utf-8">
-
+	
+	<link href="includes/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" media="screen">
+	<link href="includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		
+	<link href="includes/CodeMirror-4/lib/codemirror.css" type="text/css" rel="stylesheet">
+		
+	<link rel="stylesheet" href="includes/CodeMirror-4/addon/fold/foldgutter.css">
+	<link rel="stylesheet" href="includes/CodeMirror-4/addon/dialog/dialog.css">
+	<link href="includes/CodeMirror-4/addon/hint/show-hint.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/addon/lint/lint.css" type="text/css" rel="stylesheet">
+		
+	<link href="includes/CodeMirror-4/theme/3024-day.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/3024-night.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/ambiance.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/base16-dark.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/base16-light.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/blackboard.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/cobalt.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/eclipse.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/elegant.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/erlang-dark.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/lesser-dark.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/midnight.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/monokai.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/neat.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/night.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/paraiso-dark.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/paraiso-light.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/rubyblue.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/solarized.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/the-matrix.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/tomorrow-night-eighties.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/twilight.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/vibrant-ink.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/xq-dark.css" type="text/css" rel="stylesheet">
+	<link href="includes/CodeMirror-4/theme/xq-light.css" type="text/css" rel="stylesheet">
+		
+	<link href="includes/css/layout-default-latest.css" rel="stylesheet" media="screen">
+		
+	<link href="theme.css" rel="stylesheet" media="screen">
+	
+	<script src="includes/js/jquery-2.0.3.min.js"></script>	
+	<script src="includes/js/jquery-ui-1.9.2.custom.min.js"></script>	
+	<script src="includes/js/jquery.layout-latest.min.js"></script>
+	<script src="includes/js/bootstrap.min.js"></script>
+	<script src="includes/js/bootbox.min.js"></script>
+	
+	<script src="includes/CodeMirror-4/lib/codemirror.js"></script>
+	
+	<script src="includes/CodeMirror-4/addon/search/searchcursor.js"></script>
+	<script src="includes/CodeMirror-4/addon/search/search.js"></script>
+	<script src="includes/CodeMirror-4/addon/dialog/dialog.js"></script>
+	<script src="includes/CodeMirror-4/addon/comment/comment.js"></script>
+	<script src="includes/CodeMirror-4/addon/lint/lint.js"></script>
+	<script src="includes/CodeMirror-4/addon/wrap/hardwrap.js"></script>
+	<script src="includes/CodeMirror-4/keymap/sublime.js"></script>
+	
+	<script src="includes/CodeMirror-4/addon/hint/show-hint.js"></script>
+	<script src="includes/CodeMirror-4/addon/edit/matchbrackets.js"></script>
+	<script src="includes/CodeMirror-4/addon/edit/closebrackets.js"></script>
+	<script src="includes/CodeMirror-4/addon/comment/comment.js"></script>
+	<script src="includes/CodeMirror-4/addon/fold/foldcode.js"></script>
+	<script src="includes/CodeMirror-4/addon/fold/foldgutter.js"></script>
+	<script src="includes/CodeMirror-4/addon/fold/brace-fold.js"></script>
+	<script src="includes/CodeMirror-4/addon/fold/comment-fold.js"></script>
+	<script src="includes/CodeMirror-4/addon/selection/active-line.js"></script>
+	<script src="includes/CodeMirror-4/addon/search/match-highlighter.js"></script>
+	<script src="includes/CodeMirror-4/mode/haxe/haxe.js"></script>
+	<script src="includes/CodeMirror-4/mode/javascript/javascript.js"></script>
+	<script src="includes/CodeMirror-4/mode/css/css.js"></script>
+	<script src="includes/CodeMirror-4/mode/xml/xml.js"></script>
+	<script src="includes/CodeMirror-4/mode/htmlmixed/htmlmixed.js"></script>
+	<script src="includes/CodeMirror-4/mode/markdown/markdown.js"></script>
+	<script src="includes/CodeMirror-4/mode/shell/shell.js"></script>
+	
 	<!-- Code generated using Haxe -->
 	<script type="text/javascript" src="./HIDE.js"></script>
 </head>

@@ -1,14 +1,43 @@
 package ;
 
+import about.About;
+import autoformat.HaxePrinterLoader;
+import cm.CodeMirrorEditor;
+import cm.CodeMirrorZoom;
+import core.Changelog;
+import core.CompilationOutput;
+import core.Completion;
+import core.DeveloperTools;
+import core.DragAndDrop;
+import core.EditingTheme;
+import core.EditorConfiguration;
+import core.FileDialog;
+import core.HaxeLint;
+import core.HaxeParserProvider;
+import core.HaxeServer;
+import core.Hotkeys;
+import core.PreserveWindowState;
+import core.RunProject;
+import core.Splitpane;
+import core.ToggleFullscreen;
+import core.Utils;
+import core.Zoom;
+import filetree.FileTree;
 import haxe.Timer;
 import haxe.Unserializer;
-import js.Boot;
+import haxeproject.HaxeProject;
 import js.Browser;
 import js.html.Element;
-import js.html.Text;
 import js.html.TextAreaElement;
 import js.Node;
+import menu.BootstrapMenu;
+import newprojectdialog.NewProjectDialogLoader;
 import nodejs.webkit.Window;
+import openflproject.OpenFLProject;
+import openproject.OpenProjectLoader;
+import projectaccess.ProjectAccess;
+import projectaccess.ProjectOptions;
+import tabmanager.TabManagerMain;
 
 /**
  * ...
@@ -22,10 +51,10 @@ class Main
 	public static var window:Window;
 	
 	static function main() 
-	{
+	{        
 		window = Window.get();
 		
-		window.showDevTools();
+		//window.showDevTools();
 		
 		js.Node.process.on('uncaughtException', function (err)
 		{
@@ -34,8 +63,49 @@ class Main
 		}
 		);
 		
+		Hotkeys.prepare();
+		
 		Browser.window.addEventListener("load", function (e):Void
 		{
+			Utils.prepare();
+			BootstrapMenu.createMenuBar();
+			NewProjectDialogLoader.load();
+			DeveloperTools.addToMenu();
+			CodeMirrorZoom.load();
+			ToggleFullscreen.addToMenu();
+			Zoom.addToMenu();
+			Changelog.addToMenu();
+			About.addToMenu();
+			EditorConfiguration.addToMenu();
+			EditingTheme.addToMenu();
+			Splitpane.createSplitPane();
+			Splitpane.activateSplitpane();
+			PreserveWindowState.init();
+			FileTree.init();
+			ProjectOptions.create();
+			FileDialog.create();
+			TabManagerMain.load();
+			Completion.registerHelper();
+			HaxeLint.prepare();
+			CodeMirrorEditor.load();
+			
+			HaxePrinterLoader.load();
+			HaxeServer.check();
+			
+			RunProject.load();
+			
+			ProjectAccess.registerSaveOnCloseListener();
+			
+			HaxeProject.load();
+			OpenFLProject.load();
+			
+			CompilationOutput.load();
+			
+			OpenProjectLoader.load();
+			DragAndDrop.prepare();
+			
+			//HaxeParserProvider.test();
+            
 			currentTime = Date.now().getTime();
 			
 			checkHaxeInstalled(function ()
@@ -58,7 +128,7 @@ class Main
 				w.close(true);
 			}
 			
-			window.close();
+			window.close(true);
 		}
 		);
 	}
@@ -76,7 +146,6 @@ class Main
 			var options:js.Node.NodeFsFileOptions = { };
 			options.encoding = js.Node.NodeC.UTF8;
 			var data:String = js.Node.fs.readFileSync(pathToPluginsMTime, options);
-			
 			if (data != "") 
 			{
 				HIDE.pluginsMTime = Unserializer.run(data);
@@ -205,7 +274,6 @@ class Main
 								{
 									readDir(path, js.Node.path.join(pathToPlugin,item), onLoad);
 								}
-								//&& !Lambda.has(HIDE.conflictingPlugins, pluginName)
 								else if (item == "plugin.hxml" && !Lambda.has(HIDE.inactivePlugins, pluginName))
 								{	
 									var levels:String = "";
@@ -216,35 +284,6 @@ class Main
 									
 									pluginsTestingData += "\n  - cd " + StringTools.replace(pathToPlugin, "\\", "/") + "\n  - haxe plugin.hxml\n  - cd " + levels;
 									
-									//js.Node.fs.readFile(js.Node.path.join(path, pathToPlugin, item), js.Node.NodeC.UTF8, function (error, data):Void
-									//{
-										//if (pluginsTestingData != "")
-										//{
-											//pluginsTestingData += "--next\n";
-										//}
-										//
-										//var currentLine:String;
-										//
-										//for (line in data.split("\n"))
-										//{		
-											//currentLine = line;
-											//
-											//for (argument in ["-cp", "-js"])
-											//{
-												//if (StringTools.startsWith(line, argument))
-												//{												
-													//currentLine = argument + " " + js.Node.path.join("plugins", pathToPlugin, line.substr(4));
-												//}
-											//}
-											//
-											//pluginsTestingData += currentLine + "\n";
-										//}
-										
-										//pluginsTestingData += data;
-									//}
-									//);
-									
-									//pluginsTestingData += "\n    - pushd " + StringTools.replace(js.Node.path.join("plugins", pathToPlugin), js.Node.path.sep, "/") + " && haxe plugin.hxml && popd";
 									onLoad(path, pathToPlugin);
 									return;
 								}
@@ -328,17 +367,10 @@ class Main
 				{
 					textarea = Browser.document.createTextAreaElement();
 					textarea.id = "plugin-compilation-console";
-					textarea.style.position = "fixed";
-					textarea.style.width = "100%";
-					textarea.style.height = "15%";
-					textarea.style.backgroundColor = "darkseagreen";
-					textarea.style.opacity = "0.8";
-					textarea.style.bottom = "0";
-					textarea.style.zIndex = "10000";
 					textarea.value = "Plugins compile-time errors:\n";
 					Browser.document.body.appendChild(textarea);
 				}
-				else 
+				else  
 				{
 					textarea = cast(element, TextAreaElement);
 				}

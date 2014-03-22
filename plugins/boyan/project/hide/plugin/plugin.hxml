@@ -1,8 +1,0 @@
--cp src
--lib nodejs
--cp ../../../../../externs/plugins/hide
--cp ../../../../../externs/plugins/boyan/bootstrap/new-project-dialog
--main Main
--js bin/Main.js
--dce full
--debug

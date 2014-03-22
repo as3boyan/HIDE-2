@@ -1,9 +1,0 @@
--cp src
--lib nodejs
--cp ../../../../externs/plugins/hide
--cp ../../../../externs/plugins/boyan/management/open-project
--cp ../../../../externs/plugins/boyan/bootstrap/file-tree
--main Main
--js bin/Main.js
--dce full
--debug

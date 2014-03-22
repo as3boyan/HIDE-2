@@ -1,1 +1,16 @@
-{"customArgs":false,"args":[],"name":"\\HIDE","type":2,"path":"C:\\GitHub\\HIDE","main":"HIDE.hxml","runActionType":0}
+{
+     "args" : [
+
+    ]
+    ,"files" : [
+         "src\\Main.hx"
+        ,"src\\core\\HaxeParserProvider.hx"
+    ]
+    ,"name" : "\\HIDE"
+    ,"type" : 2
+    ,"path" : "/home/as3boyan/HIDE"
+    ,"main" : "HIDE.hxml"
+    ,"runActionType" : 2
+    ,"activeFile" : "HIDE.hxml"
+    ,"runActionText" : "haxelib run node-webkit"
+}
