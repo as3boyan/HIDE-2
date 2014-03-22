@@ -2,7 +2,6 @@ package cm;
 import core.Completion;
 import core.FunctionParametersHelper;
 import core.HaxeParserProvider;
-import core.Splitpane;
 import haxe.Json;
 import haxe.Timer;
 import js.Browser;
@@ -27,7 +26,7 @@ class CodeMirrorEditor
 		var textarea:TextAreaElement = Browser.document.createTextAreaElement();
 		textarea.id = "code";
 		
-		Splitpane.components[1].appendChild(textarea);
+		new jQuery.JQuery("#editor").append(textarea);
 		
 		var readFileOptions:NodeFsFileOptions = {};
 		readFileOptions.encoding = NodeC.UTF8;
@@ -217,11 +216,12 @@ class CodeMirrorEditor
 					timer = null;
 				}
 				
-				timer = new Timer(100);
+				timer = new Timer(500);
 				timer.run = function ():Void 
 				{
 					timer.stop();
-					HaxeParserProvider.getClassName();
+					//HaxeParserProvider.getClassName();
+                    CodeMirrorEditor.editor.setOption("lint", "true");
 				};
 			}
 		}

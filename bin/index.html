@@ -3,7 +3,6 @@
 	<title>HIDE - cross platform extensible IDE for Haxe</title>
 	<meta charset="utf-8">
 	
-	<link href="includes/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" media="screen">
 	<link href="includes/css/bootstrap.min.css" rel="stylesheet" media="screen">
 		
 	<link href="includes/CodeMirror-4/lib/codemirror.css" type="text/css" rel="stylesheet">
@@ -39,18 +38,19 @@
 	<link href="includes/CodeMirror-4/theme/xq-dark.css" type="text/css" rel="stylesheet">
 	<link href="includes/CodeMirror-4/theme/xq-light.css" type="text/css" rel="stylesheet">
 		
-	<link href="includes/css/layout-default-latest.css" rel="stylesheet" media="screen">
-		
 	<link href="theme.css" rel="stylesheet" media="screen">
 	
+    <link rel="stylesheet" href="includes/css/jqx.base.css" type="text/css" />
+    
 	<script src="includes/js/jquery-2.0.3.min.js"></script>	
-	<script src="includes/js/jquery-ui-1.9.2.custom.min.js"></script>	
-	<script src="includes/js/jquery.layout-latest.min.js"></script>
+    <script type="text/javascript" src="includes/js/jqxcore.js"></script>
+    <script type="text/javascript" src="includes/js/jqxsplitter.js"></script>
+    <script type="text/javascript" src="includes/js/jqxtabs.js"></script>
 	<script src="includes/js/bootstrap.min.js"></script>
 	<script src="includes/js/bootbox.min.js"></script>
 	
 	<script src="includes/CodeMirror-4/lib/codemirror.js"></script>
-	
+    
 	<script src="includes/CodeMirror-4/addon/search/searchcursor.js"></script>
 	<script src="includes/CodeMirror-4/addon/search/search.js"></script>
 	<script src="includes/CodeMirror-4/addon/dialog/dialog.js"></script>
@@ -77,9 +77,53 @@
 	<script src="includes/CodeMirror-4/mode/markdown/markdown.js"></script>
 	<script src="includes/CodeMirror-4/mode/shell/shell.js"></script>
 	
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#mainSplitter').jqxSplitter({width:'100%', height:'100%', orientation: 'vertical', panels: [{ size: 170, collapsible: false}] });
+            $('#secondNested').jqxSplitter({ width: '100%', height:'100%', orientation: 'horizontal', panels: [{ size: '70%'}] });
+            $('#thirdNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: '85%', collapsible: false}] });
+            $("#tabs").jqxTabs({  height: '100%', width: '100%' });
+            $("#tabs1").jqxTabs({  height: '100%', width: '100%' });
+        });
+    </script>
+    
 	<!-- Code generated using Haxe -->
-	<script type="text/javascript" src="./HIDE.js"></script>
+	 <script type="text/javascript" src="./HIDE.js"></script> 
 </head>
 
-<body>	
+<body>
+    <div id="tabs">
+        <ul>
+            <li style="margin-left: 30px; height:32px;">Tab 1</li>
+        </ul>
+    
+        <div id="mainSplitter">
+            <div>
+                <div id="secondNested">
+    <!--                File tree panel-->
+                    <div id="filetree"></div>
+    <!--                Outline panel-->
+                    <div id="outline"></div>
+                </div>
+            </div>
+            <div>
+                <div id="thirdNested">
+    <!--                Code editor-->
+                    <div id="editor"></div>
+                    <div>
+                        <div class="jqx-hideborder jqx-hidescrollbars" id="tabs1">
+                            <ul>
+                                <li style="margin-left: 30px;">Results</li>
+                                <li>Output</li>
+                                <li>Options</li>
+                            </ul>
+                            <div id="results"></div>
+                            <div id="output"></div>
+                            <div id="options"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>

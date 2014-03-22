@@ -1,5 +1,4 @@
 package filetree;
-import core.Splitpane;
 import jQuery.JQuery;
 import js.Browser;
 import js.html.AnchorElement;
@@ -26,8 +25,6 @@ import js.html.UListElement;
 			//</ul>
 		//</div>
 		
-		var splitPaneComponent:DivElement = cast(Splitpane.components[0], DivElement);
-		
 		treeWell = Browser.document.createDivElement();
 		treeWell.id = "tree-well";
 		treeWell.className = "well";
@@ -37,7 +34,7 @@ import js.html.UListElement;
 		tree.id = "tree";
 		treeWell.appendChild(tree);
 		
-		splitPaneComponent.appendChild(treeWell);
+		new jQuery.JQuery("#filetree").append(treeWell);
 		
 		load("HIDE", "../");
 		

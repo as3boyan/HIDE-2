@@ -67,8 +67,10 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 
 * Parse code if error - exclude line and try again
 
-* Fix splitpanes on Linux
-* Fix first launch - open HIDE project as first project
+* Fix first launch - open HIDE project as first project(source code will not be included in haxelib)
+* Add link to GitHub repository and website
+* Move run.n to bin
+* Show green/red dot on output tab to indicate build status
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)
@@ -77,6 +79,8 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Fix OpenFL projects(check webserver)
 * Fix node-webkit haxelib(search for binary, handle no Internet connection exception)
 * Fix tab saving issue
+* Fix options
+* Show build errors in results panel
 * Test file saving
 * Unit tests
 * Annotation ruler

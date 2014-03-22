@@ -18,7 +18,6 @@ import core.HaxeServer;
 import core.Hotkeys;
 import core.PreserveWindowState;
 import core.RunProject;
-import core.Splitpane;
 import core.ToggleFullscreen;
 import core.Utils;
 import core.Zoom;
@@ -54,12 +53,12 @@ class Main
 	{        
 		window = Window.get();
 		
-		//window.showDevTools();
+		window.show();
 		
 		js.Node.process.on('uncaughtException', function (err)
 		{
-			window.show();
 			trace(err);
+			window.showDevTools();
 		}
 		);
 		
@@ -78,8 +77,6 @@ class Main
 			About.addToMenu();
 			EditorConfiguration.addToMenu();
 			EditingTheme.addToMenu();
-			Splitpane.createSplitPane();
-			Splitpane.activateSplitpane();
 			PreserveWindowState.init();
 			FileTree.init();
 			ProjectOptions.create();

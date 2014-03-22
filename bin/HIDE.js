@@ -238,7 +238,7 @@ HIDE.checkRequiredPluginsData = function() {
 	if(Lambda.count(HIDE.pathToPlugins) == HIDE.plugins.length) {
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
-		console.log("Loading took: " + ("" + delta) + " ms");
+		console.log("Loading took: " + (delta == null?"null":"" + delta) + " ms");
 		var options = { };
 		options.encoding = "utf8";
 		js.Node.require("fs").readFile("../.travis.yml.template",options,function(error,data) {
@@ -439,10 +439,10 @@ $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
 Main.main = function() {
 	Main.window = nodejs.webkit.Window.get();
-	Main.window.showDevTools();
+	Main.window.show();
 	js.Node.process.on("uncaughtException",function(err) {
-		Main.window.show();
 		console.log(err);
+		Main.window.showDevTools();
 	});
 	core.Hotkeys.prepare();
 	window.addEventListener("load",function(e) {
@@ -457,8 +457,6 @@ Main.main = function() {
 		about.About.addToMenu();
 		core.EditorConfiguration.addToMenu();
 		core.EditingTheme.addToMenu();
-		core.Splitpane.createSplitPane();
-		core.Splitpane.activateSplitpane();
 		core.PreserveWindowState.init();
 		filetree.FileTree.init();
 		projectaccess.ProjectOptions.create();
@@ -510,7 +508,7 @@ Main.loadPlugins = function(compile) {
 		var relativePathToPlugin = js.Node.require("path").join(path,pathToPlugin);
 		HIDE.pathToPlugins.set(pluginName,relativePathToPlugin);
 		var absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
-		if(HIDE.firstRun) HIDE.pluginsMTime.set(pluginName,Std.parseInt("" + new Date().getTime()));
+		if(HIDE.firstRun) HIDE.pluginsMTime.set(pluginName,Std.parseInt(Std.string(new Date().getTime())));
 		if(compile && (!HIDE.pluginsMTime.exists(pluginName) || HIDE.pluginsMTime.get(pluginName) < Main.walk(absolutePathToPlugin))) Main.compilePlugin(pluginName,absolutePathToPlugin,Main.loadPlugin); else Main.loadPlugin(absolutePathToPlugin);
 	});
 	haxe.Timer.delay(function() {
@@ -609,9 +607,9 @@ Main.startPluginCompilation = function(name,pathToPlugin,onSuccess,onFailed) {
 	var haxeCompilerProcess = js.Node.require("child_process").exec(command,{ },function(err,stdout,stderr) {
 		if(err == null) {
 			delta = new Date().getTime() - startTime;
-			Std.string(console.log(name + " compilation took " + ("" + delta))) + " ms";
+			Std.string(console.log(name + " compilation took " + (delta == null?"null":"" + delta))) + " ms";
 			onSuccess(pathToPlugin);
-			HIDE.pluginsMTime.set(name,Std.parseInt("" + new Date().getTime()));
+			HIDE.pluginsMTime.set(name,Std.parseInt(Std.string(new Date().getTime())));
 		} else {
 			var element = window.document.getElementById("plugin-compilation-console");
 			var textarea;
@@ -1007,12 +1005,12 @@ Xml.prototype = {
 		var s = new StringBuf();
 		if(this.nodeType == Xml.Element) {
 			s.b += "<";
-			s.b += this._nodeName;
+			s.b += Std.string(this._nodeName);
 			var $it0 = this._attributes.keys();
 			while( $it0.hasNext() ) {
 				var k = $it0.next();
 				s.b += " ";
-				s.b += k;
+				if(k == null) s.b += "null"; else s.b += "" + k;
 				s.b += "=\"";
 				s.add(this._attributes.get(k));
 				s.b += "\"";
@@ -1030,7 +1028,7 @@ Xml.prototype = {
 		}
 		if(this.nodeType == Xml.Element) {
 			s.b += "</";
-			s.b += this._nodeName;
+			s.b += Std.string(this._nodeName);
 			s.b += ">";
 		}
 		return s.b;
@@ -1136,7 +1134,7 @@ cm.CodeMirrorEditor.load = function() {
 	var _this = window.document;
 	textarea = _this.createElement("textarea");
 	textarea.id = "code";
-	core.Splitpane.components[1].appendChild(textarea);
+	new $("#editor").append(textarea);
 	var readFileOptions = { };
 	readFileOptions.encoding = "utf8";
 	var options = { };
@@ -1241,10 +1239,10 @@ cm.CodeMirrorEditor.load = function() {
 				timer1.stop();
 				timer1 = null;
 			}
-			timer1 = new haxe.Timer(100);
+			timer1 = new haxe.Timer(500);
 			timer1.run = function() {
 				timer1.stop();
-				core.HaxeParserProvider.getClassName();
+				cm.CodeMirrorEditor.editor.setOption("lint","true");
 			};
 		}
 	});
@@ -1354,9 +1352,9 @@ cm.CodeMirrorZoom.load = function() {
 	},"Ctrl--");
 };
 cm.CodeMirrorZoom.setFontSize = function(fontSize) {
-	new $(".CodeMirror").css("font-size","" + fontSize + "px");
-	new $(".CodeMirror-hint").css("font-size","" + (fontSize - 2) + "px");
-	new $(".CodeMirror-hints").css("font-size","" + (fontSize - 2) + "px");
+	new $(".CodeMirror").css("font-size",(fontSize == null?"null":"" + fontSize) + "px");
+	new $(".CodeMirror-hint").css("font-size",Std.string(fontSize - 2) + "px");
+	new $(".CodeMirror-hints").css("font-size",Std.string(fontSize - 2) + "px");
 };
 var core = {};
 core.Alerts = $hx_exports.core.Alerts = function() { };
@@ -1378,8 +1376,8 @@ core.Alerts.showAlert = function(text) {
 	div.appendChild(button);
 	div.appendChild(window.document.createTextNode(text));
 	window.document.body.appendChild(div);
-	div.style.marginTop = "" + (-div.clientHeight / 2 | 0) + "px";
-	div.style.marginLeft = "" + (-div.clientWidth / 2 | 0) + "px";
+	div.style.marginTop = Std.string(-div.clientHeight / 2 | 0) + "px";
+	div.style.marginLeft = Std.string(-div.clientWidth / 2 | 0) + "px";
 	haxe.Timer.delay(function() {
 		if(div.parentElement != null) new $(div).fadeOut(500,null,function() {
 			window.document.body.removeChild(div);
@@ -1410,9 +1408,9 @@ core.CompilationOutput.load = function() {
 	var output;
 	var _this = window.document;
 	output = _this.createElement("textarea");
-	output.id = "output";
+	output.id = "outputTextArea";
 	output.readOnly = true;
-	core.Splitpane.components[2].appendChild(output);
+	new $("#output").append(output);
 };
 core.Completion = function() { };
 $hxClasses["core.Completion"] = core.Completion;
@@ -1486,7 +1484,7 @@ core.Completion.getCompletion = function(onComplete,_pos) {
 		var c = CodeMirror.Pos;
 		core.Completion.cur = c(core.Completion.cur.line,core.Completion.start);
 	}
-	projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + ("" + cm1.indexFromPos(core.Completion.cur)));
+	projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + Std.string(cm1.indexFromPos(core.Completion.cur)));
 	core.Completion.completions = [];
 	core.HaxeCompletionClient.runProcess("haxe",["--connect","5000","--cwd",HIDE.surroundWithQuotes(projectaccess.ProjectAccess.currentProject.path)].concat(projectArguments),function(stderr) {
 		var xml = Xml.parse(stderr);
@@ -1710,7 +1708,7 @@ $hxClasses["core.HaxeClient"] = core.HaxeClient;
 core.HaxeClient.__name__ = ["core","HaxeClient"];
 core.HaxeClient.buildProject = function(command,onComplete) {
 	var textarea;
-	textarea = js.Boot.__cast(window.document.getElementById("output") , HTMLTextAreaElement);
+	textarea = js.Boot.__cast(window.document.getElementById("outputTextArea") , HTMLTextAreaElement);
 	textarea.value = "Build started\n";
 	textarea.value += command + "\n";
 	var haxeCompilerClient = js.Node.require("child_process").exec(command,{ },function(error,stdout,stderr) {
@@ -1752,6 +1750,7 @@ core.HaxeClient.buildProject = function(command,onComplete) {
 					}
 				}
 			}
+			cm.CodeMirrorEditor.editor.setOption("lint","true");
 			textarea.value += "stderr:\n" + stderr;
 			console.log("stderr:\n" + stderr);
 		}
@@ -1762,7 +1761,7 @@ core.HaxeClient.buildProject = function(command,onComplete) {
 			if(onComplete != null) onComplete();
 		} else {
 			console.log(command);
-			textarea.value += "Build failed (exit code: " + ("" + code) + ")\n";
+			textarea.value += "Build failed (exit code: " + (code == null?"null":"" + code) + ")\n";
 		}
 	});
 };
@@ -2497,74 +2496,6 @@ core.RunProject.preprocessCommand = function(command) {
 	}
 	return processedCommand;
 };
-core.Splitpane = $hx_exports.Splitpane = function() { };
-$hxClasses["core.Splitpane"] = core.Splitpane;
-core.Splitpane.__name__ = ["core","Splitpane"];
-core.Splitpane.createSplitPane = function() {
-	var _this = window.document;
-	core.Splitpane.panel = _this.createElement("div");
-	core.Splitpane.panel.id = "panel";
-	core.Splitpane.panel.className = "ui-layout-container";
-	var outerCenterPanel = core.Splitpane.createComponent("outer","center");
-	core.Splitpane.panel.appendChild(outerCenterPanel);
-	var middleCenterPanel = core.Splitpane.createComponent("middle","center");
-	outerCenterPanel.appendChild(middleCenterPanel);
-	var middleCenterPanelContent = core.Splitpane.createContent();
-	middleCenterPanel.appendChild(middleCenterPanelContent);
-	var middleSouthPanel = core.Splitpane.createComponent("middle","south");
-	outerCenterPanel.appendChild(middleSouthPanel);
-	var middleSouthPanelContent = core.Splitpane.createContent();
-	middleSouthPanel.appendChild(middleSouthPanelContent);
-	var outerWestPanel = core.Splitpane.createComponent("outer","west");
-	core.Splitpane.panel.appendChild(outerWestPanel);
-	var outerEastPanel = core.Splitpane.createComponent("outer","east");
-	core.Splitpane.panel.appendChild(outerEastPanel);
-	core.Splitpane.components.push(outerWestPanel);
-	core.Splitpane.components.push(middleCenterPanelContent);
-	core.Splitpane.components.push(middleSouthPanelContent);
-	core.Splitpane.components.push(outerEastPanel);
-	window.document.body.appendChild(core.Splitpane.panel);
-};
-core.Splitpane.activateSplitpane = function() {
-	var layoutSettings = { center__paneSelector : ".outer-center", west__paneSelector : ".outer-west", west__size : 120, east__paneSelector : ".outer-east", east__size : 120, spacing_open : 8, spacing_closed : 12, center__childOptions : { center__paneSelector : ".middle-center", south__paneSelector : ".middle-south", south__size : 100, spacing_open : 8, spacing_closed : 12}};
-	core.Splitpane.layout = $("#panel").layout(layoutSettings);
-	var timer = new haxe.Timer(250);
-	timer.run = function() {
-		var treeWell = window.document.getElementById("tree-well");
-		if(treeWell != null) {
-			if(treeWell.clientHeight < 250 || treeWell.clientWidth < 80) {
-				core.Splitpane.layout.resizeAll();
-				new $(window).trigger("resize");
-				console.log("layout.resizeAll()");
-			} else timer.stop();
-		}
-	};
-};
-core.Splitpane.activateStatePreserving = function() {
-	var localStorage = js.Browser.getLocalStorage();
-	var $window = nodejs.webkit.Window.get();
-	$window.on("close",function(e) {
-		var stateString = js.Node.stringify(core.Splitpane.layout.readState());
-		localStorage.setItem("state",stateString);
-		$window.close();
-	});
-	var state = localStorage.getItem("state");
-	if(state != null) core.Splitpane.layout.loadState(js.Node.parse(state));
-};
-core.Splitpane.createComponent = function(layout,side) {
-	var component;
-	var _this = window.document;
-	component = _this.createElement("div");
-	component.className = layout + "-" + side + " " + "ui-layout-" + side;
-	return component;
-};
-core.Splitpane.createContent = function() {
-	var content;
-	var _this = window.document;
-	content = _this.createElement("div");
-	content.className = "ui-layout-content";
-	return content;
-};
 core.ToggleFullscreen = function() { };
 $hxClasses["core.ToggleFullscreen"] = core.ToggleFullscreen;
 core.ToggleFullscreen.__name__ = ["core","ToggleFullscreen"];
@@ -2697,8 +2628,8 @@ filetree.ContextMenu.createContextMenu = function() {
 		}
 		ev.preventDefault();
 		contextMenu.style.display = "block";
-		contextMenu.style.left = "" + ev.pageX + "px";
-		contextMenu.style.top = "" + ev.pageY + "px";
+		contextMenu.style.left = (ev.pageX == null?"null":"" + ev.pageX) + "px";
+		contextMenu.style.top = (ev.pageY == null?"null":"" + ev.pageY) + "px";
 		return false;
 	});
 };
@@ -2724,8 +2655,6 @@ filetree.FileTree = $hx_exports.filetree.FileTree = function() { };
 $hxClasses["filetree.FileTree"] = filetree.FileTree;
 filetree.FileTree.__name__ = ["filetree","FileTree"];
 filetree.FileTree.init = function() {
-	var splitPaneComponent;
-	splitPaneComponent = js.Boot.__cast(core.Splitpane.components[0] , HTMLDivElement);
 	var _this = window.document;
 	filetree.FileTree.treeWell = _this.createElement("div");
 	filetree.FileTree.treeWell.id = "tree-well";
@@ -2736,7 +2665,7 @@ filetree.FileTree.init = function() {
 	tree.className = "nav nav-list";
 	tree.id = "tree";
 	filetree.FileTree.treeWell.appendChild(tree);
-	splitPaneComponent.appendChild(filetree.FileTree.treeWell);
+	new $("#filetree").append(filetree.FileTree.treeWell);
 	filetree.FileTree.load("HIDE","../");
 	filetree.ContextMenu.createContextMenu();
 };
@@ -2895,15 +2824,15 @@ haxe.Serializer.prototype = {
 		var x = this.shash.get(s);
 		if(x != null) {
 			this.buf.b += "R";
-			this.buf.b += "" + x;
+			if(x == null) this.buf.b += "null"; else this.buf.b += "" + x;
 			return;
 		}
 		this.shash.set(s,this.scount++);
 		this.buf.b += "y";
 		s = encodeURIComponent(s);
-		this.buf.b += "" + s.length;
+		if(s.length == null) this.buf.b += "null"; else this.buf.b += "" + s.length;
 		this.buf.b += ":";
-		this.buf.b += s;
+		if(s == null) this.buf.b += "null"; else this.buf.b += "" + s;
 	}
 	,serializeRef: function(v) {
 		var vt = typeof(v);
@@ -2914,7 +2843,7 @@ haxe.Serializer.prototype = {
 			var ci = this.cache[i];
 			if(typeof(ci) == vt && ci == v) {
 				this.buf.b += "r";
-				this.buf.b += "" + i;
+				if(i == null) this.buf.b += "null"; else this.buf.b += "" + i;
 				return true;
 			}
 		}
@@ -2946,13 +2875,13 @@ haxe.Serializer.prototype = {
 					return;
 				}
 				this.buf.b += "i";
-				this.buf.b += "" + v1;
+				if(v1 == null) this.buf.b += "null"; else this.buf.b += "" + v1;
 				break;
 			case 2:
 				var v2 = v;
 				if(Math.isNaN(v2)) this.buf.b += "k"; else if(!Math.isFinite(v2)) if(v2 < 0) this.buf.b += "m"; else this.buf.b += "p"; else {
 					this.buf.b += "d";
-					this.buf.b += "" + v2;
+					if(v2 == null) this.buf.b += "null"; else this.buf.b += "" + v2;
 				}
 				break;
 			case 3:
@@ -2977,7 +2906,7 @@ haxe.Serializer.prototype = {
 							if(ucount > 0) {
 								if(ucount == 1) this.buf.b += "n"; else {
 									this.buf.b += "u";
-									this.buf.b += "" + ucount;
+									if(ucount == null) this.buf.b += "null"; else this.buf.b += "" + ucount;
 								}
 								ucount = 0;
 							}
@@ -2987,7 +2916,7 @@ haxe.Serializer.prototype = {
 					if(ucount > 0) {
 						if(ucount == 1) this.buf.b += "n"; else {
 							this.buf.b += "u";
-							this.buf.b += "" + ucount;
+							if(ucount == null) this.buf.b += "null"; else this.buf.b += "" + ucount;
 						}
 					}
 					this.buf.b += "h";
@@ -3025,7 +2954,7 @@ haxe.Serializer.prototype = {
 					while( $it2.hasNext() ) {
 						var k1 = $it2.next();
 						this.buf.b += ":";
-						this.buf.b += "" + k1;
+						if(k1 == null) this.buf.b += "null"; else this.buf.b += "" + k1;
 						this.serialize(v5.get(k1));
 					}
 					this.buf.b += "h";
@@ -3072,9 +3001,9 @@ haxe.Serializer.prototype = {
 					}
 					var chars = charsBuf.b;
 					this.buf.b += "s";
-					this.buf.b += "" + chars.length;
+					if(chars.length == null) this.buf.b += "null"; else this.buf.b += "" + chars.length;
 					this.buf.b += ":";
-					this.buf.b += chars;
+					if(chars == null) this.buf.b += "null"; else this.buf.b += "" + chars;
 					break;
 				default:
 					if(this.useCache) this.cache.pop();
@@ -3111,7 +3040,7 @@ haxe.Serializer.prototype = {
 				} else this.serializeString(v[0]);
 				this.buf.b += ":";
 				var l1 = v.length;
-				this.buf.b += "" + (l1 - 2);
+				this.buf.b += Std.string(l1 - 2);
 				var _g11 = 2;
 				while(_g11 < l1) {
 					var i3 = _g11++;
@@ -4524,7 +4453,7 @@ haxe.xml.Parser.doParse = function(str,p,parent) {
 					var i;
 					if(s.charCodeAt(1) == 120) i = Std.parseInt("0" + HxOverrides.substr(s,1,s.length - 1)); else i = Std.parseInt(HxOverrides.substr(s,1,s.length - 1));
 					buf.add(String.fromCharCode(i));
-				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += "&" + s + ";"; else buf.add(haxe.xml.Parser.escapes.get(s));
+				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += Std.string("&" + s + ";"); else buf.add(haxe.xml.Parser.escapes.get(s));
 				start = p + 1;
 				state = next;
 			}
@@ -4830,7 +4759,7 @@ hxparse.Lexer.prototype = {
 		var lastMatchPos = this.pos;
 		var start = this.pos;
 		while(true) {
-			if(state.final > -1) {
+			if(state["final"] > -1) {
 				lastMatch = state;
 				lastMatchPos = this.pos;
 			}
@@ -4845,8 +4774,8 @@ hxparse.Lexer.prototype = {
 		}
 		this.pos = lastMatchPos;
 		this.current = byte.js._ByteData.ByteData_Impl_.readString(this.input,start,this.pos - start);
-		if(lastMatch == null || lastMatch.final == -1) throw new hxparse.UnexpectedChar(String.fromCharCode(this.input[this.pos]),new hxparse.Position(this.source,this.pos - this.current.length,this.pos));
-		return ruleset.functions[lastMatch.final](this);
+		if(lastMatch == null || lastMatch["final"] == -1) throw new hxparse.UnexpectedChar(String.fromCharCode(this.input[this.pos]),new hxparse.Position(this.source,this.pos - this.current.length,this.pos));
+		return ruleset.functions[lastMatch["final"]](this);
 	}
 	,__class__: hxparse.Lexer
 };
@@ -5075,7 +5004,7 @@ hxparse.LexEngine.prototype = {
 		while(_g1 < nodes.length) {
 			var n = nodes[_g1];
 			++_g1;
-			buf.b += "" + n.id;
+			if(n.id == null) buf.b += "null"; else buf.b += "" + n.id;
 			buf.b += "-";
 		}
 		var key = buf.b;
@@ -5114,13 +5043,13 @@ hxparse.LexEngine.prototype = {
 					var n1 = nodes[_g31];
 					++_g31;
 					if(n1 == f) {
-						s.final = n1.pid;
+						s["final"] = n1.pid;
 						return;
 					}
 				}
 			}
 		};
-		if(s.final == -1) setFinal();
+		if(s["final"] == -1) setFinal();
 		return s;
 	}
 	,getTransitions: function(nodes) {
@@ -5222,43 +5151,43 @@ hxparse.LexEngine.prototype = {
 		}
 		return nodes;
 	}
-	,initNode: function(p,final,pid) {
+	,initNode: function(p,$final,pid) {
 		switch(p[1]) {
 		case 0:
-			return final;
+			return $final;
 		case 1:
 			var c = p[2];
 			var n = new hxparse._LexEngine.Node(this.uid++,pid);
-			n.trans.push({ chars : c, n : final});
+			n.trans.push({ chars : c, n : $final});
 			return n;
 		case 2:
 			var p1 = p[2];
 			var n1 = new hxparse._LexEngine.Node(this.uid++,pid);
 			var an = this.initNode(p1,n1,pid);
 			n1.epsilon.push(an);
-			n1.epsilon.push(final);
+			n1.epsilon.push($final);
 			return n1;
 		case 3:
 			var p2 = p[2];
 			var n2 = new hxparse._LexEngine.Node(this.uid++,pid);
 			var an1 = this.initNode(p2,n2,pid);
 			n2.epsilon.push(an1);
-			n2.epsilon.push(final);
+			n2.epsilon.push($final);
 			return an1;
 		case 4:
 			var b = p[3];
 			var a = p[2];
-			return this.initNode(a,this.initNode(b,final,pid),pid);
+			return this.initNode(a,this.initNode(b,$final,pid),pid);
 		case 5:
 			var b1 = p[3];
 			var a1 = p[2];
 			var n3 = new hxparse._LexEngine.Node(this.uid++,pid);
-			n3.epsilon.push(this.initNode(a1,final,pid));
-			n3.epsilon.push(this.initNode(b1,final,pid));
+			n3.epsilon.push(this.initNode(a1,$final,pid));
+			n3.epsilon.push(this.initNode(b1,$final,pid));
 			return n3;
 		case 6:
 			var p3 = p[2];
-			return this.initNode(p3,final,pid);
+			return this.initNode(p3,$final,pid);
 		}
 	}
 	,__class__: hxparse.LexEngine
@@ -5536,7 +5465,7 @@ hxparse.ParserBuilder = function() { };
 $hxClasses["hxparse.ParserBuilder"] = hxparse.ParserBuilder;
 hxparse.ParserBuilder.__name__ = ["hxparse","ParserBuilder"];
 haxeparser.HaxeParser = function(input,sourceName) {
-	this.doResume = true;
+	this.doResume = false;
 	hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token.call(this,new haxeparser.HaxeLexer(input,sourceName),haxeparser.HaxeLexer.tok);
 	this.mstack = [];
 	this.defines = new haxe.ds.StringMap();
@@ -10068,7 +9997,7 @@ haxeprinter.Printer.prototype = {
 		if(this.config.indent_with_tabs) this.indent = StringTools.lpad("","\t",this.indentLevel); else this.indent = StringTools.lpad(""," ",this.indentLevel * this.config.tab_width | 0);
 	}
 	,newline: function() {
-		this.buf.b += this.line.b + "\n";
+		this.buf.b += Std.string(this.line.b + "\n");
 		this.line = new StringBuf();
 		this.col = 0;
 		this.lineLen = 0;
@@ -10076,19 +10005,19 @@ haxeprinter.Printer.prototype = {
 	,print: function(s,style) {
 		if(style == null) style = haxeprinter.Style.SNormal;
 		this.lineLen += s.length;
-		this.line.b += s;
+		if(s == null) this.line.b += "null"; else this.line.b += "" + s;
 	}
 	,breakPoint: function(force) {
 		if(force == null) force = false;
 		if(this.col > 0 && (force || this.col + this.lineLen > this.config.maximum_line_length)) {
 			this.buf.b += "\n";
 			this.setIndent(this.indentLevel + 1);
-			this.buf.b += this.indent;
+			this.buf.b += Std.string(this.indent);
 			this.col = this.indent.length;
 			this.setIndent(this.indentLevel - 1);
 		}
 		this.col += this.lineLen;
-		this.buf.b += this.line.b;
+		this.buf.b += Std.string(this.line.b);
 		this.line = new StringBuf();
 		this.lineLen = 0;
 	}
@@ -10804,7 +10733,7 @@ hxparse.NoMatch.prototype = {
 	,__class__: hxparse.NoMatch
 };
 hxparse.State = function() {
-	this.final = -1;
+	this["final"] = -1;
 	var this1;
 	this1 = new Array(256);
 	this.trans = this1;
@@ -10826,15 +10755,15 @@ hxparse.Unexpected.prototype = {
 	}
 	,__class__: hxparse.Unexpected
 };
-hxparse.UnexpectedChar = function(char,pos) {
-	this.char = char;
+hxparse.UnexpectedChar = function($char,pos) {
+	this["char"] = $char;
 	this.pos = pos;
 };
 $hxClasses["hxparse.UnexpectedChar"] = hxparse.UnexpectedChar;
 hxparse.UnexpectedChar.__name__ = ["hxparse","UnexpectedChar"];
 hxparse.UnexpectedChar.prototype = {
 	toString: function() {
-		return "" + Std.string(this.pos) + ": Unexpected " + this.char;
+		return "" + Std.string(this.pos) + ": Unexpected " + this["char"];
 	}
 	,__class__: hxparse.UnexpectedChar
 };
@@ -10952,7 +10881,7 @@ menu.MenuButtonItem = function(_menu,_text,_onClickFunction,_hotkey) {
 	var _this = window.document;
 	span = _this.createElement("span");
 	span.style.color = "silver";
-	span.style.float = "right";
+	span.style["float"] = "right";
 	core.Hotkeys.add(menuItem,hotkeyText,span,_onClickFunction);
 	var _this1 = window.document;
 	this.li = _this1.createElement("li");
@@ -11019,7 +10948,7 @@ menu.Submenu = $hx_exports.ui.menu.basic.Submenu = function(_parentMenu,_name) {
 		var menu = _g.ul;
 		var newpos;
 		if(menu.offsetLeft + menu.clientWidth + 30 > window.innerWidth) newpos = -menu.clientWidth; else newpos = li2.clientWidth;
-		menu.style.left = "" + newpos + "px";
+		menu.style.left = (newpos == null?"null":"" + newpos) + "px";
 	};
 	li2.appendChild(a2);
 	this.ul.classList.add("dropdown-menu");
@@ -11476,14 +11405,14 @@ newprojectdialog.NewProjectDialog.addCategoryToDocument = function(category) {
 	}
 };
 newprojectdialog.NewProjectDialog.generateFolderName = function(path,folder,n,onGenerated) {
-	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + ("" + n)),function(exists) {
+	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + (n == null?"null":"" + n)),function(exists) {
 		if(exists) newprojectdialog.NewProjectDialog.generateFolderName(path,folder,n + 1,onGenerated); else {
-			newprojectdialog.NewProjectDialog.projectName.value = folder + ("" + n);
+			newprojectdialog.NewProjectDialog.projectName.value = folder + (n == null?"null":"" + n);
 			newprojectdialog.NewProjectDialog.updateHelpBlock();
 			if(onGenerated != null) onGenerated();
 		}
 	}); else {
-		newprojectdialog.NewProjectDialog.projectName.value = folder + ("" + n);
+		newprojectdialog.NewProjectDialog.projectName.value = folder + (n == null?"null":"" + n);
 		newprojectdialog.NewProjectDialog.updateHelpBlock();
 	}
 };
@@ -11512,7 +11441,7 @@ newprojectdialog.NewProjectDialog.createPage1 = function() {
 	well = _this1.createElement("div");
 	well.id = "new-project-dialog-well";
 	well.className = "well";
-	well.style.float = "left";
+	well.style["float"] = "left";
 	well.style.width = "50%";
 	well.style.height = "250px";
 	well.style.marginBottom = "0";
@@ -11522,7 +11451,7 @@ newprojectdialog.NewProjectDialog.createPage1 = function() {
 	newprojectdialog.NewProjectDialog.tree.className = "nav nav-list";
 	well.appendChild(newprojectdialog.NewProjectDialog.tree);
 	newprojectdialog.NewProjectDialog.list = newprojectdialog.NewProjectDialog.createList();
-	newprojectdialog.NewProjectDialog.list.style.float = "left";
+	newprojectdialog.NewProjectDialog.list.style["float"] = "left";
 	newprojectdialog.NewProjectDialog.list.style.width = "50%";
 	newprojectdialog.NewProjectDialog.list.style.height = "250px";
 	newprojectdialog.NewProjectDialog.page1.appendChild(newprojectdialog.NewProjectDialog.list);
@@ -11821,7 +11750,7 @@ openflproject.CreateOpenFLProject.createOpenFLProject = function(params,path,onC
 		console.log(stderr);
 	});
 	OpenFLTools.on("close",function(code) {
-		console.log("exit code: " + ("" + code));
+		console.log("exit code: " + (code == null?"null":"" + code));
 		if(code == 0 && onComplete != null) onComplete();
 	});
 };
@@ -11909,7 +11838,7 @@ openflproject.OpenFLTools.getParams = function(path,target,onLoaded) {
 	openFLTools.on("close",function(code) {
 		console.log("OpenFL tools process exit code " + code);
 		var textarea;
-		textarea = js.Boot.__cast(window.document.getElementById("output") , HTMLTextAreaElement);
+		textarea = js.Boot.__cast(window.document.getElementById("outputTextArea") , HTMLTextAreaElement);
 		textarea.value += "OUTPUT: " + openflproject.OpenFLTools.processStdout;
 		if(openflproject.OpenFLTools.processStderr != "") textarea.value += "ERROR: " + openflproject.OpenFLTools.processStderr;
 		if(code == 0) {
@@ -12227,7 +12156,7 @@ projectaccess.ProjectOptions.create = function() {
 	}(this)));
 	page.appendChild(projectaccess.ProjectOptions.runActionTextAreaDescription);
 	page.appendChild(projectaccess.ProjectOptions.actionTextArea);
-	core.Splitpane.components[3].appendChild(page);
+	new $("#options").append(page);
 };
 projectaccess.ProjectOptions.getProjectArguments = function() {
 	return projectaccess.ProjectOptions.textarea.value;
@@ -12362,7 +12291,7 @@ tabmanager.TabManager.init = function() {
 	};
 	tabmanager.TabManagerContextMenu.createContextMenu();
 	tabmanager.TabManager.docs = [];
-	core.Splitpane.components[1].appendChild(tabmanager.TabManager.tabs);
+	new $("#editor").append(tabmanager.TabManager.tabs);
 };
 tabmanager.TabManager.createNewTab = function(name,path) {
 	var li;
@@ -12667,8 +12596,8 @@ tabmanager.TabManagerContextMenu.createContextMenu = function() {
 			li2 = js.Boot.__cast(ev.target , HTMLLIElement);
 			contextMenu.setAttribute("path",li2.getAttribute("path"));
 			contextMenu.style.display = "block";
-			contextMenu.style.left = "" + ev.pageX + "px";
-			contextMenu.style.top = "" + ev.pageY + "px";
+			contextMenu.style.left = (ev.pageX == null?"null":"" + ev.pageX) + "px";
+			contextMenu.style.top = (ev.pageY == null?"null":"" + ev.pageY) + "px";
 		}
 		return false;
 	});
@@ -13080,7 +13009,6 @@ core.Hotkeys.commandMap = new haxe.ds.StringMap();
 core.Hotkeys.spanMap = new haxe.ds.StringMap();
 core.PreserveWindowState.isMaximizationEvent = false;
 core.PreserveWindowState.window = nodejs.webkit.Window.get();
-core.Splitpane.components = new Array();
 core.Utils.WINDOWS = 0;
 core.Utils.LINUX = 1;
 core.Utils.OTHER = 2;
@@ -13349,7 +13277,7 @@ haxeparser.HaxeLexer.string = hxparse.Lexer.buildRuleset([{ rule : "\\\\\\\\", f
 }},{ rule : "\"", func : function(lexer5) {
 	return new hxparse.Position(lexer5.source,lexer5.pos - lexer5.current.length,lexer5.pos).pmax;
 }},{ rule : "[^\\\\\"]+", func : function(lexer6) {
-	haxeparser.HaxeLexer.buf.b += lexer6.current;
+	if(lexer6.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer6.current;
 	return lexer6.token(haxeparser.HaxeLexer.string);
 }}]);
 haxeparser.HaxeLexer.string2 = hxparse.Lexer.buildRuleset([{ rule : "\\\\\\\\", func : function(lexer) {
@@ -13370,7 +13298,7 @@ haxeparser.HaxeLexer.string2 = hxparse.Lexer.buildRuleset([{ rule : "\\\\\\\\", 
 }},{ rule : "'", func : function(lexer5) {
 	return new hxparse.Position(lexer5.source,lexer5.pos - lexer5.current.length,lexer5.pos).pmax;
 }},{ rule : "[^\\\\']+", func : function(lexer6) {
-	haxeparser.HaxeLexer.buf.b += lexer6.current;
+	if(lexer6.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer6.current;
 	return lexer6.token(haxeparser.HaxeLexer.string2);
 }}]);
 haxeparser.HaxeLexer.comment = hxparse.Lexer.buildRuleset([{ rule : "*/", func : function(lexer) {
@@ -13379,7 +13307,7 @@ haxeparser.HaxeLexer.comment = hxparse.Lexer.buildRuleset([{ rule : "*/", func :
 	haxeparser.HaxeLexer.buf.b += "*";
 	return lexer1.token(haxeparser.HaxeLexer.comment);
 }},{ rule : "[^\\*]", func : function(lexer2) {
-	haxeparser.HaxeLexer.buf.b += lexer2.current;
+	if(lexer2.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer2.current;
 	return lexer2.token(haxeparser.HaxeLexer.comment);
 }}]);
 haxeparser.HaxeLexer.regexp = hxparse.Lexer.buildRuleset([{ rule : "\\\\/", func : function(lexer) {
@@ -13395,15 +13323,15 @@ haxeparser.HaxeLexer.regexp = hxparse.Lexer.buildRuleset([{ rule : "\\\\/", func
 	haxeparser.HaxeLexer.buf.b += "\t";
 	return lexer3.token(haxeparser.HaxeLexer.regexp);
 }},{ rule : "\\\\[\\$\\.*+\\^|{}\\[\\]()?\\-0-9]", func : function(lexer4) {
-	haxeparser.HaxeLexer.buf.b += lexer4.current;
+	if(lexer4.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer4.current;
 	return lexer4.token(haxeparser.HaxeLexer.regexp);
 }},{ rule : "\\\\[wWbBsSdDx]", func : function(lexer5) {
-	haxeparser.HaxeLexer.buf.b += lexer5.current;
+	if(lexer5.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer5.current;
 	return lexer5.token(haxeparser.HaxeLexer.regexp);
 }},{ rule : "/", func : function(lexer6) {
 	return lexer6.token(haxeparser.HaxeLexer.regexp_options);
 }},{ rule : "[^\\\\/\r\n]+", func : function(lexer7) {
-	haxeparser.HaxeLexer.buf.b += lexer7.current;
+	if(lexer7.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer7.current;
 	return lexer7.token(haxeparser.HaxeLexer.regexp);
 }}]);
 haxeparser.HaxeLexer.regexp_options = hxparse.Lexer.buildRuleset([{ rule : "[gimsu]*", func : function(lexer) {
@@ -13429,5 +13357,3 @@ projectaccess.Project.COMMAND = 2;
 projectaccess.ProjectAccess.currentProject = new projectaccess.Project();
 Main.main();
 })(typeof window != "undefined" ? window : exports);
-
-//# sourceMappingURL=HIDE.js.map

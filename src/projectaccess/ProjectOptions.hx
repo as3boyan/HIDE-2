@@ -1,5 +1,4 @@
 package projectaccess;
-import core.Splitpane;
 import js.Browser;
 import js.html.DivElement;
 import js.html.OptionElement;
@@ -153,7 +152,7 @@ import js.html.TextAreaElement;
 		page.appendChild(runActionTextAreaDescription);
 		page.appendChild(actionTextArea);
 		
-		Splitpane.components[3].appendChild(page);
+		new jQuery.JQuery("#options").append(page);
 	}
 	
 	public static function getProjectArguments():String

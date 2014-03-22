@@ -27,7 +27,7 @@ import js.html.TextAreaElement;
 		{
 			trace('OpenFL tools process exit code ' + code);
 			
-			var textarea = cast(Browser.document.getElementById("output"), TextAreaElement);
+			var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
 			textarea.value += "OUTPUT: " + processStdout;
 			
 			if (processStderr != "")

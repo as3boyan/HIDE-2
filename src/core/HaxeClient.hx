@@ -15,7 +15,7 @@ import tabmanager.TabManager;
 {	
 	public static function buildProject(command:String, ?onComplete:Dynamic):Void
 	{		
-		var textarea = cast(Browser.document.getElementById("output"), TextAreaElement);
+		var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
 		textarea.value = "Build started\n";
 		textarea.value += command + "\n";
 		
@@ -79,6 +79,8 @@ import tabmanager.TabManager;
 						}
 					}
 				}
+                                                                                     
+				cm.CodeMirrorEditor.editor.setOption("lint", "true");                                                                                     
 				
 				textarea.value += "stderr:\n" + stderr;
 				trace("stderr:\n" + stderr);

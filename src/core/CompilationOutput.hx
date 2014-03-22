@@ -11,10 +11,10 @@ class CompilationOutput
 	public static function load():Void
 	{		
 		var output:TextAreaElement = Browser.document.createTextAreaElement();
-		output.id = "output";
+		output.id = "outputTextArea";
 		output.readOnly = true;
 		
-		Splitpane.components[2].appendChild(output);
+		new jQuery.JQuery("#output").append(output);
 	}
 	
 }

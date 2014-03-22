@@ -16,6 +16,8 @@
 * CHANGED: renamed config.json to hotkeys.json
 * CHANGED: Project options panel: show run action option for hxml projects
 * CHANGED: check if run action url/file/command is empty
+* CHANGED: replaced jQuery layout plugin with jQWidget splitter
+* CHANGED: project options panel moved to tab
 * ADDED: Help: changelog command
 * ADDED: Options: Open editor configuration file command
 * ADDED: Help: Show code editor key bindings
@@ -26,6 +28,7 @@
 * ADDED: restore open tabs
 * ADDED: Select last active tab when restoring open tabs
 * ADDED: check document extension before showing function parameters/completion/linting
+* ADDED: Results and Options tabs
 * UPDATED: CodeMirror to v4
 
 0.3.3

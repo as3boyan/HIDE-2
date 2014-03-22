@@ -2,7 +2,6 @@ package tabmanager;
 import cm.CMDoc;
 import cm.CodeMirrorEditor;
 import core.FileDialog;
-import core.Splitpane;
 import haxe.Timer;
 import js.Browser;
 import js.html.AnchorElement;
@@ -61,7 +60,7 @@ import projectaccess.ProjectAccess;
 		
 		docs = [];
 		
-		Splitpane.components[1].appendChild(tabs);
+		new jQuery.JQuery("#editor").append(tabs);
 	}
 	
 	public static function createNewTab(name:String, path:String):Void
@@ -285,33 +284,6 @@ import projectaccess.ProjectAccess;
 		saveActiveFile(function ()
 		{
 			closeTab(curDoc.path);
-			
-			//var n = -1;
-		//
-			//if (curDoc != null)
-			//{
-				//n = Lambda.indexOf(docs, curDoc);
-			//}	
-			//
-			//if (n != -1)
-			//{
-				//docs.splice(n, 1);
-				//cast(tabs.children.item(n), Element).remove();
-				//
-				//if (docs.length > 0)
-				//{
-					//showPreviousTab();
-				//}
-				//else 
-				//{
-					//if (CodeMirrorEditor.editor != null)
-					//{
-						//CodeMirrorEditor.editor.getWrapperElement().style.display = "none";
-					//}
-					//
-					//curDoc = null;
-				//}
-			//}
 		}
 		);
 	}
