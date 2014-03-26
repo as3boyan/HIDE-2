@@ -12,7 +12,7 @@ package core;
 		
 		bootboxStatic.prompt(
 		{
-		  title: question,
+		  title: LocaleWatcher.getStringSync(question),
 		  value: defaultValue,
 		  callback: function(result) {
 			if (result != null) 

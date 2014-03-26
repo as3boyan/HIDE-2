@@ -49,7 +49,8 @@ interface MenuItem
 		
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.style.left = "0";
-		a.setAttribute("text", _text);
+		a.textContent = core.LocaleWatcher.getStringSync(_text);
+		a.setAttribute("localeString", _text);
 		
 		if (_onClickFunction != null) 
 		{
@@ -187,7 +188,8 @@ interface MenuItem
 		a.href = "#";
 		a.className = "dropdown-toggle";
 		a.setAttribute("data-toggle", "dropdown");
-		a.innerText = _text;
+		a.innerText = core.LocaleWatcher.getStringSync(_text);
+		a.setAttribute("localeString", _text);
 		li.appendChild(a);
 		
 		ul = Browser.document.createUListElement();

@@ -2,28 +2,32 @@
 -cp externs/codemirror
 -js ./bin/HIDE.js
 -main Main
--lib nodejs
 -lib jQueryExtern
 -lib hxparse
--lib haxeparser
--lib tjson  
+-lib tjson
+-lib mustache
+-cp libs/nodejs-std/src
+-cp libs/haxeparser-master/src
 -cp libs/haxeprinter/src
 -resource libs/haxeprinter/res/config.json@config
 -D noStyle
+-D source-map-content
 -dce full
 core.Bootbox
-core.HaxeClient
+core.ProcessHelper
 openflproject.OpenFLTools
 --next
 -cp src
--main Run
--neko run.n
+-main tools.Run
+-neko bin/run.n
 -debug
 -dce full
 --next
--lib nodejs
 -cp src
+-cp libs/nodejs-std/src
+-lib tjson
 -main about.Presentation
 -js bin/Presentation.js
 -dce full
+-D source-map-content
 --times

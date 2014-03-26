@@ -3,6 +3,7 @@ import cm.CodeMirrorEditor;
 import CodeMirror;
 import haxe.ds.StringMap.StringMap;
 import haxe.xml.Fast;
+import parser.ClassParser;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
 import tabmanager.TabManager;
@@ -56,26 +57,26 @@ class Completion
 			list = new Array();
 			seen = new StringMap();
 			
-			var cmPos:Dynamic = untyped __js__("CodeMirror.Pos");
-			
 			for (completion in completions) 
 			{
 				list.push(completion.n);
 			}
 			
-			if (list.length == 0) 
-			{
-				scan(cm, -1);
-				scan(cm, 1);
-			}
+			//if (list.length == 0) 
+			//{
+				//scan(cm, -1);
+				//scan(cm, 1);
+			//}
+			
+			list = list.concat(ClassParser.classList);
 			
 			filterCompletion();
 			
-			return {list: list, from: cmPos(cur.line, start), to: cmPos(cur.line, end)};
+			return {list: list, from: CodeMirrorPos.from(cur.line, start), to: CodeMirrorPos.from(cur.line, end)};
 		});
 	}
 	
-	public static function getCurrentWord(cm:CodeMirror, ?options:Dynamic):String
+	public static function getCurrentWord(cm:CodeMirror, ?options:Dynamic, ?pos:Pos):String
 	{
 		if (options != null && options.word != null)
 		{
@@ -84,6 +85,11 @@ class Completion
 		else if (WORD != null)
 		{
 			word = WORD;
+		}
+		
+		if (pos != null) 
+		{
+			cur = pos;
 		}
 		
 		var curLine:String = cm.getLine(cur.line);
@@ -159,15 +165,14 @@ class Completion
 		
 		if (curWord != null) 
 		{
-			var c = untyped __js__("CodeMirror.Pos");
-			cur = c(cur.line, start);
+			cur = CodeMirrorPos.from(cur.line, start);
 		}
 		
 		projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(cm.indexFromPos(cur)));
 		
 		Completion.completions = [];
 		
-		HaxeCompletionClient.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments), function (stderr:String)
+		ProcessHelper.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments), function (stdout:String, stderr:String)
 		{
 			var xml:Xml = Xml.parse(stderr);
 			
@@ -228,7 +233,7 @@ class Completion
 			
 			onComplete();
 		}, 
-		function (code:Int, stderr:String)
+		function (code:Int, stdout:String, stderr:String)
 		{
 			trace(code);
 			trace(stderr);

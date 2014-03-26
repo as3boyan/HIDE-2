@@ -37,8 +37,9 @@ import js.html.Element;
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.className = "navbar-brand";
 		a.href = "#";
-		a.innerText = "HIDE";
-			
+		a.innerText = core.LocaleWatcher.getStringSync("HIDE");
+		a.setAttribute("localeString", "HIDE");
+		
 		navbarHeader.appendChild(a);
 			
 		var div:DivElement = Browser.document.createDivElement();

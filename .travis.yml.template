@@ -17,7 +17,7 @@ before_script:
 
 script:
   - haxe HIDE.hxml
-::plugins::
+{{plugins}}
 
 notifications:
     email: false

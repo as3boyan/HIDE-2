@@ -12,7 +12,7 @@ import js.html.DivElement;
 
 @:keepSub @:expose class Alerts
 {	
-	public static function showAlert(text:String):Void
+	public static function showAlert(text:String, ?duration:Int = 1500):Void
 	{        
 		var div:DivElement = Browser.document.createDivElement();
 		div.className = "alert alert-success alert-dismissable";
@@ -25,7 +25,7 @@ import js.html.DivElement;
 		button.innerHTML = "&times;";
 		
 		div.appendChild(button);
-		div.appendChild(Browser.document.createTextNode(text));
+		div.appendChild(Browser.document.createTextNode(LocaleWatcher.getStringSync(text)));
 		
 		Browser.document.body.appendChild(div);
 		
@@ -43,6 +43,6 @@ import js.html.DivElement;
 				});
 			}
 		}
-		, 1500);
+		, duration);
 	}
 }

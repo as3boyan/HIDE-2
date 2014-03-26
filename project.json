@@ -3,14 +3,13 @@
 
     ]
     ,"files" : [
-         "src\\Main.hx"
-        ,"src\\core\\HaxeParserProvider.hx"
+         "HIDE.hxml"
+        ,"src\\HIDE.hx"
     ]
     ,"name" : "\\HIDE"
     ,"type" : 2
-    ,"path" : "/home/as3boyan/HIDE"
+    ,"path" : "d:\\Denis\\PortableSoft\\HIDE"
     ,"main" : "HIDE.hxml"
-    ,"runActionType" : 2
-    ,"activeFile" : "HIDE.hxml"
-    ,"runActionText" : "haxelib run node-webkit"
+    ,"runActionType" : 0
+    ,"activeFile" : "src\\HIDE.hx"
 }

@@ -19,10 +19,10 @@ import tabmanager.TabManager;
 
 /**
  * ...
- * @author 
+ * @author
  */
 
-enum FunctionScopeType 
+enum FunctionScopeType
 {
 	SClass;
 	SStatic;
@@ -70,14 +70,14 @@ class HaxeParserProvider
 							}
 						}
 					case FVar(t, e):
-						trace(e);
+						//trace(e);
 						currentFunctionScopeType = SClass;
 					case FProp(get, set, t, e):
 						currentFunctionScopeType = SClass;
 				}
 				
-				trace(type.data[i].name);
-				trace(currentFunctionScopeType);
+				//trace(type.data[i].name);
+				//trace(currentFunctionScopeType);
 				found = true;
 				break;
 			}
@@ -88,7 +88,7 @@ class HaxeParserProvider
 	
 	static function processExpression(expr:haxe.macro.ExprDef, pos:Int):Bool 
 	{
-		trace(expr);
+		//trace(expr);
 		
 		var found:Bool = false;
 		
@@ -113,7 +113,7 @@ class HaxeParserProvider
 			case EFor(it, expr):
 			case EField(e, field):
 				processExpression(e.expr, pos);
-				trace(field);
+				//trace(field);
 			case EDisplayNew(t):
 			case EDisplay(e, isCall):
 			case EContinue:
@@ -121,7 +121,7 @@ class HaxeParserProvider
 				switch (c) 
 				{
 					case CIdent(s):
-						trace(s);
+						//trace(s);
 					default:
 						
 				}
@@ -141,7 +141,7 @@ class HaxeParserProvider
 				{
 					if (pos > e.pos.max) 
 					{
-						trace(e.expr);
+						//trace(e.expr);
 					}
 					if (pos > e.pos.min && pos <= e.pos.max) 
 					{
@@ -191,7 +191,7 @@ class HaxeParserProvider
 	{
 		var cm = CodeMirrorEditor.editor;
 		var pos = cm.indexFromPos(cm.getCursor());
-		trace(pos);
+		//trace(pos);
 		
 		var doc:CMDoc = TabManager.getCurrentDocument();
 		
@@ -227,8 +227,8 @@ class HaxeParserProvider
 					currentClass = null;
 			}
 			
-			trace(classPackage);
-			trace(currentClass);
+			//trace(classPackage);
+			//trace(currentClass);
 		}
 		else 
 		{
@@ -253,11 +253,10 @@ class HaxeParserProvider
 		}
 		catch (e:NoMatch<Dynamic>) 
 		{
+			trace(e);
 			var pos =  e.pos.getLinePosition(input);
 			
-			var cmPos = untyped __js__("CodeMirror.Pos");
-			
-			var info:Info = { from: cmPos(pos.lineMin - 1, pos.posMin), to: cmPos(pos.lineMax - 1, pos.posMax), message: "Unexpected " + e.token.tok, severity: "error"};
+			var info:Info = { from: CodeMirrorPos.from(pos.lineMin - 1, pos.posMin), to: CodeMirrorPos.from(pos.lineMax - 1, pos.posMax), message: "Parser error:\nUnexpected " + e.token.tok, severity: "warning"};
 			data.push(info);
 			
 			//throw e.pos.format(input) + ": Unexpected " +e.token.tok;
@@ -267,9 +266,7 @@ class HaxeParserProvider
 			trace(e);
 			var pos =  e.pos.getLinePosition(input);
 			
-			var cmPos = untyped __js__("CodeMirror.Pos");
-			
-			var info:Info = { from: cmPos(pos.lineMin - 1, pos.posMin), to: cmPos(pos.lineMax - 1, pos.posMax), message: "Unexpected " + e.token.tok, severity: "error"};
+			var info:Info = { from: CodeMirrorPos.from(pos.lineMin - 1, pos.posMin), to: CodeMirrorPos.from(pos.lineMax - 1, pos.posMax), message: "Parser error:\nUnexpected " + e.token.tok, severity: "warning"};
 			data.push(info);
 			//trace(e.pos.format(input) + ": Unexpected " + e.token.tok);
 			//throw e.pos.format(input) + ": Unexpected " + e.token.tok;
@@ -280,21 +277,21 @@ class HaxeParserProvider
 			{		
 				var cm = CodeMirrorEditor.editor;
 				
-				var message:String = "";
+				var message:String = "Parser error:\n";
 				
 				switch (e.msg) 
 				{
 					case MissingSemicolon:
-						message = "Missing Semicolon";
+						message += "Missing Semicolon";
 					case MissingType:
-						message = "Missing Type";
+						message += "Missing Type";
 					case DuplicateDefault:
-						message = "Duplicate Default";
+						message += "Duplicate Default";
 					case Custom(s):
-						message = s;
+						message += s;
 				}
 				
-				var info:Info = { from: cm.posFromIndex(e.pos.min), to: cm.posFromIndex(e.pos.max), message: message, severity: "error"};
+				var info:Info = { from: cm.posFromIndex(e.pos.min), to: cm.posFromIndex(e.pos.max), message: message, severity: "warning"};
 				data.push(info);
 			}
 		}

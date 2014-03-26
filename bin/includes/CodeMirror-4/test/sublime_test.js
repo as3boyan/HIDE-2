@@ -111,6 +111,22 @@
          "selectLine",
          hasSel(0, 0, 2, 0));
 
+  stTest("insertLineAfter", "abcde\nfghijkl\nmn",
+         setSel(0, 1, 0, 1,
+                0, 3, 0, 3,
+                1, 2, 1, 2,
+                1, 3, 1, 5), "insertLineAfter",
+         hasSel(1, 0, 1, 0,
+                3, 0, 3, 0), val("abcde\n\nfghijkl\n\nmn"));
+
+  stTest("insertLineBefore", "abcde\nfghijkl\nmn",
+         setSel(0, 1, 0, 1,
+                0, 3, 0, 3,
+                1, 2, 1, 2,
+                1, 3, 1, 5), "insertLineBefore",
+         hasSel(0, 0, 0, 0,
+                2, 0, 2, 0), val("\nabcde\n\nfghijkl\nmn"));
+
   stTest("selectNextOccurrence", "a foo bar\nfoobar foo",
          setSel(0, 2, 0, 5),
          "selectNextOccurrence", hasSel(0, 2, 0, 5,
@@ -270,4 +286,12 @@
          Pos(0, 1), "swapWithSublimeMark", at(1, 1), "swapWithSublimeMark", at(0, 1),
          "deleteToSublimeMark", val("aef\nghi"),
          "sublimeYank", val("abc\ndef\nghi"), at(1, 1));
+
+  stTest("findUnder", "foo foobar  a",
+         "findUnder", hasSel(0, 4, 0, 7),
+         "findUnder", hasSel(0, 0, 0, 3),
+         "findUnderPrevious", hasSel(0, 4, 0, 7),
+         "findUnderPrevious", hasSel(0, 0, 0, 3),
+         Pos(0, 4), "findUnder", hasSel(0, 4, 0, 10),
+         Pos(0, 11), "findUnder", hasSel(0, 11, 0, 11));
 })();

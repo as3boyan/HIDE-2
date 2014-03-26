@@ -5,6 +5,7 @@ import js.Browser;
 import js.html.LinkElement;
 import js.html.ScriptElement;
 import js.Node;
+import mustache.Mustache;
 import nodejs.webkit.Window;
 
 /**
@@ -122,6 +123,7 @@ typedef PluginDependenciesData =
 		var data:PluginDependenciesData = { name:name, plugins:plugins, onLoaded:onLoaded, callOnLoadWhenAtLeastOnePluginLoaded:callOnLoadWhenAtLeastOnePluginLoaded };
 		requestedPluginsData.push(data);
 		checkRequiredPluginsData();
+        
 	}
 	
 	public static function notifyLoadingComplete(name:String):Void
@@ -279,7 +281,7 @@ typedef PluginDependenciesData =
 			{
 				if (data != null)
 				{
-					var updatedData:String = StringTools.replace(data,"::plugins::", Main.pluginsTestingData);
+					var updatedData:String = Mustache.render(data, {plugins: Main.pluginsTestingData});
 
 					js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
 					{

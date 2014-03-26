@@ -1,26 +1,26 @@
 package ;
 
+import jQuery.JQuery;
 import about.About;
 import autoformat.HaxePrinterLoader;
 import cm.CodeMirrorEditor;
 import cm.CodeMirrorZoom;
-import core.Changelog;
+import core.Alerts;
 import core.CompilationOutput;
 import core.Completion;
-import core.DeveloperTools;
 import core.DragAndDrop;
-import core.EditingTheme;
-import core.EditorConfiguration;
 import core.FileDialog;
 import core.HaxeLint;
 import core.HaxeParserProvider;
 import core.HaxeServer;
 import core.Hotkeys;
+import core.LocaleWatcher;
+import core.MenuCommands;
 import core.PreserveWindowState;
 import core.RunProject;
-import core.ToggleFullscreen;
+import core.SettingsWatcher;
+import core.ThemeWatcher;
 import core.Utils;
-import core.Zoom;
 import filetree.FileTree;
 import haxe.Timer;
 import haxe.Unserializer;
@@ -29,6 +29,7 @@ import js.Browser;
 import js.html.Element;
 import js.html.TextAreaElement;
 import js.Node;
+import js.node.Walkdir;
 import menu.BootstrapMenu;
 import newprojectdialog.NewProjectDialogLoader;
 import nodejs.webkit.Window;
@@ -52,32 +53,33 @@ class Main
 	static function main() 
 	{        
 		window = Window.get();
-		
-		window.show();
+		window.showDevTools();
 		
 		js.Node.process.on('uncaughtException', function (err)
 		{
 			trace(err);
-			window.showDevTools();
+			
+			//if (!window.isDevToolsOpen()) 
+			//{
+				//
+			//}
 		}
 		);
+        
+		PreserveWindowState.init();
 		
 		Hotkeys.prepare();
 		
 		Browser.window.addEventListener("load", function (e):Void
 		{
+			SettingsWatcher.load();
+			
 			Utils.prepare();
 			BootstrapMenu.createMenuBar();
 			NewProjectDialogLoader.load();
-			DeveloperTools.addToMenu();
+			MenuCommands.add();
 			CodeMirrorZoom.load();
-			ToggleFullscreen.addToMenu();
-			Zoom.addToMenu();
-			Changelog.addToMenu();
 			About.addToMenu();
-			EditorConfiguration.addToMenu();
-			EditingTheme.addToMenu();
-			PreserveWindowState.init();
 			FileTree.init();
 			ProjectOptions.create();
 			FileDialog.create();
@@ -87,7 +89,6 @@ class Main
 			CodeMirrorEditor.load();
 			
 			HaxePrinterLoader.load();
-			HaxeServer.check();
 			
 			RunProject.load();
 			
@@ -101,17 +102,17 @@ class Main
 			OpenProjectLoader.load();
 			DragAndDrop.prepare();
 			
-			//HaxeParserProvider.test();
-            
 			currentTime = Date.now().getTime();
 			
 			checkHaxeInstalled(function ()
 			{
+				HaxeServer.check();
 				loadPlugins();
 			}
 			,
 			function ()
 			{
+				Alerts.showAlert("Haxe compiler is not found");
 				loadPlugins(false);
 			}
 			);
@@ -125,16 +126,21 @@ class Main
 				w.close(true);
 			}
 			
-			window.close(true);
+			window.close();
 		}
 		);
 	}
 	
 	public static function loadPlugins(?compile:Bool = true):Void
 	{
-		var pathToPlugins:String = js.Node.path.join("..", "plugins");
-			
-		var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
+		var pathToPlugins:String = "plugins";
+		
+		if (!Node.fs.existsSync(pathToPlugins)) 
+		{
+			Node.fs.mkdirSync(pathToPlugins);
+		}
+		
+		var pathToPluginsMTime:String = "pluginsMTime.dat";
 		
 		var args:Array<String>;
 		
