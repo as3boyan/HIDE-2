@@ -63,7 +63,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.0.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 4.0.4</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -1228,9 +1228,12 @@
 
       <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
       <dd>Sets a new set of selections. There must be at least one
-      selection in the given array. When <code>primary</code> is
-      given, it determines which selection is the primary one.
-      Supports the same options as <a href="#setSelection"><code>setSelection</code></a>.</dd>
+      selection in the given array. When <code>primary</code> is a
+      number, it determines which selection is the primary one. When
+      it is not given, the primary index is taken from the previous
+      selection, or set to the last range if the previous selection
+      had less ranges than the new one. Supports the same options
+      as <a href="#setSelection"><code>setSelection</code></a>.</dd>
       <dt id="addSelection"><code><strong>doc.addSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
       <dd>Adds a new selection to the existing set of selections, and
       makes it the primary selection.</dd>
@@ -1641,9 +1644,6 @@
           <dt><code><strong>above</strong>: boolean</code></dt>
           <dd>Causes the widget to be placed above instead of below
           the text of the line.</dd>
-          <dt><code><strong>showIfHidden</strong>: boolean</code></dt>
-          <dd>When true, will cause the widget to be rendered even if
-          the line it is associated with is hidden.</dd>
           <dt><code><strong>handleMouseEvents</strong>: boolean</code></dt>
           <dd>Determines whether the editor will capture mouse and
           drag events occurring in this widget. Default is false—the

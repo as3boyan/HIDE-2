@@ -12,9 +12,7 @@ import js.html.UListElement;
  * @author AS3Boyan
  */
 class TabManagerContextMenu
-{
-	public static var selectedDocumentPath:String;
-	
+{	
 	public static function createContextMenu():Void
 	{
 		var contextMenu:DivElement = Browser.document.createDivElement();
@@ -73,7 +71,6 @@ class TabManagerContextMenu
 				if (ev.target == li)
 				{
 					clickedOnTab = true;
-					selectedDocumentPath = tabHeader.getAttribute("path");
 					break;
 				}
 			}
@@ -103,7 +100,7 @@ class TabManagerContextMenu
 		
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.href = "#";
-		a.textContent = text;
+		a.textContent = core.LocaleWatcher.getStringSync(text);
 		li.appendChild(a);
 		
 		return li;

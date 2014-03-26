@@ -60,7 +60,6 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 
 * Generate imports
 * Code generation
-* Use Mustache for templates
 * Replace create file functions with code from templates(create new templates)
 * Code snippets
 * settings.json for HIDE settings
@@ -70,22 +69,44 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Fix first launch - open HIDE project as first project(source code will not be included in haxelib)
 * Add link to GitHub repository and website
 * Move run.n to bin
-* Show green/red dot on output tab to indicate build status
+* Close Project/Welcome screen
+* Fix last project reopening for user of previous versions of HIDE
+* Change title according to current project
+* Show create new project or open project
+* File tree context menu: Open file in New Tab
+* File tree context menu: Delete
+* Reconsider source code packages
+* Check if file exists before creating new - change name
+* Bootbox.prompt: select text on start
+* Project templates
+* Add dividers to menus
+* Restructure menus
+* Multiple commands support for run command action
+* Search for Haxe std folder
+* Escape paths
+* Get libs and classes for OpenFL projects
+* CM hint: add completions to open dialog
+* CM hint: add round bracket to function completion
+* Suggestions by deepnight
+* Javascript breakpoints
+* Completion: show results based on return type
+* Completion: most used move up
+* Jqxsplitter preserve layout
+* Small tutorial for configuration files editing
+* Autocomplete meta tags and show types on ":"
 
 ###Important
+* Previous project doesn't exists - then show welcome screen(do not show file tree and outline panel)
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)
-* Parse code with hxparse(classes on path)
-* Fix window state preserving(Windows)
 * Fix OpenFL projects(check webserver)
-* Fix node-webkit haxelib(search for binary, handle no Internet connection exception)
-* Fix tab saving issue
-* Fix options
-* Show build errors in results panel
+* Update CM lint on build/parse
+* Parse code with hxparse(classes on path)
 * Test file saving
 * Unit tests
 * Annotation ruler
 * Trace function run count
-* Watch theme.css for changes and apply to UI
 * Split docs and rewrite
 * Go to definition
 * Show prompt to install missing haxelibs
+* Outline panel
+* Test projects(build/run) and updated TJSON

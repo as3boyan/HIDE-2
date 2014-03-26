@@ -8,8 +8,7 @@ import nodejs.webkit.Window;
  */
 @:keepSub @:expose class HaxeServer
 {
-	private static var haxeCompletionServer:js.Node.NodeChildProcess;
-	private static var processStarted:Bool = true;
+	private static var haxeServer:NodeChildProcess;
 
 	public static function check():Void
 	{
@@ -22,7 +21,7 @@ import nodejs.webkit.Window;
 		//);
 		socket.on("error", function (e)
 		{
-			trace(e);
+			trace("Haxe server is not found at localhost:5000");
 		}
 		);
 		socket.on("close", function (e)
@@ -37,29 +36,30 @@ import nodejs.webkit.Window;
 	
 	public static function start():Void
 	{
-		haxeCompletionServer = js.Node.child_process.exec(["haxe", "--wait", "5000"].join(" "), { }, function (error, stdout, stderr)
+		trace("Starting new Haxe server at localhost:5000");
+		
+		haxeServer = ProcessHelper.runPersistentProcess("haxe", ["--wait", "5000"], function (stdout:String, stderr:String):Void 
 		{
 			trace(stdout);
 			trace(stderr);
-			
-			if (error.code != 0)
-			{
-				processStarted = false;
-			}
-			
-			trace('haxeCompletionServer process exit code ' + error.code);
 		}
-		);		
+		);
 
 		var window:Window = Window.get();
 		
 		window.on("close", function (e)
 		{
-			if (processStarted) 
-			{
-				haxeCompletionServer.kill('SIGKILL');
-			}
+			terminate();
+			window.close(true);
 		}
 		);
+	}
+	
+	public static function terminate():Void
+	{
+		if (haxeServer != null) 
+		{
+			haxeServer.kill();
+		}
 	}
 }

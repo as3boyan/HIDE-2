@@ -1,5 +1,6 @@
 package newprojectdialog;
 import core.FileDialog;
+import core.LocaleWatcher;
 import haxe.ds.StringMap;
 import haxe.Timer;
 import jQuery.JQuery;
@@ -73,7 +74,8 @@ import js.html.UListElement;
 		
 		var h4:HeadingElement = cast(Browser.document.createElement("h4"), HeadingElement);
 		h4.className = "modal-title";
-		h4.textContent = "New Project";
+		h4.setAttribute("localeString", "New Project");
+		h4.textContent = LocaleWatcher.getStringSync("New Project");
 		header.appendChild(h4);
 		
 		var body:DivElement = Browser.document.createDivElement();
@@ -98,14 +100,16 @@ import js.html.UListElement;
 		backButton = Browser.document.createButtonElement();
 		backButton.type = "button";
 		backButton.className = "btn btn-default disabled";
-		backButton.textContent = "Back";
+		backButton.setAttribute("localeString", "Back");
+		backButton.textContent = LocaleWatcher.getStringSync("Back");
 		
 		footer.appendChild(backButton);
 		
 		nextButton = Browser.document.createButtonElement();
 		nextButton.type = "button";
 		nextButton.className = "btn btn-default";
-		nextButton.textContent = "Next";
+		nextButton.setAttribute("localeString", "Next");
+		nextButton.textContent = LocaleWatcher.getStringSync("Next");
 		
 		backButton.onclick = function (e:MouseEvent)
 		{
@@ -130,7 +134,8 @@ import js.html.UListElement;
 		var finishButton:ButtonElement = Browser.document.createButtonElement();
 		finishButton.type = "button";
 		finishButton.className = "btn btn-default";
-		finishButton.textContent = "Finish";
+		finishButton.setAttribute("localeString", "Finish");
+		finishButton.textContent = LocaleWatcher.getStringSync("Finish");
 		
 		finishButton.onclick = function (e:MouseEvent)
 		{
@@ -151,7 +156,8 @@ import js.html.UListElement;
 		cancelButton.type = "button";
 		cancelButton.className = "btn btn-default";
 		cancelButton.setAttribute("data-dismiss", "modal");
-		cancelButton.textContent = "Cancel";
+		cancelButton.setAttribute("localeString", "Cancel");
+		cancelButton.textContent = LocaleWatcher.getStringSync("Cancel");
 		
 		footer.appendChild(cancelButton);
 		
@@ -645,7 +651,8 @@ import js.html.UListElement;
 		description.style.width = "100%";
 		description.style.height = "50px";
 		description.style.overflow = "auto";
-		description.textContent = "Description";
+		description.textContent = LocaleWatcher.getStringSync("Description");
+		description.setAttribute("localeString", "Description");
 		
 		page1.appendChild(description);
 		
@@ -663,7 +670,7 @@ import js.html.UListElement;
 		projectName = Browser.document.createInputElement();
 		projectName.type = "text";
 		projectName.className = "form-control";
-		projectName.placeholder = "Name";
+		projectName.placeholder = core.LocaleWatcher.getStringSync("Name");
 		projectName.style.width = "100%";
 		row.appendChild(projectName);
 		
@@ -680,14 +687,14 @@ import js.html.UListElement;
 		projectLocation = Browser.document.createInputElement();
 		projectLocation.type = "text";
 		projectLocation.className = "form-control";
-		projectLocation.placeholder = "Location";
+		projectLocation.placeholder = core.LocaleWatcher.getStringSync("Location");
 		projectLocation.style.width = "80%";
 		inputGroup.appendChild(projectLocation);
 		
 		var browseButton:ButtonElement = Browser.document.createButtonElement();
 		browseButton.type = "button";
 		browseButton.className = "btn btn-default";
-		browseButton.textContent = "Browse...";
+		browseButton.textContent = core.LocaleWatcher.getStringSync("Browse...");
 		browseButton.style.width = "20%";
 		
 		browseButton.onclick = function (e:MouseEvent)
@@ -772,7 +779,7 @@ import js.html.UListElement;
 				str = projectName.value;
 			}
 			
-			helpBlock.innerText = "Project will be created in: " + js.Node.path.join(projectLocation.value, str);
+			helpBlock.innerText = LocaleWatcher.getStringSync("Project will be created in: ") + js.Node.path.join(projectLocation.value, str);
 		}
 		else
 		{
@@ -803,7 +810,7 @@ import js.html.UListElement;
 		var text:InputElement = Browser.document.createInputElement();
 		text.type = "text";
 		text.className = "form-control";
-		text.placeholder = _text;
+		text.placeholder = core.LocaleWatcher.getStringSync(_text);
 		
 		textfieldsWithCheckboxes.set(_text, text);
 		
@@ -844,7 +851,8 @@ import js.html.UListElement;
 		a.appendChild(span);
 		
 		span = Browser.document.createSpanElement();
-		span.textContent = text;
+		span.textContent = core.LocaleWatcher.getStringSync(text);
+		span.setAttribute("localeString", text);
 		span.style.marginLeft = "5px";
 		a.appendChild(span);
 		
@@ -1005,7 +1013,8 @@ import js.html.UListElement;
 	private static function createListItem(text:String):OptionElement
 	{		
 		var option:OptionElement = Browser.document.createOptionElement();
-		option.textContent = text;
+		option.textContent = core.LocaleWatcher.getStringSync(text);
+		option.setAttribute("localeString", text);
 		option.value = text;
 		return option;
 	}

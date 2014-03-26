@@ -2,6 +2,7 @@ package tabmanager;
 import cm.CMDoc;
 import cm.CodeMirrorEditor;
 import core.FileDialog;
+import filetree.FileTree;
 import haxe.Timer;
 import js.Browser;
 import js.html.AnchorElement;
@@ -12,6 +13,7 @@ import js.html.MouseEvent;
 import js.html.SpanElement;
 import js.html.UListElement;
 import js.Node;
+import mustache.Mustache;
 import projectaccess.ProjectAccess;
 
 /**
@@ -93,15 +95,21 @@ import projectaccess.ProjectAccess;
 		{
 			ProjectAccess.currentProject.files.push(relativePath);
 		}
+		
+		CodeMirrorEditor.resize();
 	}
 	
-	public static function openFileInNewTab(path:String, ?show:Bool = true):Void
+	public static function openFileInNewTab(path:String, ?show:Bool = true, ?onComplete:Dynamic):Void
 	{
 		//path = js.Node.require('path').relative(js.Node.process.cwd(), path);
 		path = StringTools.replace(path, "\\", js.Node.path.sep); 
 		
 		if (isAlreadyOpened(path, show))
 		{
+			if (onComplete != null) 
+				{
+					onComplete();
+				}
 			return;
 		}
 		
@@ -117,6 +125,10 @@ import projectaccess.ProjectAccess;
 			
 			if (isAlreadyOpened(path, show))
 			{
+				if (onComplete != null) 
+				{
+					onComplete();
+				}
 				return;
 			}
 			
@@ -132,6 +144,11 @@ import projectaccess.ProjectAccess;
 				selectDoc(docs.length - 1);
 				
 				checkTabsCount();
+				
+				if (onComplete != null) 
+				{
+					onComplete();
+				}
 			}
 			else 
 			{
@@ -141,38 +158,64 @@ import projectaccess.ProjectAccess;
 		);
 	}
 	
-	public static function createFileInNewTab():Void
+	public static function createFileInNewTab(?pathToFile:String):Void
 	{
-		FileDialog.saveFile(function (path:String)
-		{			
-			//var path:String = convertPathToUnixFormat(value);
-	
-			//if (isAlreadyOpened(path))
-			//{
-				//return;
-			//}
-			
-			var name:String = js.Node.path.basename(path);
-			var mode:String = getMode(name);
-			
-			var code:String = "";
-			
-			if (js.Node.path.extname(name) == ".hx")
-			{
-				path = path.substr(0, path.length - name.length) + name.substr(0, 1).toUpperCase() + name.substr(1); // + Utils.capitalize(name)
+		var path:String = pathToFile;
+		
+		if (path == null) 
+		{
+			FileDialog.saveFile(function (selectedPath:String)
+			{			
+				//var path:String = convertPathToUnixFormat(value);
+		
+				//if (isAlreadyOpened(path))
+				//{
+					//return;
+				//}
 				
-				code = "package ;\n\nclass " + js.Node.path.basename(name) + "\n{\n\n}";
+				createNewFile(selectedPath);
 			}
-			
-			docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
-			
-			createNewTab(name, path);
-			
-			selectDoc(docs.length - 1);
-			
-			checkTabsCount();
+			);
 		}
-		);
+		else 
+		{
+			createNewFile(path);
+		}
+	}
+	
+	private static function createNewFile(path:String):Void
+	{
+		var name:String = js.Node.path.basename(path);
+		var mode:String = getMode(name);
+		
+		var code:String = "";
+		
+		var extname:String = js.Node.path.extname(name);
+		
+		if (extname == ".hx")
+		{
+			path = path.substr(0, path.length - name.length) + name.substr(0, 1).toUpperCase() + name.substr(1); // + Utils.capitalize(name)
+			
+			var options:NodeFsFileOptions = { };
+			options.encoding = NodeC.UTF8;
+			
+			var pathToTemplate:String = Node.path.join("templates", "New.hx");
+			var templateCode:String = Node.fs.readFileSync(pathToTemplate, options);
+			
+			code = Mustache.render(templateCode, { name: js.Node.path.basename(name, extname), pack:"test", author:"testo" } );
+		}
+		
+		docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
+		
+		createNewTab(name, path);
+		
+		selectDoc(docs.length - 1);
+		
+		checkTabsCount();
+		
+		saveActiveFile();
+		
+		FileTree.load();
 	}
 	
 	private static function checkTabsCount():Void
@@ -214,9 +257,9 @@ import projectaccess.ProjectAccess;
 	{		
 		for (doc in docs) 
 		{
-			if (doc.path != TabManagerContextMenu.selectedDocumentPath) 
+			if (doc.path != path) 
 			{
-				closeTab(path, false);
+				closeTab(doc.path, false);
 			}
 		}
 		
@@ -276,6 +319,8 @@ import projectaccess.ProjectAccess;
 				ProjectAccess.currentProject.files.remove(pathToDocument);
 			}
 			);
+			
+			CodeMirrorEditor.resize();
 		}
 	}
 	

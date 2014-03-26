@@ -30,7 +30,7 @@ import tjson.TJSON;
 		if (ProjectAccess.currentProject.path != null)
 		{
 			var pathToProjectHide:String = js.Node.path.join(ProjectAccess.currentProject.path, "project.json");
-		
+			
 			var data:String = TJSON.encode(ProjectAccess.currentProject, 'fancy');
 			
 			if (sync) 

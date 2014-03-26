@@ -10,6 +10,7 @@ import js.html.MouseEvent;
 import js.html.UListElement;
 import js.Lib;
 import nodejs.webkit.Shell;
+import tabmanager.TabManager;
 
 /**
  * ...
@@ -50,40 +51,9 @@ class ContextMenu
 		{
 			Bootbox.prompt("Filename:", "New.hx", function (result:String)
 			{
-				var filename:String = result;
-			
-				var template:String = "";
-			
-				if (filename != null) 
-				{
-					var extname = js.Node.path.extname(filename);
-					var pathToFile:String;
-					
-					if (extname == ".hx")
-					{
-						var name:String = js.Node.path.basename(filename, extname);
-						name = name.substr(0, 1).toUpperCase() + name.substr(1).toLowerCase();
-						name = StringTools.replace(name, " ", "");
-						
-						template = "package ;\n\nclass " + name + "\n{\n    public function new()\n    {\n\n    }\n}";
-						
-						pathToFile = js.Node.path.join(path, name + ".hx");
-					}
-					else 
-					{
-						pathToFile = js.Node.path.join(path, filename);
-					}
-					
-					js.Node.fs.writeFile(pathToFile, template, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
-					{
-						FileTree.onFileClick(pathToFile);
-						FileTree.load();
-					}
-					);
-				}
+				var pathToFile:String = js.Node.path.join(path, result);
+				TabManager.createFileInNewTab(pathToFile);
 			});
-			
-			
 		});
 		
 		addContextMenuItemToStringMap("New Folder...", function ()

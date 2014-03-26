@@ -1,4 +1,5 @@
 package openflproject;
+import core.Alerts;
 import js.Browser;
 import js.html.TextAreaElement;
 
@@ -41,6 +42,10 @@ import js.html.TextAreaElement;
 				{
 					onLoaded(processStdout);
 				}
+			}
+			else 
+			{
+				Alerts.showAlert("OpenFL tools cannot parse project.xml. Update OpenFL.", 3500);
 			}
 		}
 		);

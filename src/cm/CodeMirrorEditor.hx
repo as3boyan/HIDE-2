@@ -4,7 +4,9 @@ import core.FunctionParametersHelper;
 import core.HaxeParserProvider;
 import haxe.Json;
 import haxe.Timer;
+import jQuery.JQuery;
 import js.Browser;
+import js.html.DivElement;
 import js.html.svg.TextElement;
 import js.html.TextAreaElement;
 import js.Lib;
@@ -112,8 +114,6 @@ class CodeMirrorEditor
 		
 		Node.fs.writeFileSync("bindings.txt", value, NodeC.UTF8);
 		
-		BootstrapMenu.getMenu("Help").addMenuItem("Show code editor key bindings", 2, TabManager.openFileInNewTab.bind("bindings.txt"));
-		
 		var timer:Timer = null;
 		
 		Browser.window.addEventListener("resize", function (e)
@@ -123,14 +123,25 @@ class CodeMirrorEditor
 				timer.stop();
 			}
 			
-			timer = new Timer(500);
+			timer = new Timer(100);
 			timer.run = function ()
 			{
 				editor.refresh();
 				timer.stop();
 			};
+			
+			resize();
 		}
 		);
+		
+		new JQuery('#thirdNested').on('resize', 
+		function (event) {       
+			var panels = event.args.panels;
+			
+			resize();
+		});
+		
+		ColorPreview.create();
 		
 		editor.on("cursorActivity", function (cm:CodeMirror)
 		{
@@ -144,7 +155,6 @@ class CodeMirrorEditor
 				if (data.charAt(cursor.ch - 1) == "(") 
 				{
 					var pos = cursor.ch -1;
-					var p = untyped __js__("CodeMirror.Pos");
 					
 					Completion.getCompletion(function ()
 					{
@@ -190,17 +200,23 @@ class CodeMirrorEditor
 							FunctionParametersHelper.clear();
 						}
 					}
-					, untyped p(cursor.line, pos));
+					, CodeMirrorPos.from(cursor.line, pos));
 				}
 				else 
 				{
 					FunctionParametersHelper.clear();
 				}
 			}
+			
+			ColorPreview.update();
 		}
 		);
 		
-		trace(editor);
+		editor.on("scroll", function (cm:CodeMirror):Void 
+		{
+			ColorPreview.scroll();
+		}
+		);
 		
 		var timer:Timer = null;
 		
@@ -216,16 +232,21 @@ class CodeMirrorEditor
 					timer = null;
 				}
 				
-				timer = new Timer(500);
+				timer = new Timer(100);
 				timer.run = function ():Void 
 				{
 					timer.stop();
-					//HaxeParserProvider.getClassName();
-                    CodeMirrorEditor.editor.setOption("lint", "true");
+					HaxeParserProvider.getClassName();
+                    CodeMirrorEditor.editor.setOption("lint", true);
 				};
 			}
 		}
 		);
+		
+		CodeMirror.prototype.centerOnLine = function(line) 
+		{
+			untyped __js__(" var h = this.getScrollInfo().clientHeight;  var coords = this.charCoords({line: line, ch: 0}, 'local'); this.scrollTo(null, (coords.top + coords.bottom - h) / 2); ");
+		};
 	}
 	
 	private static function triggerCompletion(cm:Dynamic) 
@@ -235,16 +256,16 @@ class CodeMirrorEditor
 		switch (extname) 
 		{
 			case ".hx":
-				HaxeParserProvider.getClassName();
+				//HaxeParserProvider.getClassName();
 		
-				//TabManager.saveActiveFile(function ():Void 
-				//{
-					//Completion.getCompletion(function ()
-					//{
-						//cm.execCommand("autocomplete");
-					//}
-					//);
-				//});
+				TabManager.saveActiveFile(function ():Void 
+				{
+					Completion.getCompletion(function ()
+					{
+						cm.execCommand("autocomplete");
+					}
+					);
+				});
 			default:
 				trace(extname);
 		}
@@ -292,6 +313,12 @@ class CodeMirrorEditor
 		}
 	}
 	
+	public static function resize():Void 
+	{
+		var height = Browser.window.innerHeight - 50 - new JQuery("ul.tabs").height() - new JQuery("#tabs1").height() - 5;
+		new JQuery(".CodeMirror").css("height", Std.string(Std.int(height)) + "px");
+	}
+	
 	private static function loadTheme() 
 	{
 		var localStorage = Browser.getLocalStorage();
@@ -331,5 +358,4 @@ class CodeMirrorEditor
 		editor.setOption("theme", theme);
 		Browser.getLocalStorage().setItem("theme", theme);
 	}
-	
 }

@@ -72,6 +72,11 @@
 
   map["Shift-Tab"] = "indentLess";
 
+  cmds[map["Esc"] = "singleSelectionTop"] = function(cm) {
+    var range = cm.listSelections()[0];
+    cm.setSelection(range.anchor, range.head, {scroll: false});
+  };
+
   cmds[map[ctrl + "L"] = "selectLine"] = function(cm) {
     var ranges = cm.listSelections(), extended = [];
     for (var i = 0; i < ranges.length; i++) {
@@ -81,6 +86,28 @@
     }
     cm.setSelections(extended);
   };
+
+  map["Shift-" + ctrl + "K"] = "deleteLine";
+
+  function insertLine(cm, above) {
+    cm.operation(function() {
+      var len = cm.listSelections().length, newSelection = [], last = -1;
+      for (var i = 0; i < len; i++) {
+        var head = cm.listSelections()[i].head;
+        if (head.line <= last) continue;
+        var at = Pos(head.line + (above ? 0 : 1), 0);
+        cm.replaceRange("\n", at, null, "+insertLine");
+        cm.indentLine(at.line, null, true);
+        newSelection.push({head: at, anchor: at});
+        last = head.line + 1;
+      }
+      cm.setSelections(newSelection);
+    });
+  }
+
+  cmds[map[ctrl + "Enter"] = "insertLineAfter"] = function(cm) { insertLine(cm, false); };
+
+  cmds[map["Shift-" + ctrl + "Enter"] = "insertLineBefore"] = function(cm) { insertLine(cm, true); };
 
   function wordAt(cm, pos) {
     var start = pos.ch, end = start, line = cm.getLine(pos.line);
@@ -98,10 +125,16 @@
       cm.setSelection(word.from, word.to);
       fullWord = true;
     } else {
-      var query = cm.getRange(from, to);
-      var cur = cm.getSearchCursor(fullWord ? new RegExp("\\b" + query + "\\b") : query, to);
-      if (cur.findNext())
+      var text = cm.getRange(from, to);
+      var query = fullWord ? new RegExp("\\b" + text + "\\b") : text;
+      var cur = cm.getSearchCursor(query, to);
+      if (cur.findNext()) {
         cm.addSelection(cur.from(), cur.to());
+      } else {
+        cur = cm.getSearchCursor(query, Pos(cm.firstLine(), 0));
+        if (cur.findNext())
+          cm.addSelection(cur.from(), cur.to());
+      }
     }
     if (fullWord)
       cm.state.sublimeFindFullWord = cm.doc.sel;
@@ -161,6 +194,7 @@
           cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
         }
       }
+      cm.scrollIntoView();
     });
   };
 
@@ -182,6 +216,7 @@
           cm.replaceRange("", Pos(from, 0), Pos(from + 1, 0), "+swapLine");
         cm.replaceRange(line + "\n", Pos(to, 0), null, "+swapLine");
       }
+      cm.scrollIntoView();
     });
   };
 
@@ -225,6 +260,7 @@
         else
           cm.replaceRange(cm.getRange(range.from(), range.to()), range.from());
       }
+      cm.scrollIntoView();
     });
   };
 
@@ -355,6 +391,17 @@
     });
   }
 
+  mapK[ctrl + "Backspace"] = "delLineLeft";
+
+  cmds[mapK[ctrl + "K"] = "delLineRight"] = function(cm) {
+    cm.operation(function() {
+      var ranges = cm.listSelections();
+      for (var i = ranges.length - 1; i >= 0; i--)
+        cm.replaceRange("", ranges[i].anchor, Pos(ranges[i].to().line), "+delete");
+      cm.scrollIntoView();
+    });
+  };
+
   cmds[mapK[ctrl + "U"] = "upcaseAtCursor"] = function(cm) {
     modifyWordOrSelection(cm, function(str) { return str.toUpperCase(); });
   };
@@ -418,6 +465,32 @@
       }
     });
   };
+
+  function findAndGoTo(cm, forward) {
+    var from = cm.getCursor("from"), to = cm.getCursor("to");
+    if (CodeMirror.cmpPos(from, to) == 0) {
+      var word = wordAt(cm, from);
+      if (!word.word) return;
+      from = word.from;
+      to = word.to;
+    }
+
+    var query = cm.getRange(from, to);
+    var cur = cm.getSearchCursor(query, forward ? to : from);
+
+    if (forward ? cur.findNext() : cur.findPrevious()) {
+      cm.setSelection(cur.from(), cur.to());
+    } else {
+      cur = cm.getSearchCursor(query, forward ? Pos(cm.firstLine(), 0)
+                                              : cm.clipPos(Pos(cm.lastLine())));
+      if (forward ? cur.findNext() : cur.findPrevious())
+        cm.setSelection(cur.from(), cur.to());
+      else if (word)
+        cm.setSelection(from, to);
+    }
+  };
+  cmds[map[ctrl + "F3"] = "findUnder"] = function(cm) { findAndGoTo(cm, true); };
+  cmds[map["Shift-" + ctrl + "F3"] = "findUnderPrevious"] = function(cm) { findAndGoTo(cm,false); };
 
   map["Shift-" + ctrl + "["] = "fold";
   map["Shift-" + ctrl + "]"] = "unfold";

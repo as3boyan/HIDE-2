@@ -38,16 +38,21 @@ typedef LineWidgetOptions = {
 	noHScroll: Bool
 }
 
-@:native('CodeMirror.Doc')extern class Doc 
+@:native('CodeMirror.Doc') extern class Doc 
 {
 	public function new(body: Dynamic, mode: String, ?firstLineNumber:Int);
 	public function getValue():String;
+	function somethingSelected():Bool;
+	function setValue(value:String):Void;
+	function getSelection(?lineSep:String):String;
 }
 
 @:native('CodeMirror') extern class CodeMirror {
 
 static var keyMap:Dynamic;
 public var gutters:Array<String>;
+
+public static var prototype:Dynamic;
 
 public static var commands (default,null) : Dynamic<CodeMirror->Void>;
 public static function simpleHint( cm : CodeMirror , getCompletions : CodeMirror -> Completions ) : Void;
@@ -70,7 +75,7 @@ public function getLineNumber(pos:Pos):Int;
 public function firstLine():Dynamic;
 public function lastLine():Dynamic;
 
-public function setOption(option:String, value:String):Void;
+public function setOption(option:String, value:Dynamic):Void;
 public function swapDoc(doc:Dynamic):Void;
 public function getDoc():Dynamic;
 
@@ -86,6 +91,10 @@ public function removeLineWidget(widget:Dynamic):Void;
 public function getScrollInfo():Dynamic;
 public function scrollTo(param1:Dynamic, y:Int):Void;
 public function charCoords(param1:Dynamic, param2:String):Dynamic;
+function cursorCoords(start:Bool):{left:Int, right:Int, top:Int, bottom:Int};
+public function getScrollerElement():Dynamic;
+public function scrollIntoView(from:Pos, to:Pos):Dynamic;
+public static function defineExtension(name:String, func:Dynamic):Void;
 
 public function markText(from : Pos, to : Pos, className : String ) : MarkedText;
 

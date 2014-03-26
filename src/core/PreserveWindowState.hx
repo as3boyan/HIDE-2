@@ -77,7 +77,7 @@ class PreserveWindowState
 				
 				resizeTimeout.stop();
 				
-				dumpWindowState();        
+				dumpWindowState();   
 			};
 				
 		}, false);
@@ -85,6 +85,7 @@ class PreserveWindowState
 		window.on("close", function (e)
 		{
 			saveWindowState();
+			window.close(true);
 		}
 		);
 	}

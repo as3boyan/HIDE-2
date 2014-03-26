@@ -7,6 +7,7 @@ import js.Browser;
 import js.html.TextAreaElement;
 import js.Node;
 import openflproject.OpenFLTools;
+import parser.ClasspathWalker;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
 import projectaccess.ProjectOptions;
@@ -69,6 +70,7 @@ class OpenProject
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
 					
+					//ProjectAccess.currentProject = Node.parse(data);
 					ProjectAccess.currentProject = TJSON.parse(data);
 					ProjectAccess.currentProject.path = pathToProject;
 					
@@ -76,6 +78,8 @@ class OpenProject
 					{
 						TabManager.openFileInNewTab(Node.path.join(ProjectAccess.currentProject.path, ProjectAccess.currentProject.main));
 					}
+					
+					ClasspathWalker.parseProjectArguments();
 					
 					if (ProjectAccess.currentProject.files == null) 
 					{

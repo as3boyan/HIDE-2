@@ -1,4 +1,5 @@
 package core;
+import js.Node;
 
 /**
  * ...
@@ -6,9 +7,9 @@ package core;
  */
 @:keepSub @:expose class NekoToolsServer
 {
-	private static var nekoToolsClient:js.Node.NodeChildProcess;
+	static var nekoToolsClient:NodeChildProcess;
 	
-	public static function start():Void
+	public static function start(path:String):Void
 	{
 		if (nekoToolsClient != null)
 		{
@@ -16,35 +17,6 @@ package core;
 			nekoToolsClient = null;
 		}
 		
-		nekoToolsClient = js.Node.child_process.spawn("nekotools", ["server", "-p", "8000"]);
-		
-		nekoToolsClient.stdout.setEncoding('utf8');
-		nekoToolsClient.stdout.on('data', function (data) 
-		{
-			var str:String = data.toString();
-			trace(str);
-		}
-		);
-		
-		nekoToolsClient.stderr.setEncoding('utf8');
-		nekoToolsClient.stderr.on('data', function (data) 
-		{
-			var str:String = data.toString();
-			trace(str);
-		}
-		);
-		
-		nekoToolsClient.on('close', function (code:Int) 
-		{		
-			if (code == 0)
-			{
-				trace("Neko Tools Server closed");
-			}
-			else
-			{
-				trace('Neko Tools Server process exit code ' + Std.string(code));
-			}
-		}
-		);
+		nekoToolsClient = ProcessHelper.runPersistentProcess("nekotools", ["server", "-p", "8000", "-d", path]);
 	}
 }

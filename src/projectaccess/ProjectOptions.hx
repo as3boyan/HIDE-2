@@ -33,7 +33,8 @@ import js.html.TextAreaElement;
 		projectOptionsText = Browser.document.createParagraphElement();
 		projectOptionsText.id = "project-options-text";
 		projectOptionsText.className = "custom-font-size";
-		projectOptionsText.innerText = "Project arguments:";
+		projectOptionsText.textContent = core.LocaleWatcher.getStringSync("Project arguments:");
+		projectOptionsText.setAttribute("localeString", "Project arguments:");
 		
 		textarea = Browser.document.createTextAreaElement();
 		textarea.id = "project-options-textarea";
@@ -45,7 +46,8 @@ import js.html.TextAreaElement;
 		};
 		
 		projectTargetText = Browser.document.createParagraphElement();
-		projectTargetText.innerText = "Project target:";
+		projectTargetText.textContent = core.LocaleWatcher.getStringSync("Project target:");
+		projectTargetText.setAttribute("localeString", "Project target:");
 		projectTargetText.className = "custom-font-size";
 		page.appendChild(projectTargetText);
 		
@@ -60,7 +62,8 @@ import js.html.TextAreaElement;
 		openFLTargetList.style.width = "100%";
 		
 		openFLTargetText = Browser.document.createParagraphElement();
-		openFLTargetText.innerText = "OpenFL target:";
+		openFLTargetText.innerText = core.LocaleWatcher.getStringSync("OpenFL target:");
+		openFLTargetText.setAttribute("localeString", "OpenFL target:");
 		openFLTargetText.className = "custom-font-size";
 		
 		for (target in ["Flash", "JavaScript", "Neko", "OpenFL", "PHP", "C++", "Java", "C#"])
@@ -91,10 +94,12 @@ import js.html.TextAreaElement;
 		
 		runActionDescription = Browser.document.createParagraphElement();
 		runActionDescription.className = "custom-font-size";
-		runActionDescription.innerText = "Run action:";
+		runActionDescription.textContent = core.LocaleWatcher.getStringSync("Run action:");
+		runActionDescription.setAttribute("localeString", "Run action:");
 		
 		runActionTextAreaDescription = Browser.document.createParagraphElement();
-		runActionTextAreaDescription.innerText = "URL:";
+		runActionTextAreaDescription.textContent = core.LocaleWatcher.getStringSync("URL:");
+		runActionTextAreaDescription.setAttribute("localeString", "URL:");
 		runActionTextAreaDescription.className = "custom-font-size";
 		
 		var actions:Array<String> = ["Open URL", "Open File", "Run command"];
@@ -120,7 +125,8 @@ import js.html.TextAreaElement;
 		
 		buildActionDescription = Browser.document.createParagraphElement();
 		buildActionDescription.className = "custom-font-size";
-		buildActionDescription.innerText = "Build command:";
+		buildActionDescription.textContent = core.LocaleWatcher.getStringSync("Build command:");
+		buildActionDescription.setAttribute("localeString", "Build command:");
 		
 		buildActionTextArea = Browser.document.createTextAreaElement();
 		buildActionTextArea.id = "project-options-build-action-textarea";
@@ -132,23 +138,14 @@ import js.html.TextAreaElement;
 		};
 		
 		page.appendChild(projectTargetList);
-		page.appendChild(Browser.document.createBRElement());
-		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(buildActionDescription);
 		page.appendChild(buildActionTextArea);
-		page.appendChild(Browser.document.createBRElement());
-		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(projectOptionsText);
 		page.appendChild(textarea);
-		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(openFLTargetText);
 		page.appendChild(openFLTargetList);
-		page.appendChild(Browser.document.createBRElement());
-		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(runActionDescription);
 		page.appendChild(runActionList);
-		page.appendChild(Browser.document.createBRElement());
-		page.appendChild(Browser.document.createBRElement());
 		page.appendChild(runActionTextAreaDescription);
 		page.appendChild(actionTextArea);
 		
@@ -208,13 +205,13 @@ import js.html.TextAreaElement;
 		switch (runActionList.selectedIndex) 
 		{
 			case 0:
-				runActionTextAreaDescription.innerText = "URL: ";
+				runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("URL: ");
 				ProjectAccess.currentProject.runActionType = Project.URL;
 			case 1:
-				runActionTextAreaDescription.innerText = "Path: ";
+				runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("Path: ");
 				ProjectAccess.currentProject.runActionType = Project.FILE;
 			case 2:
-				runActionTextAreaDescription.innerText = "Command: ";
+				runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("Command: ");
 				ProjectAccess.currentProject.runActionType = Project.COMMAND;
 				
 			default:
@@ -292,7 +289,7 @@ import js.html.TextAreaElement;
 	private static function createListItem(text:String):OptionElement
 	{		
 		var option:OptionElement = Browser.document.createOptionElement();
-		option.textContent = text;
+		option.textContent = core.LocaleWatcher.getStringSync(text);
 		option.value = text;
 		return option;
 	}

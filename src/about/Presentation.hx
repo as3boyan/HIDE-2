@@ -1,4 +1,5 @@
 package about;
+import core.LocaleWatcher;
 import haxe.Timer;
 import js.Browser;
 import js.html.DivElement;
@@ -24,6 +25,8 @@ class Presentation
 	{		
 		Browser.window.onload = function (e):Void
 		{
+			LocaleWatcher.load();
+			
 			impressDiv = Browser.document.createDivElement();
 			impressDiv.id = "impress";
 		
@@ -37,16 +40,17 @@ class Presentation
 			p.style.width = "1000px";
 			p.style.fontSize = "80px";
 			p.style.textAlign = "center";
-			p.innerText = "HIDE - cross platform extensible IDE for Haxe";
+			p.setAttribute("localeString", "HIDE - cross platform extensible IDE for Haxe");
+			p.textContent = LocaleWatcher.getStringSync("HIDE - cross platform extensible IDE for Haxe");
 			start.appendChild(p);
 						
 			slidesCount = 1;
 
 			var slide:DivElement;
 
-			slide = createSlide("'Feature request' perk backer and project sponsor");
+			slide = createSlide(LocaleWatcher.getStringSync("'Feature request' perk backer and project sponsor"));
 			slide = createSlide("Haxe Foundation ", "http://haxe-foundation.org/", "haxe-foundation.org", "120px");
-			slide = createSlide("'Link to your website' perk backers");
+			slide = createSlide(LocaleWatcher.getStringSync("'Link to your website' perk backers"));
 			slide = createSlide("FlashDevelop", "http://www.flashdevelop.org/", "www.flashdevelop.org", "100px");
 			slide = createSlide("OpenFL", "http://www.openfl.org/", "www.openfl.org", "100px");
 			slide = createSlide("Hypersurge", "http://hypersurge.com/", "hypersurge.com", "100px");
@@ -54,7 +58,7 @@ class Presentation
 			slide = createSlide("Justin Donaldson", "http://scwn.net/", "scwn.net", "100px");
 			slide = createSlide("Jonas Malaco Filho", null, null, "100px");
 			slide = createSlide("tommy62", null, null, "100px");
-			slide = createSlide("'Contributor' perk backers");
+			slide = createSlide(LocaleWatcher.getStringSync("'Contributor' perk backers"));
 			
 			var contributors:Array<String> = [
 			"Allan Dowdeswell",
@@ -116,10 +120,10 @@ class Presentation
 				slide = createSlide(contributors.splice(Std.random(contributors.length), 1)[0]);
 			}
 			
-			slide = createSlide("Also there is anonymous contributors, people who helped us to spread the word and people who helped us through pull requests, bug reports and feature requests and by giving feedbacks");
-			slide = createSlide("Without your help, this would not have been possible to make it");			
-			slide = createSlide("Thanks for your support!");
-			slide = createSlide("(in case if you want to change website or name, just let me know - AS3Boyan)");
+			slide = createSlide(LocaleWatcher.getStringSync("Also there is anonymous contributors, people who helped us to spread the word and people who helped us through pull requests, bug reports and feature requests and by giving feedbacks"));
+			slide = createSlide(LocaleWatcher.getStringSync("Without your help, this would not have been possible to make it"));			
+			slide = createSlide(LocaleWatcher.getStringSync("Thanks for your support!"));
+			slide = createSlide(LocaleWatcher.getStringSync("(in case if you want to change website or name, just let me know - AS3Boyan)"));
 
 			Browser.document.body.appendChild(impressDiv);
 			
@@ -141,7 +145,6 @@ class Presentation
 		var slide:DivElement = Browser.document.createDivElement();
 		slide.id = "slide" + Std.string(slidesCount);
 		slide.className = "step";
-		trace(slide.id);
 		
 		slide.setAttribute("data-rotate", Std.string(Std.random(360)));
 		slide.setAttribute("data-scale", Std.string(Math.random() * 25 + 1));
@@ -161,7 +164,8 @@ class Presentation
 		{
 			p = Browser.document.createParagraphElement();
 			p.className = "footnote";
-			p.innerText = "Website: ";
+			p.innerText = LocaleWatcher.getStringSync("Website: ");
+			p.setAttribute("localeString", "Website: ");
 			p.style.fontSize = "24px";
 			slide.appendChild(p);
 

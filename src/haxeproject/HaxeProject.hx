@@ -3,6 +3,7 @@ import core.FileTools;
 import filetree.FileTree;
 import js.Browser;
 import js.html.TextAreaElement;
+import mustache.Mustache;
 import newprojectdialog.NewProjectDialog;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
@@ -28,8 +29,6 @@ class HaxeProject
 			NewProjectDialog.getCategory("Haxe").addItem("C++ Project", createCppProject);
 			NewProjectDialog.getCategory("Haxe").addItem("Java Project", createJavaProject);
 			NewProjectDialog.getCategory("Haxe").addItem("C# Project", createCSharpProject);
-			
-			//NewProjectDialog.getCategory("Haxe").select();
 			
 			HIDE.readFile(null, "templates/Main.hx", function (data:String):Void
 			{				
@@ -147,8 +146,7 @@ class HaxeProject
 						
 						args += "-js " + pathToFile + "\n";
 						
-						var updatedPageCode:String = StringTools.replace(indexPageCode, "::title::", project.name);
-						updatedPageCode = StringTools.replace(updatedPageCode, "::script::", project.name + ".js");
+						var updatedPageCode:String = Mustache.render(indexPageCode, { title: project.name, script: project.name + ".js" } );
 						
 						var pathToWebPage:String = js.Node.path.join(pathToBin, "index.html");
 						

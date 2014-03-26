@@ -58,4 +58,7 @@
     ,"Options->Open IDE stylesheet" : ""
     ,"Options->Open stylesheet" : ""
     ,"Options->Open autoformat configuration file" : ""
+    ,"Options->Open templates folder" : ""
+    ,"Options->Open localization file" : ""
+    ,"Options->Open settings" : ""
 }
