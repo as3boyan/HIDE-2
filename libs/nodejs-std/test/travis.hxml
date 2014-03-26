@@ -1,9 +1,0 @@
--debug
--D nodejs
--cp src
--cp test
--js test/test.js
---remap sys:sys
--main Test
-
--cmd node test/test.js
