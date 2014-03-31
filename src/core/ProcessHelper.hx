@@ -60,35 +60,14 @@ import tabmanager.TabManager;
 		
 		new JQuery("#errors").html("");
 		
-		var process:NodeChildProcess = Node.child_process.spawn(process, params);
-		
-		process.stdout.setEncoding(NodeC.UTF8);
-		process.stderr.setEncoding(NodeC.UTF8);
-		
-		var processStdout:String = "";
-		var processStderr:String = "";
-		
-		process.stdout.on("data", function (data:String):Void 
-		{
-			processStdout += data;
-		}
-		);
-		
-		process.stderr.on("data", function (data:String):Void 
-		{
-			processStderr += data;
-		}
-		);
-		
-		process.on("close", function (code:Int)
+		var process:NodeChildProcess = runPersistentProcess(process, params, function (code:Int, stdout:String, stderr:String):Void 
 		{
 			processOutput(code, processStdout, processStderr, onComplete);
-		}
-		);
-		
-		process.on("error", function (e):Void 
-		{
-			trace(e);
+			
+			if (code == 0) 
+			{
+				onComplete();
+			}
 		}
 		);
 		
@@ -204,7 +183,7 @@ import tabmanager.TabManager;
 		HaxeLint.updateLinting();
 	}
 	
-	public static function runPersistentProcess(process:String, params:Array<String>, ?onClose:String->String->Void):NodeChildProcess
+	public static function runPersistentProcess(process:String, params:Array<String>, ?onClose:Int->String->String->Void):NodeChildProcess
 	{
 		processStdout = "";
 		processStderr = "";
@@ -225,6 +204,12 @@ import tabmanager.TabManager;
 		}
 		);
 		
+		process.on("error", function (e):Void 
+		{
+			trace(e);
+		}
+		);
+		
 		process.on("close", function (code:Int)
 		{
 			trace(processStdout);
@@ -232,7 +217,7 @@ import tabmanager.TabManager;
 			
 			if (onClose != null) 
 			{
-				onClose(processStdout, processStderr);
+				onClose(code, processStdout, processStderr);
 			}
 			
 			if (code != 0)

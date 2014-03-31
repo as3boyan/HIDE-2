@@ -38,7 +38,7 @@ import nodejs.webkit.Window;
 	{
 		trace("Starting new Haxe server at localhost:5000");
 		
-		haxeServer = ProcessHelper.runPersistentProcess("haxe", ["--wait", "5000"], function (stdout:String, stderr:String):Void 
+		haxeServer = ProcessHelper.runPersistentProcess("haxe", ["--wait", "5000"], function (code:Int, stdout:String, stderr:String):Void 
 		{
 			trace(stdout);
 			trace(stderr);
@@ -50,7 +50,7 @@ import nodejs.webkit.Window;
 		window.on("close", function (e)
 		{
 			terminate();
-			window.close(true);
+			window.close();
 		}
 		);
 	}

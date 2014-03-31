@@ -24,12 +24,6 @@ class RunProject
 		BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, runProject, "F5");
 		BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, buildProject, "F8");
 		BootstrapMenu.getMenu("Project").addMenuItem("Set this hxml as project build file", 3, setHxmlAsProjectBuildFile);
-		
-		Window.get().on("close", function ():Void 
-		{
-			killRunProcess();
-		}
-		);
 	}
 	
 	static function setHxmlAsProjectBuildFile():Void
@@ -94,6 +88,15 @@ class RunProject
 						killRunProcess();
 						
 						runProcess = ProcessHelper.runProcessAndPrintOutputToConsole(process, params);
+						
+						var window:Window = Window.get();
+		
+						window.on("close", function (e)
+						{
+							killRunProcess();
+							window.close();
+						}
+						);
 					}
 				default:
 					

@@ -2316,14 +2316,14 @@ core.HaxeServer.check = function() {
 };
 core.HaxeServer.start = function() {
 	console.log("Starting new Haxe server at localhost:5000");
-	core.HaxeServer.haxeServer = core.ProcessHelper.runPersistentProcess("haxe",["--wait","5000"],function(stdout,stderr) {
+	core.HaxeServer.haxeServer = core.ProcessHelper.runPersistentProcess("haxe",["--wait","5000"],function(code,stdout,stderr) {
 		console.log(stdout);
 		console.log(stderr);
 	});
 	var $window = nodejs.webkit.Window.get();
 	$window.on("close",function(e) {
 		core.HaxeServer.terminate();
-		$window.close(true);
+		$window.close();
 	});
 };
 core.HaxeServer.terminate = function() {
@@ -2657,22 +2657,9 @@ core.ProcessHelper.runProcessAndPrintOutputToConsole = function(process,params,o
 	textarea.value = "Build started\n";
 	textarea.value += command + "\n";
 	new $("#errors").html("");
-	var process1 = js.Node.require("child_process").spawn(process,params);
-	process1.stdout.setEncoding("utf8");
-	process1.stderr.setEncoding("utf8");
-	var processStdout = "";
-	var processStderr = "";
-	process1.stdout.on("data",function(data) {
-		processStdout += data;
-	});
-	process1.stderr.on("data",function(data1) {
-		processStderr += data1;
-	});
-	process1.on("close",function(code) {
-		core.ProcessHelper.processOutput(code,processStdout,processStderr,onComplete);
-	});
-	process1.on("error",function(e) {
-		console.log(e);
+	var process1 = core.ProcessHelper.runPersistentProcess(process,params,function(code,stdout,stderr) {
+		core.ProcessHelper.processOutput(code,core.ProcessHelper.processStdout,core.ProcessHelper.processStderr,onComplete);
+		if(code == 0) onComplete();
 	});
 	return process1;
 };
@@ -2761,10 +2748,13 @@ core.ProcessHelper.runPersistentProcess = function(process,params,onClose) {
 	process1.stderr.on("data",function(data1) {
 		core.ProcessHelper.processStderr += data1;
 	});
+	process1.on("error",function(e) {
+		console.log(e);
+	});
 	process1.on("close",function(code) {
 		console.log(core.ProcessHelper.processStdout);
 		console.log(core.ProcessHelper.processStderr);
-		if(onClose != null) onClose(core.ProcessHelper.processStdout,core.ProcessHelper.processStderr);
+		if(onClose != null) onClose(code,core.ProcessHelper.processStdout,core.ProcessHelper.processStderr);
 		if(code != 0) process1 = null;
 		console.log("started process quit with exit code " + code);
 	});
@@ -2777,9 +2767,6 @@ core.RunProject.load = function() {
 	menu.BootstrapMenu.getMenu("Project",80).addMenuItem("Run",1,core.RunProject.runProject,"F5");
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Build",2,core.RunProject.buildProject,"F8");
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set this hxml as project build file",3,core.RunProject.setHxmlAsProjectBuildFile);
-	nodejs.webkit.Window.get().on("close",function() {
-		core.RunProject.killRunProcess();
-	});
 };
 core.RunProject.setHxmlAsProjectBuildFile = function() {
 	var path = tabmanager.TabManager.getCurrentDocumentPath();
@@ -2816,6 +2803,11 @@ core.RunProject.runProject = function() {
 				var process = params.shift();
 				core.RunProject.killRunProcess();
 				core.RunProject.runProcess = core.ProcessHelper.runProcessAndPrintOutputToConsole(process,params);
+				var $window = nodejs.webkit.Window.get();
+				$window.on("close",function(e) {
+					core.RunProject.killRunProcess();
+					$window.close();
+				});
 			}
 			break;
 		default:
