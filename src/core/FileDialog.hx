@@ -8,8 +8,8 @@ import js.html.InputElement;
  */
 @:keepSub @:expose class FileDialog
 {
-	private static var input:InputElement;
-	private static var onClick:Dynamic;
+	static var input:InputElement;
+	static var onClick:String->Void;
 	
 	public static function create():Void
 	{
@@ -28,7 +28,7 @@ import js.html.InputElement;
 		Browser.document.body.appendChild(input);
 	}
 	
-	public static function openFile(_onClick:Dynamic):Void
+	public static function openFile(_onClick:String->Void):Void
 	{
 		input.value = "";
 		
@@ -47,7 +47,7 @@ import js.html.InputElement;
 		input.click();
 	}
 	
-	public static function saveFile(_onClick:Dynamic, ?_name:String):Void
+	public static function saveFile(_onClick:String->Void, ?_name:String):Void
 	{
 		input.value = "";
 		
@@ -67,7 +67,7 @@ import js.html.InputElement;
 		input.click();
 	}
 	
-	public static function openFolder(_onClick:Dynamic):Void
+	public static function openFolder(_onClick:String->Void):Void
 	{
 		input.value = "";
 		

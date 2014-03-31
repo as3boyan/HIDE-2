@@ -2,7 +2,9 @@ package parser;
 import byte.ByteData;
 import cm.CodeMirrorEditor;
 import haxe.ds.StringMap.StringMap;
+import haxe.macro.Expr.Access;
 import haxe.macro.Expr.Field;
+import haxe.macro.Expr.Function;
 import haxeparser.Data.ClassFlag;
 import haxeparser.Data.Definition;
 import haxeparser.Data.TypeDef;
@@ -19,6 +21,7 @@ class ClassParser
 {	
 	public static var classList:Array<String> = [];
 	public static var classCompletions:StringMap<Array<String>> = new StringMap();
+	public static var filesList:Array<String> = [];
 	
 	static function parse(data:String, path:String)
 	{
@@ -99,14 +102,18 @@ class ClassParser
 	{
 		var completions:Array<String> = [];
 		
-		for (i in 0...type.data.length) 
+		for (i in 0...type.data.length)
 		{
-			completions.push(type.data[i].name);
+			if (getScope(type.data[i]))
+			{
+				completions.push(type.data[i].name);
+			}
 		}
 		
 		//switch (type.data[i].kind) 
 		//{
 			//case FFun(f):
+				//
 				//currentFunctionScopeType = getFunctionScope(type.data[i], f);
 				//
 				//if (pos > f.expr.pos.min && pos < f.expr.pos.max) 
@@ -117,9 +124,11 @@ class ClassParser
 					//}
 				//}
 			//case FVar(t, e):
+				//completions.push(type.data[i].name);
 				//trace(e);
 				//currentFunctionScopeType = SClass;
 			//case FProp(get, set, t, e):
+				//completions.push(type.data[i].name);
 				//currentFunctionScopeType = SClass;
 		//}
 		
@@ -127,6 +136,29 @@ class ClassParser
 		{
 			classCompletions.set(className, completions);
 		}
+	}
+	
+	static function getScope(field:Field) 
+	{
+		var isPublic:Bool = false;
+		var access:Array<Access> = field.access;
+		
+		for (accessType in access)
+		{
+			switch (accessType) 
+			{
+				case APublic:
+					isPublic = true;
+				case AStatic:
+				case AMacro:
+				case AInline:
+				case ADynamic:
+				case AOverride:
+				case APrivate:
+			}
+		}
+		
+		return isPublic;
 	}
 	
 	static function resolveClassName(pack:Array<String>, mainClass:String, name:String):String 

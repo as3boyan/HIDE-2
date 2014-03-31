@@ -12,6 +12,7 @@ import js.html.NodeList;
 import js.html.SpanElement;
 import js.html.UListElement;
 import js.Node;
+import watchers.LocaleWatcher;
 
 /**
  * ...
@@ -49,7 +50,7 @@ interface MenuItem
 		
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.style.left = "0";
-		a.textContent = core.LocaleWatcher.getStringSync(_text);
+		a.textContent = LocaleWatcher.getStringSync(_text);
 		a.setAttribute("localeString", _text);
 		
 		if (_onClickFunction != null) 
@@ -120,7 +121,8 @@ interface MenuItem
 		a2.href = "#";
 		a2.classList.add("dropdown-toggle");
 		a2.setAttribute("data-toggle", "dropdown");
-		a2.innerHTML = name;
+		a2.setAttribute("localeString", name);
+		a2.textContent = name;
 		a2.onclick = function (event:MouseEvent)
 		{
 			// Avoid following the href location when clicking
@@ -188,7 +190,7 @@ interface MenuItem
 		a.href = "#";
 		a.className = "dropdown-toggle";
 		a.setAttribute("data-toggle", "dropdown");
-		a.innerText = core.LocaleWatcher.getStringSync(_text);
+		a.innerText = LocaleWatcher.getStringSync(_text);
 		a.setAttribute("localeString", _text);
 		li.appendChild(a);
 		

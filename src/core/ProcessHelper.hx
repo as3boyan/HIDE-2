@@ -1,4 +1,5 @@
 package core;
+import cm.CodeMirrorEditor;
 import haxe.ds.StringMap;
 import jQuery.JQuery;
 import js.Browser;
@@ -14,8 +15,8 @@ import tabmanager.TabManager;
  */
 @:keepSub @:expose("ProcessHelper") class ProcessHelper
 {
-	private static var processStdout:String;
-	private static var processStderr:String;
+	static var processStdout:String;
+	static var processStderr:String;
 	
 	public static function runProcess(process:String, params:Array<String>, onComplete:String->String->Void, ?onFailed:Int->String->String->Void):NodeChildProcess
 	{		
@@ -59,108 +60,148 @@ import tabmanager.TabManager;
 		
 		new JQuery("#errors").html("");
 		
-		var process:NodeChildProcess = Node.child_process.exec(command, { }, function (error, stdout:String, stderr:String):Void
+		var process:NodeChildProcess = Node.child_process.spawn(process, params);
+		
+		process.stdout.setEncoding(NodeC.UTF8);
+		process.stderr.setEncoding(NodeC.UTF8);
+		
+		var processStdout:String = "";
+		var processStderr:String = "";
+		
+		process.stdout.on("data", function (data:String):Void 
 		{
-			if (StringTools.trim(stdout) != "")
-			{
-				textarea.value += "stdout:\n" + stdout;
-				trace("stdout:\n" + stdout);
-			}
-			
-			HaxeLint.fileData = new StringMap();
-			
-			if (stderr != "")
-			{
-				var lines = stderr.split("\n");
-				
-				for (line in lines) 
-				{
-					if (line.indexOf(":") != 0) 
-					{
-						var args:Array<String> = line.split(":");
-						
-						if (args.length > 3) 
-						{
-							var relativePath:String = args[0];
-							var fullPath:String = Node.path.join(ProjectAccess.currentProject.path, relativePath);
-							
-							var data:Array<HaxeLint.Info> = [];
-							
-							HaxeLint.fileData.set(fullPath, data);
-							
-							var lineNumber:Int = Std.parseInt(args[1]) - 1;
-							
-							var charsData:Array<String> = StringTools.trim(args[2]).split(" ")[1].split("-");
-							
-							var start:Int = Std.parseInt(charsData[0]);
-							var end:Int = Std.parseInt(charsData[1]);
-							
-							var message:String = "";
-							
-							for (i in 3...args.length) 
-							{
-								message += args[i];
-								
-								if (i != args.length - 1) 
-								{
-									message += ":";
-								}
-							}
-							
-							var a:AnchorElement = Browser.document.createAnchorElement();
-							a.href = "#";
-							a.className = "list-group-item";
-							a.innerText = line;
-							a.onclick = function (e)
-							{
-								TabManager.openFileInNewTab(fullPath, true, function ():Void 
-								{
-									untyped CodeMirrorEditor.editor.centerOnLine(lineNumber);
-								});
-								
-							};
-							
-							new JQuery("#errors").append(a);
-							
-							var info:HaxeLint.Info = { from: CodeMirrorPos.from(lineNumber, start), to: CodeMirrorPos.from(lineNumber, end), message: message, severity: "error" };
-							trace(info);
-							data.push(info);
-							
-							//Check if it's open
-							//Show hints when swithing document
-							TabManager.openFileInNewTab(fullPath, false);
-						}
-					}
-				}
-                
-				cm.CodeMirrorEditor.editor.setOption("lint", true);                                                                                     
-				
-				textarea.value += "stderr:\n" + stderr;
-				trace("stderr:\n" + stderr);
-			}
-			
-			if (error == null) 
-			{
-				textarea.value += "Build complete\n";
-				
-				if (onComplete != null)
-				{
-					onComplete();
-				}
-				
-				new JQuery("#buildStatus").fadeIn();
-			}
-			else 
-			{
-				trace(command);
-				textarea.value += "Build failed (exit code: " + Std.string(error.code) +  ")\n" ;
-				
-				new JQuery("#buildStatus").fadeOut();
-			}
+			processStdout += data;
+		}
+		);
+		
+		process.stderr.on("data", function (data:String):Void 
+		{
+			processStderr += data;
+		}
+		);
+		
+		process.on("close", function (code:Int)
+		{
+			processOutput(code, processStdout, processStderr, onComplete);
+		}
+		);
+		
+		process.on("error", function (e):Void 
+		{
+			trace(e);
 		}
 		);
 		
 		return process;
+	}
+	
+	static function processOutput(code:Int, stdout:String, stderr:String, ?onComplete:Dynamic):Void
+	{
+		var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
+		
+		if (StringTools.trim(stdout) != "")
+		{
+			textarea.value += "stdout:\n" + stdout;
+			trace("stdout:\n" + stdout);
+		}
+		
+		HaxeLint.fileData = new StringMap();
+		
+		if (stderr != "")
+		{
+			var lines = stderr.split("\n");
+			
+			for (line in lines) 
+			{
+				if (line.indexOf(":") != 0) 
+				{
+					var args:Array<String> = line.split(":");
+					
+					if (args.length > 3) 
+					{
+						var relativePath:String = args[0];
+						var fullPath:String = Node.path.join(ProjectAccess.currentProject.path, relativePath);
+						
+						var data:Array<HaxeLint.Info> = [];
+						
+						HaxeLint.fileData.set(fullPath, data);
+						
+						var lineNumber:Int = Std.parseInt(args[1]) - 1;
+						
+						var charsData:Array<String> = StringTools.trim(args[2]).split(" ")[1].split("-");
+						
+						var start:Int = Std.parseInt(charsData[0]);
+						var end:Int = Std.parseInt(charsData[1]);
+						
+						var message:String = "";
+						
+						for (i in 3...args.length) 
+						{
+							message += args[i];
+							
+							if (i != args.length - 1) 
+							{
+								message += ":";
+							}
+						}
+						
+						var a:AnchorElement = Browser.document.createAnchorElement();
+						a.href = "#";
+						a.className = "list-group-item";
+						a.innerText = line;
+						a.onclick = function (e)
+						{
+							TabManager.openFileInNewTab(fullPath, true, function ():Void 
+							{
+								var cm:Dynamic = CodeMirrorEditor.editor;
+								cm.centerOnLine(lineNumber);
+							});
+							
+						};
+						
+						new JQuery("#errors").append(a);
+						
+						var info:HaxeLint.Info = { from: {line:lineNumber, ch:start}, to: {line:lineNumber, ch:end}, message: message, severity: "error" };
+						trace(info);
+						data.push(info);
+						
+						//Check if it's open
+						//Show hints when swithing document
+						TabManager.openFileInNewTab(fullPath, false);
+					}
+				}
+			}
+			
+			textarea.value += "stderr:\n" + stderr;
+			trace("stderr:\n" + stderr);
+		}
+		
+		if (code == 0) 
+		{
+			Alertify.success("Build complete!");
+			
+			textarea.value += "Build complete\n";
+			
+			if (onComplete != null)
+			{
+				onComplete();
+			}
+			
+			new JQuery("#buildStatus").fadeIn();
+		}
+		else 
+		{
+			new JQuery("#resultsTab").click();
+			
+			Alertify.error("Build failed");
+			
+			//trace(command);
+			textarea.value += "Build failed (exit code: " + Std.string(code) +  ")\n" ;
+			
+			new JQuery("#buildStatus").fadeOut();
+		}
+		
+		HaxeLint.updateLinting();
 	}
 	
 	public static function runPersistentProcess(process:String, params:Array<String>, ?onClose:String->String->Void):NodeChildProcess

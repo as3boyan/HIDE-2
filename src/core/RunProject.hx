@@ -5,9 +5,11 @@ import js.html.TextAreaElement;
 import js.Node;
 import menu.BootstrapMenu;
 import nodejs.webkit.Shell;
+import nodejs.webkit.Window;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
 import tabmanager.TabManager;
+import watchers.LocaleWatcher;
 
 /**
  * ...
@@ -15,14 +17,22 @@ import tabmanager.TabManager;
  */
 class RunProject
 {	
+	static var runProcess:NodeChildProcess;
+	
 	public static function load():Void
 	{
 		BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, runProject, "F5");
 		BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, buildProject, "F8");
 		BootstrapMenu.getMenu("Project").addMenuItem("Set this hxml as project build file", 3, setHxmlAsProjectBuildFile);
+		
+		Window.get().on("close", function ():Void 
+		{
+			killRunProcess();
+		}
+		);
 	}
 	
-	private static function setHxmlAsProjectBuildFile():Void
+	static function setHxmlAsProjectBuildFile():Void
 	{
 		var path:String = TabManager.getCurrentDocumentPath();
 		var extname:String = js.Node.path.extname(path);
@@ -35,15 +45,15 @@ class RunProject
 			project.main = Node.path.basename(path);
 			project.path = Node.path.dirname(path);
 			ProjectAccess.save();
-			Alerts.showAlert("Done");
+			Alertify.success(LocaleWatcher.getStringSync("Done"));
 		}
 		else 
 		{
-			Alerts.showAlert("Currently active document is not a hxml file");
+			Alertify.error(LocaleWatcher.getStringSync("Currently active document is not a hxml file"));
 		}
 	}
 	
-	private static function runProject():Void
+	static function runProject():Void
 	{		
 		buildProject(function ()
 		{			
@@ -81,7 +91,9 @@ class RunProject
 						
 						var process:String = params.shift();
 						
-						ProcessHelper.runProcessAndPrintOutputToConsole(process, params);
+						killRunProcess();
+						
+						runProcess = ProcessHelper.runProcessAndPrintOutputToConsole(process, params);
 					}
 				default:
 					
@@ -90,7 +102,15 @@ class RunProject
 		);
 	}
 	
-	private static function isValidCommand(command:String):Bool
+	static function killRunProcess():Void
+	{
+		if (runProcess != null) 
+		{
+			runProcess.kill();
+		}
+	}
+	
+	static function isValidCommand(command:String):Bool
 	{
 		var valid = false;
 		
@@ -102,11 +122,11 @@ class RunProject
 		return valid;
 	}
 	
-	private static function buildProject(?onComplete:Dynamic):Void
+	static function buildProject(?onComplete:Dynamic):Void
 	{		
 		if (ProjectAccess.currentProject.path == null)
 		{
-			Alerts.showAlert("Please open or create project first!");
+			Alertify.error(LocaleWatcher.getStringSync("Please open or create project first!"));
 		}
 		else 
 		{

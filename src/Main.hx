@@ -1,11 +1,13 @@
 package ;
 
+import core.Splitter;
+import core.WelcomeScreen;
+import dialogs.DialogManager;
 import jQuery.JQuery;
 import about.About;
 import autoformat.HaxePrinterLoader;
 import cm.CodeMirrorEditor;
 import cm.CodeMirrorZoom;
-import core.Alerts;
 import core.CompilationOutput;
 import core.Completion;
 import core.DragAndDrop;
@@ -14,12 +16,9 @@ import core.HaxeLint;
 import core.HaxeParserProvider;
 import core.HaxeServer;
 import core.Hotkeys;
-import core.LocaleWatcher;
 import core.MenuCommands;
 import core.PreserveWindowState;
 import core.RunProject;
-import core.SettingsWatcher;
-import core.ThemeWatcher;
 import core.Utils;
 import filetree.FileTree;
 import haxe.Timer;
@@ -31,13 +30,15 @@ import js.html.TextAreaElement;
 import js.Node;
 import js.node.Walkdir;
 import menu.BootstrapMenu;
-import newprojectdialog.NewProjectDialogLoader;
+import newprojectdialog.NewProjectDialog;
 import nodejs.webkit.Window;
 import openflproject.OpenFLProject;
-import openproject.OpenProjectLoader;
+import openproject.OpenProject;
+import parser.ClasspathWalker;
 import projectaccess.ProjectAccess;
 import projectaccess.ProjectOptions;
-import tabmanager.TabManagerMain;
+import tabmanager.TabManager;
+import watchers.SettingsWatcher;
 
 /**
  * ...
@@ -61,32 +62,34 @@ class Main
 			
 			//if (!window.isDevToolsOpen()) 
 			//{
-				//
+				
 			//}
 		}
 		);
         
-		PreserveWindowState.init();
-		
 		Hotkeys.prepare();
+		PreserveWindowState.init();
 		
 		Browser.window.addEventListener("load", function (e):Void
 		{
+			Splitter.load();
+			
 			SettingsWatcher.load();
+			DialogManager.load();
 			
 			Utils.prepare();
 			BootstrapMenu.createMenuBar();
-			NewProjectDialogLoader.load();
+			NewProjectDialog.load();
 			MenuCommands.add();
 			CodeMirrorZoom.load();
 			About.addToMenu();
 			FileTree.init();
 			ProjectOptions.create();
 			FileDialog.create();
-			TabManagerMain.load();
-			Completion.registerHelper();
-			HaxeLint.prepare();
+			TabManager.load();
+			HaxeLint.load();
 			CodeMirrorEditor.load();
+			Completion.registerHelper();
 			
 			HaxePrinterLoader.load();
 			
@@ -99,8 +102,10 @@ class Main
 			
 			CompilationOutput.load();
 			
-			OpenProjectLoader.load();
+			OpenProject.searchForLastProject();
 			DragAndDrop.prepare();
+			ClasspathWalker.load();
+			WelcomeScreen.load();
 			
 			currentTime = Date.now().getTime();
 			
@@ -112,7 +117,7 @@ class Main
 			,
 			function ()
 			{
-				Alerts.showAlert("Haxe compiler is not found");
+				Alertify.error("Haxe compiler is not found");
 				loadPlugins(false);
 			}
 			);

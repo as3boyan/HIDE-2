@@ -1,5 +1,4 @@
 package filetree;
-import core.Bootbox;
 import haxe.ds.StringMap.StringMap;
 import js.Browser;
 import js.html.AnchorElement;
@@ -11,6 +10,7 @@ import js.html.UListElement;
 import js.Lib;
 import nodejs.webkit.Shell;
 import tabmanager.TabManager;
+import watchers.LocaleWatcher;
 
 /**
  * ...
@@ -18,15 +18,9 @@ import tabmanager.TabManager;
  */
 class ContextMenu
 {
-	
-	private static var itemType:String;
-	private static var path:String;
-	private static var menuItems:StringMap<LIElement>;
-	
-	public function new() 
-	{
-		
-	}
+	static var itemType:String;
+	static var path:String;
+	static var menuItems:StringMap<LIElement>;
 	
 	public static function createContextMenu():Void
 	{
@@ -49,34 +43,38 @@ class ContextMenu
 		
 		addContextMenuItemToStringMap("New File...", function ()
 		{
-			Bootbox.prompt("Filename:", "New.hx", function (result:String)
+			Alertify.prompt(LocaleWatcher.getStringSync("Filename:"), function (e:Bool, str:String)
 			{
-				var pathToFile:String = js.Node.path.join(path, result);
-				TabManager.createFileInNewTab(pathToFile);
-			});
+				if (e) 
+				{
+					var pathToFile:String = js.Node.path.join(path, str);
+					TabManager.createFileInNewTab(pathToFile);
+				}
+			}, "New.hx");
 		});
 		
 		addContextMenuItemToStringMap("New Folder...", function ()
 		{
-			Bootbox.prompt("Folder name:", "New Folder", function (result:String)
+			Alertify.prompt("Folder name:", function (e, str:String)
 			{
-				var dirname:String = result;
-			
-				if (dirname != null)
+				if (e) 
 				{
-					js.Node.fs.mkdir(js.Node.path.join(path, dirname), function (error):Void
-					{
-						FileTree.load();
-					});
-				}
-			}
-			);
+					var dirname:String = str;
 			
+					if (dirname != null)
+					{
+						js.Node.fs.mkdir(js.Node.path.join(path, dirname), function (error):Void
+						{
+							FileTree.load();
+						});
+					}
+				}
+			}, "New Folder");
 		});
 		
 		addContextMenuItemToStringMap("Open File", function ()
 		{
-			FileTree.onFileClick(path);
+			TabManager.openFileInNewTab(path);
 		});
 		
 		addContextMenuItemToStringMap("Open using OS", function ()

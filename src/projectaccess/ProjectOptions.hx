@@ -5,6 +5,7 @@ import js.html.OptionElement;
 import js.html.ParagraphElement;
 import js.html.SelectElement;
 import js.html.TextAreaElement;
+import watchers.LocaleWatcher;
 
 /**
  * ...
@@ -12,17 +13,17 @@ import js.html.TextAreaElement;
  */
 @:keepSub @:expose class ProjectOptions
 {	
-	private static var textarea:TextAreaElement;
-	private static var projectTargetList:SelectElement;
-	private static var projectTargetText:ParagraphElement;
-	private static var projectOptionsText:ParagraphElement;
-	private static var openFLTargetList:SelectElement;
-	private static var openFLTargetText:ParagraphElement;
-	private static var openFLTargets:Array<String>;
-	private static var buildActionTextArea:TextAreaElement;
-	private static var actionTextArea:TextAreaElement;
-	private static var runActionList:SelectElement;
-	private static var runActionTextAreaDescription:ParagraphElement;
+	static var textarea:TextAreaElement;
+	static var projectTargetList:SelectElement;
+	static var projectTargetText:ParagraphElement;
+	static var projectOptionsText:ParagraphElement;
+	static var openFLTargetList:SelectElement;
+	static var openFLTargetText:ParagraphElement;
+	static var openFLTargets:Array<String>;
+	static var buildActionTextArea:TextAreaElement;
+	static var actionTextArea:TextAreaElement;
+	static var runActionList:SelectElement;
+	static var runActionTextAreaDescription:ParagraphElement;
 	static private var buildActionDescription:ParagraphElement;
 	static private var runActionDescription:ParagraphElement;
 	
@@ -33,7 +34,7 @@ import js.html.TextAreaElement;
 		projectOptionsText = Browser.document.createParagraphElement();
 		projectOptionsText.id = "project-options-text";
 		projectOptionsText.className = "custom-font-size";
-		projectOptionsText.textContent = core.LocaleWatcher.getStringSync("Project arguments:");
+		projectOptionsText.textContent = LocaleWatcher.getStringSync("Project arguments:");
 		projectOptionsText.setAttribute("localeString", "Project arguments:");
 		
 		textarea = Browser.document.createTextAreaElement();
@@ -46,7 +47,7 @@ import js.html.TextAreaElement;
 		};
 		
 		projectTargetText = Browser.document.createParagraphElement();
-		projectTargetText.textContent = core.LocaleWatcher.getStringSync("Project target:");
+		projectTargetText.textContent = LocaleWatcher.getStringSync("Project target:");
 		projectTargetText.setAttribute("localeString", "Project target:");
 		projectTargetText.className = "custom-font-size";
 		page.appendChild(projectTargetText);
@@ -62,7 +63,7 @@ import js.html.TextAreaElement;
 		openFLTargetList.style.width = "100%";
 		
 		openFLTargetText = Browser.document.createParagraphElement();
-		openFLTargetText.innerText = core.LocaleWatcher.getStringSync("OpenFL target:");
+		openFLTargetText.innerText = LocaleWatcher.getStringSync("OpenFL target:");
 		openFLTargetText.setAttribute("localeString", "OpenFL target:");
 		openFLTargetText.className = "custom-font-size";
 		
@@ -87,18 +88,18 @@ import js.html.TextAreaElement;
 			
 			ProjectAccess.currentProject.buildActionCommand = ["haxelib", "run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
 			ProjectAccess.currentProject.runActionType = Project.COMMAND;
-			ProjectAccess.currentProject.runActionText = ["haxelib", "run", "openfl", "test", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
+			ProjectAccess.currentProject.runActionText = ["haxelib", "run", "openfl", "run", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
 			
 			updateProjectOptions();
 		};
 		
 		runActionDescription = Browser.document.createParagraphElement();
 		runActionDescription.className = "custom-font-size";
-		runActionDescription.textContent = core.LocaleWatcher.getStringSync("Run action:");
+		runActionDescription.textContent = LocaleWatcher.getStringSync("Run action:");
 		runActionDescription.setAttribute("localeString", "Run action:");
 		
 		runActionTextAreaDescription = Browser.document.createParagraphElement();
-		runActionTextAreaDescription.textContent = core.LocaleWatcher.getStringSync("URL:");
+		runActionTextAreaDescription.textContent = LocaleWatcher.getStringSync("URL:");
 		runActionTextAreaDescription.setAttribute("localeString", "URL:");
 		runActionTextAreaDescription.className = "custom-font-size";
 		
@@ -125,7 +126,7 @@ import js.html.TextAreaElement;
 		
 		buildActionDescription = Browser.document.createParagraphElement();
 		buildActionDescription.className = "custom-font-size";
-		buildActionDescription.textContent = core.LocaleWatcher.getStringSync("Build command:");
+		buildActionDescription.textContent = LocaleWatcher.getStringSync("Build command:");
 		buildActionDescription.setAttribute("localeString", "Build command:");
 		
 		buildActionTextArea = Browser.document.createTextAreaElement();
@@ -205,13 +206,13 @@ import js.html.TextAreaElement;
 		switch (runActionList.selectedIndex) 
 		{
 			case 0:
-				runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("URL: ");
+				runActionTextAreaDescription.innerText = LocaleWatcher.getStringSync("URL: ");
 				ProjectAccess.currentProject.runActionType = Project.URL;
 			case 1:
-				runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("Path: ");
+				runActionTextAreaDescription.innerText = LocaleWatcher.getStringSync("Path: ");
 				ProjectAccess.currentProject.runActionType = Project.FILE;
 			case 2:
-				runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("Command: ");
+				runActionTextAreaDescription.innerText = LocaleWatcher.getStringSync("Command: ");
 				ProjectAccess.currentProject.runActionType = Project.COMMAND;
 				
 			default:
@@ -289,7 +290,7 @@ import js.html.TextAreaElement;
 	private static function createListItem(text:String):OptionElement
 	{		
 		var option:OptionElement = Browser.document.createOptionElement();
-		option.textContent = core.LocaleWatcher.getStringSync(text);
+		option.textContent = LocaleWatcher.getStringSync(text);
 		option.value = text;
 		return option;
 	}

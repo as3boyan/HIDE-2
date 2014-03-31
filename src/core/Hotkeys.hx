@@ -21,11 +21,12 @@ typedef Hotkey =
  
 @:keepSub @:expose("Hotkeys") class Hotkeys
 {
-	private static var hotkeys:Array<Hotkey> = new Array();
-	private static var commandMap:StringMap<String> = new StringMap();
-	private static var spanMap:StringMap<SpanElement> = new StringMap();
+	static var hotkeys:Array<Hotkey> = new Array();
+	static var commandMap:StringMap<String> = new StringMap();
+	static var spanMap:StringMap<SpanElement> = new StringMap();
 	public static var data:Dynamic;
-	private static var pathToData:String;
+	static var pathToData:String;
+	static var commandKey:Bool = Utils.os == Utils.OTHER;
 	
 	public static function prepare():Void
 	{
@@ -54,7 +55,7 @@ typedef Hotkey =
 		{
 			for (hotkey in hotkeys)
 			{
-				if (hotkey.keyCode == e.keyCode && hotkey.ctrl == e.ctrlKey && hotkey.shift == e.shiftKey && hotkey.alt == e.altKey)
+				if (hotkey.keyCode == e.keyCode && hotkey.ctrl == (e.ctrlKey || (commandKey && e.metaKey)) && hotkey.shift == e.shiftKey && hotkey.alt == e.altKey)
 				{
 					hotkey.onKeyDown();
 				}
@@ -112,6 +113,12 @@ typedef Hotkey =
 		
 		if (spanMap.exists(menuItem)) 
 		{
+			
+			if (commandKey) 
+			{
+				hotkeyText = StringTools.replace(hotkeyText, "Ctrl", "Cmd");
+			}
+			
 			spanMap.get(menuItem).innerText = hotkeyText;
 		}
 		

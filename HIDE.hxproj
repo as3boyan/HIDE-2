@@ -17,6 +17,10 @@
   <classpaths>
     <class path="src" />
     <class path="externs\codemirror" />
+    <class path="libs\haxeparser-master\src" />
+    <class path="libs\haxeprinter\src" />
+    <class path="libs\nodejs-std" />
+    <class path="externs\alertify" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -25,7 +29,7 @@
     <option noInlineOnDebug="False" />
     <option mainClass="Main" />
     <option enabledebug="False" />
-    <option additional="-lib jQueryExtern&#xA;-lib hxparse&#xA;-lib tjson&#xA;-lib mustache&#xA;-cp libs/nodejs-std/src&#xA;-cp libs/haxeparser-master/src&#xA;-cp libs/haxeprinter/src&#xA;-resource libs/haxeprinter/res/config.json@config&#xA;-D noStyle&#xA;-D source-map-content&#xA;-dce full&#xA;core.Bootbox&#xA;core.ProcessHelper&#xA;openflproject.OpenFLTools&#xA;--next&#xA;-cp src&#xA;-main tools.Run&#xA;-neko bin/run.n&#xA;-debug&#xA;-dce full&#xA;--next&#xA;-cp src&#xA;-cp libs/nodejs-std/src&#xA;-lib tjson&#xA;-main about.Presentation&#xA;-js bin/Presentation.js&#xA;-dce full&#xA;-D source-map-content&#xA;--times" />
+    <option additional="-lib jQueryExtern&#xA;-lib hxparse&#xA;-lib tjson&#xA;-lib mustache&#xA;-resource libs/haxeprinter/res/config.json@config&#xA;-D noStyle&#xA;-D nodejs&#xA;-D source-map-content&#xA;-dce full&#xA;core.ProcessHelper&#xA;openflproject.OpenFLTools" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

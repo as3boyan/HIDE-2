@@ -8,6 +8,7 @@
 * FIX: window state preserving
 * FIX: project options padding
 * FIX: Tab Manager context menu: Close others
+* FIX: Hotkeys for Mac
 * CHANGED: Plugins were moved to the core(for performance, stability and to make development easier), HIDE still supports plugin system.
 * CHANGED: Release on haxelib only JavaScript code(without source)
 * CHANGED: removed Acorn(unused parser, which Tern depends on)
@@ -22,6 +23,10 @@
 * CHANGED: replaced jQuery layout plugin with jQWidget splitter
 * CHANGED: project options panel moved to tab
 * CHANGED: use Mustache for templates
+* CHANGED: use alertify for prompt/confirm/alert dialogs and notifications
+* CHANGED: tab manager was rewritten
+* CHANGED: hide outline panel and file tree when no project open
+* CHANGED: linting will get updated on build/parse
 * ADDED: Help: changelog command
 * ADDED: Options: Open editor configuration file command
 * ADDED: Help: Show code editor key bindings
@@ -38,6 +43,14 @@
 * ADDED: Show build status indicator on output tab header
 * ADDED: watch theme.css for changes and apply to UI
 * ADDED: CM Haxe mode indent
+* ADDED: Watch open files(and show confirmation for reload)
+* ADDED: Prompt path to haxe
+* ADDED: Go to Line(Ctrl-G) dialog
+* ADDED: On close tab - confirm dialog to save file or not(hotkeys: Enter - to save, Esc - to not save)
+* ADDED: open file(Ctrl-Shift-O)
+* ADDED: show class list(Ctrl-Shift-P)
+* ADDED: welcome screen
+* ADDED: completion for hxml
 * UPDATED: CodeMirror to v4
 
 0.3.3

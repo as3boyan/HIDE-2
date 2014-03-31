@@ -38,9 +38,11 @@
 	<link href="includes/CodeMirror-4/theme/xq-dark.css" type="text/css" rel="stylesheet">
 	<link href="includes/CodeMirror-4/theme/xq-light.css" type="text/css" rel="stylesheet">
 		
-	<link id="theme" href="theme.css" rel="stylesheet" media="screen">
+	<link rel="stylesheet" href="includes/css/jqx.base.css" type="text/css" />
+	<link rel="stylesheet" href="includes/alertify.js-0.3.11/themes/alertify.core.css" type="text/css" />
+	<link rel="stylesheet" href="includes/alertify.js-0.3.11/themes/alertify.default.css" type="text/css" />
 	
-    <link rel="stylesheet" href="includes/css/jqx.base.css" type="text/css" />
+	<link id="theme" href="light.css" rel="stylesheet" media="screen">
     
 	<script src="includes/js/jquery-2.0.3.min.js"></script>	
     <script type="text/javascript" src="includes/js/jqxcore.js"></script>
@@ -49,6 +51,8 @@
     <script type="text/javascript" src="includes/js/jqxtree.js"></script>
 	<script src="includes/js/bootstrap.min.js"></script>
 	<script src="includes/js/bootbox.min.js"></script>
+	
+	<script src="includes/alertify.js-0.3.11/lib/alertify.min.js"></script>
 	
 	<script src="includes/CodeMirror-4/lib/codemirror.js"></script>
     
@@ -63,7 +67,6 @@
 	<script src="includes/CodeMirror-4/addon/hint/show-hint.js"></script>
 	<script src="includes/CodeMirror-4/addon/edit/matchbrackets.js"></script>
 	<script src="includes/CodeMirror-4/addon/edit/closebrackets.js"></script>
-	<script src="includes/CodeMirror-4/addon/comment/comment.js"></script>
 	<script src="includes/CodeMirror-4/addon/fold/foldcode.js"></script>
 	<script src="includes/CodeMirror-4/addon/fold/foldgutter.js"></script>
 	<script src="includes/CodeMirror-4/addon/fold/brace-fold.js"></script>
@@ -109,13 +112,55 @@
             </div>
             <div>
                 <div id="thirdNested">
-						<!--                Code editor style="padding: 10px 10px 10px 10px;"-->
-						<div id="editor" style="width: 97%;">
+						<div>
+							<!--                Code editor style="padding: 10px 10px 10px 10px;"-->
+							<div id="editor">
+								<ul id="tabs" class="tabs no-select"></ul>
+								<textarea id="code"></textarea>
+							</div>
+							
+							<div id="welcomeScreen">
+								<div class="site-wrapper">
+								  <div class="site-wrapper-inner">
+									<div class="cover-container">
+
+									  <div class="masthead clearfix">
+										<div class="inner">
+										  <h3 class="masthead-brand"></h3>
+										  <ul class="nav masthead-nav">
+											<li class="active"><a class="welcomeA" href="#">Home</a></li>
+										  </ul>
+										</div>
+									  </div>
+
+									  <div class="inner cover">
+										<h1 class="cover-heading">Welcome to HIDE</h1>
+										<p class="lead">Start a new project or open an existing one.</p>
+										<p class="lead">
+										  <a href="#" class="btn btn-lg btn-default welcomeBtn welcomeA" id="createNewProject">Create New Project...</a>
+										  <a href="#" class="btn btn-lg btn-default welcomeBtn welcomeA" id="openProject">Open Project or File...</a>
+										</p>
+									  </div>
+
+									  <div class="mastfoot">
+										<div class="inner">
+											<!-- https://github.com/misterpah/HIDE/tree/master -->
+										  <p><a class="welcomeA" href="#" id="github">IDE</a> for Haxe, by <a class="welcomeA" href="#" id="as3boyan">@as3boyan</a> and <a class="welcomeA" href="#" id="misterpah">@misterpah</a>.</p>
+										</div>
+									  </div>
+									  
+									</div>
+								  </div>
+								</div>
+							</div>
+							
+							<div id="annotationRuler">
+							</div>
 						</div>
                     <div>
                         <div class="jqx-hideborder jqx-hidescrollbars" id="tabs1">
                             <ul>
-                                <li style="margin-left: 30px;"><span localeString="Results">Results</span></li>
+                                <li style="margin-left: 30px;"><span id="resultsTab" localeString="Results">Results</span></li>
                                 <li><span localeString="Output">Output</span><span id="buildStatus" class="glyphicon glyphicon-ok"></span></li>
                                 <li><span localeString="Options">Options</span></li>
                             </ul>

@@ -1,5 +1,6 @@
 package haxeproject;
 import core.FileTools;
+import core.Splitter;
 import filetree.FileTree;
 import js.Browser;
 import js.html.TextAreaElement;
@@ -16,8 +17,8 @@ import tabmanager.TabManager;
  */
 class HaxeProject
 {
-	private static var code:String;
-	private static var indexPageCode:String;
+	static var code:String;
+	static var indexPageCode:String;
 	
 	//If this plugin is selected as active in HIDE, then HIDE will call this function once on load	
 	public static function load():Void
@@ -198,6 +199,8 @@ class HaxeProject
 				);
 				
 				ProjectOptions.updateProjectOptions();
+				
+				Splitter.show();
 			});
 		}
 		);

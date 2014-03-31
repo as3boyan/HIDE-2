@@ -1,0 +1,9 @@
+-cp src
+-cp libs/nodejs-std
+-lib tjson
+-lib jQueryExtern
+-main about.Presentation
+-js bin/Presentation.js
+-dce full
+-D source-map-content
+-D nodejs

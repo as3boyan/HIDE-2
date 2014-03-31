@@ -1,1 +1,1 @@
-start haxelib run node-webkit ../bin
+start haxelib run node-webkit ..\bin

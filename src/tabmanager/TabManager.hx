@@ -2,8 +2,12 @@ package tabmanager;
 import cm.CMDoc;
 import cm.CodeMirrorEditor;
 import core.FileDialog;
+import core.HaxeLint;
+import core.WelcomeScreen;
 import filetree.FileTree;
+import haxe.ds.StringMap.StringMap;
 import haxe.Timer;
+import jQuery.JQuery;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
@@ -14,7 +18,9 @@ import js.html.SpanElement;
 import js.html.UListElement;
 import js.Node;
 import mustache.Mustache;
+import nodejs.webkit.Window;
 import projectaccess.ProjectAccess;
+import watchers.LocaleWatcher;
 
 /**
  * ...
@@ -23,80 +29,63 @@ import projectaccess.ProjectAccess;
 @:keepSub @:expose class TabManager
 {
 	public static var tabs:UListElement;
-	public static var curDoc:CMDoc;
-	private static var docs:Array<CMDoc>;
+	public static var tabMap:TabMap;
+	public static var selectedPath:String;
+	static var selectedIndex:Int;
 	
-	private static var filesSavedCount:Int;
-	
-	public static function init():Void
+	public static function load():Void
 	{
-		//<ul class="tabs" id="docs" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none;"></ul>
+		tabs = cast(Browser.document.getElementById("tabs"), UListElement);
 		
-		tabs = Browser.document.createUListElement();
-		tabs.className = "tabs no-select";
+		tabMap = new TabMap();
 		
-		tabs.onclick = function(e):Void
-		{
-			var target:Dynamic = e.target || e.srcElement;
-			if (target.nodeName.toLowerCase() != "li") return;
-
-			var i = 0;
-			var c:Dynamic = target.parentNode.firstChild;
-
-			if (c == target)
-			{
-				return TabManager.selectDoc(0);
-			}
-			else
-			{
-				while (true)
-				{
-					i++;
-					c = c.nextSibling;
-					if (c == target) return TabManager.selectDoc(i);
-				}
-			}                        
-		};
+		ContextMenu.createContextMenu();
 		
-		TabManagerContextMenu.createContextMenu();
+		var options:Alertify.Options = { };
+		options.labels = { };
+		options.labels.ok = LocaleWatcher.getStringSync("Yes");
+		options.labels.cancel = LocaleWatcher.getStringSync("No");
 		
-		docs = [];
-		
-		new jQuery.JQuery("#editor").append(tabs);
+		Alertify.set(options);
 	}
 	
-	public static function createNewTab(name:String, path:String):Void
+	public static function createNewTab(name:String, path:String, doc:CodeMirror.Doc, ?save:Bool = false):Void
 	{
-		var li:LIElement = Browser.document.createLIElement();
-		li.title = path;
-		li.innerText = name + "\t";
-		li.setAttribute("path", path);
-
-		var span:SpanElement = Browser.document.createSpanElement();
-		span.style.position = "relative";
-		span.style.top = "2px";
-
-		span.onclick = function (e):Void
-		{
-			TabManager.closeTab(path);
-		}
-
-		var span2:SpanElement = Browser.document.createSpanElement();
-		span2.className = "glyphicon glyphicon-remove-circle";
-		span.appendChild(span2);
-
-		li.appendChild(span);
-
-		tabs.appendChild(li);
+		var tab = new Tab(name, path, doc, save);
+		tabMap.add(tab);
 		
-		var relativePath = Node.path.relative(ProjectAccess.currentProject.path, path);
+		tabs.appendChild(tab.getElement());
 		
-		if (ProjectAccess.currentProject.files.indexOf(relativePath) == -1) 
+		if (ProjectAccess.currentProject.path != null) 
 		{
-			ProjectAccess.currentProject.files.push(relativePath);
+			var relativePath = Node.path.relative(ProjectAccess.currentProject.path, path);
+			
+			if (ProjectAccess.currentProject.files.indexOf(relativePath) == -1) 
+			{
+				ProjectAccess.currentProject.files.push(relativePath);
+			}
 		}
 		
 		CodeMirrorEditor.resize();
+	}
+	
+	public static function openFile(path:String, onComplete:String->Void)
+	{
+		var options:js.Node.NodeFsFileOptions = { };
+		options.encoding = NodeC.UTF8;
+		
+		Node.fs.readFile(path, options, function (error:js.Node.NodeErr, code:String):Void
+		{
+			if (error != null)
+			{
+				trace(error);
+			}
+			else 
+			{
+				onComplete(code);
+			}
+		}
+		);
 	}
 	
 	public static function openFileInNewTab(path:String, ?show:Bool = true, ?onComplete:Dynamic):Void
@@ -107,28 +96,21 @@ import projectaccess.ProjectAccess;
 		if (isAlreadyOpened(path, show))
 		{
 			if (onComplete != null) 
-				{
-					onComplete();
-				}
+			{
+				onComplete();
+			}
 			return;
 		}
 		
-		var options:js.Node.NodeFsFileOptions = { };
-		options.encoding = js.Node.NodeC.UTF8;
-		
-		js.Node.fs.readFile(path, options, function (error:js.Node.NodeErr, code:String):Void
+		openFile(path, function (code:String):Void 
 		{
-			if (error != null)
-			{
-				trace(error);
-			}
-			
 			if (isAlreadyOpened(path, show))
 			{
 				if (onComplete != null) 
 				{
 					onComplete();
 				}
+				
 				return;
 			}
 			
@@ -137,11 +119,11 @@ import projectaccess.ProjectAccess;
 				var mode:String = getMode(path);
 				var name:String = js.Node.path.basename(path);
 				
-				docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
+				var doc = new CodeMirror.Doc(code, mode);
 				
-				createNewTab(name, path);
+				createNewTab(name, path, doc);
 				
-				selectDoc(docs.length - 1);
+				selectDoc(path);
 				
 				checkTabsCount();
 				
@@ -152,7 +134,7 @@ import projectaccess.ProjectAccess;
 			}
 			else 
 			{
-				trace("boyan.bootstrap.tab-manager: can't load file " + path);
+				trace("tab-manager: can't load file " + path);
 			}
 		}
 		);
@@ -164,7 +146,7 @@ import projectaccess.ProjectAccess;
 		
 		if (path == null) 
 		{
-			FileDialog.saveFile(function (selectedPath:String)
+			FileDialog.saveFile(function (_selectedPath:String)
 			{			
 				//var path:String = convertPathToUnixFormat(value);
 		
@@ -173,7 +155,7 @@ import projectaccess.ProjectAccess;
 					//return;
 				//}
 				
-				createNewFile(selectedPath);
+				createNewFile(_selectedPath);
 			}
 			);
 		}
@@ -202,76 +184,54 @@ import projectaccess.ProjectAccess;
 			var pathToTemplate:String = Node.path.join("templates", "New.hx");
 			var templateCode:String = Node.fs.readFileSync(pathToTemplate, options);
 			
-			code = Mustache.render(templateCode, { name: js.Node.path.basename(name, extname), pack:"test", author:"testo" } );
+			//author:"testo"
+			code = Mustache.render(templateCode, { name: js.Node.path.basename(name, extname), pack:"", author:""} );
 		}
 		
-		docs.push(new CMDoc(name, new CodeMirror.Doc(code, mode), path));
+		var doc = new CodeMirror.Doc(code, mode);
 		
-		createNewTab(name, path);
-		
-		selectDoc(docs.length - 1);
+		createNewTab(name, path, doc, true);
+		selectDoc(path);
 		
 		checkTabsCount();
-		
-		saveActiveFile();
 		
 		FileTree.load();
 	}
 	
 	private static function checkTabsCount():Void
-	{
-		if (CodeMirrorEditor.editor != null)
-		{				
-			if (CodeMirrorEditor.editor.getWrapperElement().style.display == "none" && docs.length > 0)
-			{
-				CodeMirrorEditor.editor.getWrapperElement().style.display = "block";
-
-				CodeMirrorEditor.editor.refresh();
-				
-				//Main.updateMenu();
-			}
+	{			
+		if (Browser.document.getElementById("editor").style.display == "none" && tabMap.getTabs().length > 0)
+		{
+			new JQuery("#editor").fadeIn();
+			
+			WelcomeScreen.hide();
+			
+			CodeMirrorEditor.editor.refresh();
+			
+			CodeMirrorEditor.resize();
+			//Main.updateMenu();
 		}
 	}
 	
 	public static function closeAll():Void
 	{
-		for (i in 0...docs.length)
+		for (key in tabMap.keys()) 
 		{
-			if (docs[i] != null)
-			{
-				closeTab(docs[i].path, false);
-			}
-		}
-		
-		if (docs.length > 0)
-		{
-			Timer.delay(function ()
-			{
-				closeAll();
-			}
-			,300);
+			closeTab(key, false);
 		}
 	}
         
 	public static function closeOthers(path:String):Void
 	{		
-		for (doc in docs) 
+		for (key in tabMap.keys()) 
 		{
-			if (doc.path != path) 
+			if (key != path) 
 			{
-				closeTab(doc.path, false);
+				closeTab(key, false);
 			}
 		}
 		
-		if (docs.length > 1)
-		{
-			Timer.delay(function ()
-			{
-				closeOthers(path);
-			}
-			,300);
-		}
-		else 
+		if (tabMap.getTabs().length == 1)
 		{
 			showNextTab();
 		}
@@ -279,104 +239,103 @@ import projectaccess.ProjectAccess;
 	
 	public static function closeTab(path:String, ?switchToTab:Bool = true):Void
 	{
-		var j:Int = -1;
-		
-		for (i in 0...docs.length)
-		{                                
-			if (docs[i] != null && docs[i].path == path)
-			{
-				j = i;
-				break;
-			}
-		}
-		
-		if (j != -1) 
+		if (isChanged(path)) 
 		{
-			saveDoc(docs[j], function ()
+			Alertify.confirm(LocaleWatcher.getStringSync("File ") + path +  LocaleWatcher.getStringSync(" was changed. Save it?"), function (e)
 			{
-				docs.splice(j, 1);
-				cast(tabs.children.item(j), Element).remove();
-				
-				if (docs.length > 0)
+				if (e)
 				{
-					if (switchToTab)
-					{
-						showPreviousTab();
-					}
-				}
-				else 
-				{
-					if (CodeMirrorEditor.editor != null)
-					{
-						CodeMirrorEditor.editor.getWrapperElement().style.display = "none";
-					}
-					
-					curDoc = null;
+					saveDoc(path);
 				}
 				
-				
-				var pathToDocument:String = Node.path.relative(ProjectAccess.currentProject.path, path);
-				ProjectAccess.currentProject.files.remove(pathToDocument);
+				removeTab(path, switchToTab);
 			}
 			);
-			
-			CodeMirrorEditor.resize();
 		}
+		else 
+		{
+			removeTab(path, switchToTab);
+		}
+		
+		CodeMirrorEditor.resize();
+	}
+	
+	static function removeTab(path:String, ?switchToTab:Bool)
+	{
+		var tab = tabMap.get(path);
+		tabMap.remove(path);
+		
+		tab.remove();
+		
+		if (tabMap.getTabs().length > 0)
+		{
+			if (switchToTab)
+			{
+				showPreviousTab();
+			}
+		}
+		else 
+		{
+			new JQuery("#editor").fadeOut();
+			
+			if (ProjectAccess.currentProject.path != null) 
+			{
+				WelcomeScreen.hide();
+			}
+			else 
+			{
+				WelcomeScreen.show();
+			}
+			
+			selectedPath = null;
+		}
+		
+		
+		if (ProjectAccess.currentProject.path != null) 
+		{
+			var pathToDocument:String = Node.path.relative(ProjectAccess.currentProject.path, path);
+			ProjectAccess.currentProject.files.remove(pathToDocument);
+		}
+	}
+	
+	public static function showPreviousTab() 
+	{
+		var index = selectedIndex - 1;
+		var tabArray = tabMap.getTabs();
+		
+		if (index < 0) 
+		{
+			index = tabArray.length - 1;
+		}
+		
+		selectDoc(tabArray[index].path);
+	}
+	
+	public static function showNextTab() 
+	{
+		var index = selectedIndex + 1;
+		var tabArray = tabMap.getTabs();
+		
+		if (index > tabArray.length - 1) 
+		{
+			index = 0;
+		}
+		
+		selectDoc(tabArray[index].path);
 	}
 	
 	public static function closeActiveTab():Void
 	{
-		saveActiveFile(function ()
-		{
-			closeTab(curDoc.path);
-		}
-		);
-	}
-	
-	public static function showNextTab():Void
-	{
-		var n = Lambda.indexOf(docs, curDoc);
-		
-		n++;
-		
-		if (n > docs.length - 1)
-		{
-			n = 0;
-		}
-		
-		selectDoc(n);
-	}
-	
-	public static function showPreviousTab():Void
-	{
-		var n = Lambda.indexOf(docs, curDoc);
-		
-		n--;
-		
-		if (n < 0)
-		{
-			n = docs.length - 1;
-		}
-		
-		selectDoc(n);
+		closeTab(selectedPath);
 	}
 
 	private static function isAlreadyOpened(path:String, ?show:Bool = true):Bool
 	{
-		var opened:Bool = false;
+		var opened:Bool = tabMap.exists(path);
 		
-		for (i in 0...docs.length)
+		if (opened && show) 
 		{
-			if (docs[i].path == path)
-			{				
-				if (show) 
-				{
-					selectDoc(i);
-				}
-				
-				opened = true;
-				break;
-			}
+			selectDoc(path);
 		}
 		
 		return opened;
@@ -409,139 +368,102 @@ import projectaccess.ProjectAccess;
 		return mode;
 	}
 	
-	public static function selectDoc(pos:Int):Void
+	public static function selectDoc(path:String):Void
 	{
-		for (i in 0...tabs.childNodes.length)
+		var keys = tabMap.keys();
+		for (i in 0...keys.length) 
 		{
-			var child:Element = cast(tabs.childNodes[i], Element);
-          
-			if (pos == i)
+			if (keys[i] == path) 
 			{
-				child.className = "selected";
+				tabMap.get(keys[i]).getElement().className = "selected";
+				selectedIndex = i;
 			}
-			else
+			else 
 			{
-				child.className = "";
+				tabMap.get(keys[i]).getElement().className = "";
 			}
 		}
 		
-		curDoc = docs[pos];
+		selectedPath = path;
 		
 		if (ProjectAccess.currentProject.path != null) 
 		{
-			ProjectAccess.currentProject.activeFile = Node.path.relative(ProjectAccess.currentProject.path, curDoc.path);
+			ProjectAccess.currentProject.activeFile = Node.path.relative(ProjectAccess.currentProject.path, selectedPath);
 		}
 		
-		CodeMirrorEditor.editor.swapDoc(curDoc.doc);
-	}
-	
-	public static function selectDocByPath(path:String):Void
-	{
-		var j = -1;
+		CodeMirrorEditor.editor.swapDoc(tabMap.get(selectedPath).doc);
 		
-		for (i in 0...docs.length) 
+		if (Node.path.extname(selectedPath) == ".hx") 
 		{
-			if (docs[i] != null && docs[i].path == path) 
-			{
-				j = i;
-				break;
-			}
-		}
-		
-		if (j != -1) 
-		{
-			selectDoc(j);
+			HaxeLint.updateLinting();
 		}
 	}
 	
 	public static function getCurrentDocumentPath():String
 	{
-		var path:String = null;
-		
-		if (curDoc != null)
+		return selectedPath;
+	}
+	
+	public static function getCurrentDocument():CodeMirror.Doc
+	{
+		return tabMap.get(selectedPath).doc;
+	}
+	
+	public static function saveDoc(path:String, ?onComplete:Dynamic):Void
+	{				
+		if (isChanged(path)) 
 		{
-			path = curDoc.path;
+			var tab:Tab = tabMap.get(path);
+			tab.save();
 		}
 		
-		return path;
-	}
-	
-	public static function getCurrentDocument():CMDoc
-	{
-		return curDoc;
-	}
-	
-	public static function saveDoc(doc:CMDoc, ?onComplete:Dynamic):Void
-	{
-		if (doc != null)
+		if (onComplete != null)
 		{
-			Node.fs.writeFileSync(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8);
-			//js.Node.fs.writeFile(doc.path, doc.doc.getValue(), js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-			//{				
-			if (onComplete != null)
-			{
-				onComplete();
-			}
-			//}
-			//);	
+			onComplete();
 		}	
+	}
+	
+	public static function isChanged(path:String):Bool
+	{
+		var tab:Tab = tabMap.get(path);
+		var history:Dynamic = tab.doc.historySize();
+		
+		return (history.undo > 0 || history.redo > 0);
 	}
 	
 	public static function saveActiveFile(?onComplete:Dynamic):Void
 	{
-		saveDoc(curDoc, onComplete);
+		if (selectedPath != null) 
+		{
+			saveDoc(selectedPath, onComplete);
+		}
 	}
 	
 	public static function saveActiveFileAs():Void
-	{
+	{		
+		var tab = tabMap.get(selectedPath);
+		
 		FileDialog.saveFile(function (path:String):Void
 		{
-			curDoc.path = path;
-			saveDoc(curDoc);
+			tabMap.remove(selectedPath);
+			tab.path = path;
+			selectedPath = path;
+			tabMap.add(tab);
+			saveDoc(selectedPath);
 		}
-		, curDoc.name);
+		, tab.name);
 	}
 	
 	public static function saveAll(?onComplete:Dynamic):Void
 	{		
-		filesSavedCount = 0;
-		
-		if (docs.length > 0)
+		for (key in tabMap.keys()) 
 		{
-			for (doc in docs)
-			{
-				if (doc != null)
-				{
-					if (doc.doc.getValue() == "") 
-					{
-						js.Node.console.warn(doc.path + " will be empty");
-					}
-					
-					trace(doc.path + " file saved.");
-					
-					saveDoc(doc, function ()
-					{
-						filesSavedCount++;
-						
-						if (filesSavedCount == docs.length)
-						{
-							if (onComplete != null)
-							{
-								onComplete();
-							}
-						}
-					}
-					);
-				}
-			}
-		}
-		else 
-		{
-			if (onComplete != null)
-			{
-				onComplete();
-			}
+			saveDoc(key);
 		}
 		
+		if (onComplete != null)
+		{
+			onComplete();
+		}
 	}
 }

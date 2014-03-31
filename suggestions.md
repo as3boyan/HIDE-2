@@ -45,7 +45,6 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Debounce function
 * Add CodeMirror.Pos to definitions
 * haxeparser: check mode before parsing
-* Watch open files
 * Use node js lib to walk througth folder
 * Make parser walk througth source code
 	* Haxe compiler std folder
@@ -77,7 +76,6 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * File tree context menu: Delete
 * Reconsider source code packages
 * Check if file exists before creating new - change name
-* Bootbox.prompt: select text on start
 * Project templates
 * Add dividers to menus
 * Restructure menus
@@ -94,19 +92,30 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Jqxsplitter preserve layout
 * Small tutorial for configuration files editing
 * Autocomplete meta tags and show types on ":"
+* Trace function run count
+* Test ereg
+* Return local variable in function
+* cache completion from Haxe(add it to type completion)
+* Watch file tree
+* Hotkeys to hide/show panels
+* Find in files
+* FD theme
+* Hxml mode
+* Lower case first char of path on Windows
+* Fix removing dist file with --no-output
+* Calculate indents based on brackets
+* HaxeParserProvider: check if pos is null
+* Adjust ":" completion for typedefs
 
 ###Important
-* Previous project doesn't exists - then show welcome screen(do not show file tree and outline panel)
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)
 * Fix OpenFL projects(check webserver)
-* Update CM lint on build/parse
 * Parse code with hxparse(classes on path)
-* Test file saving
 * Unit tests
 * Annotation ruler
-* Trace function run count
-* Split docs and rewrite
 * Go to definition
 * Show prompt to install missing haxelibs
 * Outline panel
-* Test projects(build/run) and updated TJSON
+* move out plugins loading function to new classes
+* Check if import is missing
+* Add completion to menu(and Go to Line command to menu)

@@ -1,5 +1,6 @@
 package cm;
 import js.Browser;
+import js.html.KeyboardEvent;
 import js.html.WheelEvent;
 import jQuery.JQuery;
 import menu.BootstrapMenu;
@@ -9,12 +10,12 @@ import menu.BootstrapMenu;
  * @author AS3Boyan
  */
 class CodeMirrorZoom
-{
+{	
 	public static function load():Void
-	{		
+	{
 		Browser.document.addEventListener("mousewheel", function(e:WheelEvent)
 		{
-			if (e.altKey)
+			if (e.altKey || e.ctrlKey || e.metaKey)
 			{
 				if (e.wheelDeltaY < 0)
 				{

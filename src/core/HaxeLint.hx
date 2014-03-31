@@ -1,4 +1,5 @@
 package core;
+import cm.CodeMirrorEditor;
 import haxe.ds.StringMap.StringMap;
 import tabmanager.TabManager;
 
@@ -18,7 +19,7 @@ class HaxeLint
 	public static var fileData:StringMap<Array<Info>> = new StringMap();
 	public static var parserData:StringMap<Array<Info>> = new StringMap();
 
-	public static function prepare():Void
+	public static function load():Void
 	{
 		CodeMirror.registerHelper("lint", "haxe", function (text:String) 
 		{
@@ -43,6 +44,12 @@ class HaxeLint
 			return found;
 		}
 		);
+	}
+	
+	public static function updateLinting():Void
+	{
+		CodeMirrorEditor.editor.setOption("lint", false);
+		CodeMirrorEditor.editor.setOption("lint", true);
 	}
 	
 }

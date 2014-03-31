@@ -8,7 +8,7 @@ import nodejs.webkit.Window;
  */
 @:keepSub @:expose class HaxeServer
 {
-	private static var haxeServer:NodeChildProcess;
+	static var haxeServer:NodeChildProcess;
 
 	public static function check():Void
 	{

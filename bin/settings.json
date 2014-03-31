@@ -1,4 +1,4 @@
 {
-	"theme": "theme.css",
-	"locale": "locale.json"
+	"theme": "light.css",
+	"locale": "en.json"
 }

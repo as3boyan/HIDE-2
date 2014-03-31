@@ -1,5 +1,6 @@
 package about;
-import core.LocaleWatcher;
+import watchers.LocaleWatcher;
+import watchers.SettingsWatcher;
 import haxe.Timer;
 import js.Browser;
 import js.html.DivElement;
@@ -16,16 +17,16 @@ import nodejs.webkit.Window;
  */
 class Presentation
 {
-	private static var impressDiv:DivElement;
-	private static var slidesCount:Int;
-	private static var autoplay:Bool = true;
+	static var impressDiv:DivElement;
+	static var slidesCount:Int;
+	static var autoplay:Bool = true;
 	static private var timer:Timer;
 
 	public static function main()
 	{		
 		Browser.window.onload = function (e):Void
 		{
-			LocaleWatcher.load();
+			SettingsWatcher.load();
 			
 			impressDiv = Browser.document.createDivElement();
 			impressDiv.id = "impress";

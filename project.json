@@ -1,15 +1,23 @@
 {
-     "args" : [
+     "type" : 2
+    ,"target" : null
+    ,"name" : "\\HIDE"
+    ,"main" : "HIDE.hxml"
+    ,"projectPackage" : null
+    ,"company" : null
+    ,"license" : null
+    ,"url" : null
+    ,"args" : [
 
     ]
     ,"files" : [
          "HIDE.hxml"
-        ,"src\\HIDE.hx"
+        ,"src\\Main.hx"
     ]
-    ,"name" : "\\HIDE"
-    ,"type" : 2
-    ,"path" : "d:\\Denis\\PortableSoft\\HIDE"
-    ,"main" : "HIDE.hxml"
+    ,"activeFile" : "src\\Main.hx"
+    ,"path" : "c:\\GitHub\\HIDE"
+    ,"openFLTarget" : null
     ,"runActionType" : 0
-    ,"activeFile" : "src\\HIDE.hx"
+    ,"runActionText" : null
+    ,"buildActionCommand" : null
 }

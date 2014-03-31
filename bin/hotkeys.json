@@ -61,4 +61,10 @@
     ,"Options->Open templates folder" : ""
     ,"Options->Open localization file" : ""
     ,"Options->Open settings" : ""
+    ,"Completion->Open File" : "Ctrl-Shift-O"
+    ,"Completion->Show Class List" : "Ctrl-Shift-P"
+    ,"Code Editor->Go to Line" : "Ctrl-G"
+    ,"File->Close Project" : ""
+    ,"Tab Manager->Close File" : "Ctrl-W"
+    ,"File->Exit" : ""
 }

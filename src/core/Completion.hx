@@ -1,8 +1,14 @@
 package core;
 import cm.CodeMirrorEditor;
 import CodeMirror;
+import completion.Filter;
+import completion.Hxml;
+import completion.MetaTags;
 import haxe.ds.StringMap.StringMap;
 import haxe.xml.Fast;
+import js.Browser;
+import js.html.DivElement;
+import js.Node;
 import parser.ClassParser;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
@@ -12,6 +18,15 @@ import tabmanager.TabManager;
  * @author AS3Boyan
  */
 
+enum CompletionType
+{
+	REGULAR;
+	FILELIST;
+	CLASSLIST;
+	HXML;
+	METATAGS;
+}
+ 
 typedef CompletionItem = 
 {
 	@:optional
@@ -23,8 +38,7 @@ typedef CompletionItem =
  
 class Completion
 {
-	static var list:Array<String>;
-	static var seen:StringMap<Bool>;
+	static var list:Array<CompletionData>;
 	static var editor:CodeMirror;
 	static var word:EReg;
 	static var range:Int;
@@ -35,9 +49,14 @@ class Completion
 	static var RANGE = 500;
 	public static var curWord:String;
 	public static var completions:Array<CompletionItem> = [];
+	static var completionType:CompletionType = REGULAR;
+	static var backupDocValue:String;
 	
 	public static function registerHelper() 
 	{
+		Hxml.load();
+		MetaTags.load();
+		
 		CodeMirror.registerHelper("hint", "haxe", function(cm:CodeMirror, options) {			
 			word = null;
 			
@@ -55,25 +74,59 @@ class Completion
 			getCurrentWord(cm, options);
 
 			list = new Array();
-			seen = new StringMap();
 			
-			for (completion in completions) 
+			switch (completionType) 
 			{
-				list.push(completion.n);
+				case REGULAR:
+					for (completion in completions) 
+					{
+						list.push( { text: completion.n } );
+					}
+				case METATAGS:
+					list = MetaTags.getCompletion();
+				case HXML:
+					list = Hxml.getCompletion();
+				case FILELIST:
+					for (item in ClassParser.filesList) 
+					{
+						list.push( { text: item, hint: openFile} );
+					}
+				case CLASSLIST:
+					for (item in ClassParser.classList) 
+					{
+						list.push( { text: item} );
+					}
+				default:
+					
 			}
 			
-			//if (list.length == 0) 
-			//{
-				//scan(cm, -1);
-				//scan(cm, 1);
-			//}
+			list = Filter.filter(list, curWord);
 			
-			list = list.concat(ClassParser.classList);
-			
-			filterCompletion();
-			
-			return {list: list, from: CodeMirrorPos.from(cur.line, start), to: CodeMirrorPos.from(cur.line, end)};
+			var data:Dynamic = { list: list, from: {line:cur.line, ch:start}, to: {line:cur.line, ch:end} };
+			return data;
 		});
+		
+		CodeMirrorEditor.editor.on("startCompletion", function (cm:CodeMirror):Void 
+		{
+			if (completionType == FILELIST) 
+			{
+				backupDocValue = TabManager.getCurrentDocument().getValue();
+			}
+		}
+		);
+	}
+	
+	static function openFile(cm:CodeMirror, data:Dynamic, completion:Dynamic)
+	{		
+		var path = completion.text;
+		
+		if (ProjectAccess.currentProject.path != null) 
+		{
+			path = Node.path.resolve(ProjectAccess.currentProject.path, path);
+		}
+		
+		TabManager.getCurrentDocument().setValue(backupDocValue);
+		TabManager.openFileInNewTab(path);
 	}
 	
 	public static function getCurrentWord(cm:CodeMirror, ?options:Dynamic, ?pos:Pos):String
@@ -110,193 +163,167 @@ class Completion
 		return curWord;
 	}
 	
-	private static function scan(cm:Dynamic, dir:Int):Void
-	{			
-		var line:Int = cur.line;
-		var end2 = Math.min(Math.max(line + dir * range, cm.firstLine()), cm.lastLine()) + dir;
-		while (line != end2) 
-		{
-			var text = cm.getLine(line);
-			var m:Dynamic = null;
-			
-			var re:EReg = ~/([A-Z]+)/ig;
-			
-			re.map(text, function(e:EReg):String
-			{
-				m = e.matched(0);
-				
-				if (!(line == cur.line) || !(m == curWord))
-				{
-					if ((curWord == null || m.indexOf(curWord) == 0) && !seen.exists(m)) 
-					{
-						seen.set(m, true);
-						list.push(m);
-					}
-				}
-				
-				return e.matched(0);
-			}
-			);
-			
-			line += dir;
-		}
-	}
-	
 	public static function getCompletion(onComplete:Dynamic, ?_pos:Pos)
 	{
-		var projectArguments:Array<String> = ProjectAccess.currentProject.args.copy();
+		if (ProjectAccess.currentProject.path != null) 
+		{
+			var projectArguments:Array<String> = ProjectAccess.currentProject.args.copy();
 					
-		if (ProjectAccess.currentProject.type == Project.HXML) 
-		{
-			projectArguments.push(ProjectAccess.currentProject.main);
-		}
-		
-		projectArguments.push("--display");
-		
-		var cm:CodeMirror = CodeMirrorEditor.editor;
-		cur = _pos;
-		
-		if (_pos == null) 
-		{
-			cur = cm.getCursor();
-		}
-		
-		getCurrentWord(cm, null);
-		
-		if (curWord != null) 
-		{
-			cur = CodeMirrorPos.from(cur.line, start);
-		}
-		
-		projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(cm.indexFromPos(cur)));
-		
-		Completion.completions = [];
-		
-		ProcessHelper.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments), function (stdout:String, stderr:String)
-		{
-			var xml:Xml = Xml.parse(stderr);
-			
-			var fast = new Fast(xml);
-			
-			if (fast.hasNode.list)
+			if (ProjectAccess.currentProject.type == Project.HXML) 
 			{
-				var list = fast.node.list;
+				projectArguments.push(ProjectAccess.currentProject.main);
+			}
+			
+			projectArguments.push("--display");
+			
+			var cm:CodeMirror = CodeMirrorEditor.editor;
+			cur = _pos;
+			
+			if (_pos == null) 
+			{
+				cur = cm.getCursor();
+			}
+			
+			getCurrentWord(cm, null, cur);
+			
+			if (curWord != null) 
+			{
+				cur = {line: cur.line,  ch:start};
+			}
+			
+			projectArguments.push(TabManager.getCurrentDocumentPath() + "@" + Std.string(cm.indexFromPos(cur)));
+			
+			Completion.completions = [];
+			
+			ProcessHelper.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments), function (stdout:String, stderr:String)
+			{
+				var xml:Xml = Xml.parse(stderr);
 				
-				var completion:CompletionItem;
+				var fast = new Fast(xml);
 				
-				if (list.hasNode.i)
+				if (fast.hasNode.list)
 				{
-					for (item in list.nodes.i) 
+					var list = fast.node.list;
+					
+					var completion:CompletionItem;
+					
+					if (list.hasNode.i)
 					{
-						if (item.has.n)
+						for (item in list.nodes.i) 
 						{
-							completion = {n: item.att.n};
-														
-							if (item.hasNode.d)
+							if (item.has.n)
 							{
-								var str = StringTools.trim(item.node.d.innerHTML);
-								str = StringTools.replace(str, "\t", "");
-								str = StringTools.replace(str, "\n", "");
-								str = StringTools.replace(str, "*", "");
-								str = StringTools.replace(str, "&lt;", "<");
-								str = StringTools.replace(str, "&gt;", ">");
-								str = StringTools.trim(str);
-								completion.d = str;
-							}
-							
-							if (item.hasNode.t)
-							{
-								completion.t = item.node.t.innerData;
-								//var type = item.node.t.innerData;
-								//switch (type) 
+								completion = {n: item.att.n};
+															
+								if (item.hasNode.d)
+								{
+									var str = StringTools.trim(item.node.d.innerHTML);
+									str = StringTools.replace(str, "\t", "");
+									str = StringTools.replace(str, "\n", "");
+									str = StringTools.replace(str, "*", "");
+									str = StringTools.replace(str, "&lt;", "<");
+									str = StringTools.replace(str, "&gt;", ">");
+									str = StringTools.trim(str);
+									completion.d = str;
+								}
+								
+								if (item.hasNode.t)
+								{
+									completion.t = item.node.t.innerData;
+									//var type = item.node.t.innerData;
+									//switch (type) 
+									//{
+										//case "Float", "Int":
+											//completion.type = "number";
+										//case "Bool":
+											//completion.type = "bool";
+										//case "String":
+											//completion.type = "string";
+										//default:
+											//completion.type = "fn()";
+									//}
+								}
+								//else 
 								//{
-									//case "Float", "Int":
-										//completion.type = "number";
-									//case "Bool":
-										//completion.type = "bool";
-									//case "String":
-										//completion.type = "string";
-									//default:
-										//completion.type = "fn()";
+									//completion.type = "fn()";
 								//}
+								
+								completions.push(completion);
 							}
-							//else 
-							//{
-								//completion.type = "fn()";
-							//}
-							
-							completions.push(completion);
 						}
 					}
 				}
+				
+				onComplete();
+			}, 
+			function (code:Int, stdout:String, stderr:String)
+			{
+				trace(code);
+				trace(stderr);
+				
+				onComplete();
 			}
-			
-			onComplete();
-		}, 
-		function (code:Int, stdout:String, stderr:String)
-		{
-			trace(code);
-			trace(stderr);
-			
-			onComplete();
+			);
 		}
-		);
 	}
 	
-	private static function filterCompletion()
+	static function isEditorVisible():Bool
 	{
-		if (curWord != null) 
+		var editor = cast(Browser.document.getElementById("editor"), DivElement);
+		return editor.style.display != "none";
+	}
+	
+	public static function showRegularCompletion():Void
+	{
+		if (isEditorVisible()) 
 		{
-			var filtered_results = [];
-			var sorted_results = [];
-			
-			var word:String = curWord.toLowerCase();
-			
-			for (completion in list) 
-			{
-				var n = completion.toLowerCase();
-				var b = true;
-			  
-				  for (j in 0...word.length)
-				  {
-					  if (n.indexOf(word.charAt(j)) == -1)
-					  {
-						  b = false;
-						  break;
-					  }
-				  }
-
-				if (b)
-				{
-					filtered_results.push(completion);
-				}
-			}
-			
-			var results = [];
-			
-			for (i in 0...filtered_results.length) 
-			{
-				if (filtered_results[i].toLowerCase().indexOf(word) == 0)
-				{
-					sorted_results.push(filtered_results[i]);
-				}
-				else 
-				{
-					results.push(filtered_results[i]);
-				}
-			}
-			
-			list = [];
-			
-			for (completion in sorted_results) 
-			{
-				list.push(completion);
-			}
-			
-			for (completion in results) 
-			{
-				list.push(completion);
-			}
+			CodeMirrorEditor.regenerateCompletionOnDot = true;
+			WORD = ~/[A-Z]+$/i;
+			completionType = REGULAR;
+			CodeMirrorEditor.editor.execCommand("autocomplete");
+		}
+	}
+	
+	public static function showMetaTagsCompletion():Void
+	{
+		if (isEditorVisible()) 
+		{
+			WORD = ~/[A-Z@:]+$/i;
+			completionType = METATAGS;
+			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: untyped __js__("/[\\s()\\[\\]{};>,]/") } );
+		}
+	}
+	
+	public static function showHxmlCompletion():Void
+	{
+		if (isEditorVisible()) 
+		{
+			WORD = ~/[A-Z- ]+$/i;
+			completionType = HXML;
+			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: untyped __js__("/[()\\[\\]{};:>,]/") } );
+		}
+	}
+	
+	public static function showFileList():Void
+	{
+		if (isEditorVisible()) 
+		{
+			CodeMirrorEditor.regenerateCompletionOnDot = false;
+			WORD = ~/[A-Z\.]+$/i;
+			completionType = FILELIST;
+			//CodeMirrorEditor.editor.execCommand("autocomplete");
+			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null);
+		}
+	}
+	
+	public static function showClassList():Void
+	{
+		if (isEditorVisible()) 
+		{
+			CodeMirrorEditor.regenerateCompletionOnDot = false;
+			WORD = ~/[A-Z\.]+$/i;
+			completionType = CLASSLIST;
+			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: untyped __js__("/[\\s()\\[\\]{};>,]/") } );
 		}
 	}
 }

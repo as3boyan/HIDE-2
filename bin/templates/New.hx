@@ -1,8 +1,7 @@
 package {{pack}};
 
 /**
- * ...
- * @author {{author}}
+* @author {{author}}
  */
 class {{name}}
 {

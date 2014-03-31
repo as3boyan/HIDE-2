@@ -13,9 +13,6 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var CodeMirrorPos = function() { };
-$hxClasses["CodeMirrorPos"] = CodeMirrorPos;
-CodeMirrorPos.__name__ = ["CodeMirrorPos"];
 var EReg = function(r,opt) {
 	opt = opt.split("u").join("");
 	this.r = new RegExp(r,opt);
@@ -201,16 +198,18 @@ HIDE.compilePlugins = function(onComplete,onFailed) {
 	var compiledPluginCount = 0;
 	var relativePathToPlugin;
 	var absolutePathToPlugin;
-	var $it0 = HIDE.pathToPlugins.keys();
-	while( $it0.hasNext() ) {
-		var name = $it0.next();
-		relativePathToPlugin = HIDE.pathToPlugins.get(name);
-		absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
-		Main.compilePlugin(name,absolutePathToPlugin,function() {
-			compiledPluginCount++;
-			if(compiledPluginCount == pluginCount) onComplete();
-		},onFailed);
-	}
+	if(pluginCount > 0) {
+		var $it0 = HIDE.pathToPlugins.keys();
+		while( $it0.hasNext() ) {
+			var name = $it0.next();
+			relativePathToPlugin = HIDE.pathToPlugins.get(name);
+			absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
+			Main.compilePlugin(name,absolutePathToPlugin,function() {
+				compiledPluginCount++;
+				if(compiledPluginCount == pluginCount) onComplete();
+			},onFailed);
+		}
+	} else onComplete();
 };
 HIDE.readFile = function(name,path,onComplete) {
 	var options = { };
@@ -263,7 +262,6 @@ HIDE.checkRequiredPluginsData = function() {
 			} else console.log(error);
 		});
 		HIDE.savePluginsMTime();
-		Main.window.show();
 	}
 };
 HIDE.savePluginsMTime = function() {
@@ -459,37 +457,41 @@ Main.main = function() {
 	js.Node.process.on("uncaughtException",function(err) {
 		console.log(err);
 	});
-	core.PreserveWindowState.init();
 	core.Hotkeys.prepare();
+	core.PreserveWindowState.init();
 	window.addEventListener("load",function(e) {
-		core.SettingsWatcher.load();
+		core.Splitter.load();
+		watchers.SettingsWatcher.load();
+		dialogs.DialogManager.load();
 		core.Utils.prepare();
 		menu.BootstrapMenu.createMenuBar();
-		newprojectdialog.NewProjectDialogLoader.load();
+		newprojectdialog.NewProjectDialog.load();
 		core.MenuCommands.add();
 		cm.CodeMirrorZoom.load();
 		about.About.addToMenu();
 		filetree.FileTree.init();
 		projectaccess.ProjectOptions.create();
 		core.FileDialog.create();
-		tabmanager.TabManagerMain.load();
-		core.Completion.registerHelper();
-		core.HaxeLint.prepare();
+		tabmanager.TabManager.load();
+		core.HaxeLint.load();
 		cm.CodeMirrorEditor.load();
+		core.Completion.registerHelper();
 		autoformat.HaxePrinterLoader.load();
 		core.RunProject.load();
 		projectaccess.ProjectAccess.registerSaveOnCloseListener();
 		haxeproject.HaxeProject.load();
 		openflproject.OpenFLProject.load();
 		core.CompilationOutput.load();
-		openproject.OpenProjectLoader.load();
+		openproject.OpenProject.searchForLastProject();
 		core.DragAndDrop.prepare();
+		parser.ClasspathWalker.load();
+		core.WelcomeScreen.load();
 		Main.currentTime = new Date().getTime();
 		Main.checkHaxeInstalled(function() {
 			core.HaxeServer.check();
 			Main.loadPlugins();
 		},function() {
-			core.Alerts.showAlert("Haxe compiler is not found");
+			Alertify.error("Haxe compiler is not found");
 			Main.loadPlugins(false);
 		});
 	});
@@ -1122,6 +1124,25 @@ autoformat.HaxePrinterLoader.load = function() {
 		tabmanager.TabManager.openFileInNewTab("autoformat.json");
 	});
 };
+var bootstrap = {};
+bootstrap.ButtonManager = function() { };
+$hxClasses["bootstrap.ButtonManager"] = bootstrap.ButtonManager;
+bootstrap.ButtonManager.__name__ = ["bootstrap","ButtonManager"];
+bootstrap.ButtonManager.createButton = function(text,disabled,hide,primary) {
+	if(primary == null) primary = false;
+	if(hide == null) hide = false;
+	if(disabled == null) disabled = false;
+	var button;
+	var _this = window.document;
+	button = _this.createElement("button");
+	button.type = "button";
+	if(primary) button.className = "btn btn-primary"; else button.className = "btn btn-default";
+	button.setAttribute("localeString",text);
+	button.textContent = watchers.LocaleWatcher.getStringSync(text);
+	if(disabled) button.classList.add("disabled");
+	if(hide) button.setAttribute("data-dismiss","modal");
+	return button;
+};
 var byte = {};
 byte.js = {};
 byte.js._ByteData = {};
@@ -1153,30 +1174,11 @@ byte.js._ByteData.ByteData_Impl_.ofString = function(s) {
 	return a;
 };
 var cm = {};
-cm.CMDoc = function(_name,_doc,_path) {
-	this.name = _name;
-	this.doc = _doc;
-	this.path = _path;
-	this.changed = false;
-};
-$hxClasses["cm.CMDoc"] = cm.CMDoc;
-cm.CMDoc.__name__ = ["cm","CMDoc"];
-cm.CMDoc.prototype = {
-	name: null
-	,doc: null
-	,path: null
-	,changed: null
-	,__class__: cm.CMDoc
-};
 cm.CodeMirrorEditor = function() { };
 $hxClasses["cm.CodeMirrorEditor"] = cm.CodeMirrorEditor;
 cm.CodeMirrorEditor.__name__ = ["cm","CodeMirrorEditor"];
 cm.CodeMirrorEditor.load = function() {
-	var textarea;
-	var _this = window.document;
-	textarea = _this.createElement("textarea");
-	textarea.id = "code";
-	new $("#editor").append(textarea);
+	cm.CodeMirrorEditor.regenerateCompletionOnDot = true;
 	var readFileOptions = { };
 	readFileOptions.encoding = "utf8";
 	var options = { };
@@ -1192,15 +1194,15 @@ cm.CodeMirrorEditor.load = function() {
 		var $r;
 		var passAndHint = function(cm1) {
 			setTimeout(function() {
-				cm.CodeMirrorEditor.triggerCompletion(cm1);
+				cm.CodeMirrorEditor.triggerCompletion(cm1,true);
 			},100);
 			return CodeMirror.Pass;
 		};
 		$r = passAndHint;
 		return $r;
 	}(this))};
-	cm.CodeMirrorEditor.editor = CodeMirror.fromTextArea(textarea,options);
-	cm.CodeMirrorEditor.editor.getWrapperElement().style.display = "none";
+	cm.CodeMirrorEditor.editor = CodeMirror.fromTextArea(window.document.getElementById("code"),options);
+	new $("#editor").hide();
 	cm.CodeMirrorEditor.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"],cm.CodeMirrorEditor.loadTheme);
 	var value = "";
 	var map = CodeMirror.keyMap.sublime;
@@ -1219,15 +1221,12 @@ cm.CodeMirrorEditor.load = function() {
 		++_g2;
 		if(key1 != "auto" && key1 != "nofallthrough") value += "  \"Ctrl-K " + key1 + "\": \"" + Std.string(Reflect.field(mapK,key1)) + "\",\n";
 	}
+	console.log(cm.CodeMirrorEditor.editor);
 	js.Node.require("fs").writeFileSync("bindings.txt",value,"utf8");
-	var timer = null;
 	window.addEventListener("resize",function(e) {
-		if(timer != null) timer.stop();
-		timer = new haxe.Timer(100);
-		timer.run = function() {
+		core.Helper.debounce("resize",function() {
 			cm.CodeMirrorEditor.editor.refresh();
-			timer.stop();
-		};
+		},100);
 		cm.CodeMirrorEditor.resize();
 	});
 	new $("#thirdNested").on("resize",null,function(event) {
@@ -1235,81 +1234,65 @@ cm.CodeMirrorEditor.load = function() {
 		cm.CodeMirrorEditor.resize();
 	});
 	cm.ColorPreview.create();
-	cm.CodeMirrorEditor.editor.on("cursorActivity",function(cm2) {
-		var extname = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
-		if(extname == ".hx") {
-			var cursor = cm2.getCursor();
-			var data = cm2.getLine(cursor.line);
-			if(data.charAt(cursor.ch - 1) == "(") {
-				var pos = cursor.ch - 1;
-				core.Completion.getCompletion(function() {
-					var found = false;
-					var _g3 = 0;
-					var _g12 = core.Completion.completions;
-					while(_g3 < _g12.length) {
-						var completion = _g12[_g3];
-						++_g3;
-						if(core.Completion.curWord == completion.n) {
-							var info = "(";
-							var args = completion.t.split("->");
-							if(args.length > 2) {
-								var _g31 = 0;
-								var _g21 = args.length - 1;
-								while(_g31 < _g21) {
-									var i = _g31++;
-									info += args[i];
-									if(i != args.length - 2) info += ", ";
-								}
-								info += "):" + args[args.length - 1];
-							} else info += "):" + args[args.length - 1];
-							core.FunctionParametersHelper.clear();
-							core.FunctionParametersHelper.addWidget("function " + completion.n + info,cm.CodeMirrorEditor.editor.getCursor().line);
-							core.FunctionParametersHelper.updateScroll();
-							found = true;
-							break;
-						}
-					}
-					if(!found) core.FunctionParametersHelper.clear();
-				},CodeMirrorPos.pos(cursor.line,pos));
-			} else core.FunctionParametersHelper.clear();
-		}
+	cm.CodeMirrorEditor.editor.on("cursorActivity",function(cm3) {
+		core.Helper.debounce("cursorActivity",(function(f,cm2) {
+			return function() {
+				return f(cm2);
+			};
+		})(core.FunctionParametersHelper.update,cm3),100);
 		cm.ColorPreview.update();
 	});
-	cm.CodeMirrorEditor.editor.on("scroll",function(cm2) {
+	cm.CodeMirrorEditor.editor.on("scroll",function(cm3) {
 		cm.ColorPreview.scroll();
 	});
-	var timer1 = null;
-	cm.CodeMirrorEditor.editor.on("change",function(cm3) {
-		var extname1 = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
-		if(extname1 == ".hx") {
-			if(timer1 != null) {
-				timer1.stop();
-				timer1 = null;
-			}
-			timer1 = new haxe.Timer(100);
-			timer1.run = function() {
-				timer1.stop();
+	var timer = null;
+	var basicTypes = ["Array","Map","StringMap"];
+	cm.CodeMirrorEditor.editor.on("change",function(cm4) {
+		var extname = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
+		if(extname == ".hx") {
+			core.Helper.debounce("change",function() {
 				core.HaxeParserProvider.getClassName();
-				cm.CodeMirrorEditor.editor.setOption("lint",true);
-			};
+				core.HaxeLint.updateLinting();
+			},100);
+			var cursor = cm4.getCursor();
+			var data = cm4.getLine(cursor.line);
+			if(data.charAt(cursor.ch - 1) == ":") {
+				if(data.charAt(cursor.ch - 2) == "@") core.Completion.showMetaTagsCompletion(); else core.Completion.showClassList();
+			} else if(data.charAt(cursor.ch - 1) == "<") {
+				var _g3 = 0;
+				while(_g3 < basicTypes.length) {
+					var type = basicTypes[_g3];
+					++_g3;
+					if(StringTools.endsWith(HxOverrides.substr(data,0,cursor.ch - 1),type)) {
+						core.Completion.showClassList();
+						break;
+					}
+				}
+			}
+		} else if(extname == ".hxml") {
+			var cursor1 = cm4.getCursor();
+			var data1 = cm4.getLine(cursor1.line);
+			if(data1.charAt(cursor1.ch - 1) == "-") core.Completion.showHxmlCompletion();
 		}
+		tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath).setChanged(true);
 	});
 	CodeMirror.prototype.centerOnLine = function(line) {
 		 var h = this.getScrollInfo().clientHeight;  var coords = this.charCoords({line: line, ch: 0}, 'local'); this.scrollTo(null, (coords.top + coords.bottom - h) / 2); ;
 	};
 };
-cm.CodeMirrorEditor.triggerCompletion = function(cm) {
+cm.CodeMirrorEditor.triggerCompletion = function(cm1,dot) {
+	if(dot == null) dot = false;
 	var extname = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
 	switch(extname) {
 	case ".hx":
-		tabmanager.TabManager.saveActiveFile(function() {
-			core.Completion.getCompletion(function() {
-				cm.execCommand("autocomplete");
-			});
+		if(!dot || cm.CodeMirrorEditor.regenerateCompletionOnDot || dot && !cm1.state.completionActive) tabmanager.TabManager.saveActiveFile(function() {
+			core.Completion.getCompletion(core.Completion.showRegularCompletion);
 		});
 		break;
+	case ".hxml":
+		core.Completion.showHxmlCompletion();
+		break;
 	default:
-		console.log(extname);
 	}
 };
 cm.CodeMirrorEditor.walk = function(object) {
@@ -1348,9 +1331,9 @@ cm.CodeMirrorEditor.resize = function() {
 	new $(".CodeMirror").css("height",Std.string(height | 0) + "px");
 };
 cm.CodeMirrorEditor.loadTheme = function() {
-	var localStorage = js.Browser.getLocalStorage();
-	if(localStorage != null) {
-		var theme = localStorage.getItem("theme");
+	var localStorage2 = js.Browser.getLocalStorage();
+	if(localStorage2 != null) {
+		var theme = localStorage2.getItem("theme");
 		if(theme != null) cm.CodeMirrorEditor.setTheme(theme);
 	}
 };
@@ -1383,7 +1366,7 @@ $hxClasses["cm.CodeMirrorZoom"] = cm.CodeMirrorZoom;
 cm.CodeMirrorZoom.__name__ = ["cm","CodeMirrorZoom"];
 cm.CodeMirrorZoom.load = function() {
 	window.document.addEventListener("mousewheel",function(e) {
-		if(e.altKey) {
+		if(e.altKey || e.ctrlKey || e.metaKey) {
 			if(e.wheelDeltaY < 0) {
 				var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
 				fontSize--;
@@ -1459,44 +1442,119 @@ cm.ColorPreview.scroll = function() {
 		cm.ColorPreview.preview.style.left = cm.ColorPreview.left + cm.ColorPreview.startScroll.left - curScroll.left + "px";
 	}
 };
-var core = {};
-core.Alerts = $hx_exports.core.Alerts = function() { };
-$hxClasses["core.Alerts"] = core.Alerts;
-core.Alerts.__name__ = ["core","Alerts"];
-core.Alerts.showAlert = function(text,duration) {
-	if(duration == null) duration = 1500;
-	var div;
-	var _this = window.document;
-	div = _this.createElement("div");
-	div.className = "alert alert-success alert-dismissable";
-	var button;
-	var _this1 = window.document;
-	button = _this1.createElement("button");
-	button.type = "button";
-	button.className = "close";
-	button.setAttribute("data-dismiss","alert");
-	button.setAttribute("aria-hidden","true");
-	button.innerHTML = "&times;";
-	div.appendChild(button);
-	div.appendChild(window.document.createTextNode(core.LocaleWatcher.getStringSync(text)));
-	window.document.body.appendChild(div);
-	div.style.marginTop = Std.string(-div.clientHeight / 2 | 0) + "px";
-	div.style.marginLeft = Std.string(-div.clientWidth / 2 | 0) + "px";
-	haxe.Timer.delay(function() {
-		if(div.parentElement != null) new $(div).fadeOut(500,null,function() {
-			window.document.body.removeChild(div);
+var completion = {};
+completion.Filter = function() { };
+$hxClasses["completion.Filter"] = completion.Filter;
+completion.Filter.__name__ = ["completion","Filter"];
+completion.Filter.filter = function(completions,word) {
+	var list = [];
+	if(word != null) {
+		var filtered_results = [];
+		var sorted_results = [];
+		word = word.toLowerCase();
+		var _g = 0;
+		while(_g < completions.length) {
+			var completion = completions[_g];
+			++_g;
+			var n = completion.text.toLowerCase();
+			var b = true;
+			var _g2 = 0;
+			var _g1 = word.length;
+			while(_g2 < _g1) {
+				var j = _g2++;
+				if(n.indexOf(word.charAt(j)) == -1) {
+					b = false;
+					break;
+				}
+			}
+			if(b) filtered_results.push(completion);
+		}
+		var results = [];
+		var filtered_results2 = [];
+		var exactResults = [];
+		var _g11 = 0;
+		var _g3 = filtered_results.length;
+		while(_g11 < _g3) {
+			var i = _g11++;
+			var str = filtered_results[i].text.toLowerCase();
+			var index = str.indexOf(word);
+			if(word == str) exactResults.push(filtered_results[i]); else if(index == 0) sorted_results.push(filtered_results[i]); else if(index != -1) filtered_results2.push(filtered_results[i]); else results.push(filtered_results[i]);
+		}
+		var _g4 = 0;
+		while(_g4 < exactResults.length) {
+			var completion1 = exactResults[_g4];
+			++_g4;
+			list.push(completion1);
+		}
+		var _g5 = 0;
+		while(_g5 < sorted_results.length) {
+			var completion2 = sorted_results[_g5];
+			++_g5;
+			list.push(completion2);
+		}
+		var _g6 = 0;
+		while(_g6 < filtered_results2.length) {
+			var completion3 = filtered_results2[_g6];
+			++_g6;
+			list.push(completion3);
+		}
+		var _g7 = 0;
+		while(_g7 < results.length) {
+			var completion4 = results[_g7];
+			++_g7;
+			list.push(completion4);
+		}
+	} else list = completions;
+	return list;
+};
+completion.Hxml = function() { };
+$hxClasses["completion.Hxml"] = completion.Hxml;
+completion.Hxml.__name__ = ["completion","Hxml"];
+completion.Hxml.load = function() {
+	completion.Hxml.completions = [];
+	completion.Hxml.getArguments(completion.Hxml.getDefines);
+};
+completion.Hxml.getArguments = function(onComplete) {
+	core.ProcessHelper.runProcess("haxe",["--help"],function(stdout,stderr) {
+		var regex = new EReg("-+[A-Z-]+ ","gim");
+		regex.map(stderr,function(ereg) {
+			var str = ereg.matched(0);
+			completion.Hxml.completions.push({ text : HxOverrides.substr(str,0,str.length - 1)});
+			return str;
 		});
-	},duration);
+		onComplete();
+	});
 };
-core.Bootbox = $hx_exports.core.Bootbox = function() { };
-$hxClasses["core.Bootbox"] = core.Bootbox;
-core.Bootbox.__name__ = ["core","Bootbox"];
-core.Bootbox.prompt = function(question,defaultValue,onClick) {
-	var bootboxStatic = bootbox;
-	bootboxStatic.prompt({ title : core.LocaleWatcher.getStringSync(question), value : defaultValue, callback : function(result) {
-		if(result != null) onClick(result);
-	}});
+completion.Hxml.getDefines = function() {
+	core.ProcessHelper.runProcess("haxe",["--help-defines"],function(stdout,stderr) {
+		var regex = new EReg("[A-Z-]+ +:","gim");
+		regex.map(stdout,function(ereg) {
+			var str = ereg.matched(0);
+			completion.Hxml.completions.push({ text : "-D " + StringTools.trim(HxOverrides.substr(str,0,str.length - 1))});
+			return ereg.matched(0);
+		});
+	});
 };
+completion.Hxml.getCompletion = function() {
+	return completion.Hxml.completions;
+};
+completion.MetaTags = function() { };
+$hxClasses["completion.MetaTags"] = completion.MetaTags;
+completion.MetaTags.__name__ = ["completion","MetaTags"];
+completion.MetaTags.load = function() {
+	completion.MetaTags.completions = [];
+	core.ProcessHelper.runProcess("haxe",["--help-metas"],function(stdout,stderr) {
+		var regex = new EReg("@:[A-Z]+ ","gim");
+		regex.map(stdout,function(ereg) {
+			completion.MetaTags.completions.push({ text : StringTools.trim(ereg.matched(0))});
+			return ereg.matched(0);
+		});
+	});
+};
+completion.MetaTags.getCompletion = function() {
+	return completion.MetaTags.completions;
+};
+var core = {};
 core.CompilationOutput = function() { };
 $hxClasses["core.CompilationOutput"] = core.CompilationOutput;
 core.CompilationOutput.__name__ = ["core","CompilationOutput"];
@@ -1508,28 +1566,83 @@ core.CompilationOutput.load = function() {
 	output.readOnly = true;
 	new $("#output").append(output);
 };
+core.CompletionType = $hxClasses["core.CompletionType"] = { __ename__ : ["core","CompletionType"], __constructs__ : ["REGULAR","FILELIST","CLASSLIST","HXML","METATAGS"] };
+core.CompletionType.REGULAR = ["REGULAR",0];
+core.CompletionType.REGULAR.toString = $estr;
+core.CompletionType.REGULAR.__enum__ = core.CompletionType;
+core.CompletionType.FILELIST = ["FILELIST",1];
+core.CompletionType.FILELIST.toString = $estr;
+core.CompletionType.FILELIST.__enum__ = core.CompletionType;
+core.CompletionType.CLASSLIST = ["CLASSLIST",2];
+core.CompletionType.CLASSLIST.toString = $estr;
+core.CompletionType.CLASSLIST.__enum__ = core.CompletionType;
+core.CompletionType.HXML = ["HXML",3];
+core.CompletionType.HXML.toString = $estr;
+core.CompletionType.HXML.__enum__ = core.CompletionType;
+core.CompletionType.METATAGS = ["METATAGS",4];
+core.CompletionType.METATAGS.toString = $estr;
+core.CompletionType.METATAGS.__enum__ = core.CompletionType;
 core.Completion = function() { };
 $hxClasses["core.Completion"] = core.Completion;
 core.Completion.__name__ = ["core","Completion"];
 core.Completion.registerHelper = function() {
-	CodeMirror.registerHelper("hint","haxe",function(cm,options) {
+	completion.Hxml.load();
+	completion.MetaTags.load();
+	CodeMirror.registerHelper("hint","haxe",function(cm1,options) {
 		core.Completion.word = null;
 		core.Completion.range = null;
 		if(options != null && options.range != null) core.Completion.range = options.range; else if(core.Completion.RANGE != null) core.Completion.range = core.Completion.RANGE;
-		core.Completion.getCurrentWord(cm,options);
+		core.Completion.getCurrentWord(cm1,options);
 		core.Completion.list = new Array();
-		core.Completion.seen = new haxe.ds.StringMap();
-		var _g = 0;
-		var _g1 = core.Completion.completions;
-		while(_g < _g1.length) {
-			var completion = _g1[_g];
-			++_g;
-			core.Completion.list.push(completion.n);
+		var _g = core.Completion.completionType;
+		switch(_g[1]) {
+		case 0:
+			var _g1 = 0;
+			var _g2 = core.Completion.completions;
+			while(_g1 < _g2.length) {
+				var completion1 = _g2[_g1];
+				++_g1;
+				core.Completion.list.push({ text : completion1.n});
+			}
+			break;
+		case 4:
+			core.Completion.list = completion.MetaTags.getCompletion();
+			break;
+		case 3:
+			core.Completion.list = completion.Hxml.getCompletion();
+			break;
+		case 1:
+			var _g11 = 0;
+			var _g21 = parser.ClassParser.filesList;
+			while(_g11 < _g21.length) {
+				var item = _g21[_g11];
+				++_g11;
+				core.Completion.list.push({ text : item, hint : core.Completion.openFile});
+			}
+			break;
+		case 2:
+			var _g12 = 0;
+			var _g22 = parser.ClassParser.classList;
+			while(_g12 < _g22.length) {
+				var item1 = _g22[_g12];
+				++_g12;
+				core.Completion.list.push({ text : item1});
+			}
+			break;
 		}
-		core.Completion.list = core.Completion.list.concat(parser.ClassParser.classList);
-		core.Completion.filterCompletion();
-		return { list : core.Completion.list, from : CodeMirrorPos.pos(core.Completion.cur.line,core.Completion.start), to : CodeMirrorPos.pos(core.Completion.cur.line,core.Completion.end)};
+		core.Completion.list = completion.Filter.filter(core.Completion.list,core.Completion.curWord);
+		var data = { list : core.Completion.list, from : { line : core.Completion.cur.line, ch : core.Completion.start}, to : { line : core.Completion.cur.line, ch : core.Completion.end}};
+		return data;
 	});
+	cm.CodeMirrorEditor.editor.on("startCompletion",function(cm1) {
+		if(core.Completion.completionType == core.CompletionType.FILELIST) core.Completion.backupDocValue = tabmanager.TabManager.getCurrentDocument().getValue();
+	});
+};
+core.Completion.openFile = function(cm,data,completion) {
+	var path = completion.text;
+	if(projectaccess.ProjectAccess.currentProject.path != null) path = js.Node.require("path").resolve(projectaccess.ProjectAccess.currentProject.path,path);
+	tabmanager.TabManager.getCurrentDocument().setValue(core.Completion.backupDocValue);
+	tabmanager.TabManager.openFileInNewTab(path);
 };
 core.Completion.getCurrentWord = function(cm,options,pos) {
 	if(options != null && options.word != null) core.Completion.word = options.word; else if(core.Completion.WORD != null) core.Completion.word = core.Completion.WORD;
@@ -1544,94 +1657,94 @@ core.Completion.getCurrentWord = function(cm,options,pos) {
 	return core.Completion.curWord;
 };
 core.Completion.getCompletion = function(onComplete,_pos) {
-	var projectArguments = projectaccess.ProjectAccess.currentProject.args.slice();
-	if(projectaccess.ProjectAccess.currentProject.type == 2) projectArguments.push(projectaccess.ProjectAccess.currentProject.main);
-	projectArguments.push("--display");
-	var cm1 = cm.CodeMirrorEditor.editor;
-	core.Completion.cur = _pos;
-	if(_pos == null) core.Completion.cur = cm1.getCursor();
-	core.Completion.getCurrentWord(cm1,null);
-	if(core.Completion.curWord != null) core.Completion.cur = CodeMirrorPos.pos(core.Completion.cur.line,core.Completion.start);
-	projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + Std.string(cm1.indexFromPos(core.Completion.cur)));
-	core.Completion.completions = [];
-	core.ProcessHelper.runProcess("haxe",["--connect","5000","--cwd",HIDE.surroundWithQuotes(projectaccess.ProjectAccess.currentProject.path)].concat(projectArguments),function(stdout,stderr) {
-		var xml = Xml.parse(stderr);
-		var fast = new haxe.xml.Fast(xml);
-		if(fast.hasNode.resolve("list")) {
-			var list = fast.node.resolve("list");
-			var completion;
-			if(list.hasNode.resolve("i")) {
-				var $it0 = list.nodes.resolve("i").iterator();
-				while( $it0.hasNext() ) {
-					var item = $it0.next();
-					if(item.has.resolve("n")) {
-						completion = { n : item.att.resolve("n")};
-						if(item.hasNode.resolve("d")) {
-							var str = StringTools.trim(item.node.resolve("d").get_innerHTML());
-							str = StringTools.replace(str,"\t","");
-							str = StringTools.replace(str,"\n","");
-							str = StringTools.replace(str,"*","");
-							str = StringTools.replace(str,"&lt;","<");
-							str = StringTools.replace(str,"&gt;",">");
-							str = StringTools.trim(str);
-							completion.d = str;
+	if(projectaccess.ProjectAccess.currentProject.path != null) {
+		var projectArguments = projectaccess.ProjectAccess.currentProject.args.slice();
+		if(projectaccess.ProjectAccess.currentProject.type == 2) projectArguments.push(projectaccess.ProjectAccess.currentProject.main);
+		projectArguments.push("--display");
+		var cm1 = cm.CodeMirrorEditor.editor;
+		core.Completion.cur = _pos;
+		if(_pos == null) core.Completion.cur = cm1.getCursor();
+		core.Completion.getCurrentWord(cm1,null,core.Completion.cur);
+		if(core.Completion.curWord != null) core.Completion.cur = { line : core.Completion.cur.line, ch : core.Completion.start};
+		projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + Std.string(cm1.indexFromPos(core.Completion.cur)));
+		core.Completion.completions = [];
+		core.ProcessHelper.runProcess("haxe",["--connect","5000","--cwd",HIDE.surroundWithQuotes(projectaccess.ProjectAccess.currentProject.path)].concat(projectArguments),function(stdout,stderr) {
+			var xml = Xml.parse(stderr);
+			var fast = new haxe.xml.Fast(xml);
+			if(fast.hasNode.resolve("list")) {
+				var list = fast.node.resolve("list");
+				var completion;
+				if(list.hasNode.resolve("i")) {
+					var $it0 = list.nodes.resolve("i").iterator();
+					while( $it0.hasNext() ) {
+						var item = $it0.next();
+						if(item.has.resolve("n")) {
+							completion = { n : item.att.resolve("n")};
+							if(item.hasNode.resolve("d")) {
+								var str = StringTools.trim(item.node.resolve("d").get_innerHTML());
+								str = StringTools.replace(str,"\t","");
+								str = StringTools.replace(str,"\n","");
+								str = StringTools.replace(str,"*","");
+								str = StringTools.replace(str,"&lt;","<");
+								str = StringTools.replace(str,"&gt;",">");
+								str = StringTools.trim(str);
+								completion.d = str;
+							}
+							if(item.hasNode.resolve("t")) completion.t = item.node.resolve("t").get_innerData();
+							core.Completion.completions.push(completion);
 						}
-						if(item.hasNode.resolve("t")) completion.t = item.node.resolve("t").get_innerData();
-						core.Completion.completions.push(completion);
 					}
 				}
 			}
-		}
-		onComplete();
-	},function(code,stdout1,stderr1) {
-		console.log(code);
-		console.log(stderr1);
-		onComplete();
-	});
+			onComplete();
+		},function(code,stdout1,stderr1) {
+			console.log(code);
+			console.log(stderr1);
+			onComplete();
+		});
+	}
 };
-core.Completion.filterCompletion = function() {
-	if(core.Completion.curWord != null) {
-		var filtered_results = [];
-		var sorted_results = [];
-		var word = core.Completion.curWord.toLowerCase();
-		var _g = 0;
-		var _g1 = core.Completion.list;
-		while(_g < _g1.length) {
-			var completion = _g1[_g];
-			++_g;
-			var n = completion.toLowerCase();
-			var b = true;
-			var _g3 = 0;
-			var _g2 = word.length;
-			while(_g3 < _g2) {
-				var j = _g3++;
-				if(n.indexOf(word.charAt(j)) == -1) {
-					b = false;
-					break;
-				}
-			}
-			if(b) filtered_results.push(completion);
-		}
-		var results = [];
-		var _g11 = 0;
-		var _g4 = filtered_results.length;
-		while(_g11 < _g4) {
-			var i = _g11++;
-			if(filtered_results[i].toLowerCase().indexOf(word) == 0) sorted_results.push(filtered_results[i]); else results.push(filtered_results[i]);
-		}
-		core.Completion.list = [];
-		var _g5 = 0;
-		while(_g5 < sorted_results.length) {
-			var completion1 = sorted_results[_g5];
-			++_g5;
-			core.Completion.list.push(completion1);
-		}
-		var _g6 = 0;
-		while(_g6 < results.length) {
-			var completion2 = results[_g6];
-			++_g6;
-			core.Completion.list.push(completion2);
-		}
+core.Completion.isEditorVisible = function() {
+	var editor;
+	editor = js.Boot.__cast(window.document.getElementById("editor") , HTMLDivElement);
+	return editor.style.display != "none";
+};
+core.Completion.showRegularCompletion = function() {
+	if(core.Completion.isEditorVisible()) {
+		cm.CodeMirrorEditor.regenerateCompletionOnDot = true;
+		core.Completion.WORD = new EReg("[A-Z]+$","i");
+		core.Completion.completionType = core.CompletionType.REGULAR;
+		cm.CodeMirrorEditor.editor.execCommand("autocomplete");
+	}
+};
+core.Completion.showMetaTagsCompletion = function() {
+	if(core.Completion.isEditorVisible()) {
+		core.Completion.WORD = new EReg("[A-Z@:]+$","i");
+		core.Completion.completionType = core.CompletionType.METATAGS;
+		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : /[\s()\[\]{};>,]/});
+	}
+};
+core.Completion.showHxmlCompletion = function() {
+	if(core.Completion.isEditorVisible()) {
+		core.Completion.WORD = new EReg("[A-Z- ]+$","i");
+		core.Completion.completionType = core.CompletionType.HXML;
+		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : /[()\[\]{};:>,]/});
+	}
+};
+core.Completion.showFileList = function() {
+	if(core.Completion.isEditorVisible()) {
+		cm.CodeMirrorEditor.regenerateCompletionOnDot = false;
+		core.Completion.WORD = new EReg("[A-Z\\.]+$","i");
+		core.Completion.completionType = core.CompletionType.FILELIST;
+		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null);
+	}
+};
+core.Completion.showClassList = function() {
+	if(core.Completion.isEditorVisible()) {
+		cm.CodeMirrorEditor.regenerateCompletionOnDot = false;
+		core.Completion.WORD = new EReg("[A-Z\\.]+$","i");
+		core.Completion.completionType = core.CompletionType.CLASSLIST;
+		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : /[\s()\[\]{};>,]/});
 	}
 };
 core.DragAndDrop = function() { };
@@ -1715,13 +1828,35 @@ core.FileTools.createDirectory = function(path,onCreated) {
 core.FunctionParametersHelper = function() { };
 $hxClasses["core.FunctionParametersHelper"] = core.FunctionParametersHelper;
 core.FunctionParametersHelper.__name__ = ["core","FunctionParametersHelper"];
-core.FunctionParametersHelper.addWidget = function(text,lineNumber) {
+core.FunctionParametersHelper.addWidget = function(text,description,lineNumber) {
 	var msg;
 	var _this = window.document;
 	msg = _this.createElement("div");
-	msg.appendChild(window.document.createTextNode(text));
 	msg.className = "lint-error";
-	core.FunctionParametersHelper.widgets.push(cm.CodeMirrorEditor.editor.addLineWidget(lineNumber,msg,{ coverGutter : false, noHScroll : true}));
+	var spanText;
+	var _this1 = window.document;
+	spanText = _this1.createElement("span");
+	spanText.textContent = text;
+	msg.appendChild(spanText);
+	if(description != null) {
+		msg.appendChild((function($this) {
+			var $r;
+			var _this2 = window.document;
+			$r = _this2.createElement("br");
+			return $r;
+		}(this)));
+		var spanDescription;
+		var _this3 = window.document;
+		spanDescription = _this3.createElement("span");
+		spanDescription.textContent = description;
+		msg.appendChild(spanDescription);
+	}
+	var widget = cm.CodeMirrorEditor.editor.addLineWidget(lineNumber,msg,{ coverGutter : false, noHScroll : true});
+	core.FunctionParametersHelper.widgets.push(widget);
+	core.FunctionParametersHelper.lines.push(lineNumber);
+};
+core.FunctionParametersHelper.alreadyShown = function(lineNumber) {
+	return HxOverrides.indexOf(core.FunctionParametersHelper.lines,lineNumber,0) != -1;
 };
 core.FunctionParametersHelper.updateScroll = function() {
 	var info = cm.CodeMirrorEditor.editor.getScrollInfo();
@@ -1736,11 +1871,81 @@ core.FunctionParametersHelper.clear = function() {
 		++_g;
 		cm.CodeMirrorEditor.editor.removeLineWidget(widget);
 	}
+	core.FunctionParametersHelper.lines = [];
+};
+core.FunctionParametersHelper.update = function(cm) {
+	var extname = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
+	if(extname == ".hx" && !cm.state.completionActive) {
+		var cursor = cm.getCursor();
+		var data = cm.getLine(cursor.line);
+		if(cursor != null && data.charAt(cursor.ch - 1) != ".") core.FunctionParametersHelper.scanForBracket(cm,cursor);
+	}
+};
+core.FunctionParametersHelper.scanForBracket = function(cm,cursor) {
+	var bracketsData = cm.scanForBracket(cursor,-1,null);
+	if(bracketsData != null && bracketsData.ch == "(") {
+		var pos = { line : bracketsData.pos.line, ch : bracketsData.pos.ch};
+		if(!core.FunctionParametersHelper.alreadyShown(pos.line)) core.FunctionParametersHelper.getFunctionParams(cm,pos);
+	} else core.FunctionParametersHelper.clear();
+};
+core.FunctionParametersHelper.getFunctionParams = function(cm,pos) {
+	var word = core.Completion.getCurrentWord(cm,{ },{ line : pos.line, ch : pos.ch - 1});
+	tabmanager.TabManager.saveActiveFile(function() {
+		core.Completion.getCompletion(function() {
+			var found = false;
+			var _g = 0;
+			var _g1 = core.Completion.completions;
+			while(_g < _g1.length) {
+				var completion = _g1[_g];
+				++_g;
+				if(word == completion.n) {
+					var text = core.FunctionParametersHelper.parseFunctionParams(completion);
+					var description = core.FunctionParametersHelper.parseDescription(completion);
+					core.FunctionParametersHelper.clear();
+					core.FunctionParametersHelper.addWidget(text,description,cm.getCursor().line);
+					core.FunctionParametersHelper.updateScroll();
+					found = true;
+					break;
+				}
+			}
+			if(!found) core.FunctionParametersHelper.clear();
+		},{ line : pos.line, ch : pos.ch - 1});
+	});
+};
+core.FunctionParametersHelper.parseDescription = function(completion) {
+	var description = completion.d;
+	if(description != null) {
+		if(description.indexOf(".") != -1) description = description.split(".")[0];
+	}
+	return description;
+};
+core.FunctionParametersHelper.parseFunctionParams = function(completion) {
+	var info = "(";
+	var args = completion.t.split("->");
+	if(args.length > 2) {
+		var _g1 = 0;
+		var _g = args.length - 1;
+		while(_g1 < _g) {
+			var i = _g1++;
+			info += args[i];
+			if(i != args.length - 2) info += ", ";
+		}
+		info += "):" + args[args.length - 1];
+	} else info += "):" + args[args.length - 1];
+	return "function " + completion.n + info;
+};
+core.GoToLine = function() { };
+$hxClasses["core.GoToLine"] = core.GoToLine;
+core.GoToLine.__name__ = ["core","GoToLine"];
+core.GoToLine.show = function() {
+	if(tabmanager.TabManager.selectedPath != null) Alertify.prompt("Go to Line",function(e,str) {
+		cm.CodeMirrorEditor.editor.centerOnLine(Std.parseInt(str));
+	});
 };
 core.HaxeLint = function() { };
 $hxClasses["core.HaxeLint"] = core.HaxeLint;
 core.HaxeLint.__name__ = ["core","HaxeLint"];
-core.HaxeLint.prepare = function() {
+core.HaxeLint.load = function() {
 	CodeMirror.registerHelper("lint","haxe",function(text) {
 		var found = [];
 		var path = tabmanager.TabManager.getCurrentDocumentPath();
@@ -1754,6 +1959,10 @@ core.HaxeLint.prepare = function() {
 		}
 		return found;
 	});
+};
+core.HaxeLint.updateLinting = function() {
+	cm.CodeMirrorEditor.editor.setOption("lint",false);
+	cm.CodeMirrorEditor.editor.setOption("lint",true);
 };
 core.FunctionScopeType = $hxClasses["core.FunctionScopeType"] = { __ename__ : ["core","FunctionScopeType"], __constructs__ : ["SClass","SStatic","SRegular"] };
 core.FunctionScopeType.SClass = ["SClass",0];
@@ -1985,8 +2194,8 @@ core.HaxeParserProvider.getClassName = function() {
 	var cm1 = cm.CodeMirrorEditor.editor;
 	var pos = cm1.indexFromPos(cm1.getCursor());
 	var doc = tabmanager.TabManager.getCurrentDocument();
-	var data = doc.doc.getValue();
-	var path = doc.path;
+	var data = doc.getValue();
+	var path = tabmanager.TabManager.getCurrentDocumentPath();
 	var ast = core.HaxeParserProvider.parse(data,path);
 	if(ast != null) {
 		var classPackage = ast.pack;
@@ -2041,13 +2250,13 @@ core.HaxeParserProvider.parse = function(data,path) {
 			var e = $e0;
 			console.log(e);
 			var pos = e.pos.getLinePosition(input);
-			var info = { from : CodeMirrorPos.pos(pos.lineMin - 1,pos.posMin), to : CodeMirrorPos.pos(pos.lineMax - 1,pos.posMax), message : "Parser error:\nUnexpected " + Std.string(e.token.tok), severity : "warning"};
+			var info = { from : { line : pos.lineMin - 1, ch : pos.posMin}, to : { line : pos.lineMax - 1, ch : pos.posMax}, message : "Parser error:\nUnexpected " + Std.string(e.token.tok), severity : "warning"};
 			data1.push(info);
 		} else if( js.Boot.__instanceof($e0,hxparse.Unexpected) ) {
 			var e1 = $e0;
 			console.log(e1);
 			var pos1 = e1.pos.getLinePosition(input);
-			var info1 = { from : CodeMirrorPos.pos(pos1.lineMin - 1,pos1.posMin), to : CodeMirrorPos.pos(pos1.lineMax - 1,pos1.posMax), message : "Parser error:\nUnexpected " + Std.string(e1.token.tok), severity : "warning"};
+			var info1 = { from : { line : pos1.lineMin - 1, ch : pos1.posMin}, to : { line : pos1.lineMax - 1, ch : pos1.posMax}, message : "Parser error:\nUnexpected " + Std.string(e1.token.tok), severity : "warning"};
 			data1.push(info1);
 		} else {
 		var e2 = $e0;
@@ -2120,6 +2329,35 @@ core.HaxeServer.start = function() {
 core.HaxeServer.terminate = function() {
 	if(core.HaxeServer.haxeServer != null) core.HaxeServer.haxeServer.kill();
 };
+core.Helper = function() { };
+$hxClasses["core.Helper"] = core.Helper;
+core.Helper.__name__ = ["core","Helper"];
+core.Helper.debounce = function(type,onComplete,time_ms) {
+	var timer = core.Helper.timers.get(type);
+	if(timer != null) timer.stop();
+	timer = new haxe.Timer(time_ms);
+	timer.run = function() {
+		timer.stop();
+		onComplete();
+	};
+	core.Helper.timers.set(type,timer);
+};
+core.Utils = $hx_exports.core.Utils = function() { };
+$hxClasses["core.Utils"] = core.Utils;
+core.Utils.__name__ = ["core","Utils"];
+core.Utils.prepare = function() {
+	var _g = js.Node.require("os").type();
+	switch(_g) {
+	case "Windows_NT":
+		core.Utils.os = 0;
+		break;
+	case "Linux":
+		core.Utils.os = 1;
+		break;
+	default:
+		core.Utils.os = 2;
+	}
+};
 core.Hotkeys = $hx_exports.Hotkeys = function() { };
 $hxClasses["core.Hotkeys"] = core.Hotkeys;
 core.Hotkeys.__name__ = ["core","Hotkeys"];
@@ -2145,7 +2383,7 @@ core.Hotkeys.prepare = function() {
 		while(_g < _g1.length) {
 			var hotkey = _g1[_g];
 			++_g;
-			if(hotkey.keyCode == e.keyCode && hotkey.ctrl == e.ctrlKey && hotkey.shift == e.shiftKey && hotkey.alt == e.altKey) hotkey.onKeyDown();
+			if(hotkey.keyCode == e.keyCode && hotkey.ctrl == (e.ctrlKey || core.Hotkeys.commandKey && e.metaKey) && hotkey.shift == e.shiftKey && hotkey.alt == e.altKey) hotkey.onKeyDown();
 		}
 	});
 };
@@ -2174,7 +2412,10 @@ core.Hotkeys.addHotkey = function(menuItem,hotkeyText) {
 			alt = hotkey.alt;
 		} else window.console.warn("can't assign hotkey " + hotkeyText + " for " + menuItem);
 	}
-	if(core.Hotkeys.spanMap.exists(menuItem)) core.Hotkeys.spanMap.get(menuItem).innerText = hotkeyText;
+	if(core.Hotkeys.spanMap.exists(menuItem)) {
+		if(core.Hotkeys.commandKey) hotkeyText = StringTools.replace(hotkeyText,"Ctrl","Cmd");
+		core.Hotkeys.spanMap.get(menuItem).innerText = hotkeyText;
+	}
 	if(keyCode != null) core.Hotkeys.hotkeys.push({ keyCode : keyCode, ctrl : ctrl, shift : shift, alt : alt, onKeyDown : core.Hotkeys.commandMap.get(menuItem)});
 };
 core.Hotkeys.parseData = function() {
@@ -2263,42 +2504,6 @@ core.Hotkeys.parseHotkey = function(hotkey) {
 	}
 	return { keyCode : keyCode, ctrl : ctrl, shift : shift, alt : alt};
 };
-core.LocaleWatcher = function() { };
-$hxClasses["core.LocaleWatcher"] = core.LocaleWatcher;
-core.LocaleWatcher.__name__ = ["core","LocaleWatcher"];
-core.LocaleWatcher.load = function() {
-	if(core.LocaleWatcher.watcher != null) core.LocaleWatcher.watcher.close();
-	core.LocaleWatcher.parse();
-	core.LocaleWatcher.processHtmlElements();
-};
-core.LocaleWatcher.parse = function() {
-	var options = { };
-	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync(core.SettingsWatcher.settings.locale,options);
-	core.LocaleWatcher.localeData = tjson.TJSON.parse(data);
-};
-core.LocaleWatcher.getStringSync = function(name) {
-	var value = name;
-	if(Object.prototype.hasOwnProperty.call(core.LocaleWatcher.localeData,name)) value = Reflect.field(core.LocaleWatcher.localeData,name); else {
-		core.LocaleWatcher.localeData[name] = name;
-		var data = tjson.TJSON.encode(core.LocaleWatcher.localeData,"fancy");
-		js.Node.require("fs").writeFileSync(core.SettingsWatcher.settings.locale,data,"utf8");
-	}
-	return value;
-};
-core.LocaleWatcher.processHtmlElements = function() {
-	var element;
-	var value;
-	var _g = 0;
-	var _g1 = window.document.getElementsByTagName("*");
-	while(_g < _g1.length) {
-		var node = _g1[_g];
-		++_g;
-		element = js.Boot.__cast(node , Element);
-		value = element.getAttribute("localeString");
-		if(value != null) element.textContent = core.LocaleWatcher.getStringSync(value);
-	}
-};
 core.MenuCommands = function() { };
 $hxClasses["core.MenuCommands"] = core.MenuCommands;
 core.MenuCommands.__name__ = ["core","MenuCommands"];
@@ -2319,25 +2524,19 @@ core.MenuCommands.add = function() {
 	menu.BootstrapMenu.getMenu("Help").addMenuItem("changelog",1,function() {
 		return tabmanager.TabManager.openFileInNewTab("changes.md");
 	});
-	menu.BootstrapMenu.getMenu("Developer Tools",100).addMenuItem("Reload IDE",1,function() {
-		core.HaxeServer.terminate();
-		$window.reloadIgnoringCache();
-	},"Ctrl-Shift-R");
+	menu.BootstrapMenu.getMenu("Developer Tools",100).addMenuItem("Reload IDE",1,$bind($window,$window.reloadIgnoringCache),"Ctrl-Shift-R");
 	menu.BootstrapMenu.getMenu("Developer Tools").addMenuItem("Compile plugins and reload IDE",2,function() {
-		core.HaxeServer.terminate();
 		HIDE.compilePlugins(function() {
 			$window.reloadIgnoringCache();
 		},function(data) {
 		});
 	},"Shift-F5");
-	menu.BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console",3,function() {
-		$window.showDevTools();
-	});
+	menu.BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console",3,$bind($window,$window.showDevTools));
 	menu.BootstrapMenu.getMenu("Options").addMenuItem("Open settings",1,function() {
 		return tabmanager.TabManager.openFileInNewTab("settings.json");
 	});
 	menu.BootstrapMenu.getMenu("Options").addMenuItem("Open stylesheet",1,function() {
-		return tabmanager.TabManager.openFileInNewTab(core.SettingsWatcher.settings.theme);
+		return tabmanager.TabManager.openFileInNewTab(watchers.SettingsWatcher.settings.theme);
 	});
 	menu.BootstrapMenu.getMenu("Options").addMenuItem("Open editor configuration file",1,function() {
 		return tabmanager.TabManager.openFileInNewTab("editor.json");
@@ -2346,11 +2545,32 @@ core.MenuCommands.add = function() {
 		return filetree.FileTree.load("templates","templates");
 	});
 	menu.BootstrapMenu.getMenu("Options").addMenuItem("Open localization file",1,function() {
-		return tabmanager.TabManager.openFileInNewTab(core.SettingsWatcher.settings.locale);
+		return tabmanager.TabManager.openFileInNewTab(watchers.SettingsWatcher.settings.locale);
 	});
 	menu.BootstrapMenu.getMenu("Help").addMenuItem("Show code editor key bindings",2,function() {
 		return tabmanager.TabManager.openFileInNewTab("bindings.txt");
 	});
+	core.Hotkeys.add("Tab Manager->Show Next Tab","Ctrl-Tab",null,tabmanager.TabManager.showNextTab);
+	core.Hotkeys.add("Tab Manager->Show Previous Tab","Ctrl-Shift-Tab",null,tabmanager.TabManager.showPreviousTab);
+	core.Hotkeys.add("Tab Manager->Close File","Ctrl-W",null,tabmanager.TabManager.closeActiveTab);
+	menu.BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,newprojectdialog.NewProjectDialog.show,"Ctrl-Shift-N");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("New File...",2,tabmanager.TabManager.createFileInNewTab,"Ctrl-N");
+	menu.BootstrapMenu.getMenu("File").addSeparator();
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Open...",3,openproject.OpenProject.openProject,"Ctrl-O");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Close Project",4,openproject.OpenProject.closeProject);
+	menu.BootstrapMenu.getMenu("File").addSeparator();
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Save",5,tabmanager.TabManager.saveActiveFile,"Ctrl-S");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Save As...",6,tabmanager.TabManager.saveActiveFileAs,"Ctrl-Shift-S");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Save All",7,tabmanager.TabManager.saveAll);
+	menu.BootstrapMenu.getMenu("File").addSeparator();
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Exit",8,nodejs.webkit.App.closeAllWindows);
+	nodejs.webkit.Window.get().on("close",tabmanager.TabManager.saveAll);
+	menu.BootstrapMenu.getMenu("Options",90).addMenuItem("Open hotkey configuration file",1,function() {
+		return tabmanager.TabManager.openFileInNewTab("hotkeys.json");
+	});
+	core.Hotkeys.add("Code Editor->Go to Line","Ctrl-G",null,core.GoToLine.show);
+	core.Hotkeys.add("Completion->Open File","Ctrl-Shift-O",null,core.Completion.showFileList);
+	core.Hotkeys.add("Completion->Show Class List","Ctrl-Shift-P",null,core.Completion.showClassList);
 };
 var nodejs = {};
 nodejs.webkit = {};
@@ -2437,75 +2657,97 @@ core.ProcessHelper.runProcessAndPrintOutputToConsole = function(process,params,o
 	textarea.value = "Build started\n";
 	textarea.value += command + "\n";
 	new $("#errors").html("");
-	var process1 = js.Node.require("child_process").exec(command,{ },function(error,stdout,stderr) {
-		if(StringTools.trim(stdout) != "") {
-			textarea.value += "stdout:\n" + stdout;
-			console.log("stdout:\n" + stdout);
-		}
-		core.HaxeLint.fileData = new haxe.ds.StringMap();
-		if(stderr != "") {
-			var lines = stderr.split("\n");
-			var _g = 0;
-			while(_g < lines.length) {
-				var line = lines[_g];
-				++_g;
-				if(line.indexOf(":") != 0) {
-					var args = line.split(":");
-					if(args.length > 3) {
-						var relativePath = args[0];
-						var fullPath = [js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,relativePath)];
-						var data = [];
-						core.HaxeLint.fileData.set(fullPath[0],data);
-						var lineNumber = [Std.parseInt(args[1]) - 1];
-						var charsData = StringTools.trim(args[2]).split(" ")[1].split("-");
-						var start = Std.parseInt(charsData[0]);
-						var end = Std.parseInt(charsData[1]);
-						var message = "";
-						var _g2 = 3;
-						var _g1 = args.length;
-						while(_g2 < _g1) {
-							var i = _g2++;
-							message += args[i];
-							if(i != args.length - 1) message += ":";
-						}
-						var a;
-						var _this = window.document;
-						a = _this.createElement("a");
-						a.href = "#";
-						a.className = "list-group-item";
-						a.innerText = line;
-						a.onclick = (function(lineNumber,fullPath) {
-							return function(e) {
-								tabmanager.TabManager.openFileInNewTab(fullPath[0],true,(function(lineNumber) {
-									return function() {
-										CodeMirrorEditor.editor.centerOnLine(lineNumber[0]);
-									};
-								})(lineNumber));
-							};
-						})(lineNumber,fullPath);
-						new $("#errors").append(a);
-						var info = { from : CodeMirrorPos.pos(lineNumber[0],start), to : CodeMirrorPos.pos(lineNumber[0],end), message : message, severity : "error"};
-						console.log(info);
-						data.push(info);
-						tabmanager.TabManager.openFileInNewTab(fullPath[0],false);
-					}
-				}
-			}
-			cm.CodeMirrorEditor.editor.setOption("lint",true);
-			textarea.value += "stderr:\n" + stderr;
-			console.log("stderr:\n" + stderr);
-		}
-		if(error == null) {
-			textarea.value += "Build complete\n";
-			if(onComplete != null) onComplete();
-			new $("#buildStatus").fadeIn();
-		} else {
-			console.log(command);
-			textarea.value += "Build failed (exit code: " + (error.code == null?"null":"" + error.code) + ")\n";
-			new $("#buildStatus").fadeOut();
-		}
+	var process1 = js.Node.require("child_process").spawn(process,params);
+	process1.stdout.setEncoding("utf8");
+	process1.stderr.setEncoding("utf8");
+	var processStdout = "";
+	var processStderr = "";
+	process1.stdout.on("data",function(data) {
+		processStdout += data;
+	});
+	process1.stderr.on("data",function(data1) {
+		processStderr += data1;
+	});
+	process1.on("close",function(code) {
+		core.ProcessHelper.processOutput(code,processStdout,processStderr,onComplete);
+	});
+	process1.on("error",function(e) {
+		console.log(e);
 	});
 	return process1;
+};
+core.ProcessHelper.processOutput = function(code,stdout,stderr,onComplete) {
+	var textarea;
+	textarea = js.Boot.__cast(window.document.getElementById("outputTextArea") , HTMLTextAreaElement);
+	if(StringTools.trim(stdout) != "") {
+		textarea.value += "stdout:\n" + stdout;
+		console.log("stdout:\n" + stdout);
+	}
+	core.HaxeLint.fileData = new haxe.ds.StringMap();
+	if(stderr != "") {
+		var lines = stderr.split("\n");
+		var _g = 0;
+		while(_g < lines.length) {
+			var line = lines[_g];
+			++_g;
+			if(line.indexOf(":") != 0) {
+				var args = line.split(":");
+				if(args.length > 3) {
+					var relativePath = args[0];
+					var fullPath = [js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,relativePath)];
+					var data = [];
+					core.HaxeLint.fileData.set(fullPath[0],data);
+					var lineNumber = [Std.parseInt(args[1]) - 1];
+					var charsData = StringTools.trim(args[2]).split(" ")[1].split("-");
+					var start = Std.parseInt(charsData[0]);
+					var end = Std.parseInt(charsData[1]);
+					var message = "";
+					var _g2 = 3;
+					var _g1 = args.length;
+					while(_g2 < _g1) {
+						var i = _g2++;
+						message += args[i];
+						if(i != args.length - 1) message += ":";
+					}
+					var a;
+					var _this = window.document;
+					a = _this.createElement("a");
+					a.href = "#";
+					a.className = "list-group-item";
+					a.innerText = line;
+					a.onclick = (function(lineNumber,fullPath) {
+						return function(e) {
+							tabmanager.TabManager.openFileInNewTab(fullPath[0],true,(function(lineNumber) {
+								return function() {
+									var cm1 = cm.CodeMirrorEditor.editor;
+									cm1.centerOnLine(lineNumber[0]);
+								};
+							})(lineNumber));
+						};
+					})(lineNumber,fullPath);
+					new $("#errors").append(a);
+					var info = { from : { line : lineNumber[0], ch : start}, to : { line : lineNumber[0], ch : end}, message : message, severity : "error"};
+					console.log(info);
+					data.push(info);
+					tabmanager.TabManager.openFileInNewTab(fullPath[0],false);
+				}
+			}
+		}
+		textarea.value += "stderr:\n" + stderr;
+		console.log("stderr:\n" + stderr);
+	}
+	if(code == 0) {
+		Alertify.success("Build complete!");
+		textarea.value += "Build complete\n";
+		if(onComplete != null) onComplete();
+		new $("#buildStatus").fadeIn();
+	} else {
+		new $("#resultsTab").click();
+		Alertify.error("Build failed");
+		textarea.value += "Build failed (exit code: " + (code == null?"null":"" + code) + ")\n";
+		new $("#buildStatus").fadeOut();
+	}
+	core.HaxeLint.updateLinting();
 };
 core.ProcessHelper.runPersistentProcess = function(process,params,onClose) {
 	core.ProcessHelper.processStdout = "";
@@ -2535,6 +2777,9 @@ core.RunProject.load = function() {
 	menu.BootstrapMenu.getMenu("Project",80).addMenuItem("Run",1,core.RunProject.runProject,"F5");
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Build",2,core.RunProject.buildProject,"F8");
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set this hxml as project build file",3,core.RunProject.setHxmlAsProjectBuildFile);
+	nodejs.webkit.Window.get().on("close",function() {
+		core.RunProject.killRunProcess();
+	});
 };
 core.RunProject.setHxmlAsProjectBuildFile = function() {
 	var path = tabmanager.TabManager.getCurrentDocumentPath();
@@ -2546,8 +2791,8 @@ core.RunProject.setHxmlAsProjectBuildFile = function() {
 		project.main = js.Node.require("path").basename(path);
 		project.path = js.Node.require("path").dirname(path);
 		projectaccess.ProjectAccess.save();
-		core.Alerts.showAlert("Done");
-	} else core.Alerts.showAlert("Currently active document is not a hxml file");
+		Alertify.success(watchers.LocaleWatcher.getStringSync("Done"));
+	} else Alertify.error(watchers.LocaleWatcher.getStringSync("Currently active document is not a hxml file"));
 };
 core.RunProject.runProject = function() {
 	core.RunProject.buildProject(function() {
@@ -2569,12 +2814,16 @@ core.RunProject.runProject = function() {
 			if(core.RunProject.isValidCommand(command)) {
 				var params = core.RunProject.preprocessCommand(command).split(" ");
 				var process = params.shift();
-				core.ProcessHelper.runProcessAndPrintOutputToConsole(process,params);
+				core.RunProject.killRunProcess();
+				core.RunProject.runProcess = core.ProcessHelper.runProcessAndPrintOutputToConsole(process,params);
 			}
 			break;
 		default:
 		}
 	});
+};
+core.RunProject.killRunProcess = function() {
+	if(core.RunProject.runProcess != null) core.RunProject.runProcess.kill();
 };
 core.RunProject.isValidCommand = function(command) {
 	var valid = false;
@@ -2582,7 +2831,7 @@ core.RunProject.isValidCommand = function(command) {
 	return valid;
 };
 core.RunProject.buildProject = function(onComplete) {
-	if(projectaccess.ProjectAccess.currentProject.path == null) core.Alerts.showAlert("Please open or create project first!"); else tabmanager.TabManager.saveAll(function() {
+	if(projectaccess.ProjectAccess.currentProject.path == null) Alertify.error(watchers.LocaleWatcher.getStringSync("Please open or create project first!")); else tabmanager.TabManager.saveAll(function() {
 		var path = tabmanager.TabManager.getCurrentDocumentPath();
 		var extname = js.Node.require("path").extname(path);
 		var buildHxml = extname == ".hxml";
@@ -2655,42 +2904,198 @@ core.RunProject.preprocessCommand = function(command) {
 	}
 	return processedCommand;
 };
-core.SettingsWatcher = function() { };
-$hxClasses["core.SettingsWatcher"] = core.SettingsWatcher;
-core.SettingsWatcher.__name__ = ["core","SettingsWatcher"];
-core.SettingsWatcher.load = function() {
-	core.SettingsWatcher.parse();
+core.Splitter = function() { };
+$hxClasses["core.Splitter"] = core.Splitter;
+core.Splitter.__name__ = ["core","Splitter"];
+core.Splitter.load = function() {
+	core.Splitter.hide();
 };
-core.SettingsWatcher.parse = function() {
-	var options = { };
-	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync("settings.json",options);
-	core.SettingsWatcher.settings = tjson.TJSON.parse(data);
-	core.ThemeWatcher.load();
-	core.LocaleWatcher.load();
-};
-core.ThemeWatcher = function() { };
-$hxClasses["core.ThemeWatcher"] = core.ThemeWatcher;
-core.ThemeWatcher.__name__ = ["core","ThemeWatcher"];
-core.ThemeWatcher.load = function() {
-	if(core.ThemeWatcher.watcher != null) core.ThemeWatcher.watcher.close();
-	new $("#theme").attr("href",core.SettingsWatcher.settings.theme);
-};
-core.Utils = $hx_exports.core.Utils = function() { };
-$hxClasses["core.Utils"] = core.Utils;
-core.Utils.__name__ = ["core","Utils"];
-core.Utils.prepare = function() {
-	var _g = js.Node.require("os").type();
-	switch(_g) {
-	case "Windows_NT":
-		core.Utils.os = 0;
-		break;
-	case "Linux":
-		core.Utils.os = 1;
-		break;
-	default:
-		core.Utils.os = 2;
+core.Splitter.show = function() {
+	if(core.Splitter.visible == false) {
+		core.Splitter.visible = true;
+		new $("#mainSplitter").jqxSplitter({ resizable : true});
+		new $("#mainSplitter").jqxSplitter("expand");
+		new $("#mainSplitter").jqxSplitter({ showSplitBar : true});
+		new $("#thirdNested").jqxSplitter({ resizable : true});
+		var panels = [{ size : "85%"},{ size : "15%"}];
+		panels[0].collapsible = false;
+		panels[1].collapsible = true;
+		new $("#thirdNested").jqxSplitter({ panels : panels});
+		new $("#thirdNested").jqxSplitter("expand");
+		new $("#thirdNested").jqxSplitter({ showSplitBar : true});
+		new $("#annotationRuler").fadeIn();
+		core.WelcomeScreen.hide();
 	}
+};
+core.Splitter.hide = function() {
+	core.Splitter.visible = false;
+	var panels = [{ size : 170},{ size : 170}];
+	panels[0].collapsible = true;
+	panels[1].collapsible = false;
+	new $("#mainSplitter").jqxSplitter({ panels : panels});
+	new $("#mainSplitter").jqxSplitter("collapse");
+	new $("#mainSplitter").jqxSplitter({ resizable : false});
+	new $("#mainSplitter").jqxSplitter({ showSplitBar : false});
+	var panels1 = [{ size : "85%"},{ size : "15%"}];
+	panels1[0].collapsible = false;
+	panels1[1].collapsible = true;
+	new $("#thirdNested").jqxSplitter({ panels : panels1});
+	new $("#thirdNested").jqxSplitter("collapse");
+	new $("#thirdNested").jqxSplitter({ resizable : false});
+	new $("#thirdNested").jqxSplitter({ showSplitBar : false});
+	new $("#annotationRuler").fadeOut();
+	if(tabmanager.TabManager.tabMap != null && tabmanager.TabManager.tabMap.getTabs().length == 0) core.WelcomeScreen.show();
+};
+core.WelcomeScreen = function() { };
+$hxClasses["core.WelcomeScreen"] = core.WelcomeScreen;
+core.WelcomeScreen.__name__ = ["core","WelcomeScreen"];
+core.WelcomeScreen.load = function() {
+	core.WelcomeScreen.div = js.Boot.__cast(window.document.getElementById("welcomeScreen") , HTMLDivElement);
+	new $("#createNewProject").on("click",null,newprojectdialog.NewProjectDialog.show);
+	new $("#openProject").on("click",null,function() {
+		return openproject.OpenProject.openProject(null);
+	});
+	new $("#github").on("click",null,function() {
+		return nodejs.webkit.Shell.openExternal("https://github.com/misterpah/HIDE/tree/master");
+	});
+	new $("#as3boyan").on("click",null,function() {
+		return nodejs.webkit.Shell.openExternal("http://twitter.com/As3Boyan");
+	});
+	new $("#misterpah").on("click",null,function() {
+		return nodejs.webkit.Shell.openExternal("http://twitter.com/misterpah");
+	});
+};
+core.WelcomeScreen.show = function() {
+	new $(core.WelcomeScreen.div).fadeIn();
+};
+core.WelcomeScreen.hide = function() {
+	new $(core.WelcomeScreen.div).fadeOut();
+};
+var dialogs = {};
+dialogs.ModalDialog = function(title) {
+	var _g = this;
+	var _this = window.document;
+	this.modal = _this.createElement("div");
+	this.modal.className = "modal fade";
+	var dialog;
+	var _this1 = window.document;
+	dialog = _this1.createElement("div");
+	dialog.className = "modal-dialog";
+	this.modal.appendChild(dialog);
+	var content;
+	var _this2 = window.document;
+	content = _this2.createElement("div");
+	content.className = "modal-content";
+	dialog.appendChild(content);
+	var _this3 = window.document;
+	this.header = _this3.createElement("div");
+	this.header.className = "modal-header";
+	content.appendChild(this.header);
+	this.h4 = js.Boot.__cast(window.document.createElement("h4") , HTMLHeadingElement);
+	this.h4.className = "modal-title";
+	if(title != null) this.setTitle(title);
+	this.header.appendChild(this.h4);
+	var _this4 = window.document;
+	this.body = _this4.createElement("div");
+	this.body.className = "modal-body";
+	this.body.style.overflow = "hidden";
+	content.appendChild(this.body);
+	var _this5 = window.document;
+	this.footer = _this5.createElement("div");
+	this.footer.className = "modal-footer";
+	content.appendChild(this.footer);
+	window.addEventListener("keyup",function(e) {
+		if(e.keyCode == 27) _g.hide();
+	});
+	window.document.body.appendChild(this.modal);
+};
+$hxClasses["dialogs.ModalDialog"] = dialogs.ModalDialog;
+dialogs.ModalDialog.__name__ = ["dialogs","ModalDialog"];
+dialogs.ModalDialog.prototype = {
+	modal: null
+	,header: null
+	,body: null
+	,footer: null
+	,h4: null
+	,setTitle: function(title) {
+		this.h4.setAttribute("localeString",title);
+		this.h4.textContent = watchers.LocaleWatcher.getStringSync(title);
+	}
+	,getHeader: function() {
+		return this.header;
+	}
+	,getBody: function() {
+		return this.body;
+	}
+	,getFooter: function() {
+		return this.footer;
+	}
+	,show: function() {
+		new $(this.modal).modal("show");
+	}
+	,hide: function() {
+		new $(this.modal).modal("hide");
+	}
+	,__class__: dialogs.ModalDialog
+};
+dialogs.BrowseFolderDialog = function(title) {
+	var _g = this;
+	dialogs.ModalDialog.call(this,title);
+	var inputGroup;
+	var _this = window.document;
+	inputGroup = _this.createElement("div");
+	inputGroup.className = "input-group";
+	var _this1 = window.document;
+	this.input = _this1.createElement("input");
+	this.input.type = "text";
+	this.input.className = "form-control";
+	inputGroup.appendChild(this.input);
+	var span;
+	var _this2 = window.document;
+	span = _this2.createElement("span");
+	span.className = "input-group-btn";
+	var browseButton = bootstrap.ButtonManager.createButton("Browse");
+	span.appendChild(browseButton);
+	browseButton.onclick = function(e) {
+		core.FileDialog.openFolder(function(path) {
+			_g.input.value = path;
+		});
+	};
+	inputGroup.appendChild(span);
+	this.getBody().appendChild(inputGroup);
+	var okButton = bootstrap.ButtonManager.createButton("OK",false,false,true);
+	okButton.onclick = function(e1) {
+		if(_g.onComplete != null) _g.onComplete(_g.input.value);
+		_g.hide();
+	};
+	this.getFooter().appendChild(okButton);
+	this.getFooter().appendChild(bootstrap.ButtonManager.createButton("Cancel",false,true));
+};
+$hxClasses["dialogs.BrowseFolderDialog"] = dialogs.BrowseFolderDialog;
+dialogs.BrowseFolderDialog.__name__ = ["dialogs","BrowseFolderDialog"];
+dialogs.BrowseFolderDialog.__super__ = dialogs.ModalDialog;
+dialogs.BrowseFolderDialog.prototype = $extend(dialogs.ModalDialog.prototype,{
+	onComplete: null
+	,input: null
+	,setDefaultValue: function(_value) {
+		this.input.value = _value;
+	}
+	,setCallback: function(_onComplete) {
+		this.onComplete = _onComplete;
+	}
+	,__class__: dialogs.BrowseFolderDialog
+});
+dialogs.DialogManager = function() { };
+$hxClasses["dialogs.DialogManager"] = dialogs.DialogManager;
+dialogs.DialogManager.__name__ = ["dialogs","DialogManager"];
+dialogs.DialogManager.load = function() {
+	dialogs.DialogManager.browseFolderDialog = new dialogs.BrowseFolderDialog();
+};
+dialogs.DialogManager.showBrowseFolderDialog = function(title,onComplete,defaultValue) {
+	dialogs.DialogManager.browseFolderDialog.setTitle(title);
+	dialogs.DialogManager.browseFolderDialog.setCallback(onComplete);
+	dialogs.DialogManager.browseFolderDialog.setDefaultValue(defaultValue);
+	dialogs.DialogManager.browseFolderDialog.show();
 };
 var filetree = {};
 filetree.ContextMenu = function() { };
@@ -2713,21 +3118,25 @@ filetree.ContextMenu.createContextMenu = function() {
 	ul.style.display = "block";
 	filetree.ContextMenu.menuItems = new haxe.ds.StringMap();
 	filetree.ContextMenu.addContextMenuItemToStringMap("New File...",function() {
-		core.Bootbox.prompt("Filename:","New.hx",function(result) {
-			var pathToFile = js.Node.require("path").join(filetree.ContextMenu.path,result);
-			tabmanager.TabManager.createFileInNewTab(pathToFile);
-		});
+		Alertify.prompt(watchers.LocaleWatcher.getStringSync("Filename:"),function(e1,str) {
+			if(e1) {
+				var pathToFile = js.Node.require("path").join(filetree.ContextMenu.path,str);
+				tabmanager.TabManager.createFileInNewTab(pathToFile);
+			}
+		},"New.hx");
 	});
 	filetree.ContextMenu.addContextMenuItemToStringMap("New Folder...",function() {
-		core.Bootbox.prompt("Folder name:","New Folder",function(result1) {
-			var dirname = result1;
-			if(dirname != null) js.Node.require("fs").mkdir(js.Node.require("path").join(filetree.ContextMenu.path,dirname),null,function(error) {
-				filetree.FileTree.load();
-			});
-		});
+		Alertify.prompt("Folder name:",function(e2,str1) {
+			if(e2) {
+				var dirname = str1;
+				if(dirname != null) js.Node.require("fs").mkdir(js.Node.require("path").join(filetree.ContextMenu.path,dirname),null,function(error) {
+					filetree.FileTree.load();
+				});
+			}
+		},"New Folder");
 	});
 	filetree.ContextMenu.addContextMenuItemToStringMap("Open File",function() {
-		filetree.FileTree.onFileClick(filetree.ContextMenu.path);
+		tabmanager.TabManager.openFileInNewTab(filetree.ContextMenu.path);
 	});
 	filetree.ContextMenu.addContextMenuItemToStringMap("Open using OS",function() {
 		nodejs.webkit.Shell.openItem(filetree.ContextMenu.path);
@@ -2884,7 +3293,7 @@ filetree.FileTree.readDir = function(path,topElement) {
 							a.setAttribute("itemType","file");
 							a.onclick = (function(filePath) {
 								return function(e) {
-									if(filetree.FileTree.onFileClick != null) filetree.FileTree.onFileClick(filePath[0]);
+									tabmanager.TabManager.openFileInNewTab(filePath[0]);
 								};
 							})(filePath);
 							if(StringTools.endsWith(file[0],".hx")) a.style.fontWeight = "bold"; else if(StringTools.endsWith(file[0],".hxml")) {
@@ -2920,211 +3329,11 @@ filetree.FileTree.readDir = function(path,topElement) {
 		}
 	});
 };
-haxe.Json = function() {
-};
+haxe.Json = function() { };
 $hxClasses["haxe.Json"] = haxe.Json;
 haxe.Json.__name__ = ["haxe","Json"];
-haxe.Json.parse = function(text) {
-	return new haxe.Json().doParse(text);
-};
-haxe.Json.prototype = {
-	str: null
-	,pos: null
-	,doParse: function(str) {
-		this.str = str;
-		this.pos = 0;
-		return this.parseRec();
-	}
-	,invalidChar: function() {
-		this.pos--;
-		throw "Invalid char " + this.str.charCodeAt(this.pos) + " at position " + this.pos;
-	}
-	,parseRec: function() {
-		while(true) {
-			var c = StringTools.fastCodeAt(this.str,this.pos++);
-			switch(c) {
-			case 32:case 13:case 10:case 9:
-				break;
-			case 123:
-				var obj = { };
-				var field = null;
-				var comma = null;
-				while(true) {
-					var c1 = StringTools.fastCodeAt(this.str,this.pos++);
-					switch(c1) {
-					case 32:case 13:case 10:case 9:
-						break;
-					case 125:
-						if(field != null || comma == false) this.invalidChar();
-						return obj;
-					case 58:
-						if(field == null) this.invalidChar();
-						Reflect.setField(obj,field,this.parseRec());
-						field = null;
-						comma = true;
-						break;
-					case 44:
-						if(comma) comma = false; else this.invalidChar();
-						break;
-					case 34:
-						if(comma) this.invalidChar();
-						field = this.parseString();
-						break;
-					default:
-						this.invalidChar();
-					}
-				}
-				break;
-			case 91:
-				var arr = [];
-				var comma1 = null;
-				while(true) {
-					var c2 = StringTools.fastCodeAt(this.str,this.pos++);
-					switch(c2) {
-					case 32:case 13:case 10:case 9:
-						break;
-					case 93:
-						if(comma1 == false) this.invalidChar();
-						return arr;
-					case 44:
-						if(comma1) comma1 = false; else this.invalidChar();
-						break;
-					default:
-						if(comma1) this.invalidChar();
-						this.pos--;
-						arr.push(this.parseRec());
-						comma1 = true;
-					}
-				}
-				break;
-			case 116:
-				var save = this.pos;
-				if(StringTools.fastCodeAt(this.str,this.pos++) != 114 || StringTools.fastCodeAt(this.str,this.pos++) != 117 || StringTools.fastCodeAt(this.str,this.pos++) != 101) {
-					this.pos = save;
-					this.invalidChar();
-				}
-				return true;
-			case 102:
-				var save1 = this.pos;
-				if(StringTools.fastCodeAt(this.str,this.pos++) != 97 || StringTools.fastCodeAt(this.str,this.pos++) != 108 || StringTools.fastCodeAt(this.str,this.pos++) != 115 || StringTools.fastCodeAt(this.str,this.pos++) != 101) {
-					this.pos = save1;
-					this.invalidChar();
-				}
-				return false;
-			case 110:
-				var save2 = this.pos;
-				if(StringTools.fastCodeAt(this.str,this.pos++) != 117 || StringTools.fastCodeAt(this.str,this.pos++) != 108 || StringTools.fastCodeAt(this.str,this.pos++) != 108) {
-					this.pos = save2;
-					this.invalidChar();
-				}
-				return null;
-			case 34:
-				return this.parseString();
-			case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:case 45:
-				return this.parseNumber(c);
-			default:
-				this.invalidChar();
-			}
-		}
-	}
-	,parseString: function() {
-		var start = this.pos;
-		var buf = new StringBuf();
-		while(true) {
-			var c = StringTools.fastCodeAt(this.str,this.pos++);
-			if(c == 34) break;
-			if(c == 92) {
-				buf.addSub(this.str,start,this.pos - start - 1);
-				c = StringTools.fastCodeAt(this.str,this.pos++);
-				switch(c) {
-				case 114:
-					buf.b += "\r";
-					break;
-				case 110:
-					buf.b += "\n";
-					break;
-				case 116:
-					buf.b += "\t";
-					break;
-				case 98:
-					buf.b += "\x08";
-					break;
-				case 102:
-					buf.b += "\x0C";
-					break;
-				case 47:case 92:case 34:
-					buf.b += String.fromCharCode(c);
-					break;
-				case 117:
-					var uc = Std.parseInt("0x" + HxOverrides.substr(this.str,this.pos,4));
-					this.pos += 4;
-					buf.b += String.fromCharCode(uc);
-					break;
-				default:
-					throw "Invalid escape sequence \\" + String.fromCharCode(c) + " at position " + (this.pos - 1);
-				}
-				start = this.pos;
-			} else if(c != c) throw "Unclosed string";
-		}
-		buf.addSub(this.str,start,this.pos - start - 1);
-		return buf.b;
-	}
-	,invalidNumber: function(start) {
-		throw "Invalid number at position " + start + ": " + HxOverrides.substr(this.str,start,this.pos - start);
-	}
-	,parseNumber: function(c) {
-		var start = this.pos - 1;
-		var minus = c == 45;
-		var digit = !minus;
-		var zero = c == 48;
-		var point = false;
-		var e = false;
-		var pm = false;
-		var end = false;
-		while(true) {
-			c = StringTools.fastCodeAt(this.str,this.pos++);
-			switch(c) {
-			case 48:
-				if(zero && !point) this.invalidNumber(start);
-				if(minus) {
-					minus = false;
-					zero = true;
-				}
-				digit = true;
-				break;
-			case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:
-				if(zero && !point) this.invalidNumber(start);
-				if(minus) minus = false;
-				digit = true;
-				zero = false;
-				break;
-			case 46:
-				if(minus || point) this.invalidNumber(start);
-				digit = false;
-				point = true;
-				break;
-			case 101:case 69:
-				if(minus || zero || e) this.invalidNumber(start);
-				digit = false;
-				e = true;
-				break;
-			case 43:case 45:
-				if(!e || pm) this.invalidNumber(start);
-				digit = false;
-				pm = true;
-				break;
-			default:
-				if(!digit) this.invalidNumber(start);
-				this.pos--;
-				end = true;
-			}
-			if(end) break;
-		}
-		var f = Std.parseFloat(HxOverrides.substr(this.str,start,this.pos - start));
-		var i = f | 0;
-		if(i == f) return i; else return f;
-	}
-	,__class__: haxe.Json
+haxe.Json.parse = function(jsonString) {
+	return JSON.parse(jsonString);
 };
 haxe.Resource = function() { };
 $hxClasses["haxe.Resource"] = haxe.Resource;
@@ -3726,36 +3935,11 @@ haxe.io.Bytes = function(length,b) {
 $hxClasses["haxe.io.Bytes"] = haxe.io.Bytes;
 haxe.io.Bytes.__name__ = ["haxe","io","Bytes"];
 haxe.io.Bytes.alloc = function(length) {
-	var a = new Array();
-	var _g = 0;
-	while(_g < length) {
-		var i = _g++;
-		a.push(0);
-	}
-	return new haxe.io.Bytes(length,a);
+	return new haxe.io.Bytes(length,new Buffer(length));
 };
 haxe.io.Bytes.ofString = function(s) {
-	var a = new Array();
-	var _g1 = 0;
-	var _g = s.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var c = s.cca(i);
-		if(c <= 127) a.push(c); else if(c <= 2047) {
-			a.push(192 | c >> 6);
-			a.push(128 | c & 63);
-		} else if(c <= 65535) {
-			a.push(224 | c >> 12);
-			a.push(128 | c >> 6 & 63);
-			a.push(128 | c & 63);
-		} else {
-			a.push(240 | c >> 18);
-			a.push(128 | c >> 12 & 63);
-			a.push(128 | c >> 6 & 63);
-			a.push(128 | c & 63);
-		}
-	}
-	return new haxe.io.Bytes(a.length,a);
+	var nb = new Buffer(s,"utf8");
+	return new haxe.io.Bytes(nb.length,nb);
 };
 haxe.io.Bytes.prototype = {
 	length: null
@@ -3764,7 +3948,7 @@ haxe.io.Bytes.prototype = {
 		return this.b[pos];
 	}
 	,set: function(pos,v) {
-		this.b[pos] = v & 255;
+		this.b[pos] = v;
 	}
 	,readString: function(pos,len) {
 		if(pos < 0 || len < 0 || pos + len > this.length) throw haxe.io.Error.OutsideBounds;
@@ -11246,6 +11430,7 @@ haxeproject.HaxeProject.createHaxeProject = function(data,target) {
 				filetree.FileTree.load(project.name,pathToProject);
 			});
 			projectaccess.ProjectOptions.updateProjectOptions();
+			core.Splitter.show();
 		});
 	});
 };
@@ -11325,10 +11510,14 @@ js.Lib["eval"] = function(code) {
 js.Node = function() { };
 $hxClasses["js.Node"] = js.Node;
 js.Node.__name__ = ["js","Node"];
-js.node = {};
-js.node.$walkdir = function() { };
-$hxClasses["js.node.$walkdir"] = js.node.$walkdir;
-js.node.$walkdir.__name__ = ["js","node","$walkdir"];
+var Walkdir = function() { };
+$hxClasses["Walkdir"] = Walkdir;
+Walkdir.__name__ = ["Walkdir"];
+Walkdir.walk = function(path,onItem) {
+	var emitter;
+	if(onItem != null) emitter = Walkdir.walkdir(path); else emitter = Walkdir.walkdir(path,onItem);
+	return emitter;
+};
 var menu = {};
 menu.BootstrapMenu = $hx_exports.BootstrapMenu = function() { };
 $hxClasses["menu.BootstrapMenu"] = menu.BootstrapMenu;
@@ -11349,7 +11538,7 @@ menu.BootstrapMenu.createMenuBar = function() {
 	a = _this2.createElement("a");
 	a.className = "navbar-brand";
 	a.href = "#";
-	a.innerText = core.LocaleWatcher.getStringSync("HIDE");
+	a.innerText = watchers.LocaleWatcher.getStringSync("HIDE");
 	a.setAttribute("localeString","HIDE");
 	navbarHeader.appendChild(a);
 	var div;
@@ -11432,7 +11621,7 @@ menu.MenuButtonItem = function(_menu,_text,_onClickFunction,_hotkey) {
 	var _this2 = window.document;
 	a = _this2.createElement("a");
 	a.style.left = "0";
-	a.textContent = core.LocaleWatcher.getStringSync(_text);
+	a.textContent = watchers.LocaleWatcher.getStringSync(_text);
 	a.setAttribute("localeString",_text);
 	if(_onClickFunction != null) a.onclick = function(e) {
 		if(_g.li.className != "disabled") _onClickFunction();
@@ -11486,7 +11675,8 @@ menu.Submenu = $hx_exports.ui.menu.basic.Submenu = function(_parentMenu,_name) {
 	a2.href = "#";
 	a2.classList.add("dropdown-toggle");
 	a2.setAttribute("data-toggle","dropdown");
-	a2.innerHTML = this.name;
+	a2.setAttribute("localeString",this.name);
+	a2.textContent = this.name;
 	a2.onclick = function(event) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -11527,7 +11717,7 @@ menu.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText) {
 	a.href = "#";
 	a.className = "dropdown-toggle";
 	a.setAttribute("data-toggle","dropdown");
-	a.innerText = core.LocaleWatcher.getStringSync(_text);
+	a.innerText = watchers.LocaleWatcher.getStringSync(_text);
 	a.setAttribute("localeString",_text);
 	this.li.appendChild(a);
 	var _this2 = window.document;
@@ -11649,9 +11839,7 @@ mustache.Mustache = function(template,data) {
 $hxClasses["mustache.Mustache"] = mustache.Mustache;
 mustache.Mustache.__name__ = ["mustache","Mustache"];
 mustache.Mustache.render = function(template,data) {
-	console.log(template);
 	var mustache1 = new mustache.Mustache(template,data);
-	console.log(mustache1._render());
 	return mustache1._render();
 };
 mustache.Mustache.prototype = {
@@ -11816,102 +12004,45 @@ newprojectdialog.Item.prototype = {
 newprojectdialog.NewProjectDialog = $hx_exports.newprojectdialog.NewProjectDialog = function() { };
 $hxClasses["newprojectdialog.NewProjectDialog"] = newprojectdialog.NewProjectDialog;
 newprojectdialog.NewProjectDialog.__name__ = ["newprojectdialog","NewProjectDialog"];
-newprojectdialog.NewProjectDialog.create = function() {
-	var _this = window.document;
-	newprojectdialog.NewProjectDialog.modal = _this.createElement("div");
-	newprojectdialog.NewProjectDialog.modal.className = "modal fade";
-	var dialog;
-	var _this1 = window.document;
-	dialog = _this1.createElement("div");
-	dialog.className = "modal-dialog";
-	newprojectdialog.NewProjectDialog.modal.appendChild(dialog);
-	var content;
-	var _this2 = window.document;
-	content = _this2.createElement("div");
-	content.className = "modal-content";
-	dialog.appendChild(content);
-	var header;
-	var _this3 = window.document;
-	header = _this3.createElement("div");
-	header.className = "modal-header";
-	content.appendChild(header);
+newprojectdialog.NewProjectDialog.load = function() {
+	newprojectdialog.NewProjectDialog.modalDialog = new dialogs.ModalDialog("New Project");
 	var button;
-	var _this4 = window.document;
-	button = _this4.createElement("button");
+	var _this = window.document;
+	button = _this.createElement("button");
 	button.type = "button";
 	button.className = "close";
 	button.setAttribute("data-dismiss","modal");
 	button.setAttribute("aria-hidden","true");
 	button.innerHTML = "&times;";
-	header.appendChild(button);
-	var h4;
-	h4 = js.Boot.__cast(window.document.createElement("h4") , HTMLHeadingElement);
-	h4.className = "modal-title";
-	h4.setAttribute("localeString","New Project");
-	h4.textContent = core.LocaleWatcher.getStringSync("New Project");
-	header.appendChild(h4);
-	var body;
-	var _this5 = window.document;
-	body = _this5.createElement("div");
-	body.className = "modal-body";
-	body.style.overflow = "hidden";
-	content.appendChild(body);
+	newprojectdialog.NewProjectDialog.modalDialog.getHeader().appendChild(button);
 	newprojectdialog.NewProjectDialog.textfieldsWithCheckboxes = new haxe.ds.StringMap();
 	newprojectdialog.NewProjectDialog.checkboxes = new haxe.ds.StringMap();
 	newprojectdialog.NewProjectDialog.createPage1();
-	body.appendChild(newprojectdialog.NewProjectDialog.page1);
+	newprojectdialog.NewProjectDialog.modalDialog.getBody().appendChild(newprojectdialog.NewProjectDialog.page1);
 	newprojectdialog.NewProjectDialog.createPage2();
 	newprojectdialog.NewProjectDialog.page2.style.display = "none";
-	body.appendChild(newprojectdialog.NewProjectDialog.page2);
-	var footer;
-	var _this6 = window.document;
-	footer = _this6.createElement("div");
-	footer.className = "modal-footer";
-	content.appendChild(footer);
-	var _this7 = window.document;
-	newprojectdialog.NewProjectDialog.backButton = _this7.createElement("button");
-	newprojectdialog.NewProjectDialog.backButton.type = "button";
-	newprojectdialog.NewProjectDialog.backButton.className = "btn btn-default disabled";
-	newprojectdialog.NewProjectDialog.backButton.setAttribute("localeString","Back");
-	newprojectdialog.NewProjectDialog.backButton.textContent = core.LocaleWatcher.getStringSync("Back");
-	footer.appendChild(newprojectdialog.NewProjectDialog.backButton);
-	var _this8 = window.document;
-	newprojectdialog.NewProjectDialog.nextButton = _this8.createElement("button");
-	newprojectdialog.NewProjectDialog.nextButton.type = "button";
-	newprojectdialog.NewProjectDialog.nextButton.className = "btn btn-default";
-	newprojectdialog.NewProjectDialog.nextButton.setAttribute("localeString","Next");
-	newprojectdialog.NewProjectDialog.nextButton.textContent = core.LocaleWatcher.getStringSync("Next");
+	newprojectdialog.NewProjectDialog.modalDialog.getBody().appendChild(newprojectdialog.NewProjectDialog.page2);
+	newprojectdialog.NewProjectDialog.backButton = bootstrap.ButtonManager.createButton("Back",true);
+	newprojectdialog.NewProjectDialog.modalDialog.getFooter().appendChild(newprojectdialog.NewProjectDialog.backButton);
+	newprojectdialog.NewProjectDialog.nextButton = bootstrap.ButtonManager.createButton("Next");
 	newprojectdialog.NewProjectDialog.backButton.onclick = function(e) {
 		if(newprojectdialog.NewProjectDialog.backButton.className.indexOf("disabled") == -1) newprojectdialog.NewProjectDialog.showPage1();
 	};
 	newprojectdialog.NewProjectDialog.nextButton.onclick = function(e1) {
 		if(newprojectdialog.NewProjectDialog.nextButton.className.indexOf("disabled") == -1) newprojectdialog.NewProjectDialog.showPage2();
 	};
-	footer.appendChild(newprojectdialog.NewProjectDialog.nextButton);
-	var finishButton;
-	var _this9 = window.document;
-	finishButton = _this9.createElement("button");
-	finishButton.type = "button";
-	finishButton.className = "btn btn-default";
-	finishButton.setAttribute("localeString","Finish");
-	finishButton.textContent = core.LocaleWatcher.getStringSync("Finish");
+	newprojectdialog.NewProjectDialog.modalDialog.getFooter().appendChild(newprojectdialog.NewProjectDialog.nextButton);
+	var finishButton = bootstrap.ButtonManager.createButton("Finish",false,false,true);
 	finishButton.onclick = function(e2) {
-		if(newprojectdialog.NewProjectDialog.page1.style.display != "none" || newprojectdialog.NewProjectDialog.projectName.value == "") newprojectdialog.NewProjectDialog.generateProjectName(newprojectdialog.NewProjectDialog.createProject); else newprojectdialog.NewProjectDialog.createProject();
+		if(newprojectdialog.NewProjectDialog.projectLocation.value == "") {
+			newprojectdialog.NewProjectDialog.showPage2();
+			newprojectdialog.NewProjectDialog.projectLocation.focus();
+			Alertify.log("Please specify location for your projects");
+		} else if(newprojectdialog.NewProjectDialog.page1.style.display != "none" || newprojectdialog.NewProjectDialog.projectName.value == "") newprojectdialog.NewProjectDialog.generateProjectName(newprojectdialog.NewProjectDialog.createProject); else newprojectdialog.NewProjectDialog.createProject();
 	};
-	footer.appendChild(finishButton);
-	var cancelButton;
-	var _this10 = window.document;
-	cancelButton = _this10.createElement("button");
-	cancelButton.type = "button";
-	cancelButton.className = "btn btn-default";
-	cancelButton.setAttribute("data-dismiss","modal");
-	cancelButton.setAttribute("localeString","Cancel");
-	cancelButton.textContent = core.LocaleWatcher.getStringSync("Cancel");
-	footer.appendChild(cancelButton);
-	window.document.body.appendChild(newprojectdialog.NewProjectDialog.modal);
-	window.addEventListener("keyup",function(e3) {
-		if(e3.keyCode == 27) new $(newprojectdialog.NewProjectDialog.modal).modal("hide");
-	});
+	newprojectdialog.NewProjectDialog.modalDialog.getFooter().appendChild(finishButton);
+	var cancelButton = bootstrap.ButtonManager.createButton("Cancel",false,true);
+	newprojectdialog.NewProjectDialog.modalDialog.getFooter().appendChild(cancelButton);
 	var location = js.Browser.getLocalStorage().getItem("Location");
 	if(location != null) newprojectdialog.NewProjectDialog.projectLocation.value = location;
 	newprojectdialog.NewProjectDialog.loadData("Package");
@@ -11997,10 +12128,10 @@ newprojectdialog.NewProjectDialog.generateProjectName = function(onGenerated) {
 newprojectdialog.NewProjectDialog.show = function() {
 	if(newprojectdialog.NewProjectDialog.page1.style.display == "none") newprojectdialog.NewProjectDialog.backButton.click();
 	if(newprojectdialog.NewProjectDialog.selectedCategory == null && newprojectdialog.NewProjectDialog.categoriesArray.length > 0) newprojectdialog.NewProjectDialog.categoriesArray[0].select(); else newprojectdialog.NewProjectDialog.selectedCategory.select(newprojectdialog.NewProjectDialog.list.value);
-	new $(newprojectdialog.NewProjectDialog.modal).modal("show");
+	newprojectdialog.NewProjectDialog.modalDialog.show();
 };
 newprojectdialog.NewProjectDialog.hide = function() {
-	new $(newprojectdialog.NewProjectDialog.modal).modal("hide");
+	newprojectdialog.NewProjectDialog.modalDialog.hide();
 };
 newprojectdialog.NewProjectDialog.getCategory = function(name,position) {
 	var category;
@@ -12137,7 +12268,7 @@ newprojectdialog.NewProjectDialog.createPage1 = function() {
 	newprojectdialog.NewProjectDialog.description.style.width = "100%";
 	newprojectdialog.NewProjectDialog.description.style.height = "50px";
 	newprojectdialog.NewProjectDialog.description.style.overflow = "auto";
-	newprojectdialog.NewProjectDialog.description.textContent = core.LocaleWatcher.getStringSync("Description");
+	newprojectdialog.NewProjectDialog.description.textContent = watchers.LocaleWatcher.getStringSync("Description");
 	newprojectdialog.NewProjectDialog.description.setAttribute("localeString","Description");
 	newprojectdialog.NewProjectDialog.page1.appendChild(newprojectdialog.NewProjectDialog.description);
 	return newprojectdialog.NewProjectDialog.page1;
@@ -12154,7 +12285,7 @@ newprojectdialog.NewProjectDialog.createPage2 = function() {
 	newprojectdialog.NewProjectDialog.projectName = _this2.createElement("input");
 	newprojectdialog.NewProjectDialog.projectName.type = "text";
 	newprojectdialog.NewProjectDialog.projectName.className = "form-control";
-	newprojectdialog.NewProjectDialog.projectName.placeholder = core.LocaleWatcher.getStringSync("Name");
+	newprojectdialog.NewProjectDialog.projectName.placeholder = watchers.LocaleWatcher.getStringSync("Name");
 	newprojectdialog.NewProjectDialog.projectName.style.width = "100%";
 	row.appendChild(newprojectdialog.NewProjectDialog.projectName);
 	newprojectdialog.NewProjectDialog.page2.appendChild(row);
@@ -12171,7 +12302,7 @@ newprojectdialog.NewProjectDialog.createPage2 = function() {
 	newprojectdialog.NewProjectDialog.projectLocation = _this5.createElement("input");
 	newprojectdialog.NewProjectDialog.projectLocation.type = "text";
 	newprojectdialog.NewProjectDialog.projectLocation.className = "form-control";
-	newprojectdialog.NewProjectDialog.projectLocation.placeholder = core.LocaleWatcher.getStringSync("Location");
+	newprojectdialog.NewProjectDialog.projectLocation.placeholder = watchers.LocaleWatcher.getStringSync("Location");
 	newprojectdialog.NewProjectDialog.projectLocation.style.width = "80%";
 	inputGroup.appendChild(newprojectdialog.NewProjectDialog.projectLocation);
 	var browseButton;
@@ -12179,7 +12310,7 @@ newprojectdialog.NewProjectDialog.createPage2 = function() {
 	browseButton = _this6.createElement("button");
 	browseButton.type = "button";
 	browseButton.className = "btn btn-default";
-	browseButton.textContent = core.LocaleWatcher.getStringSync("Browse...");
+	browseButton.textContent = watchers.LocaleWatcher.getStringSync("Browse...");
 	browseButton.style.width = "20%";
 	browseButton.onclick = function(e) {
 		core.FileDialog.openFolder(function(path) {
@@ -12238,7 +12369,7 @@ newprojectdialog.NewProjectDialog.updateHelpBlock = function() {
 	if(newprojectdialog.NewProjectDialog.projectLocation.value != "") {
 		var str = "";
 		if((!newprojectdialog.NewProjectDialog.selectedCategory.getItem(newprojectdialog.NewProjectDialog.list.value).showCreateDirectoryOption || newprojectdialog.NewProjectDialog.createDirectoryForProject.checked == true) && newprojectdialog.NewProjectDialog.projectName.value != "") str = newprojectdialog.NewProjectDialog.projectName.value;
-		newprojectdialog.NewProjectDialog.helpBlock.innerText = core.LocaleWatcher.getStringSync("Project will be created in: ") + js.Node.require("path").join(newprojectdialog.NewProjectDialog.projectLocation.value,str);
+		newprojectdialog.NewProjectDialog.helpBlock.innerText = watchers.LocaleWatcher.getStringSync("Project will be created in: ") + js.Node.require("path").join(newprojectdialog.NewProjectDialog.projectLocation.value,str);
 	} else newprojectdialog.NewProjectDialog.helpBlock.innerText = "";
 };
 newprojectdialog.NewProjectDialog.createTextWithCheckbox = function(_page2,_text) {
@@ -12268,7 +12399,7 @@ newprojectdialog.NewProjectDialog.createTextWithCheckbox = function(_page2,_text
 	text = _this4.createElement("input");
 	text.type = "text";
 	text.className = "form-control";
-	text.placeholder = core.LocaleWatcher.getStringSync(_text);
+	text.placeholder = watchers.LocaleWatcher.getStringSync(_text);
 	newprojectdialog.NewProjectDialog.textfieldsWithCheckboxes.set(_text,text);
 	checkbox.onchange = function(e) {
 		if(checkbox.checked) text.disabled = false; else text.disabled = true;
@@ -12295,7 +12426,7 @@ newprojectdialog.NewProjectDialog.createCategory = function(text) {
 	a.appendChild(span);
 	var _this3 = window.document;
 	span = _this3.createElement("span");
-	span.textContent = core.LocaleWatcher.getStringSync(text);
+	span.textContent = watchers.LocaleWatcher.getStringSync(text);
 	span.setAttribute("localeString",text);
 	span.style.marginLeft = "5px";
 	a.appendChild(span);
@@ -12401,17 +12532,10 @@ newprojectdialog.NewProjectDialog.createListItem = function(text) {
 	var option;
 	var _this = window.document;
 	option = _this.createElement("option");
-	option.textContent = core.LocaleWatcher.getStringSync(text);
+	option.textContent = watchers.LocaleWatcher.getStringSync(text);
 	option.setAttribute("localeString",text);
 	option.value = text;
 	return option;
-};
-newprojectdialog.NewProjectDialogLoader = function() { };
-$hxClasses["newprojectdialog.NewProjectDialogLoader"] = newprojectdialog.NewProjectDialogLoader;
-newprojectdialog.NewProjectDialogLoader.__name__ = ["newprojectdialog","NewProjectDialogLoader"];
-newprojectdialog.NewProjectDialogLoader.load = function() {
-	newprojectdialog.NewProjectDialog.create();
-	menu.BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,newprojectdialog.NewProjectDialog.show,"Ctrl-Shift-N");
 };
 var openflproject = {};
 openflproject.CreateOpenFLProject = function() { };
@@ -12497,6 +12621,7 @@ openflproject.OpenFLProject.createProject = function(data) {
 		projectaccess.ProjectAccess.save(function() {
 			filetree.FileTree.load(project.name,pathToProject);
 		});
+		core.Splitter.show();
 	});
 };
 openflproject.OpenFLTools = $hx_exports.openflproject.OpenFLTools = function() { };
@@ -12517,7 +12642,7 @@ openflproject.OpenFLTools.getParams = function(path,target,onLoaded) {
 		if(openflproject.OpenFLTools.processStderr != "") textarea.value += "ERROR: " + openflproject.OpenFLTools.processStderr;
 		if(code == 0) {
 			if(onLoaded != null) onLoaded(openflproject.OpenFLTools.processStdout);
-		} else core.Alerts.showAlert("OpenFL tools cannot parse project.xml. Update OpenFL.",3500);
+		} else Alertify.error("OpenFL tools cannot parse project.xml. Update OpenFL.");
 	});
 };
 var openproject = {};
@@ -12560,11 +12685,12 @@ openproject.OpenProject.parseProject = function(path) {
 				}
 				var activeFile = projectaccess.ProjectAccess.currentProject.activeFile;
 				if(activeFile != null) js.Node.require("fs").exists(activeFile,function(exists1) {
-					if(exists1) tabmanager.TabManager.selectDocByPath(js.Node.require("path").join(pathToProject,activeFile));
+					if(exists1) tabmanager.TabManager.selectDoc(js.Node.require("path").join(pathToProject,activeFile));
 				});
 			}
 			projectaccess.ProjectOptions.updateProjectOptions();
 			filetree.FileTree.load(projectaccess.ProjectAccess.currentProject.name,pathToProject);
+			core.Splitter.show();
 			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
 		});
 		break;
@@ -12594,6 +12720,7 @@ openproject.OpenProject.parseProject = function(path) {
 			projectaccess.ProjectAccess.save(function() {
 				filetree.FileTree.load(project.name,pathToProject1);
 			});
+			core.Splitter.show();
 			js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProjectHide);
 		});
 		break;
@@ -12614,6 +12741,7 @@ openproject.OpenProject.parseProject = function(path) {
 			projectaccess.ProjectAccess.save(function() {
 				filetree.FileTree.load(project1.name,pathToProject2);
 			});
+			core.Splitter.show();
 			js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProjectHide1);
 			break;
 		default:
@@ -12625,12 +12753,10 @@ openproject.OpenProject.searchForLastProject = function() {
 	var pathToLastProject = js.Browser.getLocalStorage().getItem("pathToLastProject");
 	if(pathToLastProject != null) openproject.OpenProject.openProject(pathToLastProject);
 };
-openproject.OpenProjectLoader = function() { };
-$hxClasses["openproject.OpenProjectLoader"] = openproject.OpenProjectLoader;
-openproject.OpenProjectLoader.__name__ = ["openproject","OpenProjectLoader"];
-openproject.OpenProjectLoader.load = function() {
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Open...",2,openproject.OpenProject.openProject,"Ctrl-O");
-	openproject.OpenProject.searchForLastProject();
+openproject.OpenProject.closeProject = function() {
+	projectaccess.ProjectAccess.currentProject.path = null;
+	core.Splitter.hide();
+	js.Browser.getLocalStorage().removeItem("pathToLastProject");
 };
 var parser = {};
 parser.ClassParser = function() { };
@@ -12709,9 +12835,36 @@ parser.ClassParser.processClass = function(className,type) {
 	var _g = type.data.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		completions.push(type.data[i].name);
+		if(parser.ClassParser.getScope(type.data[i])) completions.push(type.data[i].name);
 	}
 	if(completions.length > 0) parser.ClassParser.classCompletions.set(className,completions);
+};
+parser.ClassParser.getScope = function(field) {
+	var isPublic = false;
+	var access = field.access;
+	var _g = 0;
+	while(_g < access.length) {
+		var accessType = access[_g];
+		++_g;
+		switch(accessType[1]) {
+		case 0:
+			isPublic = true;
+			break;
+		case 2:
+			break;
+		case 6:
+			break;
+		case 5:
+			break;
+		case 4:
+			break;
+		case 3:
+			break;
+		case 1:
+			break;
+		}
+	}
+	return isPublic;
 };
 parser.ClassParser.resolveClassName = function(pack,mainClass,name) {
 	var classPackage = pack.slice();
@@ -12728,25 +12881,59 @@ parser.ClassParser.addClassName = function(name) {
 parser.ClasspathWalker = function() { };
 $hxClasses["parser.ClasspathWalker"] = parser.ClasspathWalker;
 parser.ClasspathWalker.__name__ = ["parser","ClasspathWalker"];
-parser.ClasspathWalker.parseProjectArguments = function() {
-	var _g = projectaccess.ProjectAccess.currentProject.type;
-	switch(_g) {
-	case 0:
-		parser.ClasspathWalker.getClasspaths(projectaccess.ProjectAccess.currentProject.args);
-		break;
-	case 2:
-		var path = js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,projectaccess.ProjectAccess.currentProject.main);
-		var options = { };
-		options.encoding = "utf8";
-		var data = js.Node.require("fs").readFileSync(path,options);
-		parser.ClasspathWalker.getClasspaths(data.split("\n"));
-		break;
-	default:
+parser.ClasspathWalker.load = function() {
+	var localStorage2 = js.Browser.getLocalStorage();
+	if(localStorage2 != null) parser.ClasspathWalker.pathToHaxe = localStorage2.getItem("pathToHaxe");
+	if(parser.ClasspathWalker.pathToHaxe == null) {
+		parser.ClasspathWalker.pathToHaxe = js.Node.process.env.HAXEPATH;
+		if(parser.ClasspathWalker.pathToHaxe == null) {
+			parser.ClasspathWalker.pathToHaxe = js.Node.process.env.HAXE_STD_PATH;
+			if(parser.ClasspathWalker.pathToHaxe != null) parser.ClasspathWalker.pathToHaxe = js.Node.require("path").dirname(parser.ClasspathWalker.pathToHaxe);
+		}
+		dialogs.DialogManager.showBrowseFolderDialog("Please specify path to Haxe compiler(parent folder of std): ",function(path) {
+			var pathToHaxeStd = js.Node.require("path").join(path,"std");
+			js.Node.require("fs").exists(pathToHaxeStd,function(exists) {
+				if(exists) {
+					parser.ClasspathWalker.parseClasspath(parser.ClasspathWalker.pathToHaxe,true);
+					localStorage2.setItem("pathToHaxe",parser.ClasspathWalker.pathToHaxe);
+				} else Alertify.error(watchers.LocaleWatcher.getStringSync("Can't find 'std' folder in specified path"));
+			});
+		},parser.ClasspathWalker.pathToHaxe);
+	} else {
+		parser.ClasspathWalker.pathToHaxe = js.Node.require("path").join(parser.ClasspathWalker.pathToHaxe,"std");
+		parser.ClasspathWalker.parseClasspath(parser.ClasspathWalker.pathToHaxe,true);
 	}
+};
+parser.ClasspathWalker.parseProjectArguments = function() {
+	parser.ClassParser.classCompletions = new haxe.ds.StringMap();
+	parser.ClassParser.filesList = [];
+	parser.ClassParser.classList = [];
+	parser.ClasspathWalker.load();
+	if(projectaccess.ProjectAccess.currentProject.path != null) {
+		var _g = projectaccess.ProjectAccess.currentProject.type;
+		switch(_g) {
+		case 0:
+			parser.ClasspathWalker.getClasspaths(projectaccess.ProjectAccess.currentProject.args);
+			break;
+		case 2:
+			var path = js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,projectaccess.ProjectAccess.currentProject.main);
+			var options = { };
+			options.encoding = "utf8";
+			var data = js.Node.require("fs").readFileSync(path,options);
+			parser.ClasspathWalker.getClasspaths(data.split("\n"));
+			break;
+		case 1:
+			openflproject.OpenFLTools.getParams(projectaccess.ProjectAccess.currentProject.path,projectaccess.ProjectAccess.currentProject.openFLTarget,function(stdout) {
+				parser.ClasspathWalker.getClasspaths(stdout.split("\n"));
+			});
+			break;
+		default:
+		}
+	}
+	parser.ClasspathWalker.walkProjectFolder(projectaccess.ProjectAccess.currentProject.path);
 };
 parser.ClasspathWalker.getClasspaths = function(data) {
 	var classpaths = [];
-	classpaths.push("C:\\HaxeToolkit\\haxe\\std");
 	var _g = 0;
 	var _g1 = parser.ClasspathWalker.parseArg(data,"-cp");
 	while(_g < _g1.length) {
@@ -12803,14 +12990,34 @@ parser.ClasspathWalker.parseArg = function(args,type) {
 	}
 	return result;
 };
-parser.ClasspathWalker.parseClasspath = function(path) {
-	var emitter = js.node.$walkdir.walk(path);
+parser.ClasspathWalker.parseClasspath = function(path,std) {
+	if(std == null) std = false;
+	var emitter = Walkdir.walk(path);
 	var options = { };
 	options.encoding = "utf8";
 	emitter.on("file",function(path1,stat) {
+		var pathToFile;
+		if(projectaccess.ProjectAccess.currentProject.path != null) pathToFile = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path1); else pathToFile = path1;
+		if(HxOverrides.indexOf(parser.ClassParser.filesList,pathToFile,0) == -1) parser.ClassParser.filesList.push(pathToFile);
 		if(js.Node.require("path").extname(path1) == ".hx") js.Node.require("fs").readFile(path1,options,function(error,data) {
 			if(error == null) parser.ClassParser.processFile(data,path1);
 		});
+	});
+	emitter.on("end",function() {
+	});
+	emitter.on("error",function(path2,stat1) {
+		console.log(path2);
+	});
+};
+parser.ClasspathWalker.walkProjectFolder = function(path) {
+	var emitter = Walkdir.walk(path);
+	var options = { };
+	options.encoding = "utf8";
+	emitter.on("file",function(path1,stat) {
+		if(!StringTools.startsWith(path1,".git")) {
+			var relativePath = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path1);
+			if(HxOverrides.indexOf(parser.ClassParser.filesList,relativePath,0) == -1 && HxOverrides.indexOf(parser.ClassParser.filesList,path1,0) == -1) parser.ClassParser.filesList.push(relativePath);
+		}
 	});
 	emitter.on("error",function(path2,stat1) {
 		console.log(path2);
@@ -12875,7 +13082,7 @@ projectaccess.ProjectOptions.create = function() {
 	projectaccess.ProjectOptions.projectOptionsText = _this1.createElement("p");
 	projectaccess.ProjectOptions.projectOptionsText.id = "project-options-text";
 	projectaccess.ProjectOptions.projectOptionsText.className = "custom-font-size";
-	projectaccess.ProjectOptions.projectOptionsText.textContent = core.LocaleWatcher.getStringSync("Project arguments:");
+	projectaccess.ProjectOptions.projectOptionsText.textContent = watchers.LocaleWatcher.getStringSync("Project arguments:");
 	projectaccess.ProjectOptions.projectOptionsText.setAttribute("localeString","Project arguments:");
 	var _this2 = window.document;
 	projectaccess.ProjectOptions.textarea = _this2.createElement("textarea");
@@ -12887,7 +13094,7 @@ projectaccess.ProjectOptions.create = function() {
 	};
 	var _this3 = window.document;
 	projectaccess.ProjectOptions.projectTargetText = _this3.createElement("p");
-	projectaccess.ProjectOptions.projectTargetText.textContent = core.LocaleWatcher.getStringSync("Project target:");
+	projectaccess.ProjectOptions.projectTargetText.textContent = watchers.LocaleWatcher.getStringSync("Project target:");
 	projectaccess.ProjectOptions.projectTargetText.setAttribute("localeString","Project target:");
 	projectaccess.ProjectOptions.projectTargetText.className = "custom-font-size";
 	page.appendChild(projectaccess.ProjectOptions.projectTargetText);
@@ -12903,7 +13110,7 @@ projectaccess.ProjectOptions.create = function() {
 	projectaccess.ProjectOptions.openFLTargetList.style.width = "100%";
 	var _this6 = window.document;
 	projectaccess.ProjectOptions.openFLTargetText = _this6.createElement("p");
-	projectaccess.ProjectOptions.openFLTargetText.innerText = core.LocaleWatcher.getStringSync("OpenFL target:");
+	projectaccess.ProjectOptions.openFLTargetText.innerText = watchers.LocaleWatcher.getStringSync("OpenFL target:");
 	projectaccess.ProjectOptions.openFLTargetText.setAttribute("localeString","OpenFL target:");
 	projectaccess.ProjectOptions.openFLTargetText.className = "custom-font-size";
 	var _g = 0;
@@ -12927,17 +13134,17 @@ projectaccess.ProjectOptions.create = function() {
 		projectaccess.ProjectAccess.currentProject.openFLTarget = projectaccess.ProjectOptions.openFLTargets[projectaccess.ProjectOptions.openFLTargetList.selectedIndex];
 		projectaccess.ProjectAccess.currentProject.buildActionCommand = ["haxelib","run","openfl","build",HIDE.surroundWithQuotes(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,"project.xml")),projectaccess.ProjectAccess.currentProject.openFLTarget].join(" ");
 		projectaccess.ProjectAccess.currentProject.runActionType = 2;
-		projectaccess.ProjectAccess.currentProject.runActionText = ["haxelib","run","openfl","test",HIDE.surroundWithQuotes(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,"project.xml")),projectaccess.ProjectAccess.currentProject.openFLTarget].join(" ");
+		projectaccess.ProjectAccess.currentProject.runActionText = ["haxelib","run","openfl","run",HIDE.surroundWithQuotes(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,"project.xml")),projectaccess.ProjectAccess.currentProject.openFLTarget].join(" ");
 		projectaccess.ProjectOptions.updateProjectOptions();
 	};
 	var _this7 = window.document;
 	projectaccess.ProjectOptions.runActionDescription = _this7.createElement("p");
 	projectaccess.ProjectOptions.runActionDescription.className = "custom-font-size";
-	projectaccess.ProjectOptions.runActionDescription.textContent = core.LocaleWatcher.getStringSync("Run action:");
+	projectaccess.ProjectOptions.runActionDescription.textContent = watchers.LocaleWatcher.getStringSync("Run action:");
 	projectaccess.ProjectOptions.runActionDescription.setAttribute("localeString","Run action:");
 	var _this8 = window.document;
 	projectaccess.ProjectOptions.runActionTextAreaDescription = _this8.createElement("p");
-	projectaccess.ProjectOptions.runActionTextAreaDescription.textContent = core.LocaleWatcher.getStringSync("URL:");
+	projectaccess.ProjectOptions.runActionTextAreaDescription.textContent = watchers.LocaleWatcher.getStringSync("URL:");
 	projectaccess.ProjectOptions.runActionTextAreaDescription.setAttribute("localeString","URL:");
 	projectaccess.ProjectOptions.runActionTextAreaDescription.className = "custom-font-size";
 	var actions = ["Open URL","Open File","Run command"];
@@ -12962,7 +13169,7 @@ projectaccess.ProjectOptions.create = function() {
 	var _this11 = window.document;
 	projectaccess.ProjectOptions.buildActionDescription = _this11.createElement("p");
 	projectaccess.ProjectOptions.buildActionDescription.className = "custom-font-size";
-	projectaccess.ProjectOptions.buildActionDescription.textContent = core.LocaleWatcher.getStringSync("Build command:");
+	projectaccess.ProjectOptions.buildActionDescription.textContent = watchers.LocaleWatcher.getStringSync("Build command:");
 	projectaccess.ProjectOptions.buildActionDescription.setAttribute("localeString","Build command:");
 	var _this12 = window.document;
 	projectaccess.ProjectOptions.buildActionTextArea = _this12.createElement("textarea");
@@ -13022,15 +13229,15 @@ projectaccess.ProjectOptions.update = function(_) {
 	var _g = projectaccess.ProjectOptions.runActionList.selectedIndex;
 	switch(_g) {
 	case 0:
-		projectaccess.ProjectOptions.runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("URL: ");
+		projectaccess.ProjectOptions.runActionTextAreaDescription.innerText = watchers.LocaleWatcher.getStringSync("URL: ");
 		projectaccess.ProjectAccess.currentProject.runActionType = 0;
 		break;
 	case 1:
-		projectaccess.ProjectOptions.runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("Path: ");
+		projectaccess.ProjectOptions.runActionTextAreaDescription.innerText = watchers.LocaleWatcher.getStringSync("Path: ");
 		projectaccess.ProjectAccess.currentProject.runActionType = 1;
 		break;
 	case 2:
-		projectaccess.ProjectOptions.runActionTextAreaDescription.innerText = core.LocaleWatcher.getStringSync("Command: ");
+		projectaccess.ProjectOptions.runActionTextAreaDescription.innerText = watchers.LocaleWatcher.getStringSync("Command: ");
 		projectaccess.ProjectAccess.currentProject.runActionType = 2;
 		break;
 	default:
@@ -13093,58 +13300,177 @@ projectaccess.ProjectOptions.createListItem = function(text) {
 	var option;
 	var _this = window.document;
 	option = _this.createElement("option");
-	option.textContent = core.LocaleWatcher.getStringSync(text);
+	option.textContent = watchers.LocaleWatcher.getStringSync(text);
 	option.value = text;
 	return option;
 };
 var tabmanager = {};
-tabmanager.TabManager = $hx_exports.tabmanager.TabManager = function() { };
-$hxClasses["tabmanager.TabManager"] = tabmanager.TabManager;
-tabmanager.TabManager.__name__ = ["tabmanager","TabManager"];
-tabmanager.TabManager.init = function() {
+tabmanager.ContextMenu = function() { };
+$hxClasses["tabmanager.ContextMenu"] = tabmanager.ContextMenu;
+tabmanager.ContextMenu.__name__ = ["tabmanager","ContextMenu"];
+tabmanager.ContextMenu.createContextMenu = function() {
 	var _this = window.document;
-	tabmanager.TabManager.tabs = _this.createElement("ul");
-	tabmanager.TabManager.tabs.className = "tabs no-select";
-	tabmanager.TabManager.tabs.onclick = function(e) {
-		var target = e.target || e.srcElement;
-		if(target.nodeName.toLowerCase() != "li") return;
-		var i = 0;
-		var c = target.parentNode.firstChild;
-		if(c == target) return tabmanager.TabManager.selectDoc(0); else while(true) {
-			i++;
-			c = c.nextSibling;
-			if(c == target) return tabmanager.TabManager.selectDoc(i);
-		}
-	};
-	tabmanager.TabManagerContextMenu.createContextMenu();
-	tabmanager.TabManager.docs = [];
-	new $("#editor").append(tabmanager.TabManager.tabs);
+	tabmanager.ContextMenu.contextMenu = _this.createElement("div");
+	tabmanager.ContextMenu.contextMenu.className = "dropdown";
+	tabmanager.ContextMenu.contextMenu.style.position = "absolute";
+	tabmanager.ContextMenu.contextMenu.style.display = "none";
+	window.document.addEventListener("click",function(e) {
+		tabmanager.ContextMenu.contextMenu.style.display = "none";
+	});
+	var ul;
+	var _this1 = window.document;
+	ul = _this1.createElement("ul");
+	ul.className = "dropdown-menu";
+	ul.style.display = "block";
+	ul.appendChild(tabmanager.ContextMenu.createContextMenuItem("New File...",tabmanager.TabManager.createFileInNewTab));
+	var li;
+	var _this2 = window.document;
+	li = _this2.createElement("li");
+	li.className = "divider";
+	ul.appendChild(li);
+	ul.appendChild(tabmanager.ContextMenu.createContextMenuItem("Close",function() {
+		tabmanager.TabManager.closeTab(tabmanager.ContextMenu.contextMenu.getAttribute("path"));
+	}));
+	ul.appendChild(tabmanager.ContextMenu.createContextMenuItem("Close All",function() {
+		tabmanager.TabManager.closeAll();
+	}));
+	ul.appendChild(tabmanager.ContextMenu.createContextMenuItem("Close Other",function() {
+		var path = tabmanager.ContextMenu.contextMenu.getAttribute("path");
+		tabmanager.TabManager.closeOthers(path);
+	}));
+	tabmanager.ContextMenu.contextMenu.appendChild(ul);
+	window.document.body.appendChild(tabmanager.ContextMenu.contextMenu);
 };
-tabmanager.TabManager.createNewTab = function(name,path) {
+tabmanager.ContextMenu.showMenu = function(path,e) {
+	tabmanager.ContextMenu.contextMenu.setAttribute("path",path);
+	tabmanager.ContextMenu.contextMenu.style.display = "block";
+	tabmanager.ContextMenu.contextMenu.style.left = (e.pageX == null?"null":"" + e.pageX) + "px";
+	tabmanager.ContextMenu.contextMenu.style.top = (e.pageY == null?"null":"" + e.pageY) + "px";
+};
+tabmanager.ContextMenu.createContextMenuItem = function(text,onClick) {
 	var li;
 	var _this = window.document;
 	li = _this.createElement("li");
-	li.title = path;
-	li.innerText = name + "\t";
-	li.setAttribute("path",path);
-	var span;
+	li.onclick = function(e) {
+		onClick();
+	};
+	var a;
 	var _this1 = window.document;
-	span = _this1.createElement("span");
+	a = _this1.createElement("a");
+	a.href = "#";
+	a.textContent = watchers.LocaleWatcher.getStringSync(text);
+	li.appendChild(a);
+	return li;
+};
+tabmanager.Tab = function(_name,_path,_doc,_save) {
+	var _g = this;
+	this.ignoreNextUpdate = false;
+	this.name = _name;
+	this.doc = _doc;
+	this.path = _path;
+	var _this = window.document;
+	this.li = _this.createElement("li");
+	this.li.title = this.path;
+	this.li.setAttribute("path",this.path);
+	var _this1 = window.document;
+	this.span3 = _this1.createElement("span");
+	this.span3.textContent = this.name + "\t";
+	this.span3.addEventListener("click",function(e) {
+		tabmanager.TabManager.selectDoc(_g.path);
+	});
+	this.li.addEventListener("contextmenu",function(e1) {
+		tabmanager.ContextMenu.showMenu(_g.path,e1);
+	});
+	this.li.appendChild(this.span3);
+	var span;
+	var _this2 = window.document;
+	span = _this2.createElement("span");
 	span.style.position = "relative";
 	span.style.top = "2px";
-	span.onclick = function(e) {
-		tabmanager.TabManager.closeTab(path);
-	};
+	span.addEventListener("click",function(e2) {
+		tabmanager.TabManager.closeTab(_g.path);
+	});
 	var span2;
-	var _this2 = window.document;
-	span2 = _this2.createElement("span");
+	var _this3 = window.document;
+	span2 = _this3.createElement("span");
 	span2.className = "glyphicon glyphicon-remove-circle";
 	span.appendChild(span2);
-	li.appendChild(span);
-	tabmanager.TabManager.tabs.appendChild(li);
-	var relativePath = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path);
-	if(HxOverrides.indexOf(projectaccess.ProjectAccess.currentProject.files,relativePath,0) == -1) projectaccess.ProjectAccess.currentProject.files.push(relativePath);
+	this.li.appendChild(span);
+	if(_save) this.save();
+	this.startWatcher();
+};
+$hxClasses["tabmanager.Tab"] = tabmanager.Tab;
+tabmanager.Tab.__name__ = ["tabmanager","Tab"];
+tabmanager.Tab.prototype = {
+	name: null
+	,path: null
+	,doc: null
+	,li: null
+	,span3: null
+	,watcher: null
+	,ignoreNextUpdate: null
+	,startWatcher: function() {
+		var _g = this;
+		this.watcher = watchers.Watcher.watchFileForUpdates(this.path,function() {
+			if(!_g.ignoreNextUpdate) Alertify.confirm(watchers.LocaleWatcher.getStringSync("File ") + _g.path + watchers.LocaleWatcher.getStringSync(" was changed. Reload?"),function(e) {
+				if(e != null) tabmanager.TabManager.openFile(_g.path,function(code) {
+					_g.doc.setValue(code);
+					_g.doc.clearHistory();
+					_g.setChanged(false);
+				});
+			}); else _g.ignoreNextUpdate = false;
+		});
+	}
+	,setChanged: function(changed) {
+		this.span3.textContent = this.name;
+		if(changed) this.span3.textContent += "*";
+		this.span3.textContent += "\n";
+	}
+	,remove: function() {
+		this.li.remove();
+		if(this.watcher != null) this.watcher.close();
+	}
+	,save: function() {
+		this.ignoreNextUpdate = true;
+		js.Node.require("fs").writeFileSync(this.path,this.doc.getValue(),"utf8");
+		this.doc.clearHistory();
+		this.setChanged(false);
+	}
+	,getElement: function() {
+		return this.li;
+	}
+	,__class__: tabmanager.Tab
+};
+tabmanager.TabManager = $hx_exports.tabmanager.TabManager = function() { };
+$hxClasses["tabmanager.TabManager"] = tabmanager.TabManager;
+tabmanager.TabManager.__name__ = ["tabmanager","TabManager"];
+tabmanager.TabManager.load = function() {
+	tabmanager.TabManager.tabs = js.Boot.__cast(window.document.getElementById("tabs") , HTMLUListElement);
+	tabmanager.TabManager.tabMap = new tabmanager.TabMap();
+	tabmanager.ContextMenu.createContextMenu();
+	var options = { };
+	options.labels = { };
+	options.labels.ok = watchers.LocaleWatcher.getStringSync("Yes");
+	options.labels.cancel = watchers.LocaleWatcher.getStringSync("No");
+	Alertify.set(options);
+};
+tabmanager.TabManager.createNewTab = function(name,path,doc,save) {
+	if(save == null) save = false;
+	var tab = new tabmanager.Tab(name,path,doc,save);
+	tabmanager.TabManager.tabMap.add(tab);
+	tabmanager.TabManager.tabs.appendChild(tab.getElement());
+	if(projectaccess.ProjectAccess.currentProject.path != null) {
+		var relativePath = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path);
+		if(HxOverrides.indexOf(projectaccess.ProjectAccess.currentProject.files,relativePath,0) == -1) projectaccess.ProjectAccess.currentProject.files.push(relativePath);
+	}
 	cm.CodeMirrorEditor.resize();
+};
+tabmanager.TabManager.openFile = function(path,onComplete) {
+	var options = { };
+	options.encoding = "utf8";
+	js.Node.require("fs").readFile(path,options,function(error,code) {
+		if(error != null) console.log(error); else onComplete(code);
+	});
 };
 tabmanager.TabManager.openFileInNewTab = function(path,show,onComplete) {
 	if(show == null) show = true;
@@ -13153,10 +13479,7 @@ tabmanager.TabManager.openFileInNewTab = function(path,show,onComplete) {
 		if(onComplete != null) onComplete();
 		return;
 	}
-	var options = { };
-	options.encoding = "utf8";
-	js.Node.require("fs").readFile(path,options,function(error,code) {
-		if(error != null) console.log(error);
+	tabmanager.TabManager.openFile(path,function(code) {
 		if(tabmanager.TabManager.isAlreadyOpened(path,show)) {
 			if(onComplete != null) onComplete();
 			return;
@@ -13164,18 +13487,18 @@ tabmanager.TabManager.openFileInNewTab = function(path,show,onComplete) {
 		if(code != null) {
 			var mode = tabmanager.TabManager.getMode(path);
 			var name = js.Node.require("path").basename(path);
-			tabmanager.TabManager.docs.push(new cm.CMDoc(name,new CodeMirror.Doc(code,mode),path));
-			tabmanager.TabManager.createNewTab(name,path);
-			tabmanager.TabManager.selectDoc(tabmanager.TabManager.docs.length - 1);
+			var doc = new CodeMirror.Doc(code,mode);
+			tabmanager.TabManager.createNewTab(name,path,doc);
+			tabmanager.TabManager.selectDoc(path);
 			tabmanager.TabManager.checkTabsCount();
 			if(onComplete != null) onComplete();
-		} else console.log("boyan.bootstrap.tab-manager: can't load file " + path);
+		} else console.log("tab-manager: can't load file " + path);
 	});
 };
 tabmanager.TabManager.createFileInNewTab = function(pathToFile) {
 	var path = pathToFile;
-	if(path == null) core.FileDialog.saveFile(function(selectedPath) {
-		tabmanager.TabManager.createNewFile(selectedPath);
+	if(path == null) core.FileDialog.saveFile(function(_selectedPath) {
+		tabmanager.TabManager.createNewFile(_selectedPath);
 	}); else tabmanager.TabManager.createNewFile(path);
 };
 tabmanager.TabManager.createNewFile = function(path) {
@@ -13189,104 +13512,84 @@ tabmanager.TabManager.createNewFile = function(path) {
 		options.encoding = "utf8";
 		var pathToTemplate = js.Node.require("path").join("templates","New.hx");
 		var templateCode = js.Node.require("fs").readFileSync(pathToTemplate,options);
-		code = mustache.Mustache.render(templateCode,{ name : js.Node.require("path").basename(name,extname), pack : "test", author : "testo"});
+		code = mustache.Mustache.render(templateCode,{ name : js.Node.require("path").basename(name,extname), pack : "", author : ""});
 	}
-	tabmanager.TabManager.docs.push(new cm.CMDoc(name,new CodeMirror.Doc(code,mode),path));
-	tabmanager.TabManager.createNewTab(name,path);
-	tabmanager.TabManager.selectDoc(tabmanager.TabManager.docs.length - 1);
+	var doc = new CodeMirror.Doc(code,mode);
+	tabmanager.TabManager.createNewTab(name,path,doc,true);
+	tabmanager.TabManager.selectDoc(path);
 	tabmanager.TabManager.checkTabsCount();
-	tabmanager.TabManager.saveActiveFile();
 	filetree.FileTree.load();
 };
 tabmanager.TabManager.checkTabsCount = function() {
-	if(cm.CodeMirrorEditor.editor != null) {
-		if(cm.CodeMirrorEditor.editor.getWrapperElement().style.display == "none" && tabmanager.TabManager.docs.length > 0) {
-			cm.CodeMirrorEditor.editor.getWrapperElement().style.display = "block";
-			cm.CodeMirrorEditor.editor.refresh();
-		}
-	}
-};
-tabmanager.TabManager.closeAll = function() {
-	var _g1 = 0;
-	var _g = tabmanager.TabManager.docs.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(tabmanager.TabManager.docs[i] != null) tabmanager.TabManager.closeTab(tabmanager.TabManager.docs[i].path,false);
-	}
-	if(tabmanager.TabManager.docs.length > 0) haxe.Timer.delay(function() {
-		tabmanager.TabManager.closeAll();
-	},300);
-};
-tabmanager.TabManager.closeOthers = function(path) {
-	var _g = 0;
-	var _g1 = tabmanager.TabManager.docs;
-	while(_g < _g1.length) {
-		var doc = _g1[_g];
-		++_g;
-		if(doc.path != path) tabmanager.TabManager.closeTab(doc.path,false);
-	}
-	if(tabmanager.TabManager.docs.length > 1) haxe.Timer.delay(function() {
-		tabmanager.TabManager.closeOthers(path);
-	},300); else tabmanager.TabManager.showNextTab();
-};
-tabmanager.TabManager.closeTab = function(path,switchToTab) {
-	if(switchToTab == null) switchToTab = true;
-	var j = -1;
-	var _g1 = 0;
-	var _g = tabmanager.TabManager.docs.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(tabmanager.TabManager.docs[i] != null && tabmanager.TabManager.docs[i].path == path) {
-			j = i;
-			break;
-		}
-	}
-	if(j != -1) {
-		tabmanager.TabManager.saveDoc(tabmanager.TabManager.docs[j],function() {
-			tabmanager.TabManager.docs.splice(j,1);
-			(js.Boot.__cast(tabmanager.TabManager.tabs.children.item(j) , Element)).remove();
-			if(tabmanager.TabManager.docs.length > 0) {
-				if(switchToTab) tabmanager.TabManager.showPreviousTab();
-			} else {
-				if(cm.CodeMirrorEditor.editor != null) cm.CodeMirrorEditor.editor.getWrapperElement().style.display = "none";
-				tabmanager.TabManager.curDoc = null;
-			}
-			var pathToDocument = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path);
-			HxOverrides.remove(projectaccess.ProjectAccess.currentProject.files,pathToDocument);
-		});
+	if(window.document.getElementById("editor").style.display == "none" && tabmanager.TabManager.tabMap.getTabs().length > 0) {
+		new $("#editor").fadeIn();
+		core.WelcomeScreen.hide();
+		cm.CodeMirrorEditor.editor.refresh();
 		cm.CodeMirrorEditor.resize();
 	}
 };
-tabmanager.TabManager.closeActiveTab = function() {
-	tabmanager.TabManager.saveActiveFile(function() {
-		tabmanager.TabManager.closeTab(tabmanager.TabManager.curDoc.path);
-	});
+tabmanager.TabManager.closeAll = function() {
+	var _g = 0;
+	var _g1 = tabmanager.TabManager.tabMap.keys();
+	while(_g < _g1.length) {
+		var key = _g1[_g];
+		++_g;
+		tabmanager.TabManager.closeTab(key,false);
+	}
 };
-tabmanager.TabManager.showNextTab = function() {
-	var n = Lambda.indexOf(tabmanager.TabManager.docs,tabmanager.TabManager.curDoc);
-	n++;
-	if(n > tabmanager.TabManager.docs.length - 1) n = 0;
-	tabmanager.TabManager.selectDoc(n);
+tabmanager.TabManager.closeOthers = function(path) {
+	var _g = 0;
+	var _g1 = tabmanager.TabManager.tabMap.keys();
+	while(_g < _g1.length) {
+		var key = _g1[_g];
+		++_g;
+		if(key != path) tabmanager.TabManager.closeTab(key,false);
+	}
+	if(tabmanager.TabManager.tabMap.getTabs().length == 1) tabmanager.TabManager.showNextTab();
+};
+tabmanager.TabManager.closeTab = function(path,switchToTab) {
+	if(switchToTab == null) switchToTab = true;
+	if(tabmanager.TabManager.isChanged(path)) Alertify.confirm(watchers.LocaleWatcher.getStringSync("File ") + path + watchers.LocaleWatcher.getStringSync(" was changed. Save it?"),function(e) {
+		if(e) tabmanager.TabManager.saveDoc(path);
+		tabmanager.TabManager.removeTab(path,switchToTab);
+	}); else tabmanager.TabManager.removeTab(path,switchToTab);
+	cm.CodeMirrorEditor.resize();
+};
+tabmanager.TabManager.removeTab = function(path,switchToTab) {
+	var tab = tabmanager.TabManager.tabMap.get(path);
+	tabmanager.TabManager.tabMap.remove(path);
+	tab.remove();
+	if(tabmanager.TabManager.tabMap.getTabs().length > 0) {
+		if(switchToTab) tabmanager.TabManager.showPreviousTab();
+	} else {
+		new $("#editor").fadeOut();
+		if(projectaccess.ProjectAccess.currentProject.path != null) core.WelcomeScreen.hide(); else core.WelcomeScreen.show();
+		tabmanager.TabManager.selectedPath = null;
+	}
+	if(projectaccess.ProjectAccess.currentProject.path != null) {
+		var pathToDocument = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path);
+		HxOverrides.remove(projectaccess.ProjectAccess.currentProject.files,pathToDocument);
+	}
 };
 tabmanager.TabManager.showPreviousTab = function() {
-	var n = Lambda.indexOf(tabmanager.TabManager.docs,tabmanager.TabManager.curDoc);
-	n--;
-	if(n < 0) n = tabmanager.TabManager.docs.length - 1;
-	tabmanager.TabManager.selectDoc(n);
+	var index = tabmanager.TabManager.selectedIndex - 1;
+	var tabArray = tabmanager.TabManager.tabMap.getTabs();
+	if(index < 0) index = tabArray.length - 1;
+	tabmanager.TabManager.selectDoc(tabArray[index].path);
+};
+tabmanager.TabManager.showNextTab = function() {
+	var index = tabmanager.TabManager.selectedIndex + 1;
+	var tabArray = tabmanager.TabManager.tabMap.getTabs();
+	if(index > tabArray.length - 1) index = 0;
+	tabmanager.TabManager.selectDoc(tabArray[index].path);
+};
+tabmanager.TabManager.closeActiveTab = function() {
+	tabmanager.TabManager.closeTab(tabmanager.TabManager.selectedPath);
 };
 tabmanager.TabManager.isAlreadyOpened = function(path,show) {
 	if(show == null) show = true;
-	var opened = false;
-	var _g1 = 0;
-	var _g = tabmanager.TabManager.docs.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(tabmanager.TabManager.docs[i].path == path) {
-			if(show) tabmanager.TabManager.selectDoc(i);
-			opened = true;
-			break;
-		}
-	}
+	var opened = tabmanager.TabManager.tabMap.exists(path);
+	if(opened && show) tabmanager.TabManager.selectDoc(path);
 	return opened;
 };
 tabmanager.TabManager.getMode = function(path) {
@@ -13318,170 +13621,132 @@ tabmanager.TabManager.getMode = function(path) {
 	}
 	return mode;
 };
-tabmanager.TabManager.selectDoc = function(pos) {
+tabmanager.TabManager.selectDoc = function(path) {
+	var keys = tabmanager.TabManager.tabMap.keys();
 	var _g1 = 0;
-	var _g = tabmanager.TabManager.tabs.childNodes.length;
+	var _g = keys.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var child;
-		child = js.Boot.__cast(tabmanager.TabManager.tabs.childNodes[i] , Element);
-		if(pos == i) child.className = "selected"; else child.className = "";
+		if(keys[i] == path) {
+			tabmanager.TabManager.tabMap.get(keys[i]).getElement().className = "selected";
+			tabmanager.TabManager.selectedIndex = i;
+		} else tabmanager.TabManager.tabMap.get(keys[i]).getElement().className = "";
 	}
-	tabmanager.TabManager.curDoc = tabmanager.TabManager.docs[pos];
-	if(projectaccess.ProjectAccess.currentProject.path != null) projectaccess.ProjectAccess.currentProject.activeFile = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,tabmanager.TabManager.curDoc.path);
-	cm.CodeMirrorEditor.editor.swapDoc(tabmanager.TabManager.curDoc.doc);
-};
-tabmanager.TabManager.selectDocByPath = function(path) {
-	var j = -1;
-	var _g1 = 0;
-	var _g = tabmanager.TabManager.docs.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(tabmanager.TabManager.docs[i] != null && tabmanager.TabManager.docs[i].path == path) {
-			j = i;
-			break;
-		}
-	}
-	if(j != -1) tabmanager.TabManager.selectDoc(j);
+	tabmanager.TabManager.selectedPath = path;
+	if(projectaccess.ProjectAccess.currentProject.path != null) projectaccess.ProjectAccess.currentProject.activeFile = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,tabmanager.TabManager.selectedPath);
+	cm.CodeMirrorEditor.editor.swapDoc(tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath).doc);
+	if(js.Node.require("path").extname(tabmanager.TabManager.selectedPath) == ".hx") core.HaxeLint.updateLinting();
 };
 tabmanager.TabManager.getCurrentDocumentPath = function() {
-	var path = null;
-	if(tabmanager.TabManager.curDoc != null) path = tabmanager.TabManager.curDoc.path;
-	return path;
+	return tabmanager.TabManager.selectedPath;
 };
 tabmanager.TabManager.getCurrentDocument = function() {
-	return tabmanager.TabManager.curDoc;
+	return tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath).doc;
 };
-tabmanager.TabManager.saveDoc = function(doc,onComplete) {
-	if(doc != null) {
-		js.Node.require("fs").writeFileSync(doc.path,doc.doc.getValue(),"utf8");
-		if(onComplete != null) onComplete();
+tabmanager.TabManager.saveDoc = function(path,onComplete) {
+	if(tabmanager.TabManager.isChanged(path)) {
+		var tab = tabmanager.TabManager.tabMap.get(path);
+		tab.save();
 	}
+	if(onComplete != null) onComplete();
+};
+tabmanager.TabManager.isChanged = function(path) {
+	var tab = tabmanager.TabManager.tabMap.get(path);
+	var history = tab.doc.historySize();
+	return history.undo > 0 || history.redo > 0;
 };
 tabmanager.TabManager.saveActiveFile = function(onComplete) {
-	tabmanager.TabManager.saveDoc(tabmanager.TabManager.curDoc,onComplete);
+	if(tabmanager.TabManager.selectedPath != null) tabmanager.TabManager.saveDoc(tabmanager.TabManager.selectedPath,onComplete);
 };
 tabmanager.TabManager.saveActiveFileAs = function() {
+	var tab = tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath);
 	core.FileDialog.saveFile(function(path) {
-		tabmanager.TabManager.curDoc.path = path;
-		tabmanager.TabManager.saveDoc(tabmanager.TabManager.curDoc);
-	},tabmanager.TabManager.curDoc.name);
+		tabmanager.TabManager.tabMap.remove(tabmanager.TabManager.selectedPath);
+		tab.path = path;
+		tabmanager.TabManager.selectedPath = path;
+		tabmanager.TabManager.tabMap.add(tab);
+		tabmanager.TabManager.saveDoc(tabmanager.TabManager.selectedPath);
+	},tab.name);
 };
 tabmanager.TabManager.saveAll = function(onComplete) {
-	tabmanager.TabManager.filesSavedCount = 0;
-	if(tabmanager.TabManager.docs.length > 0) {
-		var _g = 0;
-		var _g1 = tabmanager.TabManager.docs;
-		while(_g < _g1.length) {
-			var doc = _g1[_g];
-			++_g;
-			if(doc != null) {
-				if(doc.doc.getValue() == "") js.Node.console.warn(doc.path + " will be empty");
-				console.log(doc.path + " file saved.");
-				tabmanager.TabManager.saveDoc(doc,function() {
-					tabmanager.TabManager.filesSavedCount++;
-					if(tabmanager.TabManager.filesSavedCount == tabmanager.TabManager.docs.length) {
-						if(onComplete != null) onComplete();
-					}
-				});
-			}
-		}
-	} else if(onComplete != null) onComplete();
+	var _g = 0;
+	var _g1 = tabmanager.TabManager.tabMap.keys();
+	while(_g < _g1.length) {
+		var key = _g1[_g];
+		++_g;
+		tabmanager.TabManager.saveDoc(key);
+	}
+	if(onComplete != null) onComplete();
 };
-tabmanager.TabManagerContextMenu = function() { };
-$hxClasses["tabmanager.TabManagerContextMenu"] = tabmanager.TabManagerContextMenu;
-tabmanager.TabManagerContextMenu.__name__ = ["tabmanager","TabManagerContextMenu"];
-tabmanager.TabManagerContextMenu.createContextMenu = function() {
-	var contextMenu;
-	var _this = window.document;
-	contextMenu = _this.createElement("div");
-	contextMenu.className = "dropdown";
-	contextMenu.style.position = "absolute";
-	contextMenu.style.display = "none";
-	window.document.addEventListener("click",function(e) {
-		contextMenu.style.display = "none";
-	});
-	var ul;
-	var _this1 = window.document;
-	ul = _this1.createElement("ul");
-	ul.className = "dropdown-menu";
-	ul.style.display = "block";
-	ul.appendChild(tabmanager.TabManagerContextMenu.createContextMenuItem("New File...",tabmanager.TabManager.createFileInNewTab));
-	var li;
-	var _this2 = window.document;
-	li = _this2.createElement("li");
-	li.className = "divider";
-	ul.appendChild(li);
-	ul.appendChild(tabmanager.TabManagerContextMenu.createContextMenuItem("Close",function() {
-		tabmanager.TabManager.closeTab(contextMenu.getAttribute("path"));
-	}));
-	ul.appendChild(tabmanager.TabManagerContextMenu.createContextMenuItem("Close All",function() {
-		tabmanager.TabManager.closeAll();
-	}));
-	ul.appendChild(tabmanager.TabManagerContextMenu.createContextMenuItem("Close Other",function() {
-		var path = contextMenu.getAttribute("path");
-		tabmanager.TabManager.closeOthers(path);
-	}));
-	contextMenu.appendChild(ul);
-	window.document.body.appendChild(contextMenu);
-	tabmanager.TabManager.tabs.addEventListener("contextmenu",function(ev) {
-		ev.preventDefault();
-		var clickedOnTab = false;
+tabmanager.TabMap = function() {
+	this.tabArray = [];
+};
+$hxClasses["tabmanager.TabMap"] = tabmanager.TabMap;
+tabmanager.TabMap.__name__ = ["tabmanager","TabMap"];
+tabmanager.TabMap.prototype = {
+	tabArray: null
+	,get: function(path) {
+		var tab = null;
 		var _g = 0;
-		var _g1 = tabmanager.TabManager.tabs.childNodes;
+		var _g1 = this.tabArray;
 		while(_g < _g1.length) {
-			var li1 = _g1[_g];
+			var t = _g1[_g];
 			++_g;
-			var tabHeader;
-			tabHeader = js.Boot.__cast(li1 , HTMLLIElement);
-			if(ev.target == li1) {
-				clickedOnTab = true;
+			if(t.path == path) {
+				tab = t;
 				break;
 			}
 		}
-		if(clickedOnTab) {
-			var li2;
-			li2 = js.Boot.__cast(ev.target , HTMLLIElement);
-			contextMenu.setAttribute("path",li2.getAttribute("path"));
-			contextMenu.style.display = "block";
-			contextMenu.style.left = (ev.pageX == null?"null":"" + ev.pageX) + "px";
-			contextMenu.style.top = (ev.pageY == null?"null":"" + ev.pageY) + "px";
+		return tab;
+	}
+	,exists: function(path) {
+		var exists = false;
+		var _g = 0;
+		var _g1 = this.tabArray;
+		while(_g < _g1.length) {
+			var t = _g1[_g];
+			++_g;
+			if(t.path == path) {
+				exists = true;
+				break;
+			}
 		}
-		return false;
-	});
-};
-tabmanager.TabManagerContextMenu.createContextMenuItem = function(text,onClick) {
-	var li;
-	var _this = window.document;
-	li = _this.createElement("li");
-	li.onclick = function(e) {
-		onClick();
-	};
-	var a;
-	var _this1 = window.document;
-	a = _this1.createElement("a");
-	a.href = "#";
-	a.textContent = core.LocaleWatcher.getStringSync(text);
-	li.appendChild(a);
-	return li;
-};
-tabmanager.TabManagerMain = function() { };
-$hxClasses["tabmanager.TabManagerMain"] = tabmanager.TabManagerMain;
-tabmanager.TabManagerMain.__name__ = ["tabmanager","TabManagerMain"];
-tabmanager.TabManagerMain.load = function() {
-	tabmanager.TabManager.init();
-	filetree.FileTree.onFileClick = tabmanager.TabManager.openFileInNewTab;
-	core.Hotkeys.add("Tab Manager->Show Next Tab","Ctrl-Tab",null,tabmanager.TabManager.showNextTab);
-	core.Hotkeys.add("Tab Manager->Show Previous Tab","Ctrl-Shift-Tab",null,tabmanager.TabManager.showPreviousTab);
-	menu.BootstrapMenu.getMenu("File").addMenuItem("New File...",3,tabmanager.TabManager.createFileInNewTab,"Ctrl-N");
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Save",4,tabmanager.TabManager.saveActiveFile,"Ctrl-S");
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Save As...",5,tabmanager.TabManager.saveActiveFileAs,"Ctrl-Shift-S");
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Save All",6,tabmanager.TabManager.saveAll);
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Close File",7,tabmanager.TabManager.closeActiveTab,"Ctrl-W");
-	nodejs.webkit.Window.get().on("close",tabmanager.TabManager.saveAll);
-	menu.BootstrapMenu.getMenu("Options",90).addMenuItem("Open hotkey configuration file",1,function() {
-		return tabmanager.TabManager.openFileInNewTab("hotkeys.json");
-	});
+		return exists;
+	}
+	,getIndex: function(path) {
+		var index = -1;
+		var _g1 = 0;
+		var _g = this.tabArray.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(this.tabArray[i].path == path) {
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
+	,add: function(tab) {
+		this.tabArray.push(tab);
+	}
+	,remove: function(path) {
+		this.tabArray.splice(this.getIndex(path),1);
+	}
+	,keys: function() {
+		var keys = [];
+		var _g = 0;
+		var _g1 = this.tabArray;
+		while(_g < _g1.length) {
+			var t = _g1[_g];
+			++_g;
+			keys.push(t.path);
+		}
+		return keys;
+	}
+	,getTabs: function() {
+		return this.tabArray;
+	}
+	,__class__: tabmanager.TabMap
 };
 var tjson = {};
 tjson.TJSON = function() { };
@@ -13811,10 +14076,101 @@ tjson.FancyStyle.prototype = {
 	}
 	,__class__: tjson.FancyStyle
 };
+var watchers = {};
+watchers.LocaleWatcher = function() { };
+$hxClasses["watchers.LocaleWatcher"] = watchers.LocaleWatcher;
+watchers.LocaleWatcher.__name__ = ["watchers","LocaleWatcher"];
+watchers.LocaleWatcher.load = function() {
+	if(watchers.LocaleWatcher.watcher != null) watchers.LocaleWatcher.watcher.close();
+	watchers.LocaleWatcher.parse();
+	watchers.Watcher.watchFileForUpdates(watchers.SettingsWatcher.settings.locale,function() {
+		watchers.LocaleWatcher.parse();
+		watchers.LocaleWatcher.processHtmlElements();
+	},1000);
+	watchers.LocaleWatcher.processHtmlElements();
+	if(!watchers.LocaleWatcher.listenerAdded) {
+		nodejs.webkit.Window.get().on("close",function(e) {
+			if(watchers.LocaleWatcher.watcher != null) watchers.LocaleWatcher.watcher.close();
+		});
+		watchers.LocaleWatcher.listenerAdded = true;
+	}
+};
+watchers.LocaleWatcher.parse = function() {
+	var options = { };
+	options.encoding = "utf8";
+	var data = js.Node.require("fs").readFileSync(watchers.SettingsWatcher.settings.locale,options);
+	watchers.LocaleWatcher.localeData = tjson.TJSON.parse(data);
+};
+watchers.LocaleWatcher.getStringSync = function(name) {
+	var value = name;
+	if(Object.prototype.hasOwnProperty.call(watchers.LocaleWatcher.localeData,name)) value = Reflect.field(watchers.LocaleWatcher.localeData,name); else {
+		watchers.LocaleWatcher.localeData[name] = name;
+		var data = tjson.TJSON.encode(watchers.LocaleWatcher.localeData,"fancy");
+		js.Node.require("fs").writeFileSync(watchers.SettingsWatcher.settings.locale,data,"utf8");
+	}
+	return value;
+};
+watchers.LocaleWatcher.processHtmlElements = function() {
+	var element;
+	var value;
+	var _g = 0;
+	var _g1 = window.document.getElementsByTagName("*");
+	while(_g < _g1.length) {
+		var node = _g1[_g];
+		++_g;
+		element = js.Boot.__cast(node , Element);
+		value = element.getAttribute("localeString");
+		if(value != null) element.textContent = watchers.LocaleWatcher.getStringSync(value);
+	}
+};
+watchers.SettingsWatcher = function() { };
+$hxClasses["watchers.SettingsWatcher"] = watchers.SettingsWatcher;
+watchers.SettingsWatcher.__name__ = ["watchers","SettingsWatcher"];
+watchers.SettingsWatcher.load = function() {
+	watchers.Watcher.watchFileForUpdates("settings.json",watchers.SettingsWatcher.parse,3000);
+	watchers.SettingsWatcher.parse();
+	nodejs.webkit.Window.get().on("close",function(e) {
+		if(watchers.SettingsWatcher.watcher != null) watchers.SettingsWatcher.watcher.close();
+	});
+};
+watchers.SettingsWatcher.parse = function() {
+	var options = { };
+	options.encoding = "utf8";
+	var data = js.Node.require("fs").readFileSync("settings.json",options);
+	watchers.SettingsWatcher.settings = tjson.TJSON.parse(data);
+	watchers.ThemeWatcher.load();
+	watchers.LocaleWatcher.load();
+};
+watchers.ThemeWatcher = function() { };
+$hxClasses["watchers.ThemeWatcher"] = watchers.ThemeWatcher;
+watchers.ThemeWatcher.__name__ = ["watchers","ThemeWatcher"];
+watchers.ThemeWatcher.load = function() {
+	if(watchers.ThemeWatcher.watcher != null) watchers.ThemeWatcher.watcher.close();
+	watchers.Watcher.watchFileForUpdates(watchers.SettingsWatcher.settings.theme,function() {
+		new $("#theme").attr("href",watchers.SettingsWatcher.settings.theme);
+	},1000);
+	if(!watchers.ThemeWatcher.listenerAdded) {
+		nodejs.webkit.Window.get().on("close",function(e) {
+			if(watchers.ThemeWatcher.watcher != null) watchers.ThemeWatcher.watcher.close();
+		});
+		watchers.ThemeWatcher.listenerAdded = true;
+	}
+};
+watchers.Watcher = function() { };
+$hxClasses["watchers.Watcher"] = watchers.Watcher;
+watchers.Watcher.__name__ = ["watchers","Watcher"];
+watchers.Watcher.watchFileForUpdates = function(_path,onUpdate,_interval) {
+	var config = { path : _path, listener : function(changeType,filePath,fileCurrentStat,filePreviousStat) {
+		if(changeType == "update") onUpdate();
+	}};
+	if(_interval != null) config.interval = _interval;
+	var watcher = Watchr.watch(config);
+	return watcher;
+};
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
-CodeMirrorPos.pos = CodeMirror.Pos;
+var Alertify = alertify;
 if(Array.prototype.indexOf) HxOverrides.indexOf = function(a,o,i) {
 	return Array.prototype.indexOf.call(a,o,i);
 };
@@ -13861,7 +14217,6 @@ Xml.ProcessingInstruction = "processingInstruction";
 Xml.Document = "document";
 nodejs.webkit.$ui = require('nw.gui');
 nodejs.webkit.Window = nodejs.webkit.$ui.Window;
-if(typeof(JSON) != "undefined") haxe.Json = JSON;
 haxe.Resource.content = [{ name : "config", data : "ew0KCSJtYXhpbXVtX2xpbmVfbGVuZ3RoIjo4MCwNCgkibW9kaWZpZXJfb3JkZXIiOlsib3ZlcnJpZGUiLCAicHVibGljIiwgInByaXZhdGUiLCAic3RhdGljIiwgImV4dGVybiIsICJkeW5hbWljIiwgImlubGluZSIsICJtYWNybyJdLA0KCSJpbmRlbnRfd2l0aF90YWJzIjpmYWxzZSwNCgkidGFiX3dpZHRoIjo0LA0KCSJwcmludF9yb290X3BhY2thZ2UiOmZhbHNlLA0KCSJlbXB0eV9saW5lX2FmdGVyX3BhY2thZ2UiOnRydWUsDQoJImVtcHR5X2xpbmVfYWZ0ZXJfaW1wb3J0IjpmYWxzZSwNCgkiZW1wdHlfbGluZV9iZWZvcmVfdHlwZSI6dHJ1ZSwNCgkiY3VkZGxlX3R5cGVfYnJhY2VzIjpmYWxzZSwNCgkiY3VkZGxlX21ldGhvZF9icmFjZXMiOmZhbHNlLA0KCSJlbXB0eV9saW5lX2JldHdlZW5fZmllbGRzIjp0cnVlLA0KCSJzcGFjZV9iZXR3ZWVuX3R5cGVfcGFyYW1zIjp0cnVlLA0KCSJzcGFjZV9iZXR3ZWVuX2Fub25fdHlwZV9maWVsZHMiOnRydWUsDQoJInNwYWNlX2JldHdlZW5fdHlwZV9wYXJhbV9jb25zdHJhaW50cyI6dHJ1ZSwNCgkiaW5saW5lX2VtcHR5X2JyYWNlcyI6dHJ1ZSwNCgkiZXh0ZW5kc19vbl9uZXdsaW5lIjpmYWxzZSwNCgkiaW1wbGVtZW50c19vbl9uZXdsaW5lIjpmYWxzZSwNCgkiZnVuY3Rpb25fYXJnX29uX25ld2xpbmUiOmZhbHNlLA0KCSJzcGFjZV9iZXR3ZWVuX2Z1bmN0aW9uX2FyZ3MiOnRydWUsDQoJInNwYWNlX2Fyb3VuZF9mdW5jdGlvbl9hcmdfYXNzaWduIjp0cnVlLA0KCSJzcGFjZV9hcm91bmRfcHJvcGVydHlfYXNzaWduIjp0cnVlLA0KCSJzcGFjZV9iZXR3ZW5fcHJvcGVydHlfZ2V0X3NldCI6dHJ1ZSwNCgkicmVtb3ZlX3ByaXZhdGVfZmllbGRfbW9kaWZpZXIiOnRydWUsDQoJImVtcHR5X2xpbmVfYmV0d2Vlbl9lbnVtX2NvbnN0cnVjdG9ycyI6ZmFsc2UsDQoJImVtcHR5X2xpbmVfYmV0d2Vlbl90eXBlZGVmX2ZpZWxkcyI6ZmFsc2UsDQoJInNwYWNlX2JldHdlZW5fZW51bV9jb25zdHJ1Y3Rvcl9hcmdzIjp0cnVlDQp9"}];
 var module, setImmediate, clearImmediate;
 js.Node.setTimeout = setTimeout;
@@ -13880,8 +14235,9 @@ if(version[0] > 0 || version[1] >= 9) {
 	js.Node.setImmediate = setImmediate;
 	js.Node.clearImmediate = clearImmediate;
 }
-js.node.$walkdir = require('walkdir');
-js.node.$walkdir.walk = js.node.$walkdir;
+Walkdir.walkdir = js.Node.require("walkdir");
+var Watchr = js.Node.require("watchr");
+nodejs.webkit.App = nodejs.webkit.$ui.App;
 nodejs.webkit.Menu = nodejs.webkit.$ui.Menu;
 nodejs.webkit.MenuItem = nodejs.webkit.$ui.MenuItem;
 nodejs.webkit.Shell = nodejs.webkit.$ui.Shell;
@@ -13898,17 +14254,21 @@ cm.ColorPreview.left = 0;
 core.Completion.WORD = new EReg("[A-Z]+$","i");
 core.Completion.RANGE = 500;
 core.Completion.completions = [];
+core.Completion.completionType = core.CompletionType.REGULAR;
 core.FunctionParametersHelper.widgets = [];
+core.FunctionParametersHelper.lines = [];
 core.HaxeLint.fileData = new haxe.ds.StringMap();
 core.HaxeLint.parserData = new haxe.ds.StringMap();
-core.Hotkeys.hotkeys = new Array();
-core.Hotkeys.commandMap = new haxe.ds.StringMap();
-core.Hotkeys.spanMap = new haxe.ds.StringMap();
-core.PreserveWindowState.isMaximizationEvent = false;
-core.PreserveWindowState.window = nodejs.webkit.Window.get();
+core.Helper.timers = new haxe.ds.StringMap();
 core.Utils.WINDOWS = 0;
 core.Utils.LINUX = 1;
 core.Utils.OTHER = 2;
+core.Hotkeys.hotkeys = new Array();
+core.Hotkeys.commandMap = new haxe.ds.StringMap();
+core.Hotkeys.spanMap = new haxe.ds.StringMap();
+core.Hotkeys.commandKey = core.Utils.os == 2;
+core.PreserveWindowState.isMaximizationEvent = false;
+core.PreserveWindowState.window = nodejs.webkit.Window.get();
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
@@ -14243,6 +14603,7 @@ newprojectdialog.NewProjectDialog.categories = new haxe.ds.StringMap();
 newprojectdialog.NewProjectDialog.categoriesArray = new Array();
 parser.ClassParser.classList = [];
 parser.ClassParser.classCompletions = new haxe.ds.StringMap();
+parser.ClassParser.filesList = [];
 projectaccess.Project.HAXE = 0;
 projectaccess.Project.OPENFL = 1;
 projectaccess.Project.HXML = 2;
@@ -14257,6 +14618,8 @@ projectaccess.Project.URL = 0;
 projectaccess.Project.FILE = 1;
 projectaccess.Project.COMMAND = 2;
 projectaccess.ProjectAccess.currentProject = new projectaccess.Project();
+watchers.LocaleWatcher.listenerAdded = false;
+watchers.ThemeWatcher.listenerAdded = false;
 Main.main();
 })(typeof window != "undefined" ? window : exports);
 

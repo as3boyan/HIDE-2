@@ -1,5 +1,4 @@
 package openflproject;
-import core.Alerts;
 import js.Browser;
 import js.html.TextAreaElement;
 
@@ -9,10 +8,10 @@ import js.html.TextAreaElement;
  */
 @:keepSub @:expose class OpenFLTools
 {	
-	private static var processStdout:String;
-	private static var processStderr:String;
+	static var processStdout:String;
+	static var processStderr:String;
 	
-	public static function getParams(path:String, target:String, onLoaded:Dynamic):Void
+	public static function getParams(path:String, target:String, onLoaded:String->Void):Void
 	{
 		processStdout = "";
 		processStderr = "";
@@ -45,7 +44,7 @@ import js.html.TextAreaElement;
 			}
 			else 
 			{
-				Alerts.showAlert("OpenFL tools cannot parse project.xml. Update OpenFL.", 3500);
+				Alertify.error("OpenFL tools cannot parse project.xml. Update OpenFL.");
 			}
 		}
 		);

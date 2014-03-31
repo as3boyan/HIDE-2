@@ -1,4 +1,5 @@
 package openflproject;
+import core.Splitter;
 import filetree.FileTree;
 import js.Browser;
 import js.html.TextAreaElement;
@@ -136,6 +137,8 @@ class OpenFLProject
 				FileTree.load(project.name, pathToProject);
 			}
 			);
+			
+			Splitter.show();
 		}
 		);
 	}

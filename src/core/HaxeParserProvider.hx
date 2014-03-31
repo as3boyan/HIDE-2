@@ -31,8 +31,8 @@ enum FunctionScopeType
 
 class HaxeParserProvider
 {
-	private static var currentClass:String;
-	private static var currentFunctionScopeType:FunctionScopeType;
+	static var currentClass:String;
+	static var currentFunctionScopeType:FunctionScopeType;
 	
 	public static function test():Void
 	{
@@ -163,7 +163,7 @@ class HaxeParserProvider
 		return found;
 	}
 	
-	private static function getFunctionScope(field:Field, f:Function) 
+	static function getFunctionScope(field:Field, f:Function) 
 	{
 		var	functionScopeType:FunctionScopeType = SRegular;
 		
@@ -193,10 +193,10 @@ class HaxeParserProvider
 		var pos = cm.indexFromPos(cm.getCursor());
 		//trace(pos);
 		
-		var doc:CMDoc = TabManager.getCurrentDocument();
+		var doc:CodeMirror.Doc = TabManager.getCurrentDocument();
 		
-		var data:String = doc.doc.getValue();
-		var path:String = doc.path;
+		var data:String = doc.getValue();
+		var path:String = TabManager.getCurrentDocumentPath();
 		
 		var ast = parse(data, path);
 		
@@ -256,7 +256,7 @@ class HaxeParserProvider
 			trace(e);
 			var pos =  e.pos.getLinePosition(input);
 			
-			var info:Info = { from: CodeMirrorPos.from(pos.lineMin - 1, pos.posMin), to: CodeMirrorPos.from(pos.lineMax - 1, pos.posMax), message: "Parser error:\nUnexpected " + e.token.tok, severity: "warning"};
+			var info:Info = { from: {line:pos.lineMin - 1, ch:pos.posMin}, to: {line:pos.lineMax - 1, ch:pos.posMax}, message: "Parser error:\nUnexpected " + e.token.tok, severity: "warning"};
 			data.push(info);
 			
 			//throw e.pos.format(input) + ": Unexpected " +e.token.tok;
@@ -266,7 +266,7 @@ class HaxeParserProvider
 			trace(e);
 			var pos =  e.pos.getLinePosition(input);
 			
-			var info:Info = { from: CodeMirrorPos.from(pos.lineMin - 1, pos.posMin), to: CodeMirrorPos.from(pos.lineMax - 1, pos.posMax), message: "Parser error:\nUnexpected " + e.token.tok, severity: "warning"};
+			var info:Info = { from: {line: pos.lineMin - 1, ch: pos.posMin}, to: {line:pos.lineMax - 1, ch:pos.posMax}, message: "Parser error:\nUnexpected " + e.token.tok, severity: "warning"};
 			data.push(info);
 			//trace(e.pos.format(input) + ": Unexpected " + e.token.tok);
 			//throw e.pos.format(input) + ": Unexpected " + e.token.tok;
