@@ -18,11 +18,11 @@ class Tab
 	var li:LIElement;
 	var span3:SpanElement;
 	var watcher:Dynamic;
-	var ignoreNextUpdate:Bool;
+	var ignoreNextUpdates:Int;
 
 	public function new(_name:String, _path:String, _doc:CodeMirror.Doc, ?_save:Bool) 
 	{
-		ignoreNextUpdate = false;
+		ignoreNextUpdates = 0;
 		
 		name = _name;
 		doc = _doc;
@@ -76,7 +76,7 @@ class Tab
 	{
 		watcher = Watcher.watchFileForUpdates(path, function ():Void 
 		{			
-			if (!ignoreNextUpdate) 
+			if (ignoreNextUpdates <= 0) 
 			{
 				Alertify.confirm(LocaleWatcher.getStringSync("File ") + path + LocaleWatcher.getStringSync(" was changed. Reload?"), function (e)
 				{
@@ -95,8 +95,7 @@ class Tab
 			}
 			else 
 			{
-				
-				ignoreNextUpdate = false;
+				ignoreNextUpdates--;
 			}
 		}
 		);
@@ -126,7 +125,7 @@ class Tab
 	
 	public function save():Void 
 	{
-		ignoreNextUpdate = true;
+		ignoreNextUpdates++;
 		
 		Node.fs.writeFileSync(path, doc.getValue(), NodeC.UTF8);
 		doc.clearHistory();

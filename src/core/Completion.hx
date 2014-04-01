@@ -316,14 +316,22 @@ class Completion
 		}
 	}
 	
-	public static function showClassList():Void
+	public static function showClassList(?ignoreWhitespace:Bool = false):Void
 	{
 		if (isEditorVisible()) 
 		{
 			CodeMirrorEditor.regenerateCompletionOnDot = false;
 			WORD = ~/[A-Z\.]+$/i;
 			completionType = CLASSLIST;
-			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: untyped __js__("/[\\s()\\[\\]{};>,]/") } );
+			
+			var closeCharacters = untyped __js__("/[\\s()\\[\\]{};>,]/");
+			
+			if (ignoreWhitespace) 
+			{
+				closeCharacters = untyped __js__("/[()\\[\\]{};>,]/");
+			}
+			
+			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: closeCharacters  } );
 		}
 	}
 }

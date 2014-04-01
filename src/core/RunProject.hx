@@ -107,8 +107,11 @@ class RunProject
 	
 	static function killRunProcess():Void
 	{
+		trace(runProcess);
+		
 		if (runProcess != null) 
 		{
+			trace("kill");
 			runProcess.kill();
 		}
 	}

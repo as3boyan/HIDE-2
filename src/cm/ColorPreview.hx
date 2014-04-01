@@ -12,23 +12,21 @@ class ColorPreview
 {
 	static var preview:DivElement;
 	static var startScroll:Dynamic;
-	static private var top:Int = 0;
-	static private var left:Int = 0;
+	static var top:Int = 0;
+	static var left:Int = 0;
 
-	public static function create():Void 
+	public static function create(cm:CodeMirror):Void 
 	{
 		preview = Browser.document.createDivElement();
 		preview.className = "colorPreview";
 		preview.style.display = "none";
 		Browser.document.body.appendChild(preview);
 		
-		var cm = CodeMirrorEditor.editor;
 		startScroll = cm.getScrollInfo();
 	}
 	
-	public static function update():Void 
+	public static function update(cm:CodeMirror):Void 
 	{
-		var cm = CodeMirrorEditor.editor;
 		var word = Completion.getCurrentWord(cm, {word:~/[A-Fx0-9#]+$/i}, cm.getCursor());
 		var color:String = null;
 		
@@ -64,12 +62,10 @@ class ColorPreview
 		}
 	}
 	
-	public static function scroll():Void 
+	public static function scroll(cm:CodeMirror):Void 
 	{
 		if (preview.style.display != "none") 
-		{
-			var cm = CodeMirrorEditor.editor;
-			
+		{			
 			var curScroll = cm.getScrollInfo();
 			var editor = cm.getWrapperElement().getBoundingClientRect();
 			var newTop = top + startScroll.top - curScroll.top;

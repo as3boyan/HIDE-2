@@ -21,7 +21,7 @@ class Hxml
 	{
 		completions = [];
 		
-		getArguments(getDefines);
+		getArguments(getDefines.bind(getHaxelibList));
 	}
 	
 	static function getArguments(onComplete:Dynamic)
@@ -41,7 +41,7 @@ class Hxml
 		);
 	}
 	
-	static function getDefines()
+	static function getDefines(onComplete:Dynamic)
 	{
 		ProcessHelper.runProcess("haxe", ["--help-defines"], function (stdout:String, stderr:String):Void 
 		{
@@ -51,6 +51,23 @@ class Hxml
 				var str = ereg.matched(0);
 				completions.push({text: "-D " + StringTools.trim(str.substr(0, str.length - 1))});
 				return ereg.matched(0);
+			}
+			);
+			onComplete();
+		}
+		);
+	}
+	
+	static function getHaxelibList()
+	{
+		ProcessHelper.runProcess("haxelib", ["list"], function (stdout:String, stderr:String):Void 
+		{
+			var regex:EReg = ~/^[A-Z-]+:/gim;
+			regex.map(stdout, function (ereg:EReg):String
+			{
+				var str = ereg.matched(0);
+				completions.push({text: "-lib " + str.substr(0, str.length - 1)});
+				return str;
 			}
 			);
 		}

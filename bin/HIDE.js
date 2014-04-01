@@ -1233,17 +1233,17 @@ cm.CodeMirrorEditor.load = function() {
 		var panels = event.args.panels;
 		cm.CodeMirrorEditor.resize();
 	});
-	cm.ColorPreview.create();
+	cm.ColorPreview.create(cm.CodeMirrorEditor.editor);
 	cm.CodeMirrorEditor.editor.on("cursorActivity",function(cm3) {
 		core.Helper.debounce("cursorActivity",(function(f,cm2) {
 			return function() {
 				return f(cm2);
 			};
 		})(core.FunctionParametersHelper.update,cm3),100);
-		cm.ColorPreview.update();
+		cm.ColorPreview.update(cm.CodeMirrorEditor.editor);
 	});
 	cm.CodeMirrorEditor.editor.on("scroll",function(cm3) {
-		cm.ColorPreview.scroll();
+		cm.ColorPreview.scroll(cm.CodeMirrorEditor.editor);
 	});
 	var timer = null;
 	var basicTypes = ["Array","Map","StringMap"];
@@ -1268,7 +1268,7 @@ cm.CodeMirrorEditor.load = function() {
 						break;
 					}
 				}
-			}
+			} else if(StringTools.endsWith(data,"import ")) core.Completion.showClassList(true);
 		} else if(extname == ".hxml") {
 			var cursor1 = cm4.getCursor();
 			var data1 = cm4.getLine(cursor1.line);
@@ -1401,17 +1401,15 @@ cm.CodeMirrorZoom.setFontSize = function(fontSize) {
 cm.ColorPreview = function() { };
 $hxClasses["cm.ColorPreview"] = cm.ColorPreview;
 cm.ColorPreview.__name__ = ["cm","ColorPreview"];
-cm.ColorPreview.create = function() {
+cm.ColorPreview.create = function(cm1) {
 	var _this = window.document;
 	cm.ColorPreview.preview = _this.createElement("div");
 	cm.ColorPreview.preview.className = "colorPreview";
 	cm.ColorPreview.preview.style.display = "none";
 	window.document.body.appendChild(cm.ColorPreview.preview);
-	var cm1 = cm.CodeMirrorEditor.editor;
 	cm.ColorPreview.startScroll = cm1.getScrollInfo();
 };
-cm.ColorPreview.update = function() {
-	var cm1 = cm.CodeMirrorEditor.editor;
+cm.ColorPreview.update = function(cm1) {
 	var word = core.Completion.getCurrentWord(cm1,{ word : new EReg("[A-Fx0-9#]+$","i")},cm1.getCursor());
 	var color = null;
 	if(word != null && word.length > 2) {
@@ -1427,9 +1425,8 @@ cm.ColorPreview.update = function() {
 		} else new $(cm.ColorPreview.preview).fadeOut();
 	} else new $(cm.ColorPreview.preview).fadeOut();
 };
-cm.ColorPreview.scroll = function() {
+cm.ColorPreview.scroll = function(cm1) {
 	if(cm.ColorPreview.preview.style.display != "none") {
-		var cm1 = cm.CodeMirrorEditor.editor;
 		var curScroll = cm1.getScrollInfo();
 		var editor = cm1.getWrapperElement().getBoundingClientRect();
 		var newTop = cm.ColorPreview.top + cm.ColorPreview.startScroll.top - curScroll.top;
@@ -1512,7 +1509,9 @@ $hxClasses["completion.Hxml"] = completion.Hxml;
 completion.Hxml.__name__ = ["completion","Hxml"];
 completion.Hxml.load = function() {
 	completion.Hxml.completions = [];
-	completion.Hxml.getArguments(completion.Hxml.getDefines);
+	completion.Hxml.getArguments(function() {
+		return completion.Hxml.getDefines(completion.Hxml.getHaxelibList);
+	});
 };
 completion.Hxml.getArguments = function(onComplete) {
 	core.ProcessHelper.runProcess("haxe",["--help"],function(stdout,stderr) {
@@ -1525,13 +1524,25 @@ completion.Hxml.getArguments = function(onComplete) {
 		onComplete();
 	});
 };
-completion.Hxml.getDefines = function() {
+completion.Hxml.getDefines = function(onComplete) {
 	core.ProcessHelper.runProcess("haxe",["--help-defines"],function(stdout,stderr) {
 		var regex = new EReg("[A-Z-]+ +:","gim");
 		regex.map(stdout,function(ereg) {
 			var str = ereg.matched(0);
 			completion.Hxml.completions.push({ text : "-D " + StringTools.trim(HxOverrides.substr(str,0,str.length - 1))});
 			return ereg.matched(0);
+		});
+		onComplete();
+	});
+};
+completion.Hxml.getHaxelibList = function() {
+	core.ProcessHelper.runProcess("haxelib",["list"],function(stdout,stderr) {
+		console.log(stdout);
+		var regex = new EReg("^[A-Z-]+:","gim");
+		regex.map(stdout,function(ereg) {
+			var str = ereg.matched(0);
+			completion.Hxml.completions.push({ text : "-lib " + HxOverrides.substr(str,0,str.length - 1)});
+			return str;
 		});
 	});
 };
@@ -1739,12 +1750,15 @@ core.Completion.showFileList = function() {
 		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null);
 	}
 };
-core.Completion.showClassList = function() {
+core.Completion.showClassList = function(ignoreWhitespace) {
+	if(ignoreWhitespace == null) ignoreWhitespace = false;
 	if(core.Completion.isEditorVisible()) {
 		cm.CodeMirrorEditor.regenerateCompletionOnDot = false;
 		core.Completion.WORD = new EReg("[A-Z\\.]+$","i");
 		core.Completion.completionType = core.CompletionType.CLASSLIST;
-		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : /[\s()\[\]{};>,]/});
+		var closeCharacters = /[\s()\[\]{};>,]/;
+		if(ignoreWhitespace) closeCharacters = /[()\[\]{};>,]/;
+		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : closeCharacters});
 	}
 };
 core.DragAndDrop = function() { };
@@ -2815,7 +2829,11 @@ core.RunProject.runProject = function() {
 	});
 };
 core.RunProject.killRunProcess = function() {
-	if(core.RunProject.runProcess != null) core.RunProject.runProcess.kill();
+	console.log(core.RunProject.runProcess);
+	if(core.RunProject.runProcess != null) {
+		console.log("kill");
+		core.RunProject.runProcess.kill();
+	}
 };
 core.RunProject.isValidCommand = function(command) {
 	var valid = false;
@@ -13356,7 +13374,7 @@ tabmanager.ContextMenu.createContextMenuItem = function(text,onClick) {
 };
 tabmanager.Tab = function(_name,_path,_doc,_save) {
 	var _g = this;
-	this.ignoreNextUpdate = false;
+	this.ignoreNextUpdates = 0;
 	this.name = _name;
 	this.doc = _doc;
 	this.path = _path;
@@ -13400,17 +13418,17 @@ tabmanager.Tab.prototype = {
 	,li: null
 	,span3: null
 	,watcher: null
-	,ignoreNextUpdate: null
+	,ignoreNextUpdates: null
 	,startWatcher: function() {
 		var _g = this;
 		this.watcher = watchers.Watcher.watchFileForUpdates(this.path,function() {
-			if(!_g.ignoreNextUpdate) Alertify.confirm(watchers.LocaleWatcher.getStringSync("File ") + _g.path + watchers.LocaleWatcher.getStringSync(" was changed. Reload?"),function(e) {
+			if(_g.ignoreNextUpdates <= 0) Alertify.confirm(watchers.LocaleWatcher.getStringSync("File ") + _g.path + watchers.LocaleWatcher.getStringSync(" was changed. Reload?"),function(e) {
 				if(e != null) tabmanager.TabManager.openFile(_g.path,function(code) {
 					_g.doc.setValue(code);
 					_g.doc.clearHistory();
 					_g.setChanged(false);
 				});
-			}); else _g.ignoreNextUpdate = false;
+			}); else _g.ignoreNextUpdates--;
 		});
 	}
 	,setChanged: function(changed) {
@@ -13423,7 +13441,7 @@ tabmanager.Tab.prototype = {
 		if(this.watcher != null) this.watcher.close();
 	}
 	,save: function() {
-		this.ignoreNextUpdate = true;
+		this.ignoreNextUpdates++;
 		js.Node.require("fs").writeFileSync(this.path,this.doc.getValue(),"utf8");
 		this.doc.clearHistory();
 		this.setChanged(false);

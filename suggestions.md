@@ -106,6 +106,10 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Calculate indents based on brackets
 * HaxeParserProvider: check if pos is null
 * Adjust ":" completion for typedefs
+* Show list libs for hxml completion
+* Show multiple function declaration
+* Imports completion
+* Function description in completion
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

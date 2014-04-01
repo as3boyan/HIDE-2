@@ -135,19 +135,19 @@ class CodeMirrorEditor
 			resize();
 		});
 		
-		ColorPreview.create();
+		ColorPreview.create(editor);
 		
 		editor.on("cursorActivity", function (cm:CodeMirror)
 		{
 			Helper.debounce("cursorActivity", FunctionParametersHelper.update.bind(cm), 100);
 			
-			ColorPreview.update();
+			ColorPreview.update(editor);
 		}
 		);
 		
 		editor.on("scroll", function (cm:CodeMirror):Void 
 		{
-			ColorPreview.scroll();
+			ColorPreview.scroll(editor);
 		}
 		);
 		
@@ -191,6 +191,10 @@ class CodeMirrorEditor
 							break;
 						}
 					}
+				}
+				else if (StringTools.endsWith(data, "import ")) 
+				{
+					Completion.showClassList(true);
 				}
 			}
 			else if (extname == ".hxml") 
@@ -236,7 +240,7 @@ class CodeMirrorEditor
 			case ".hxml":
 				Completion.showHxmlCompletion();
 			default:
-				//trace(extname);
+				
 		}
 	}
 	
