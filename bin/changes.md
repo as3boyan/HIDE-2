@@ -2,7 +2,9 @@
 -----------
 
 * ADDED: Hxml syntax highlighting mode
+* ADDED: Check default path for Haxe on all platforms
 * CHANGED: Show file list(Ctrl-Shift-O) for any file(previously worked only for *.hxml and *.hx)
+* CHANGED: Do not show prompt for path to Haxe dialog if 'std' folder was found
 
 0.3.4
 -----------

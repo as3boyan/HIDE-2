@@ -21,7 +21,7 @@ class SettingsWatcher
 	
 	public static function load():Void 
 	{
-		Watcher.watchFileForUpdates("settings.json", parse, 3000);
+		Watcher.watchFileForUpdates(Node.path.join("config","settings.json"), parse, 3000);
 		
 		parse();
 		
@@ -40,7 +40,7 @@ class SettingsWatcher
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
 		
-		var data:String = Node.fs.readFileSync("settings.json", options);
+		var data:String = Node.fs.readFileSync(Node.path.join("config","settings.json"), options);
 		settings = TJSON.parse(data);
 		
 		ThemeWatcher.load();

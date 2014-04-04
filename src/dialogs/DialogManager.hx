@@ -13,11 +13,16 @@ class DialogManager
 		browseFolderDialog =  new BrowseFolderDialog();
 	}
 	
-	public static function showBrowseFolderDialog(title:String, onComplete:String->Void, defaultValue:String):Void
+	public static function showBrowseFolderDialog(title:String, onComplete:String->Void, ?defaultValue:String = ""):Void
 	{
 		browseFolderDialog.setTitle(title);
 		browseFolderDialog.setCallback(onComplete);
 		browseFolderDialog.setDefaultValue(defaultValue);
 		browseFolderDialog.show();
+	}
+	
+	public static function hide():Void 
+	{
+		browseFolderDialog.hide();
 	}
 }

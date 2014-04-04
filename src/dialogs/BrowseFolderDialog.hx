@@ -53,8 +53,6 @@ class BrowseFolderDialog extends ModalDialog
 			{
 				onComplete(input.value);
 			}
-			
-			hide();
 		};
 		
 		getFooter().appendChild(okButton);

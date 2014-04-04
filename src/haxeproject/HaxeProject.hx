@@ -4,8 +4,10 @@ import core.Splitter;
 import filetree.FileTree;
 import js.Browser;
 import js.html.TextAreaElement;
+import js.Node;
 import mustache.Mustache;
 import newprojectdialog.NewProjectDialog;
+import openproject.OpenProject;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
 import projectaccess.ProjectOptions;
@@ -98,7 +100,7 @@ class HaxeProject
 			{
 				if (error != null)
 				{
-					trace(error);
+					Alertify.error(error);
 				}
 				
 				js.Node.fs.exists(pathToMain, function (exists:Bool):Void
@@ -192,15 +194,7 @@ class HaxeProject
 				
 				ProjectAccess.currentProject = project;
 				
-				ProjectAccess.save(function ()
-				{
-					FileTree.load(project.name, pathToProject);
-				}
-				);
-				
-				ProjectOptions.updateProjectOptions();
-				
-				Splitter.show();
+				ProjectAccess.save(OpenProject.openProject.bind(path));
 			});
 		}
 		);

@@ -7,6 +7,7 @@ import js.html.ScriptElement;
 import js.Node;
 import mustache.Mustache;
 import nodejs.webkit.Window;
+import pluginloader.PluginManager;
 
 /**
  * ...
@@ -17,26 +18,9 @@ import nodejs.webkit.Window;
  //Using this API plugins can load JS and CSS scripts in specified order 
  //To use it in plugins you may need to add path to externs for this class, they are located at externs/plugins/hide
 
-typedef PluginDependenciesData =
-{
-	var name:String;
-	var plugins:Array<String>;
-	var onLoaded:Void->Void;
-	var callOnLoadWhenAtLeastOnePluginLoaded:Bool;
-}
-
 @:keepSub @:expose class HIDE
-{	
-	public static var plugins:Array<String> = new Array();
-	public static var pathToPlugins:StringMap<String> = new StringMap();
-	public static var inactivePlugins:Array<String> = [];
-	
-	public static var requestedPluginsData:Array<PluginDependenciesData> = new Array();
-	
-	public static var pluginsMTime:StringMap<Int> = new StringMap();
-	
-	public static var windows:Array<Dynamic> = [];
-	public static var firstRun:Bool = false;
+{		
+	public static var windows:Array<Window> = [];
 	
 	//Loads JS scripts in specified order and calls onLoad function when last item of urls array was loaded
 	public static function loadJS(name:String, urls:Array<String>, ?onLoad:Dynamic):Void
@@ -45,7 +29,7 @@ typedef PluginDependenciesData =
 		{
 			for (i in 0...urls.length)
 			{
-				urls[i] = js.Node.path.join(getPluginPath(name), urls[i]);
+				urls[i] = Node.path.join(getPluginPath(name), urls[i]);
 			}
 		}
 
@@ -107,7 +91,7 @@ typedef PluginDependenciesData =
 	
 	public static function getPluginPath(name:String):String
 	{
-		var pathToPlugin:String = pathToPlugins.get(name);
+		var pathToPlugin:String = PluginManager.pathToPlugins.get(name);
 				
 		if (pathToPlugin == null)
 		{
@@ -119,17 +103,12 @@ typedef PluginDependenciesData =
 	
 	public static function waitForDependentPluginsToBeLoaded(name:String, plugins:Array<String>, onLoaded:Void->Void, ?callOnLoadWhenAtLeastOnePluginLoaded:Bool = false):Void
 	{	
-		var data:PluginDependenciesData = { name:name, plugins:plugins, onLoaded:onLoaded, callOnLoadWhenAtLeastOnePluginLoaded:callOnLoadWhenAtLeastOnePluginLoaded };
-		requestedPluginsData.push(data);
-		checkRequiredPluginsData();
-        
+		PluginManager.waitForDependentPluginsToBeLoaded(name, plugins, onLoaded, callOnLoadWhenAtLeastOnePluginLoaded);
 	}
 	
 	public static function notifyLoadingComplete(name:String):Void
 	{
-		//trace("Object " + name);
-		plugins.push(name);
-		checkRequiredPluginsData();
+		PluginManager.notifyLoadingComplete(name);
 	}
 	
 	public static function openPageInNewWindow(name:String, url:String, ?params:Dynamic):Dynamic
@@ -156,35 +135,7 @@ typedef PluginDependenciesData =
 
 	public static function compilePlugins(?onComplete:Dynamic, ?onFailed:Dynamic):Void
 	{
-		var pluginCount:Int = Lambda.count(HIDE.pathToPlugins);
-		var compiledPluginCount:Int = 0;
-
-		var relativePathToPlugin:String;
-		var absolutePathToPlugin:String;
-
-		if (pluginCount > 0) 
-		{
-			for (name in HIDE.pathToPlugins.keys())
-			{
-				relativePathToPlugin = HIDE.pathToPlugins.get(name);
-				absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
-
-				Main.compilePlugin(name, absolutePathToPlugin, function ():Void
-				{
-					compiledPluginCount++;
-
-					if (compiledPluginCount == pluginCount)
-					{
-						onComplete();
-					}
-				}
-				, onFailed);
-			}
-		}
-		else 
-		{
-			onComplete();
-		}
+		PluginManager.compilePlugins(onComplete, onFailed);
 	}
 	
 	public static function readFile(name:String, path:String, onComplete:Dynamic):Void
@@ -196,7 +147,7 @@ typedef PluginDependenciesData =
 		
 		if (name != null) 
 		{
-			fullPath = js.Node.path.join(pathToPlugins.get(name), path);
+			fullPath = Node.path.join(PluginManager.pathToPlugins.get(name), path);
 		}
 		
 		js.Node.fs.readFile(fullPath, options, function (error:js.Node.NodeErr, data:String):Void
@@ -215,7 +166,7 @@ typedef PluginDependenciesData =
 	
 	public static function writeFile(name:String, path:String, contents:String, ?onComplete:Dynamic):Void
 	{
-		js.Node.fs.writeFile(js.Node.path.join(pathToPlugins.get(name), path), contents, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
+		Node.fs.writeFile(Node.path.join(PluginManager.pathToPlugins.get(name), path), contents, NodeC.UTF8, function (error:NodeErr)
 		{
 			if (onComplete != null && error == null)
 			{
@@ -228,98 +179,6 @@ typedef PluginDependenciesData =
 	public static function surroundWithQuotes(path:String):String
 	{
 		return '"' + path + '"';
-	}
-	
-	static function checkRequiredPluginsData():Void
-	{		
-		if (requestedPluginsData.length > 0)
-		{
-			var pluginData:PluginDependenciesData;
-		
-			var j:Int = 0;
-			while (j < requestedPluginsData.length)
-			{
-				pluginData = requestedPluginsData[j];
-				
-				var pluginsLoaded:Bool;
-				
-				if (pluginData.callOnLoadWhenAtLeastOnePluginLoaded == false)
-				{
-					pluginsLoaded = Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
-					{
-						return Lambda.has(HIDE.plugins, plugin);
-					}
-					);
-				}
-				else 
-				{
-					pluginsLoaded = !Lambda.foreach(pluginData.plugins, function (plugin:String):Bool
-					{
-						return !Lambda.has(HIDE.plugins, plugin);
-					}
-					);
-				}
-				
-				if (pluginsLoaded)
-				{
-					requestedPluginsData.splice(j, 1);
-					trace(pluginData.name);
-					pluginData.onLoaded();
-				}
-				else 
-				{
-					j++;
-				}
-			}
-		}
-		
-		if (Lambda.count(pathToPlugins) == plugins.length)
-		{			
-			trace("all plugins loaded");
-			
-			var delta:Float = Date.now().getTime() - Main.currentTime;
-			
-			trace("Loading took: " + Std.string(delta) + " ms");
-			
-			var options:js.Node.NodeFsFileOptions = { };
-			options.encoding = js.Node.NodeC.UTF8;
-			js.Node.fs.readFile("../.travis.yml.template", options, function(error, data:String):Void
-			{
-				if (data != null)
-				{
-					var updatedData:String = Mustache.render(data, {plugins: Main.pluginsTestingData});
-
-					js.Node.fs.writeFile("../.travis.yml", updatedData,js.Node.NodeC.UTF8, function(error):Void
-					{
-						trace(".travis.yml was updated according to active plugins list");
-					}
-					);
-					
-				}
-				else
-				{
-					trace(error);
-				}
-			}
-			);
-			
-			savePluginsMTime();
-			
-			//Main.window.show();
-		}
-	}
-	
-	public static function savePluginsMTime() 
-	{
-		var pathToPluginsMTime:String = js.Node.path.join("..", "pluginsMTime.dat");
-			
-		var data:String = Serializer.run(HIDE.pluginsMTime);
-		
-		js.Node.fs.writeFile(pathToPluginsMTime, data, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr)
-		{
-			
-		}
-		);
 	}
 	
 	//Private function which loads JS scripts in strict order

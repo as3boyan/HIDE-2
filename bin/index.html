@@ -90,6 +90,13 @@
             $('#thirdNested').jqxSplitter({ width: '100%', height: '100%',  orientation: 'horizontal', panels: [{ size: '85%', collapsible: false}] });
             $("#tabs2").jqxTabs({  height: '100%', width: '100%' });
             $("#tabs1").jqxTabs({  height: '100%', width: '100%' });
+			
+			var source = [
+				label: "Test"
+			];
+			
+			$('#jqxTree').jqxTree({ source: source, width: '100%', height: '100%'});
+            $('#jqxTree').jqxTree('selectItem', null);
         });
     </script>
     
@@ -109,7 +116,9 @@
     <!--                File tree panel-->
                     <div id="filetree"></div>
     <!--                Outline panel-->
-                    <div id="outline"></div>
+                    <div id="outline">
+						<div id="jqxTree"></div>
+					</div>
                 </div>
             </div>
             <div>

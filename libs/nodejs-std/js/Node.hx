@@ -38,19 +38,19 @@ typedef NodeWatchOpt = {
 };
 
 typedef NodeExecOpt = {
-	var encoding:String;
-	var timeout:Int;
-	var maxBuffer:Int;
-	var killSignal:String;
-	var env:Dynamic;
-	var cwd:String;
+	@:optional var encoding:String;
+	@:optional var timeout:Int;
+	@:optional var maxBuffer:Int;
+	@:optional var killSignal:String;
+	@:optional var env:Dynamic;
+	@:optional var cwd:String;
 }
 
 typedef NodeSpawnOpt = {
-	var cwd:String;
-	var env:Dynamic;
-	var customFds:Array<Int>;
-	var setsid:Bool;
+	@:optional var cwd:String;
+	@:optional var env:Dynamic;
+	@:optional var customFds:Array<Int>;
+	@:optional var setsid:Bool;
 }
 
 /* note:can't spec multiple optional args, so adding an arbitrary 3 */

@@ -1,5 +1,6 @@
 package parser;
 import core.ProcessHelper;
+import core.Utils;
 import dialogs.BrowseFolderDialog;
 import dialogs.DialogManager;
 import dialogs.ModalDialog;
@@ -18,57 +19,89 @@ import watchers.LocaleWatcher;
  */
 class ClasspathWalker
 {
-	public static var pathToHaxe:String;
+	public static var pathToHaxeStd:String;
 	
 	public static function load():Void 
 	{
 		var localStorage2 = Browser.getLocalStorage();
 		
+		var paths:Array<String> = [Node.process.env.HAXEPATH, Node.process.env.HAXE_STD_PATH, Node.process.env.HAXE_HOME];
+		
 		if (localStorage2 != null) 
 		{
-			pathToHaxe = localStorage2.getItem("pathToHaxe");
+			paths.insert(0, localStorage2.getItem("pathToHaxe"));
 		}
 		
-		if (pathToHaxe == null) 
+		switch (Utils.os) 
 		{
-			pathToHaxe = Node.process.env.HAXEPATH;
-			
-			if (pathToHaxe == null) 
+			case Utils.WINDOWS:
+				paths.push("C:/HaxeToolkit/haxe");
+			case Utils.LINUX, Utils.MAC:
+				paths.push("/usr/lib/haxe");
+			default:
+				
+		}
+		
+		for (envVar in paths)
+		{
+			if (envVar != null) 
 			{
-				pathToHaxe = Node.process.env.HAXE_STD_PATH;
+				pathToHaxeStd = getHaxeStdFolder(envVar);
 				
-				if (pathToHaxe != null) 
+				if (pathToHaxeStd != null) 
 				{
-					pathToHaxe = Node.path.dirname(pathToHaxe);
+					localStorage2.setItem("pathToHaxe", pathToHaxeStd);
+					break;
 				}
-				
-				//pathToHaxe = Node.process.env.HAXE_HOME;
 			}
-			
+		}
+		
+		if (pathToHaxeStd == null) 
+		{
 			DialogManager.showBrowseFolderDialog("Please specify path to Haxe compiler(parent folder of std): ", function (path:String):Void 
 			{
-				var pathToHaxeStd = Node.path.join(path, "std");
+				pathToHaxeStd = getHaxeStdFolder(path);
 				
-				Node.fs.exists(pathToHaxeStd, function (exists:Bool):Void 
+				if (pathToHaxeStd != null) 
 				{
-					if (exists) 
-					{
-						parseClasspath(pathToHaxe, true);
-						localStorage2.setItem("pathToHaxe", pathToHaxe);
-					}
-					else 
-					{
-						Alertify.error(LocaleWatcher.getStringSync("Can't find 'std' folder in specified path"));
-					}
+					parseClasspath(pathToHaxeStd, true);
+					localStorage2.setItem("pathToHaxe", pathToHaxeStd);
+					DialogManager.hide();
 				}
-				);
-			}, pathToHaxe);
+				else 
+				{
+					Alertify.error(LocaleWatcher.getStringSync("Can't find 'std' folder in specified path"));
+				}
+			});
 		}
 		else 
 		{
-			pathToHaxe = Node.path.join(pathToHaxe, "std");
-			parseClasspath(pathToHaxe, true);
+			parseClasspath(pathToHaxeStd, true);
 		}
+	}
+	
+	static function getHaxeStdFolder(path:String):String
+	{
+		var pathToStd:String = null;
+		
+		if (Node.fs.existsSync(path)) 
+		{
+			if (Node.fs.existsSync(Node.path.join(path, "Std.hx"))) 
+			{
+				pathToStd = path;
+			}
+			else 
+			{
+				path = Node.path.join(path, "std");
+				
+				if (Node.fs.existsSync(path))
+				{
+					pathToStd = getHaxeStdFolder(path);
+				}
+			}
+		}
+		
+		return pathToStd;
 	}
 	
 	public static function parseProjectArguments():Void 
@@ -106,7 +139,7 @@ class ClasspathWalker
 		walkProjectFolder(ProjectAccess.currentProject.path);
 	}
 	
-	private static function getClasspaths(data:Array<String>)
+	static function getClasspaths(data:Array<String>)
 	{
 		var classpaths:Array<String> = [];
 		
@@ -123,17 +156,14 @@ class ClasspathWalker
 		
 		var libs:Array<String> = parseArg(data, "-lib");
 		
-		processHaxelibs(libs, function (path:String):Void 
-		{
-			parseClasspath(path);
-		});
+		processHaxelibs(libs, parseClasspath);
 	}
 	
-	static function processHaxelibs(libs:Array<String>, onPath:String->Void):Void 
+	static function processHaxelibs(libs:Array<String>, onPath:String->Bool->Void):Void 
 	{		
 		for (arg in libs) 
 		{
-			ProcessHelper.runProcess("haxelib", ["path", arg], function (stdout:String, stderr:String):Void 
+			ProcessHelper.runProcess("haxelib", ["path", arg], null, function (stdout:String, stderr:String):Void 
 			{
 				for (path in stdout.split("\n")) 
 				{
@@ -146,7 +176,7 @@ class ClasspathWalker
 						{
 							if (exists) 
 							{
-								onPath(path);
+								onPath(path, false);
 							}
 						}
 						);

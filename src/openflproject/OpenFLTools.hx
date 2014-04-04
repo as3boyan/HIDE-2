@@ -1,4 +1,5 @@
 package openflproject;
+import core.ProcessHelper;
 import js.Browser;
 import js.html.TextAreaElement;
 
@@ -8,45 +9,35 @@ import js.html.TextAreaElement;
  */
 @:keepSub @:expose class OpenFLTools
 {	
-	static var processStdout:String;
-	static var processStderr:String;
-	
 	public static function getParams(path:String, target:String, onLoaded:String->Void):Void
 	{
-		processStdout = "";
-		processStderr = "";
-		
-		var openFLTools:js.Node.NodeChildProcess = js.Node.child_process.exec(["haxelib", "run", "openfl", "display", target].join(" "), { cwd: path }, function (error, stdout, stderr)
+		ProcessHelper.runProcess("haxelib", ["run", "openfl", "display", target], path, function (stdout:String, stderr:String):Void 
 		{
-			processStdout = stdout;
-			processStderr = stderr;
-		}
-		);
-		
-		openFLTools.on("close", function (code:Int)
+			//onComplete
+			
+			if (onLoaded != null)
+			{
+				onLoaded(stdout);
+			}
+			
+			printStderr(stderr);
+			
+		}, function (code:Int, stdout:String, stderr:String):Void 
 		{
-			trace('OpenFL tools process exit code ' + code);
+			//onFailed
 			
-			var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
-			textarea.value += "OUTPUT: " + processStdout;
+			Alertify.error("OpenFL tools error. Please update OpenFL.(haxelib upgrade)");
+			Alertify.error("OpenFL tools process exit code " + code);
 			
-			if (processStderr != "")
-			{
-				textarea.value += "ERROR: " + processStderr;
-			}			
-			
-			if (code == 0)
-			{
-				if (onLoaded != null)
-				{
-					onLoaded(processStdout);
-				}
-			}
-			else 
-			{
-				Alertify.error("OpenFL tools cannot parse project.xml. Update OpenFL.");
-			}
+			printStderr(stderr);
+		}); 
+	}
+	
+	static function printStderr(stderr:String)
+	{
+		if (stderr != "")
+		{
+			Alertify.error("OpenFL tools stderr: " + stderr);
 		}
-		);
 	}
 }

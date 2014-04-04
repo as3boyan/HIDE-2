@@ -13,7 +13,7 @@ class MetaTags
 	{
 		completions = [];
 		
-		ProcessHelper.runProcess("haxe", ["--help-metas"], function (stdout:String, stderr:String):Void 
+		ProcessHelper.runProcess("haxe", ["--help-metas"], null, function (stdout:String, stderr:String):Void 
 		{
 			var regex:EReg = ~/@:[A-Z]+ /gim;
 			regex.map(stdout, function (ereg:EReg):String

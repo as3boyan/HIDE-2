@@ -30,7 +30,7 @@ typedef Hotkey =
 	
 	public static function prepare():Void
 	{
-		pathToData = "hotkeys.json";
+		pathToData = Node.path.join("config","hotkeys.json");
 		parseData();
 		
 		var options:NodeWatchOpt = { };

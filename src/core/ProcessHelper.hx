@@ -18,13 +18,20 @@ import tabmanager.TabManager;
 	static var processStdout:String;
 	static var processStderr:String;
 	
-	public static function runProcess(process:String, params:Array<String>, onComplete:String->String->Void, ?onFailed:Int->String->String->Void):NodeChildProcess
+	public static function runProcess(process:String, params:Array<String>, path:String, onComplete:String->String->Void, ?onFailed:Int->String->String->Void):NodeChildProcess
 	{		
 		var command:String = process + " " + params.join(" ");
 		
 		//trace(command);
 		
-		var process:NodeChildProcess = Node.child_process.exec(command, { }, function (error, stdout:String, stderr:String):Void
+		var options:NodeExecOpt = { };
+		
+		if (path != null) 
+		{
+			options.cwd = path;
+		}
+		
+		var process:NodeChildProcess = Node.child_process.exec(command, options, function (error, stdout:String, stderr:String):Void
 		{			
 			//if (stdout != "")
 			//{

@@ -26,7 +26,7 @@ class Hxml
 	
 	static function getArguments(onComplete:Dynamic)
 	{
-		ProcessHelper.runProcess("haxe", ["--help"], function (stdout:String, stderr:String):Void 
+		ProcessHelper.runProcess("haxe", ["--help"], null, function (stdout:String, stderr:String):Void 
 		{
 			var regex:EReg = ~/-+[A-Z-]+ /gim;
 			regex.map(stderr, function (ereg:EReg):String
@@ -43,7 +43,7 @@ class Hxml
 	
 	static function getDefines(onComplete:Dynamic)
 	{
-		ProcessHelper.runProcess("haxe", ["--help-defines"], function (stdout:String, stderr:String):Void 
+		ProcessHelper.runProcess("haxe", ["--help-defines"], null, function (stdout:String, stderr:String):Void 
 		{
 			var regex:EReg = ~/[A-Z-]+ +:/gim;
 			regex.map(stdout, function (ereg:EReg):String
@@ -60,7 +60,7 @@ class Hxml
 	
 	static function getHaxelibList()
 	{
-		ProcessHelper.runProcess("haxelib", ["list"], function (stdout:String, stderr:String):Void 
+		ProcessHelper.runProcess("haxelib", ["list"], null, function (stdout:String, stderr:String):Void 
 		{
 			var regex:EReg = ~/^[A-Z-]+:/gim;
 			regex.map(stdout, function (ereg:EReg):String

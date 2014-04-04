@@ -33,7 +33,7 @@ interface MenuItem
 	var li:LIElement;
 	public var position:Int;
 	
-	public function new(_menu:String, _text:String, _onClickFunction:Dynamic, ?_hotkey:String = "")
+	public function new(_menu:String, _text:String, _onClickFunction:Dynamic, ?_hotkey:String = "", ?_submenu:Bool = false)
 	{		
 		var hotkeyText:String = _hotkey;
 		
@@ -50,8 +50,17 @@ interface MenuItem
 		
 		var a:AnchorElement = Browser.document.createAnchorElement();
 		a.style.left = "0";
-		a.textContent = LocaleWatcher.getStringSync(_text);
-		a.setAttribute("localeString", _text);
+		
+		//Do not translate submenu items
+		if (!_submenu)
+		{
+			a.textContent = LocaleWatcher.getStringSync(_text);
+			a.setAttribute("localeString", _text);
+		}
+		else 
+		{
+			a.textContent = _text;
+		}
 		
 		if (_onClickFunction != null) 
 		{
@@ -158,7 +167,7 @@ interface MenuItem
 	
 	public function addMenuItem(_text:String, _position:Int, _onClickFunction:Dynamic, ?_hotkey:String):Void
 	{
-		var menuButtonItem:MenuButtonItem = new MenuButtonItem(parentMenu + "->" + name, _text, _onClickFunction, _hotkey);
+		var menuButtonItem:MenuButtonItem = new MenuButtonItem(parentMenu + "->" + name, _text, _onClickFunction, _hotkey, true);
 		ul.appendChild(menuButtonItem.getElement());
 	}
 	

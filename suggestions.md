@@ -108,7 +108,10 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Show do not installed warning in hxml
 * Parse hxml
 * Make themes for editor
-* Check hotkeys for Mac OS
+* Check hotkeys for Mac OS(check os, and fix replacing Ctrl to Cmd)
+* Download and install Haxe
+* Check and refactor code for Haxe server(if not found, then download and install)
+* Add notification for errors
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

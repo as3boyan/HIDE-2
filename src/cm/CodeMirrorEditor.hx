@@ -38,7 +38,7 @@ class CodeMirrorEditor
 		
 		try 
 		{
-			options = TJSON.parse(Node.fs.readFileSync("editor.json", readFileOptions));
+			options = TJSON.parse(Node.fs.readFileSync(Node.path.join("config","editor.json"), readFileOptions));
 		}
 		catch (err:Error)
 		{

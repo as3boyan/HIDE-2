@@ -1,5 +1,6 @@
 package autoformat;
 import cm.CodeMirrorEditor;
+import js.Node;
 import menu.BootstrapMenu;
 import tabmanager.TabManager;
 
@@ -26,11 +27,7 @@ class HaxePrinterLoader
 		}
 		, "Ctrl-Shift-F");
 		
-		BootstrapMenu.getMenu("Options").addMenuItem("Open autoformat configuration file", 1, function ()
-		{
-			TabManager.openFileInNewTab("autoformat.json");
-		}
-		);
+		BootstrapMenu.getMenu("Options").addMenuItem("Open autoformat configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","autoformat.json")));
 	}
 	
 }
