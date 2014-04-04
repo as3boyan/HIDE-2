@@ -7,10 +7,7 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Generate CSS and JS scripts embed code for folders
 * Autoformat on change
 * Autorebuild on change
-* Remove Tern(reuse code from hide-future to manage completion and function parameters hints)
 * Show history of recently opened/build hxmls
-* Moved CSS of UI elements to theme.css, added command to open theme.css stylesheet to customize visual look of UI in HIDE itself(open theme.css file, and update visual look on file save, similar to hotkeys management).
-* Options : Open templates folder
 * Options : Open snippets configuration file
 * Configure autoformat using config.json
 * Hide panes when no project was opened(hide project options for hxml files)
@@ -100,16 +97,18 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Hotkeys to hide/show panels
 * Find in files
 * FD theme
-* Hxml mode
 * Lower case first char of path on Windows
 * Fix removing dist file with --no-output
 * Calculate indents based on brackets
 * HaxeParserProvider: check if pos is null
 * Adjust ":" completion for typedefs
-* Show list libs for hxml completion
 * Show multiple function declaration
-* Imports completion
 * Function description in completion
+* Check if hxml is in proper format
+* Show do not installed warning in hxml
+* Parse hxml
+* Make themes for editor
+* Check hotkeys for Mac OS
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

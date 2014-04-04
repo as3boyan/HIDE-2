@@ -14,7 +14,7 @@ class CreateOpenFLProject
 	
 	public static function createOpenFLProject(params:Array<String>, path:String, ?onComplete:Dynamic):Void
 	{	
-		var args = ["haxelib", "run", "openfl", "create"].concat(params).join(" ");
+		var args = ["haxelib", "run", "lime-tools", "create"].concat(params).join(" ");
 		
 		trace(args);
 		

@@ -58,7 +58,7 @@ class OpenFLProject
 				str = data.projectPackage + ".";
 			}
 			
-			params = ["project", "\"" + str + data.projectName + "\""];
+			params = ["openfl:project", "\"" + str + data.projectName + "\""];
 			
 			if (data.projectCompany != "")
 			{
@@ -104,9 +104,9 @@ class OpenFLProject
 		//project.target = target;
 		project.openFLTarget = "flash";
 		project.path = pathToProject;
-		project.buildActionCommand = ["haxelib", "run", "openfl", "build", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
+		project.buildActionCommand = ["haxelib", "run", "lime-tools", "build", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
 		project.runActionType = Project.COMMAND;
-		project.runActionText = ["haxelib", "run", "openfl", "run", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
+		project.runActionText = ["haxelib", "run", "lime-tools", "run", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
 		
 		ProjectAccess.currentProject = project;
 		

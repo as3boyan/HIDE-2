@@ -1537,7 +1537,6 @@ completion.Hxml.getDefines = function(onComplete) {
 };
 completion.Hxml.getHaxelibList = function() {
 	core.ProcessHelper.runProcess("haxelib",["list"],function(stdout,stderr) {
-		console.log(stdout);
 		var regex = new EReg("^[A-Z-]+:","gim");
 		regex.map(stdout,function(ereg) {
 			var str = ereg.matched(0);
@@ -1599,55 +1598,57 @@ core.Completion.__name__ = ["core","Completion"];
 core.Completion.registerHelper = function() {
 	completion.Hxml.load();
 	completion.MetaTags.load();
-	CodeMirror.registerHelper("hint","haxe",function(cm1,options) {
-		core.Completion.word = null;
-		core.Completion.range = null;
-		if(options != null && options.range != null) core.Completion.range = options.range; else if(core.Completion.RANGE != null) core.Completion.range = core.Completion.RANGE;
-		core.Completion.getCurrentWord(cm1,options);
-		core.Completion.list = new Array();
-		var _g = core.Completion.completionType;
-		switch(_g[1]) {
-		case 0:
-			var _g1 = 0;
-			var _g2 = core.Completion.completions;
-			while(_g1 < _g2.length) {
-				var completion1 = _g2[_g1];
-				++_g1;
-				core.Completion.list.push({ text : completion1.n});
-			}
-			break;
-		case 4:
-			core.Completion.list = completion.MetaTags.getCompletion();
-			break;
-		case 3:
-			core.Completion.list = completion.Hxml.getCompletion();
-			break;
-		case 1:
-			var _g11 = 0;
-			var _g21 = parser.ClassParser.filesList;
-			while(_g11 < _g21.length) {
-				var item = _g21[_g11];
-				++_g11;
-				core.Completion.list.push({ text : item, hint : core.Completion.openFile});
-			}
-			break;
-		case 2:
-			var _g12 = 0;
-			var _g22 = parser.ClassParser.classList;
-			while(_g12 < _g22.length) {
-				var item1 = _g22[_g12];
-				++_g12;
-				core.Completion.list.push({ text : item1});
-			}
-			break;
-		}
-		core.Completion.list = completion.Filter.filter(core.Completion.list,core.Completion.curWord);
-		var data = { list : core.Completion.list, from : { line : core.Completion.cur.line, ch : core.Completion.start}, to : { line : core.Completion.cur.line, ch : core.Completion.end}};
-		return data;
-	});
-	cm.CodeMirrorEditor.editor.on("startCompletion",function(cm1) {
+	CodeMirror.registerHelper("hint","haxe",core.Completion.getHints);
+	CodeMirror.registerHelper("hint","hxml",core.Completion.getHints);
+	cm.CodeMirrorEditor.editor.on("startCompletion",function(cm) {
 		if(core.Completion.completionType == core.CompletionType.FILELIST) core.Completion.backupDocValue = tabmanager.TabManager.getCurrentDocument().getValue();
 	});
+};
+core.Completion.getHints = function(cm,options) {
+	core.Completion.word = null;
+	core.Completion.range = null;
+	if(options != null && options.range != null) core.Completion.range = options.range; else if(core.Completion.RANGE != null) core.Completion.range = core.Completion.RANGE;
+	core.Completion.getCurrentWord(cm,options);
+	core.Completion.list = new Array();
+	var _g = core.Completion.completionType;
+	switch(_g[1]) {
+	case 0:
+		var _g1 = 0;
+		var _g2 = core.Completion.completions;
+		while(_g1 < _g2.length) {
+			var completion1 = _g2[_g1];
+			++_g1;
+			core.Completion.list.push({ text : completion1.n});
+		}
+		break;
+	case 4:
+		core.Completion.list = completion.MetaTags.getCompletion();
+		break;
+	case 3:
+		core.Completion.list = completion.Hxml.getCompletion();
+		break;
+	case 1:
+		var _g11 = 0;
+		var _g21 = parser.ClassParser.filesList;
+		while(_g11 < _g21.length) {
+			var item = _g21[_g11];
+			++_g11;
+			core.Completion.list.push({ text : item, hint : core.Completion.openFile});
+		}
+		break;
+	case 2:
+		var _g12 = 0;
+		var _g22 = parser.ClassParser.classList;
+		while(_g12 < _g22.length) {
+			var item1 = _g22[_g12];
+			++_g12;
+			core.Completion.list.push({ text : item1});
+		}
+		break;
+	}
+	core.Completion.list = completion.Filter.filter(core.Completion.list,core.Completion.curWord);
+	var data = { list : core.Completion.list, from : { line : core.Completion.cur.line, ch : core.Completion.start}, to : { line : core.Completion.cur.line, ch : core.Completion.end}};
+	return data;
 };
 core.Completion.openFile = function(cm,data,completion) {
 	var path = completion.text;
@@ -1747,7 +1748,7 @@ core.Completion.showFileList = function() {
 		cm.CodeMirrorEditor.regenerateCompletionOnDot = false;
 		core.Completion.WORD = new EReg("[A-Z\\.]+$","i");
 		core.Completion.completionType = core.CompletionType.FILELIST;
-		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null);
+		CodeMirror.showHint(cm.CodeMirrorEditor.editor,core.Completion.getHints);
 	}
 };
 core.Completion.showClassList = function(ignoreWhitespace) {
@@ -3280,7 +3281,7 @@ filetree.FileTree.createDirectoryElement = function(text,path) {
 };
 filetree.FileTree.readDir = function(path,topElement) {
 	js.Node.require("fs").readdir(path,function(error,files) {
-		if(files != null) {
+		if(error == null && files != null) {
 			var foldersCount = 0;
 			var _g = 0;
 			while(_g < files.length) {
@@ -12552,7 +12553,7 @@ openflproject.CreateOpenFLProject = function() { };
 $hxClasses["openflproject.CreateOpenFLProject"] = openflproject.CreateOpenFLProject;
 openflproject.CreateOpenFLProject.__name__ = ["openflproject","CreateOpenFLProject"];
 openflproject.CreateOpenFLProject.createOpenFLProject = function(params,path,onComplete) {
-	var args = ["haxelib","run","openfl","create"].concat(params).join(" ");
+	var args = ["haxelib","run","lime-tools","create"].concat(params).join(" ");
 	console.log(args);
 	var OpenFLTools = js.Node.require("child_process").exec(args,{ cwd : path},function(error,stdout,stderr) {
 		console.log(stderr);
@@ -12584,7 +12585,7 @@ openflproject.OpenFLProject.createOpenFLProject = function(data,sample) {
 	if(!sample) {
 		var str = "";
 		if(data.projectPackage != "") str = Std.string(data.projectPackage) + ".";
-		params = ["project","\"" + str + Std.string(data.projectName) + "\""];
+		params = ["openfl:project","\"" + str + Std.string(data.projectName) + "\""];
 		if(data.projectCompany != "") params.push("\"" + Std.string(data.projectCompany) + "\"");
 	} else params = [data.projectName];
 	openflproject.CreateOpenFLProject.createOpenFLProject(params,data.projectLocation,function() {
@@ -12609,9 +12610,9 @@ openflproject.OpenFLProject.createProject = function(data) {
 	project.type = 1;
 	project.openFLTarget = "flash";
 	project.path = pathToProject;
-	project.buildActionCommand = ["haxelib","run","openfl","build","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
+	project.buildActionCommand = ["haxelib","run","lime-tools","build","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
 	project.runActionType = 2;
-	project.runActionText = ["haxelib","run","openfl","run","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
+	project.runActionText = ["haxelib","run","lime-tools","run","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
 	projectaccess.ProjectAccess.currentProject = project;
 	openflproject.OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
 		var args = [];
@@ -13606,6 +13607,9 @@ tabmanager.TabManager.getMode = function(path) {
 	var mode = "haxe";
 	var _g = js.Node.require("path").extname(path);
 	switch(_g) {
+	case ".hxml":
+		mode = "hxml";
+		break;
 	case ".js":
 		mode = "javascript";
 		break;

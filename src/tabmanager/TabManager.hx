@@ -347,6 +347,8 @@ import watchers.LocaleWatcher;
 				
 		switch (js.Node.path.extname(path)) 
 		{
+			case ".hxml":
+					mode = "hxml";
 			case ".js":
 					mode = "javascript";
 			case ".css":

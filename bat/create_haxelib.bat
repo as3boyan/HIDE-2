@@ -1,5 +1,7 @@
 del HIDE.zip
-7z a -r HIDE.zip bin haxelib.json
+cd ../bin
+7z a -r ../bat/HIDE.zip
+cd ../bat
 haxelib submit HIDE.zip
 del HIDE.zip
 pause

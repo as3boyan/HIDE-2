@@ -57,54 +57,8 @@ class Completion
 		Hxml.load();
 		MetaTags.load();
 		
-		CodeMirror.registerHelper("hint", "haxe", function(cm:CodeMirror, options) {			
-			word = null;
-			
-			range = null;
-			
-			if (options != null && options.range != null)
-			{
-				range = options.range;
-			}
-			else if (RANGE != null)
-			{
-				range = RANGE;
-			}
-			
-			getCurrentWord(cm, options);
-
-			list = new Array();
-			
-			switch (completionType) 
-			{
-				case REGULAR:
-					for (completion in completions) 
-					{
-						list.push( { text: completion.n } );
-					}
-				case METATAGS:
-					list = MetaTags.getCompletion();
-				case HXML:
-					list = Hxml.getCompletion();
-				case FILELIST:
-					for (item in ClassParser.filesList) 
-					{
-						list.push( { text: item, hint: openFile} );
-					}
-				case CLASSLIST:
-					for (item in ClassParser.classList) 
-					{
-						list.push( { text: item} );
-					}
-				default:
-					
-			}
-			
-			list = Filter.filter(list, curWord);
-			
-			var data:Dynamic = { list: list, from: {line:cur.line, ch:start}, to: {line:cur.line, ch:end} };
-			return data;
-		});
+		CodeMirror.registerHelper("hint", "haxe", getHints);
+		CodeMirror.registerHelper("hint", "hxml", getHints);
 		
 		CodeMirrorEditor.editor.on("startCompletion", function (cm:CodeMirror):Void 
 		{
@@ -114,6 +68,56 @@ class Completion
 			}
 		}
 		);
+	}
+	
+	static function getHints(cm:CodeMirror, options)
+	{		
+		word = null;
+		
+		range = null;
+		
+		if (options != null && options.range != null)
+		{
+			range = options.range;
+		}
+		else if (RANGE != null)
+		{
+			range = RANGE;
+		}
+		
+		getCurrentWord(cm, options);
+
+		list = new Array();
+		
+		switch (completionType) 
+		{
+			case REGULAR:
+				for (completion in completions) 
+				{
+					list.push( { text: completion.n } );
+				}
+			case METATAGS:
+				list = MetaTags.getCompletion();
+			case HXML:
+				list = Hxml.getCompletion();
+			case FILELIST:
+				for (item in ClassParser.filesList) 
+				{
+					list.push( { text: item, hint: openFile} );
+				}
+			case CLASSLIST:
+				for (item in ClassParser.classList) 
+				{
+					list.push( { text: item} );
+				}
+			default:
+				
+		}
+		
+		list = Filter.filter(list, curWord);
+		
+		var data:Dynamic = { list: list, from: {line:cur.line, ch:start}, to: {line:cur.line, ch:end} };
+		return data;
 	}
 	
 	static function openFile(cm:CodeMirror, data:Dynamic, completion:Dynamic)
@@ -311,8 +315,7 @@ class Completion
 			CodeMirrorEditor.regenerateCompletionOnDot = false;
 			WORD = ~/[A-Z\.]+$/i;
 			completionType = FILELIST;
-			//CodeMirrorEditor.editor.execCommand("autocomplete");
-			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null);
+			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, getHints);
 		}
 	}
 	

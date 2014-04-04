@@ -1,3 +1,9 @@
+0.3.5
+-----------
+
+* ADDED: Hxml syntax highlighting mode
+* CHANGED: Show file list(Ctrl-Shift-O) for any file(previously worked only for *.hxml and *.hx)
+
 0.3.4
 -----------
 
@@ -51,6 +57,8 @@
 * ADDED: show class list(Ctrl-Shift-P)
 * ADDED: welcome screen
 * ADDED: completion for hxml
+* ADDED: imports completion(same as show class list)
+* ADDED: show installed lib list in hxml completion
 * UPDATED: CodeMirror to v4
 
 0.3.3

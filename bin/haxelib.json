@@ -1,6 +1,6 @@
 {
     "name": "HIDE",
-    "url" : "https://github.com/misterpah/HIDE/tree/master",
+    "url" : "https://github.com/as3boyan/HIDE/",
     "license": "MIT",
     "tags": ["IDE", "node-webkit", "desktop", "html5"],
     "description": "HIDE - cross platform extensible IDE for Haxe",

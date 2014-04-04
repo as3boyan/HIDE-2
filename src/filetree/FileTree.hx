@@ -117,7 +117,7 @@ import tabmanager.TabManager;
 	{
 		js.Node.fs.readdir(path, function (error:js.Node.NodeErr, files:Array<String>):Void
 		{			
-			if (files != null)
+			if (error == null && files != null)
 			{
 				var foldersCount:Int = 0;
 			
