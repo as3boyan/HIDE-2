@@ -33,15 +33,32 @@ class HaxeProject
 			NewProjectDialog.getCategory("Haxe").addItem("Java Project", createJavaProject);
 			NewProjectDialog.getCategory("Haxe").addItem("C# Project", createCSharpProject);
 			
-			HIDE.readFile(null, "templates/Main.hx", function (data:String):Void
-			{				
-				code = data;
+			var options:NodeFsFileOptions = { };
+			options.encoding = NodeC.UTF8;
+			
+			Node.fs.readFile("templates/Main.hx", options, function (error:NodeErr, data:String):Void
+			{
+				if (error == null) 
+				{
+					code = data;
+				}
+				else 
+				{
+					Alertify.error("Can't load template " + "templates/Main.hx");
+				}
 			}
 			);
 			
-			HIDE.readFile(null, "templates/index.html", function (data:String):Void
+			Node.fs.readFile("templates/index.html", options, function (error:NodeErr, data:String):Void
 			{
-				indexPageCode = data;
+				if (error == null) 
+				{
+					indexPageCode = data;
+				}
+				else 
+				{
+					Alertify.error("Can't load template " + "templates/index.html");
+				}
 			}
 			);
 	}

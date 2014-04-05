@@ -1,13 +1,14 @@
 package ;
 
+import core.RecentProjectsList;
 import core.Splitter;
 import core.WelcomeScreen;
 import dialogs.DialogManager;
 import jQuery.JQuery;
 import about.About;
 import autoformat.HaxePrinterLoader;
-import cm.CodeMirrorEditor;
-import cm.CodeMirrorZoom;
+import cm.Editor;
+import cm.Zoom;
 import core.CompilationOutput;
 import core.Completion;
 import core.DragAndDrop;
@@ -61,6 +62,12 @@ class Main
 		{
 			trace(err);
 			
+			//window.on("loaded", function ():Void 
+			//{
+				//window.show();
+			//}
+			//);
+			
 			//if (!window.isDevToolsOpen()) 
 			//{
 				
@@ -82,14 +89,14 @@ class Main
 			BootstrapMenu.createMenuBar();
 			NewProjectDialog.load();
 			MenuCommands.add();
-			CodeMirrorZoom.load();
+			Zoom.load();
 			About.addToMenu();
 			FileTree.init();
 			ProjectOptions.create();
 			FileDialog.create();
 			TabManager.load();
 			HaxeLint.load();
-			CodeMirrorEditor.load();
+			Editor.load();
 			Completion.registerHelper();
 			
 			HaxePrinterLoader.load();
@@ -103,6 +110,7 @@ class Main
 			
 			CompilationOutput.load();
 			
+			RecentProjectsList.load();
 			OpenProject.searchForLastProject();
 			DragAndDrop.prepare();
 			ClasspathWalker.load();

@@ -1,6 +1,6 @@
 package parser;
 import byte.ByteData;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import haxe.ds.StringMap.StringMap;
 import haxe.macro.Expr.Access;
 import haxe.macro.Expr.Field;

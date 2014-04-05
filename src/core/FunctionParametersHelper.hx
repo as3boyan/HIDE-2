@@ -1,5 +1,5 @@
 package core;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import core.Completion.CompletionItem;
 import js.Browser;
 import js.html.DivElement;
@@ -36,7 +36,7 @@ class FunctionParametersHelper
 			msg.appendChild(spanDescription);
 		}
 		
-		var widget = CodeMirrorEditor.editor.addLineWidget(lineNumber, msg, { coverGutter: false, noHScroll: true } );
+		var widget = Editor.editor.addLineWidget(lineNumber, msg, { coverGutter: false, noHScroll: true } );
 		widgets.push(widget);
 		
 		lines.push(lineNumber);
@@ -49,12 +49,12 @@ class FunctionParametersHelper
 	
 	public static function updateScroll():Void
 	{
-		var info = CodeMirrorEditor.editor.getScrollInfo();
-		var after = CodeMirrorEditor.editor.charCoords( { line: CodeMirrorEditor.editor.getCursor().line + 1, ch: 0 }, "local").top;
+		var info = Editor.editor.getScrollInfo();
+		var after = Editor.editor.charCoords( { line: Editor.editor.getCursor().line + 1, ch: 0 }, "local").top;
 		
 		if (info.top + info.clientHeight < after)
 		{
-			CodeMirrorEditor.editor.scrollTo(null, after - info.clientHeight + 3);
+			Editor.editor.scrollTo(null, after - info.clientHeight + 3);
 		}
 	}
 	
@@ -62,7 +62,7 @@ class FunctionParametersHelper
 	{
 		for (widget in widgets) 
 		{
-			CodeMirrorEditor.editor.removeLineWidget(widget);
+			Editor.editor.removeLineWidget(widget);
 		}
 		
 		lines = [];

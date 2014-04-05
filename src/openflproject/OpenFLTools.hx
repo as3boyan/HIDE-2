@@ -11,7 +11,7 @@ import js.html.TextAreaElement;
 {	
 	public static function getParams(path:String, target:String, onLoaded:String->Void):Void
 	{
-		ProcessHelper.runProcess("haxelib", ["run", "openfl", "display", target], path, function (stdout:String, stderr:String):Void 
+		ProcessHelper.runProcess("haxelib", ["run", "lime", "display", target], path, function (stdout:String, stderr:String):Void 
 		{
 			//onComplete
 			
@@ -26,7 +26,7 @@ import js.html.TextAreaElement;
 		{
 			//onFailed
 			
-			Alertify.error("OpenFL tools error. Please update OpenFL.(haxelib upgrade)");
+			Alertify.error("OpenFL tools error. OpenFL may be not installed. Please update OpenFL.(haxelib upgrade)");
 			Alertify.error("OpenFL tools process exit code " + code);
 			
 			printStderr(stderr);

@@ -112,6 +112,9 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Download and install Haxe
 * Check and refactor code for Haxe server(if not found, then download and install)
 * Add notification for errors
+* Prevent getting completion from Haxe more than one time(if no completion found for it) for function parameters hint
+* Fix match brackets
+* Split RunProject to multiple classes
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

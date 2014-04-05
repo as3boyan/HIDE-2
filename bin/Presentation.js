@@ -776,7 +776,7 @@ watchers.LocaleWatcher.__name__ = true;
 watchers.LocaleWatcher.load = function() {
 	if(watchers.LocaleWatcher.watcher != null) watchers.LocaleWatcher.watcher.close();
 	watchers.LocaleWatcher.parse();
-	watchers.Watcher.watchFileForUpdates(watchers.SettingsWatcher.settings.locale,function() {
+	watchers.Watcher.watchFileForUpdates(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),function() {
 		watchers.LocaleWatcher.parse();
 		watchers.LocaleWatcher.processHtmlElements();
 	},1000);
@@ -791,7 +791,7 @@ watchers.LocaleWatcher.load = function() {
 watchers.LocaleWatcher.parse = function() {
 	var options = { };
 	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync(watchers.SettingsWatcher.settings.locale,options);
+	var data = js.Node.require("fs").readFileSync(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),options);
 	watchers.LocaleWatcher.localeData = tjson.TJSON.parse(data);
 };
 watchers.LocaleWatcher.getStringSync = function(name) {
@@ -799,7 +799,7 @@ watchers.LocaleWatcher.getStringSync = function(name) {
 	if(Object.prototype.hasOwnProperty.call(watchers.LocaleWatcher.localeData,name)) value = Reflect.field(watchers.LocaleWatcher.localeData,name); else {
 		watchers.LocaleWatcher.localeData[name] = name;
 		var data = tjson.TJSON.encode(watchers.LocaleWatcher.localeData,"fancy");
-		js.Node.require("fs").writeFileSync(watchers.SettingsWatcher.settings.locale,data,"utf8");
+		js.Node.require("fs").writeFileSync(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),data,"utf8");
 	}
 	return value;
 };
@@ -819,7 +819,7 @@ watchers.LocaleWatcher.processHtmlElements = function() {
 watchers.SettingsWatcher = function() { };
 watchers.SettingsWatcher.__name__ = true;
 watchers.SettingsWatcher.load = function() {
-	watchers.Watcher.watchFileForUpdates("settings.json",watchers.SettingsWatcher.parse,3000);
+	watchers.Watcher.watchFileForUpdates(js.Node.require("path").join("config","settings.json"),watchers.SettingsWatcher.parse,3000);
 	watchers.SettingsWatcher.parse();
 	nodejs.webkit.Window.get().on("close",function(e) {
 		if(watchers.SettingsWatcher.watcher != null) watchers.SettingsWatcher.watcher.close();
@@ -828,7 +828,7 @@ watchers.SettingsWatcher.load = function() {
 watchers.SettingsWatcher.parse = function() {
 	var options = { };
 	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync("settings.json",options);
+	var data = js.Node.require("fs").readFileSync(js.Node.require("path").join("config","settings.json"),options);
 	watchers.SettingsWatcher.settings = tjson.TJSON.parse(data);
 	watchers.ThemeWatcher.load();
 	watchers.LocaleWatcher.load();

@@ -1,5 +1,5 @@
 package core;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import haxe.ds.StringMap;
 import jQuery.JQuery;
 import js.Browser;
@@ -70,11 +70,6 @@ import tabmanager.TabManager;
 		var process:NodeChildProcess = runPersistentProcess(process, params, function (code:Int, stdout:String, stderr:String):Void 
 		{
 			processOutput(code, processStdout, processStderr, onComplete);
-			
-			if (code == 0) 
-			{
-				onComplete();
-			}
 		}
 		);
 		
@@ -139,7 +134,7 @@ import tabmanager.TabManager;
 						{
 							TabManager.openFileInNewTab(fullPath, true, function ():Void 
 							{
-								var cm:Dynamic = CodeMirrorEditor.editor;
+								var cm:Dynamic = Editor.editor;
 								cm.centerOnLine(lineNumber);
 							});
 							
@@ -173,7 +168,7 @@ import tabmanager.TabManager;
 				onComplete();
 			}
 			
-			new JQuery("#buildStatus").fadeIn();
+			new JQuery("#buildStatus").fadeIn(250);
 		}
 		else 
 		{
@@ -184,14 +179,16 @@ import tabmanager.TabManager;
 			//trace(command);
 			textarea.value += "Build failed (exit code: " + Std.string(code) +  ")\n" ;
 			
-			new JQuery("#buildStatus").fadeOut();
+			new JQuery("#buildStatus").fadeOut(250);
 		}
 		
 		HaxeLint.updateLinting();
 	}
 	
-	public static function runPersistentProcess(process:String, params:Array<String>, ?onClose:Int->String->String->Void):NodeChildProcess
+	public static function runPersistentProcess(process:String, params:Array<String>, ?onClose:Int->String->String->Void, ?redirectToOutput:Bool = false):NodeChildProcess
 	{
+		var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
+		
 		processStdout = "";
 		processStderr = "";
 		
@@ -201,6 +198,11 @@ import tabmanager.TabManager;
 		process.stdout.on("data", function (data:String)
 		{
 			processStdout += data;
+			
+			if (redirectToOutput) 
+			{
+				textarea.value += data;
+			}
 		}
 		);
 		
@@ -208,6 +210,11 @@ import tabmanager.TabManager;
 		process.stderr.on("data", function (data:String)
 		{
 			processStderr += data;
+			
+			if (redirectToOutput) 
+			{
+				textarea.value += data;
+			}
 		}
 		);
 		

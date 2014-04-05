@@ -1,5 +1,5 @@
 package core;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import CodeMirror;
 import completion.Filter;
 import completion.Hxml;
@@ -60,7 +60,7 @@ class Completion
 		CodeMirror.registerHelper("hint", "haxe", getHints);
 		CodeMirror.registerHelper("hint", "hxml", getHints);
 		
-		CodeMirrorEditor.editor.on("startCompletion", function (cm:CodeMirror):Void 
+		Editor.editor.on("startCompletion", function (cm:CodeMirror):Void 
 		{
 			if (completionType == FILELIST) 
 			{
@@ -180,7 +180,7 @@ class Completion
 			
 			projectArguments.push("--display");
 			
-			var cm:CodeMirror = CodeMirrorEditor.editor;
+			var cm:CodeMirror = Editor.editor;
 			cur = _pos;
 			
 			if (_pos == null) 
@@ -281,10 +281,10 @@ class Completion
 	{
 		if (isEditorVisible()) 
 		{
-			CodeMirrorEditor.regenerateCompletionOnDot = true;
+			Editor.regenerateCompletionOnDot = true;
 			WORD = ~/[A-Z]+$/i;
 			completionType = REGULAR;
-			CodeMirrorEditor.editor.execCommand("autocomplete");
+			Editor.editor.execCommand("autocomplete");
 		}
 	}
 	
@@ -294,7 +294,7 @@ class Completion
 		{
 			WORD = ~/[A-Z@:]+$/i;
 			completionType = METATAGS;
-			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: untyped __js__("/[\\s()\\[\\]{};>,]/") } );
+			CodeMirrorStatic.showHint(Editor.editor, null, { closeCharacters: untyped __js__("/[\\s()\\[\\]{};>,]/") } );
 		}
 	}
 	
@@ -304,7 +304,7 @@ class Completion
 		{
 			WORD = ~/[A-Z- ]+$/i;
 			completionType = HXML;
-			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: untyped __js__("/[()\\[\\]{};:>,]/") } );
+			CodeMirrorStatic.showHint(Editor.editor, null, { closeCharacters: untyped __js__("/[()\\[\\]{};:>,]/") } );
 		}
 	}
 	
@@ -312,10 +312,10 @@ class Completion
 	{
 		if (isEditorVisible()) 
 		{
-			CodeMirrorEditor.regenerateCompletionOnDot = false;
+			Editor.regenerateCompletionOnDot = false;
 			WORD = ~/[A-Z\.]+$/i;
 			completionType = FILELIST;
-			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, getHints);
+			CodeMirrorStatic.showHint(Editor.editor, getHints);
 		}
 	}
 	
@@ -323,7 +323,7 @@ class Completion
 	{
 		if (isEditorVisible()) 
 		{
-			CodeMirrorEditor.regenerateCompletionOnDot = false;
+			Editor.regenerateCompletionOnDot = false;
 			WORD = ~/[A-Z\.]+$/i;
 			completionType = CLASSLIST;
 			
@@ -334,7 +334,7 @@ class Completion
 				closeCharacters = untyped __js__("/[()\\[\\]{};>,]/");
 			}
 			
-			CodeMirrorStatic.showHint(CodeMirrorEditor.editor, null, { closeCharacters: closeCharacters  } );
+			CodeMirrorStatic.showHint(Editor.editor, null, { closeCharacters: closeCharacters  } );
 		}
 	}
 }

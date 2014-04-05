@@ -122,7 +122,7 @@ class ClasspathWalker
 					var path:String = Node.path.join(ProjectAccess.currentProject.path, ProjectAccess.currentProject.main);
 					
 					var options:js.Node.NodeFsFileOptions = { };
-					options.encoding = js.Node.NodeC.UTF8;
+					options.encoding = NodeC.UTF8;
 					
 					var data:String = Node.fs.readFileSync(path, options);
 					getClasspaths(data.split("\n"));

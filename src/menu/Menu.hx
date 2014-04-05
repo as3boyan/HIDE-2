@@ -43,7 +43,10 @@ interface MenuItem
 		span.style.color = "silver";
 		span.style.float = "right";
 		
-		Hotkeys.add(menuItem, hotkeyText, span, _onClickFunction);
+		if (!_submenu) 
+		{
+			Hotkeys.add(menuItem, hotkeyText, span, _onClickFunction);
+		}
 		
 		li = Browser.document.createLIElement();	
 		li.classList.add("menu-item");
@@ -141,22 +144,25 @@ interface MenuItem
 			// If a menu is already open we close it
 			//$('ul.dropdown-menu [data-toggle=dropdown]').parent().removeClass('open');
 			// opening the one you clicked on
-			
-			li2.classList.add('open');
+				
+			if (ul.childElementCount > 0) 
+			{
+				li2.classList.add('open');
 
-			var menu:UListElement = ul;
-			var newpos:Int;
-			
-			if ((menu.offsetLeft + menu.clientWidth) + 30 > Browser.window.innerWidth) 
-			{
-				newpos = -menu.clientWidth;
+				var menu:UListElement = ul;
+				var newpos:Int;
+				
+				if ((menu.offsetLeft + menu.clientWidth) + 30 > Browser.window.innerWidth) 
+				{
+					newpos = -menu.clientWidth;
+				}
+				else 
+				{
+					newpos = li2.clientWidth;
+				}
+				
+				menu.style.left = Std.string(newpos) + "px";
 			}
-			else 
-			{
-				newpos = li2.clientWidth;
-			}
-			
-			menu.style.left = Std.string(newpos) + "px";
 		}
 		
 		li2.appendChild(a2);
@@ -169,6 +175,14 @@ interface MenuItem
 	{
 		var menuButtonItem:MenuButtonItem = new MenuButtonItem(parentMenu + "->" + name, _text, _onClickFunction, _hotkey, true);
 		ul.appendChild(menuButtonItem.getElement());
+	}
+	
+	public function clear():Void 
+	{
+		while (ul.firstChild != null) 
+		{
+			ul.removeChild(ul.firstChild);
+		}
 	}
 	
 	public function getElement():Element
@@ -268,6 +282,7 @@ interface MenuItem
 	{
 		var submenu = new Submenu(name, _text);
 		ul.appendChild(submenu.getElement());
+		submenus.set(_text, submenu);
 		return submenu;
 	}
 	

@@ -49,16 +49,16 @@ class ColorPreview
 				left = pos.left;
 				preview.style.backgroundColor = "#" + color;
 				new JQuery(preview).animate( {left: Std.string(pos.left) + "px", top: Std.string(pos.bottom) + "px" } );
-				new JQuery(preview).fadeIn();
+				new JQuery(preview).fadeIn(250);
 			}
 			else 
 			{
-				new JQuery(preview).fadeOut();
+				new JQuery(preview).fadeOut(250);
 			}
 		}
 		else 
 		{
-			new JQuery(preview).fadeOut();
+			new JQuery(preview).fadeOut(250);
 		}
 	}
 	
@@ -73,7 +73,7 @@ class ColorPreview
 			var point = newTop - new JQuery().scrollTop();
 			if (point <= editor.top || point >= editor.bottom)
 			{
-				new JQuery(preview).fadeOut();
+				new JQuery(preview).fadeOut(250);
 				return;
 			}
 			

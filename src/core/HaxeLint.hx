@@ -1,5 +1,5 @@
 package core;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import haxe.ds.StringMap.StringMap;
 import tabmanager.TabManager;
 
@@ -48,8 +48,8 @@ class HaxeLint
 	
 	public static function updateLinting():Void
 	{
-		CodeMirrorEditor.editor.setOption("lint", false);
-		CodeMirrorEditor.editor.setOption("lint", true);
+		Editor.editor.setOption("lint", false);
+		Editor.editor.setOption("lint", true);
 	}
 	
 }

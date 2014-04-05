@@ -1,5 +1,6 @@
 package openproject;
 import core.FileDialog;
+import core.RecentProjectsList;
 import core.Splitter;
 import filetree.FileTree;
 import haxe.Serializer;
@@ -22,11 +23,18 @@ import tjson.TJSON;
  */
 class OpenProject
 {	
-	public static function openProject(?pathToProject:String):Void
+	public static function openProject(?pathToProject:String, ?project:Bool = false):Void
 	{
 		if (pathToProject == null)
 		{
-			FileDialog.openFile(parseProject);
+			if (project) 
+			{
+				FileDialog.openFile(parseProject, ".json,.xml,.hxml");
+			}
+			else 
+			{
+				FileDialog.openFile(parseProject);
+			}
 		}
 		else 
 		{
@@ -36,7 +44,7 @@ class OpenProject
 	
 	private static function checkIfFileExists(path:String):Void
 	{
-		js.Node.fs.exists(path, function (exists:Bool)
+		Node.fs.exists(path, function (exists:Bool)
 		{
 			if (exists) 
 			{
@@ -54,20 +62,19 @@ class OpenProject
 	{	
 		trace("open: " + path);
 		
-		var filename:String = js.Node.path.basename(path);
+		var filename:String = Node.path.basename(path);
 			
 		switch (filename) 
 		{
 			case "project.json":
-				var options:js.Node.NodeFsFileOptions = { };
-				options.encoding = js.Node.NodeC.UTF8;
+				var options:NodeFsFileOptions = { };
+				options.encoding = NodeC.UTF8;
 				
-				js.Node.fs.readFile(path, options, function (error:js.Node.NodeErr, data:String):Void
+				Node.fs.readFile(path, options, function (error:js.Node.NodeErr, data:String):Void
 				{
 					var pathToProject:String = js.Node.path.dirname(path);
 					
-					//ProjectAccess.currentProject = Node.parse(data);
-					ProjectAccess.currentProject = TJSON.parse(data);
+					ProjectAccess.currentProject = parseProjectData(data);
 					ProjectAccess.currentProject.path = pathToProject;
 					
 					if (ProjectAccess.currentProject.type == Project.HXML) 
@@ -118,6 +125,7 @@ class OpenProject
 					Splitter.show();
 					
 					Browser.getLocalStorage().setItem("pathToLastProject", path);
+					RecentProjectsList.add(path);
 				}
 				);
 			case "project.xml", "application.xml":
@@ -162,6 +170,7 @@ class OpenProject
 					Splitter.show();
 					
 					Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
+					RecentProjectsList.add(pathToProjectHide);
 				}
 				);
 			default:				
@@ -195,6 +204,7 @@ class OpenProject
 							Splitter.show();
 							
 							Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
+							RecentProjectsList.add(pathToProjectHide);
 						//}
 						//);
 					//case ".hx":
@@ -223,6 +233,24 @@ class OpenProject
 		ProjectAccess.currentProject.path = null;
 		Splitter.hide();
 		Browser.getLocalStorage().removeItem("pathToLastProject");
+	}
+	
+	static function parseProjectData(data:String):Project
+	{		
+		var project:Project = null;
+		
+		try 
+		{
+			project = TJSON.parse(data);
+		}
+		catch (unknown:Dynamic)
+		{
+			trace(unknown);
+			trace(data);
+			project = Node.parse(data);
+		}
+		
+		return project;
 	}
 	
 }

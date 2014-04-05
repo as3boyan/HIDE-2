@@ -36,7 +36,7 @@ class Splitter
 			
 			untyped new JQuery('#thirdNested').jqxSplitter('expand');
 			untyped new JQuery('#thirdNested').jqxSplitter( { showSplitBar: true } );
-			new JQuery("#annotationRuler").fadeIn();
+			new JQuery("#annotationRuler").fadeIn(250);
 			
 			WelcomeScreen.hide();
 		}
@@ -63,7 +63,7 @@ class Splitter
 		//untyped new JQuery('#thirdNested').jqxSplitter('disable');
 		untyped new JQuery('#thirdNested').jqxSplitter( { resizable: false } );
 		untyped new JQuery('#thirdNested').jqxSplitter( { showSplitBar: false } );
-		new JQuery("#annotationRuler").fadeOut();
+		new JQuery("#annotationRuler").fadeOut(250);
 		
 		if (TabManager.tabMap != null && TabManager.tabMap.getTabs().length == 0) 
 		{

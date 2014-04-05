@@ -20,7 +20,8 @@ var EReg = function(r,opt) {
 $hxClasses["EReg"] = EReg;
 EReg.__name__ = ["EReg"];
 EReg.prototype = {
-	match: function(s) {
+	r: null
+	,match: function(s) {
 		if(this.r.global) this.r.lastIndex = 0;
 		this.r.m = this.r.exec(s);
 		this.r.s = s;
@@ -295,7 +296,10 @@ var List = function() {
 $hxClasses["List"] = List;
 List.__name__ = ["List"];
 List.prototype = {
-	add: function(item) {
+	h: null
+	,q: null
+	,length: null
+	,add: function(item) {
 		var x = [item];
 		if(this.h == null) this.h = x; else this.q[1] = x;
 		this.q = x;
@@ -353,14 +357,14 @@ Main.main = function() {
 		menu.BootstrapMenu.createMenuBar();
 		newprojectdialog.NewProjectDialog.load();
 		core.MenuCommands.add();
-		cm.CodeMirrorZoom.load();
+		cm.Zoom.load();
 		about.About.addToMenu();
 		filetree.FileTree.init();
 		projectaccess.ProjectOptions.create();
 		core.FileDialog.create();
 		tabmanager.TabManager.load();
 		core.HaxeLint.load();
-		cm.CodeMirrorEditor.load();
+		cm.Editor.load();
 		core.Completion.registerHelper();
 		autoformat.HaxePrinterLoader.load();
 		core.RunProject.load();
@@ -368,6 +372,7 @@ Main.main = function() {
 		haxeproject.HaxeProject.load();
 		openflproject.OpenFLProject.load();
 		core.CompilationOutput.load();
+		core.RecentProjectsList.load();
 		openproject.OpenProject.searchForLastProject();
 		core.DragAndDrop.prepare();
 		parser.ClasspathWalker.load();
@@ -399,6 +404,11 @@ Main.checkHaxeInstalled = function(onSuccess,onFailed) {
 var IMap = function() { };
 $hxClasses["IMap"] = IMap;
 IMap.__name__ = ["IMap"];
+IMap.prototype = {
+	get: null
+	,keys: null
+	,__class__: IMap
+};
 Math.__name__ = ["Math"];
 var Reflect = function() { };
 $hxClasses["Reflect"] = Reflect;
@@ -464,7 +474,8 @@ var StringBuf = function() {
 $hxClasses["StringBuf"] = StringBuf;
 StringBuf.__name__ = ["StringBuf"];
 StringBuf.prototype = {
-	add: function(x) {
+	b: null
+	,add: function(x) {
 		this.b += Std.string(x);
 	}
 	,addSub: function(s,pos,len) {
@@ -544,6 +555,10 @@ ValueType.TUnknown.__enum__ = ValueType;
 var Type = function() { };
 $hxClasses["Type"] = Type;
 Type.__name__ = ["Type"];
+Type.getClass = function(o) {
+	if(o == null) return null;
+	if((o instanceof Array) && o.__enum__ == null) return Array; else return o.__class__;
+};
 Type.getClassName = function(c) {
 	var a = c.__name__;
 	return a.join(".");
@@ -601,6 +616,13 @@ Type.createEnum = function(e,constr,params) {
 	}
 	if(params != null && params.length != 0) throw "Constructor " + constr + " does not need parameters";
 	return f;
+};
+Type.getInstanceFields = function(c) {
+	var a = [];
+	for(var i in c.prototype) a.push(i);
+	HxOverrides.remove(a,"__class__");
+	HxOverrides.remove(a,"__properties__");
+	return a;
 };
 Type.getEnumConstructs = function(e) {
 	var a = e.__constructs__;
@@ -689,7 +711,13 @@ Xml.createDocument = function() {
 	return r;
 };
 Xml.prototype = {
-	get_nodeName: function() {
+	nodeType: null
+	,_nodeName: null
+	,_nodeValue: null
+	,_attributes: null
+	,_children: null
+	,_parent: null
+	,get_nodeName: function() {
 		if(this.nodeType != Xml.Element) throw "bad nodeType";
 		return this._nodeName;
 	}
@@ -766,12 +794,12 @@ Xml.prototype = {
 		var s = new StringBuf();
 		if(this.nodeType == Xml.Element) {
 			s.b += "<";
-			s.b += this._nodeName;
+			s.b += Std.string(this._nodeName);
 			var $it0 = this._attributes.keys();
 			while( $it0.hasNext() ) {
 				var k = $it0.next();
 				s.b += " ";
-				s.b += k;
+				if(k == null) s.b += "null"; else s.b += "" + k;
 				s.b += "=\"";
 				s.add(this._attributes.get(k));
 				s.b += "\"";
@@ -789,7 +817,7 @@ Xml.prototype = {
 		}
 		if(this.nodeType == Xml.Element) {
 			s.b += "</";
-			s.b += this._nodeName;
+			s.b += Std.string(this._nodeName);
 			s.b += ">";
 		}
 		return s.b;
@@ -837,10 +865,10 @@ autoformat.HaxePrinterLoader.__name__ = ["autoformat","HaxePrinterLoader"];
 autoformat.HaxePrinterLoader.load = function() {
 	menu.BootstrapMenu.getMenu("Source",3).addMenuItem("Autoformat",1,function() {
 		if(js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath()) == ".hx") {
-			var data = cm.CodeMirrorEditor.editor.getValue();
+			var data = cm.Editor.editor.getValue();
 			if(data != "") {
 				data = autoformat.HaxePrinter.formatSource(data);
-				cm.CodeMirrorEditor.editor.setValue(data);
+				cm.Editor.editor.setValue(data);
 			}
 		}
 	},"Ctrl-Shift-F");
@@ -900,11 +928,84 @@ byte.js._ByteData.ByteData_Impl_.ofString = function(s) {
 	return a;
 };
 var cm = {};
-cm.CodeMirrorEditor = function() { };
-$hxClasses["cm.CodeMirrorEditor"] = cm.CodeMirrorEditor;
-cm.CodeMirrorEditor.__name__ = ["cm","CodeMirrorEditor"];
-cm.CodeMirrorEditor.load = function() {
-	cm.CodeMirrorEditor.regenerateCompletionOnDot = true;
+cm.ColorPreview = function() { };
+$hxClasses["cm.ColorPreview"] = cm.ColorPreview;
+cm.ColorPreview.__name__ = ["cm","ColorPreview"];
+cm.ColorPreview.create = function(cm1) {
+	var _this = window.document;
+	cm.ColorPreview.preview = _this.createElement("div");
+	cm.ColorPreview.preview.className = "colorPreview";
+	cm.ColorPreview.preview.style.display = "none";
+	window.document.body.appendChild(cm.ColorPreview.preview);
+	cm.ColorPreview.startScroll = cm1.getScrollInfo();
+};
+cm.ColorPreview.update = function(cm1) {
+	var word = core.Completion.getCurrentWord(cm1,{ word : new EReg("[A-Fx0-9#]+$","i")},cm1.getCursor());
+	var color = null;
+	if(word != null && word.length > 2) {
+		if(StringTools.startsWith(word,"0x")) color = HxOverrides.substr(word,2,null); else if(StringTools.startsWith(word,"#")) color = HxOverrides.substr(word,1,null);
+		if(color != null) {
+			cm.ColorPreview.startScroll = cm1.getScrollInfo();
+			var pos = cm1.cursorCoords(null);
+			cm.ColorPreview.top = pos.bottom;
+			cm.ColorPreview.left = pos.left;
+			cm.ColorPreview.preview.style.backgroundColor = "#" + color;
+			new $(cm.ColorPreview.preview).animate({ left : (pos.left == null?"null":"" + pos.left) + "px", top : (pos.bottom == null?"null":"" + pos.bottom) + "px"});
+			new $(cm.ColorPreview.preview).fadeIn(250);
+		} else new $(cm.ColorPreview.preview).fadeOut(250);
+	} else new $(cm.ColorPreview.preview).fadeOut(250);
+};
+cm.ColorPreview.scroll = function(cm1) {
+	if(cm.ColorPreview.preview.style.display != "none") {
+		var curScroll = cm1.getScrollInfo();
+		var editor = cm1.getWrapperElement().getBoundingClientRect();
+		var newTop = cm.ColorPreview.top + cm.ColorPreview.startScroll.top - curScroll.top;
+		var point = newTop - new $().scrollTop();
+		if(point <= editor.top || point >= editor.bottom) {
+			new $(cm.ColorPreview.preview).fadeOut(250);
+			return;
+		}
+		cm.ColorPreview.preview.style.top = newTop + "px";
+		cm.ColorPreview.preview.style.left = cm.ColorPreview.left + cm.ColorPreview.startScroll.left - curScroll.left + "px";
+	}
+};
+cm.ERegPreview = function() { };
+$hxClasses["cm.ERegPreview"] = cm.ERegPreview;
+cm.ERegPreview.__name__ = ["cm","ERegPreview"];
+cm.ERegPreview.update = function(cm) {
+	var lineData = cm.getLine(cm.getCursor().line);
+	var ereg = new EReg("~/(.)+/[gimsu]+","");
+	var foundEreg = null;
+	var foundEregOptions = null;
+	if(ereg.match(lineData)) {
+		var str = ereg.matched(0);
+		str = StringTools.trim(HxOverrides.substr(str,2,str.length - 2));
+		var index = str.lastIndexOf("/");
+		foundEreg = HxOverrides.substr(str,0,index);
+		foundEregOptions = HxOverrides.substr(str,index + 1,null);
+	}
+	var _g = 0;
+	var _g1 = cm.getAllMarks();
+	while(_g < _g1.length) {
+		var marker = _g1[_g];
+		++_g;
+		marker.clear();
+	}
+	if(foundEreg != null) {
+		var ereg1 = new EReg(foundEreg,foundEregOptions);
+		ereg1.map(cm.getValue(),function(matchedEreg) {
+			var pos = cm.posFromIndex(matchedEreg.matchedPos().pos);
+			var pos2 = cm.posFromIndex(matchedEreg.matchedPos().pos + matchedEreg.matchedPos().len);
+			cm.markText(pos,pos2,{ className : "showRegex"});
+			return "";
+		});
+	}
+};
+cm.Editor = function() { };
+$hxClasses["cm.Editor"] = cm.Editor;
+cm.Editor.__name__ = ["cm","Editor"];
+cm.Editor.load = function() {
+	cm.Editor.regenerateCompletionOnDot = true;
 	var readFileOptions = { };
 	readFileOptions.encoding = "utf8";
 	var options = { };
@@ -915,21 +1016,21 @@ cm.CodeMirrorEditor.load = function() {
 			console.log(err);
 		} else throw(err);
 	}
-	cm.CodeMirrorEditor.walk(options);
-	options.extraKeys = { 'Ctrl-Space' : cm.CodeMirrorEditor.triggerCompletion, 'Ctrl-Q' : "toggleComment", '.' : (function($this) {
+	cm.Editor.walk(options);
+	options.extraKeys = { 'Ctrl-Space' : cm.Editor.triggerCompletion, 'Ctrl-Q' : "toggleComment", '.' : (function($this) {
 		var $r;
 		var passAndHint = function(cm1) {
 			setTimeout(function() {
-				cm.CodeMirrorEditor.triggerCompletion(cm1,true);
+				cm.Editor.triggerCompletion(cm1,true);
 			},100);
 			return CodeMirror.Pass;
 		};
 		$r = passAndHint;
 		return $r;
 	}(this))};
-	cm.CodeMirrorEditor.editor = CodeMirror.fromTextArea(window.document.getElementById("code"),options);
-	new $("#editor").hide();
-	cm.CodeMirrorEditor.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"],cm.CodeMirrorEditor.loadTheme);
+	cm.Editor.editor = CodeMirror.fromTextArea(window.document.getElementById("code"),options);
+	new $("#editor").hide(250);
+	cm.Editor.loadThemes(["3024-day","3024-night","ambiance","base16-dark","base16-light","blackboard","cobalt","eclipse","elegant","erlang-dark","lesser-dark","midnight","monokai","neat","night","paraiso-dark","paraiso-light","rubyblue","solarized","the-matrix","tomorrow-night-eighties","twilight","vibrant-ink","xq-dark","xq-light"],cm.Editor.loadTheme);
 	var value = "";
 	var map = CodeMirror.keyMap.sublime;
 	var mapK = CodeMirror.keyMap["sublime-Ctrl-K"];
@@ -947,41 +1048,40 @@ cm.CodeMirrorEditor.load = function() {
 		++_g2;
 		if(key1 != "auto" && key1 != "nofallthrough") value += "  \"Ctrl-K " + key1 + "\": \"" + Std.string(Reflect.field(mapK,key1)) + "\",\n";
 	}
-	console.log(cm.CodeMirrorEditor.editor);
+	console.log(cm.Editor.editor);
 	js.Node.require("fs").writeFileSync("bindings.txt",value,"utf8");
 	window.addEventListener("resize",function(e) {
 		core.Helper.debounce("resize",function() {
-			cm.CodeMirrorEditor.editor.refresh();
+			cm.Editor.editor.refresh();
 		},100);
-		cm.CodeMirrorEditor.resize();
+		haxe.Timer.delay(cm.Editor.resize,50);
 	});
 	new $("#thirdNested").on("resize",null,function(event) {
 		var panels = event.args.panels;
-		cm.CodeMirrorEditor.resize();
+		cm.Editor.resize();
 	});
-	cm.ColorPreview.create(cm.CodeMirrorEditor.editor);
-	cm.CodeMirrorEditor.editor.on("cursorActivity",function(cm3) {
-		core.Helper.debounce("cursorActivity",(function(f,cm2) {
-			return function() {
-				return f(cm2);
-			};
-		})(core.FunctionParametersHelper.update,cm3),100);
-		cm.ColorPreview.update(cm.CodeMirrorEditor.editor);
+	cm.ColorPreview.create(cm.Editor.editor);
+	cm.Editor.editor.on("cursorActivity",function(cm2) {
+		core.Helper.debounce("cursorActivity",function() {
+			core.FunctionParametersHelper.update(cm2);
+			cm.ColorPreview.update(cm2);
+			cm.ERegPreview.update(cm2);
+		},100);
 	});
-	cm.CodeMirrorEditor.editor.on("scroll",function(cm3) {
-		cm.ColorPreview.scroll(cm.CodeMirrorEditor.editor);
+	cm.Editor.editor.on("scroll",function(cm3) {
+		cm.ColorPreview.scroll(cm.Editor.editor);
 	});
 	var timer = null;
 	var basicTypes = ["Array","Map","StringMap"];
-	cm.CodeMirrorEditor.editor.on("change",function(cm4) {
+	cm.Editor.editor.on("change",function(cm3) {
 		var extname = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
 		if(extname == ".hx") {
 			core.Helper.debounce("change",function() {
 				core.HaxeParserProvider.getClassName();
 				core.HaxeLint.updateLinting();
 			},100);
-			var cursor = cm4.getCursor();
-			var data = cm4.getLine(cursor.line);
+			var cursor = cm3.getCursor();
+			var data = cm3.getLine(cursor.line);
 			if(data.charAt(cursor.ch - 1) == ":") {
 				if(data.charAt(cursor.ch - 2) == "@") core.Completion.showMetaTagsCompletion(); else core.Completion.showClassList();
 			} else if(data.charAt(cursor.ch - 1) == "<") {
@@ -996,8 +1096,8 @@ cm.CodeMirrorEditor.load = function() {
 				}
 			} else if(StringTools.endsWith(data,"import ")) core.Completion.showClassList(true);
 		} else if(extname == ".hxml") {
-			var cursor1 = cm4.getCursor();
-			var data1 = cm4.getLine(cursor1.line);
+			var cursor1 = cm3.getCursor();
+			var data1 = cm3.getLine(cursor1.line);
 			if(data1.charAt(cursor1.ch - 1) == "-") core.Completion.showHxmlCompletion();
 		}
 		tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath).setChanged(true);
@@ -1006,12 +1106,12 @@ cm.CodeMirrorEditor.load = function() {
 		 var h = this.getScrollInfo().clientHeight;  var coords = this.charCoords({line: line, ch: 0}, 'local'); this.scrollTo(null, (coords.top + coords.bottom - h) / 2); ;
 	};
 };
-cm.CodeMirrorEditor.triggerCompletion = function(cm1,dot) {
+cm.Editor.triggerCompletion = function(cm1,dot) {
 	if(dot == null) dot = false;
 	var extname = js.Node.require("path").extname(tabmanager.TabManager.getCurrentDocumentPath());
 	switch(extname) {
 	case ".hx":
-		if(!dot || cm.CodeMirrorEditor.regenerateCompletionOnDot || dot && !cm1.state.completionActive) tabmanager.TabManager.saveActiveFile(function() {
+		if(!dot || cm.Editor.regenerateCompletionOnDot || dot && !cm1.state.completionActive) tabmanager.TabManager.saveActiveFile(function() {
 			core.Completion.getCompletion(core.Completion.showRegularCompletion);
 		});
 		break;
@@ -1021,7 +1121,7 @@ cm.CodeMirrorEditor.triggerCompletion = function(cm1,dot) {
 	default:
 	}
 };
-cm.CodeMirrorEditor.walk = function(object) {
+cm.Editor.walk = function(object) {
 	var regexp = RegExp;
 	var _g = 0;
 	var _g1 = Reflect.fields(object);
@@ -1049,26 +1149,26 @@ cm.CodeMirrorEditor.walk = function(object) {
 			var e = Type["typeof"](value);
 			$r = e[0];
 			return $r;
-		}(this)) == "TObject") cm.CodeMirrorEditor.walk(value);
+		}(this)) == "TObject") cm.Editor.walk(value);
 	}
 };
-cm.CodeMirrorEditor.resize = function() {
+cm.Editor.resize = function() {
 	var height = window.innerHeight - 50 - new $("ul.tabs").height() - new $("#tabs1").height() - 5;
-	new $(".CodeMirror").css("height","" + (height | 0) + "px");
+	new $(".CodeMirror").css("height",Std.string(height | 0) + "px");
 };
-cm.CodeMirrorEditor.loadTheme = function() {
+cm.Editor.loadTheme = function() {
 	var localStorage2 = js.Browser.getLocalStorage();
 	if(localStorage2 != null) {
 		var theme = localStorage2.getItem("theme");
-		if(theme != null) cm.CodeMirrorEditor.setTheme(theme);
+		if(theme != null) cm.Editor.setTheme(theme);
 	}
 };
-cm.CodeMirrorEditor.loadThemes = function(themes,onComplete) {
+cm.Editor.loadThemes = function(themes,onComplete) {
 	var themesSubmenu = menu.BootstrapMenu.getMenu("View").getSubmenu("Themes");
 	var theme;
 	var pathToThemeArray = new Array();
 	themesSubmenu.addMenuItem("default",0,function() {
-		return cm.CodeMirrorEditor.setTheme("default");
+		return cm.Editor.setTheme("default");
 	});
 	var _g1 = 0;
 	var _g = themes.length;
@@ -1079,30 +1179,30 @@ cm.CodeMirrorEditor.loadThemes = function(themes,onComplete) {
 			return function() {
 				return f(a1);
 			};
-		})(cm.CodeMirrorEditor.setTheme,theme));
+		})(cm.Editor.setTheme,theme));
 	}
 	onComplete();
 };
-cm.CodeMirrorEditor.setTheme = function(theme) {
-	cm.CodeMirrorEditor.editor.setOption("theme",theme);
+cm.Editor.setTheme = function(theme) {
+	cm.Editor.editor.setOption("theme",theme);
 	js.Browser.getLocalStorage().setItem("theme",theme);
 };
-cm.CodeMirrorZoom = function() { };
-$hxClasses["cm.CodeMirrorZoom"] = cm.CodeMirrorZoom;
-cm.CodeMirrorZoom.__name__ = ["cm","CodeMirrorZoom"];
-cm.CodeMirrorZoom.load = function() {
+cm.Zoom = function() { };
+$hxClasses["cm.Zoom"] = cm.Zoom;
+cm.Zoom.__name__ = ["cm","Zoom"];
+cm.Zoom.load = function() {
 	window.document.addEventListener("mousewheel",function(e) {
 		if(e.altKey || e.ctrlKey || e.metaKey) {
 			if(e.wheelDeltaY < 0) {
 				var fontSize = Std.parseInt(new $(".CodeMirror").css("font-size"));
 				fontSize--;
-				cm.CodeMirrorZoom.setFontSize(fontSize);
+				cm.Zoom.setFontSize(fontSize);
 				e.preventDefault();
 				e.stopPropagation();
 			} else if(e.wheelDeltaY > 0) {
 				var fontSize1 = Std.parseInt(new $(".CodeMirror").css("font-size"));
 				fontSize1++;
-				cm.CodeMirrorZoom.setFontSize(fontSize1);
+				cm.Zoom.setFontSize(fontSize1);
 				e.preventDefault();
 				e.stopPropagation();
 			}
@@ -1111,59 +1211,18 @@ cm.CodeMirrorZoom.load = function() {
 	menu.BootstrapMenu.getMenu("View").addMenuItem("Increase Font Size",10001,function() {
 		var fontSize2 = Std.parseInt(new $(".CodeMirror").css("font-size"));
 		fontSize2++;
-		cm.CodeMirrorZoom.setFontSize(fontSize2);
+		cm.Zoom.setFontSize(fontSize2);
 	},"Ctrl-+");
 	menu.BootstrapMenu.getMenu("View").addMenuItem("Decrease Font Size",10002,function() {
 		var fontSize3 = Std.parseInt(new $(".CodeMirror").css("font-size"));
 		fontSize3--;
-		cm.CodeMirrorZoom.setFontSize(fontSize3);
+		cm.Zoom.setFontSize(fontSize3);
 	},"Ctrl--");
 };
-cm.CodeMirrorZoom.setFontSize = function(fontSize) {
-	new $(".CodeMirror").css("font-size","" + fontSize + "px");
-	new $(".CodeMirror-hint").css("font-size","" + (fontSize - 2) + "px");
-	new $(".CodeMirror-hints").css("font-size","" + (fontSize - 2) + "px");
-};
-cm.ColorPreview = function() { };
-$hxClasses["cm.ColorPreview"] = cm.ColorPreview;
-cm.ColorPreview.__name__ = ["cm","ColorPreview"];
-cm.ColorPreview.create = function(cm1) {
-	var _this = window.document;
-	cm.ColorPreview.preview = _this.createElement("div");
-	cm.ColorPreview.preview.className = "colorPreview";
-	cm.ColorPreview.preview.style.display = "none";
-	window.document.body.appendChild(cm.ColorPreview.preview);
-	cm.ColorPreview.startScroll = cm1.getScrollInfo();
-};
-cm.ColorPreview.update = function(cm1) {
-	var word = core.Completion.getCurrentWord(cm1,{ word : new EReg("[A-Fx0-9#]+$","i")},cm1.getCursor());
-	var color = null;
-	if(word != null && word.length > 2) {
-		if(StringTools.startsWith(word,"0x")) color = HxOverrides.substr(word,2,null); else if(StringTools.startsWith(word,"#")) color = HxOverrides.substr(word,1,null);
-		if(color != null) {
-			cm.ColorPreview.startScroll = cm1.getScrollInfo();
-			var pos = cm1.cursorCoords(null);
-			cm.ColorPreview.top = pos.bottom;
-			cm.ColorPreview.left = pos.left;
-			cm.ColorPreview.preview.style.backgroundColor = "#" + color;
-			new $(cm.ColorPreview.preview).animate({ left : "" + pos.left + "px", top : "" + pos.bottom + "px"});
-			new $(cm.ColorPreview.preview).fadeIn();
-		} else new $(cm.ColorPreview.preview).fadeOut();
-	} else new $(cm.ColorPreview.preview).fadeOut();
-};
-cm.ColorPreview.scroll = function(cm1) {
-	if(cm.ColorPreview.preview.style.display != "none") {
-		var curScroll = cm1.getScrollInfo();
-		var editor = cm1.getWrapperElement().getBoundingClientRect();
-		var newTop = cm.ColorPreview.top + cm.ColorPreview.startScroll.top - curScroll.top;
-		var point = newTop - new $().scrollTop();
-		if(point <= editor.top || point >= editor.bottom) {
-			new $(cm.ColorPreview.preview).fadeOut();
-			return;
-		}
-		cm.ColorPreview.preview.style.top = newTop + "px";
-		cm.ColorPreview.preview.style.left = cm.ColorPreview.left + cm.ColorPreview.startScroll.left - curScroll.left + "px";
-	}
+cm.Zoom.setFontSize = function(fontSize) {
+	new $(".CodeMirror").css("font-size",(fontSize == null?"null":"" + fontSize) + "px");
+	new $(".CodeMirror-hint").css("font-size",Std.string(fontSize - 2) + "px");
+	new $(".CodeMirror-hints").css("font-size",Std.string(fontSize - 2) + "px");
 };
 var completion = {};
 completion.Filter = function() { };
@@ -1326,7 +1385,7 @@ core.Completion.registerHelper = function() {
 	completion.MetaTags.load();
 	CodeMirror.registerHelper("hint","haxe",core.Completion.getHints);
 	CodeMirror.registerHelper("hint","hxml",core.Completion.getHints);
-	cm.CodeMirrorEditor.editor.on("startCompletion",function(cm) {
+	cm.Editor.editor.on("startCompletion",function(cm) {
 		if(core.Completion.completionType == core.CompletionType.FILELIST) core.Completion.backupDocValue = tabmanager.TabManager.getCurrentDocument().getValue();
 	});
 };
@@ -1399,12 +1458,12 @@ core.Completion.getCompletion = function(onComplete,_pos) {
 		var projectArguments = projectaccess.ProjectAccess.currentProject.args.slice();
 		if(projectaccess.ProjectAccess.currentProject.type == 2) projectArguments.push(projectaccess.ProjectAccess.currentProject.main);
 		projectArguments.push("--display");
-		var cm1 = cm.CodeMirrorEditor.editor;
+		var cm1 = cm.Editor.editor;
 		core.Completion.cur = _pos;
 		if(_pos == null) core.Completion.cur = cm1.getCursor();
 		core.Completion.getCurrentWord(cm1,null,core.Completion.cur);
 		if(core.Completion.curWord != null) core.Completion.cur = { line : core.Completion.cur.line, ch : core.Completion.start};
-		projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + ("" + cm1.indexFromPos(core.Completion.cur)));
+		projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + Std.string(cm1.indexFromPos(core.Completion.cur)));
 		core.Completion.completions = [];
 		core.ProcessHelper.runProcess("haxe",["--connect","5000","--cwd",HIDE.surroundWithQuotes(projectaccess.ProjectAccess.currentProject.path)].concat(projectArguments),null,function(stdout,stderr) {
 			var xml = Xml.parse(stderr);
@@ -1449,43 +1508,43 @@ core.Completion.isEditorVisible = function() {
 };
 core.Completion.showRegularCompletion = function() {
 	if(core.Completion.isEditorVisible()) {
-		cm.CodeMirrorEditor.regenerateCompletionOnDot = true;
+		cm.Editor.regenerateCompletionOnDot = true;
 		core.Completion.WORD = new EReg("[A-Z]+$","i");
 		core.Completion.completionType = core.CompletionType.REGULAR;
-		cm.CodeMirrorEditor.editor.execCommand("autocomplete");
+		cm.Editor.editor.execCommand("autocomplete");
 	}
 };
 core.Completion.showMetaTagsCompletion = function() {
 	if(core.Completion.isEditorVisible()) {
 		core.Completion.WORD = new EReg("[A-Z@:]+$","i");
 		core.Completion.completionType = core.CompletionType.METATAGS;
-		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : /[\s()\[\]{};>,]/});
+		CodeMirror.showHint(cm.Editor.editor,null,{ closeCharacters : /[\s()\[\]{};>,]/});
 	}
 };
 core.Completion.showHxmlCompletion = function() {
 	if(core.Completion.isEditorVisible()) {
 		core.Completion.WORD = new EReg("[A-Z- ]+$","i");
 		core.Completion.completionType = core.CompletionType.HXML;
-		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : /[()\[\]{};:>,]/});
+		CodeMirror.showHint(cm.Editor.editor,null,{ closeCharacters : /[()\[\]{};:>,]/});
 	}
 };
 core.Completion.showFileList = function() {
 	if(core.Completion.isEditorVisible()) {
-		cm.CodeMirrorEditor.regenerateCompletionOnDot = false;
+		cm.Editor.regenerateCompletionOnDot = false;
 		core.Completion.WORD = new EReg("[A-Z\\.]+$","i");
 		core.Completion.completionType = core.CompletionType.FILELIST;
-		CodeMirror.showHint(cm.CodeMirrorEditor.editor,core.Completion.getHints);
+		CodeMirror.showHint(cm.Editor.editor,core.Completion.getHints);
 	}
 };
 core.Completion.showClassList = function(ignoreWhitespace) {
 	if(ignoreWhitespace == null) ignoreWhitespace = false;
 	if(core.Completion.isEditorVisible()) {
-		cm.CodeMirrorEditor.regenerateCompletionOnDot = false;
+		cm.Editor.regenerateCompletionOnDot = false;
 		core.Completion.WORD = new EReg("[A-Z\\.]+$","i");
 		core.Completion.completionType = core.CompletionType.CLASSLIST;
 		var closeCharacters = /[\s()\[\]{};>,]/;
 		if(ignoreWhitespace) closeCharacters = /[()\[\]{};>,]/;
-		CodeMirror.showHint(cm.CodeMirrorEditor.editor,null,{ closeCharacters : closeCharacters});
+		CodeMirror.showHint(cm.Editor.editor,null,{ closeCharacters : closeCharacters});
 	}
 };
 core.DragAndDrop = function() { };
@@ -1528,11 +1587,12 @@ core.FileDialog.create = function() {
 	});
 	window.document.body.appendChild(core.FileDialog.input);
 };
-core.FileDialog.openFile = function(_onClick) {
+core.FileDialog.openFile = function(_onClick,extensions) {
 	core.FileDialog.input.value = "";
 	core.FileDialog.onClick = _onClick;
 	if(core.FileDialog.input.hasAttribute("nwsaveas")) core.FileDialog.input.removeAttribute("nwsaveas");
 	if(core.FileDialog.input.hasAttribute("nwdirectory")) core.FileDialog.input.removeAttribute("nwdirectory");
+	if(extensions != null) core.FileDialog.input.setAttribute("accept",extensions); else core.FileDialog.input.removeAttribute("accept");
 	core.FileDialog.input.click();
 };
 core.FileDialog.saveFile = function(_onClick,_name) {
@@ -1592,7 +1652,7 @@ core.FunctionParametersHelper.addWidget = function(text,description,lineNumber) 
 		spanDescription.textContent = description;
 		msg.appendChild(spanDescription);
 	}
-	var widget = cm.CodeMirrorEditor.editor.addLineWidget(lineNumber,msg,{ coverGutter : false, noHScroll : true});
+	var widget = cm.Editor.editor.addLineWidget(lineNumber,msg,{ coverGutter : false, noHScroll : true});
 	core.FunctionParametersHelper.widgets.push(widget);
 	core.FunctionParametersHelper.lines.push(lineNumber);
 };
@@ -1600,9 +1660,9 @@ core.FunctionParametersHelper.alreadyShown = function(lineNumber) {
 	return HxOverrides.indexOf(core.FunctionParametersHelper.lines,lineNumber,0) != -1;
 };
 core.FunctionParametersHelper.updateScroll = function() {
-	var info = cm.CodeMirrorEditor.editor.getScrollInfo();
-	var after = cm.CodeMirrorEditor.editor.charCoords({ line : cm.CodeMirrorEditor.editor.getCursor().line + 1, ch : 0},"local").top;
-	if(info.top + info.clientHeight < after) cm.CodeMirrorEditor.editor.scrollTo(null,after - info.clientHeight + 3);
+	var info = cm.Editor.editor.getScrollInfo();
+	var after = cm.Editor.editor.charCoords({ line : cm.Editor.editor.getCursor().line + 1, ch : 0},"local").top;
+	if(info.top + info.clientHeight < after) cm.Editor.editor.scrollTo(null,after - info.clientHeight + 3);
 };
 core.FunctionParametersHelper.clear = function() {
 	var _g = 0;
@@ -1610,7 +1670,7 @@ core.FunctionParametersHelper.clear = function() {
 	while(_g < _g1.length) {
 		var widget = _g1[_g];
 		++_g;
-		cm.CodeMirrorEditor.editor.removeLineWidget(widget);
+		cm.Editor.editor.removeLineWidget(widget);
 	}
 	core.FunctionParametersHelper.lines = [];
 };
@@ -1680,7 +1740,7 @@ $hxClasses["core.GoToLine"] = core.GoToLine;
 core.GoToLine.__name__ = ["core","GoToLine"];
 core.GoToLine.show = function() {
 	if(tabmanager.TabManager.selectedPath != null) Alertify.prompt("Go to Line",function(e,str) {
-		cm.CodeMirrorEditor.editor.centerOnLine(Std.parseInt(str));
+		cm.Editor.editor.centerOnLine(Std.parseInt(str));
 	});
 };
 var haxe = {};
@@ -1692,7 +1752,8 @@ $hxClasses["haxe.ds.StringMap"] = haxe.ds.StringMap;
 haxe.ds.StringMap.__name__ = ["haxe","ds","StringMap"];
 haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	set: function(key,value) {
+	h: null
+	,set: function(key,value) {
 		this.h["$" + key] = value;
 	}
 	,get: function(key) {
@@ -1743,8 +1804,8 @@ core.HaxeLint.load = function() {
 	});
 };
 core.HaxeLint.updateLinting = function() {
-	cm.CodeMirrorEditor.editor.setOption("lint",false);
-	cm.CodeMirrorEditor.editor.setOption("lint",true);
+	cm.Editor.editor.setOption("lint",false);
+	cm.Editor.editor.setOption("lint",true);
 };
 core.FunctionScopeType = $hxClasses["core.FunctionScopeType"] = { __ename__ : ["core","FunctionScopeType"], __constructs__ : ["SClass","SStatic","SRegular"] };
 core.FunctionScopeType.SClass = ["SClass",0];
@@ -1973,7 +2034,7 @@ core.HaxeParserProvider.getFunctionScope = function(field,f) {
 	return functionScopeType;
 };
 core.HaxeParserProvider.getClassName = function() {
-	var cm1 = cm.CodeMirrorEditor.editor;
+	var cm1 = cm.Editor.editor;
 	var pos = cm1.indexFromPos(cm1.getCursor());
 	var doc = tabmanager.TabManager.getCurrentDocument();
 	var data = doc.getValue();
@@ -2043,7 +2104,7 @@ core.HaxeParserProvider.parse = function(data,path) {
 		} else {
 		var e2 = $e0;
 		if(Object.prototype.hasOwnProperty.call(e2,"pos")) {
-			var cm1 = cm.CodeMirrorEditor.editor;
+			var cm1 = cm.Editor.editor;
 			var message = "Parser error:\n";
 			{
 				var _g = e2.msg;
@@ -2128,17 +2189,9 @@ core.Utils = $hx_exports.core.Utils = function() { };
 $hxClasses["core.Utils"] = core.Utils;
 core.Utils.__name__ = ["core","Utils"];
 core.Utils.prepare = function() {
-	var _g = js.Node.require("os").type();
-	switch(_g) {
-	case "Windows_NT":
-		core.Utils.os = 0;
-		break;
-	case "Linux":
-		core.Utils.os = 1;
-		break;
-	default:
-		core.Utils.os = 3;
-	}
+	var platform = js.Node.require("os").platform();
+	core.Utils.os = 3;
+	if(platform == "linux") core.Utils.os = 1; else if(platform == "darwin") core.Utils.os = 2; else if(platform.indexOf("win") == 0) core.Utils.os = 0;
 };
 core.Hotkeys = $hx_exports.Hotkeys = function() { };
 $hxClasses["core.Hotkeys"] = core.Hotkeys;
@@ -2344,14 +2397,19 @@ core.MenuCommands.add = function() {
 	menu.BootstrapMenu.getMenu("File",1).addMenuItem("New Project...",1,newprojectdialog.NewProjectDialog.show,"Ctrl-Shift-N");
 	menu.BootstrapMenu.getMenu("File").addMenuItem("New File...",2,tabmanager.TabManager.createFileInNewTab,"Ctrl-N");
 	menu.BootstrapMenu.getMenu("File").addSeparator();
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Open...",3,openproject.OpenProject.openProject,"Ctrl-O");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Open Project...",3,function() {
+		return openproject.OpenProject.openProject(null,true);
+	});
+	menu.BootstrapMenu.getMenu("File").addSubmenu("Open Recent Project");
 	menu.BootstrapMenu.getMenu("File").addMenuItem("Close Project",4,openproject.OpenProject.closeProject);
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Open File...",5,openproject.OpenProject.openProject,"Ctrl-O");
+	menu.BootstrapMenu.getMenu("File").addSubmenu("Open Recent File");
 	menu.BootstrapMenu.getMenu("File").addSeparator();
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Save",5,tabmanager.TabManager.saveActiveFile,"Ctrl-S");
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Save As...",6,tabmanager.TabManager.saveActiveFileAs,"Ctrl-Shift-S");
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Save All",7,tabmanager.TabManager.saveAll);
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Save",6,tabmanager.TabManager.saveActiveFile,"Ctrl-S");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Save As...",7,tabmanager.TabManager.saveActiveFileAs,"Ctrl-Shift-S");
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Save All",8,tabmanager.TabManager.saveAll);
 	menu.BootstrapMenu.getMenu("File").addSeparator();
-	menu.BootstrapMenu.getMenu("File").addMenuItem("Exit",8,nodejs.webkit.App.closeAllWindows);
+	menu.BootstrapMenu.getMenu("File").addMenuItem("Exit",9,nodejs.webkit.App.closeAllWindows);
 	nodejs.webkit.Window.get().on("close",tabmanager.TabManager.saveAll);
 	menu.BootstrapMenu.getMenu("Options",90).addMenuItem("Open hotkey configuration file",1,(function(f3,a13) {
 		return function() {
@@ -2451,7 +2509,6 @@ core.ProcessHelper.runProcessAndPrintOutputToConsole = function(process,params,o
 	new $("#errors").html("");
 	var process1 = core.ProcessHelper.runPersistentProcess(process,params,function(code,stdout,stderr) {
 		core.ProcessHelper.processOutput(code,core.ProcessHelper.processStdout,core.ProcessHelper.processStderr,onComplete);
-		if(code == 0) onComplete();
 	});
 	return process1;
 };
@@ -2498,7 +2555,7 @@ core.ProcessHelper.processOutput = function(code,stdout,stderr,onComplete) {
 						return function(e) {
 							tabmanager.TabManager.openFileInNewTab(fullPath[0],true,(function(lineNumber) {
 								return function() {
-									var cm1 = cm.CodeMirrorEditor.editor;
+									var cm1 = cm.Editor.editor;
 									cm1.centerOnLine(lineNumber[0]);
 								};
 							})(lineNumber));
@@ -2519,26 +2576,31 @@ core.ProcessHelper.processOutput = function(code,stdout,stderr,onComplete) {
 		Alertify.success("Build complete!");
 		textarea.value += "Build complete\n";
 		if(onComplete != null) onComplete();
-		new $("#buildStatus").fadeIn();
+		new $("#buildStatus").fadeIn(250);
 	} else {
 		new $("#resultsTab").click();
 		Alertify.error("Build failed");
-		textarea.value += "Build failed (exit code: " + ("" + code) + ")\n";
-		new $("#buildStatus").fadeOut();
+		textarea.value += "Build failed (exit code: " + (code == null?"null":"" + code) + ")\n";
+		new $("#buildStatus").fadeOut(250);
 	}
 	core.HaxeLint.updateLinting();
 };
-core.ProcessHelper.runPersistentProcess = function(process,params,onClose) {
+core.ProcessHelper.runPersistentProcess = function(process,params,onClose,redirectToOutput) {
+	if(redirectToOutput == null) redirectToOutput = false;
+	var textarea;
+	textarea = js.Boot.__cast(window.document.getElementById("outputTextArea") , HTMLTextAreaElement);
 	core.ProcessHelper.processStdout = "";
 	core.ProcessHelper.processStderr = "";
 	var process1 = js.Node.require("child_process").spawn(process,params,{ });
 	process1.stdout.setEncoding("utf8");
 	process1.stdout.on("data",function(data) {
 		core.ProcessHelper.processStdout += data;
+		if(redirectToOutput) textarea.value += data;
 	});
 	process1.stderr.setEncoding("utf8");
 	process1.stderr.on("data",function(data1) {
 		core.ProcessHelper.processStderr += data1;
+		if(redirectToOutput) textarea.value += data1;
 	});
 	process1.on("error",function(e) {
 		console.log(e);
@@ -2552,29 +2614,137 @@ core.ProcessHelper.runPersistentProcess = function(process,params,onClose) {
 	});
 	return process1;
 };
+core.RecentProjectsList = function() { };
+$hxClasses["core.RecentProjectsList"] = core.RecentProjectsList;
+core.RecentProjectsList.__name__ = ["core","RecentProjectsList"];
+core.RecentProjectsList.load = function() {
+	var localStorage2 = js.Browser.getLocalStorage();
+	if(localStorage2 != null) {
+		var recentProjectsData = localStorage2.getItem("recentProjects");
+		var recentFilesData = localStorage2.getItem("recentFiles");
+		if(recentProjectsData != null) try {
+			core.RecentProjectsList.projectList = tjson.TJSON.parse(recentProjectsData);
+		} catch( unknown ) {
+			console.log(unknown);
+		}
+		if(recentFilesData != null) try {
+			core.RecentProjectsList.fileList = tjson.TJSON.parse(recentFilesData);
+		} catch( unknown1 ) {
+			console.log(unknown1);
+		}
+	}
+	nodejs.webkit.Window.get().on("close",function() {
+		localStorage2.setItem("recentProjects",tjson.TJSON.encode(core.RecentProjectsList.projectList));
+		localStorage2.setItem("recentFiles",tjson.TJSON.encode(core.RecentProjectsList.fileList));
+	});
+	core.RecentProjectsList.updateMenu();
+	core.RecentProjectsList.updateWelcomeScreen();
+	core.RecentProjectsList.updateRecentFileMenu();
+};
+core.RecentProjectsList.add = function(path) {
+	core.RecentProjectsList.addItemToList(core.RecentProjectsList.projectList,path);
+	core.RecentProjectsList.updateMenu();
+	core.RecentProjectsList.updateWelcomeScreen();
+};
+core.RecentProjectsList.addFile = function(path) {
+	core.RecentProjectsList.addItemToList(core.RecentProjectsList.fileList,path);
+	core.RecentProjectsList.updateRecentFileMenu();
+};
+core.RecentProjectsList.addItemToList = function(list,item) {
+	if(HxOverrides.indexOf(list,item,0) == -1) {
+		if(list.length >= 10) list.pop();
+	} else HxOverrides.remove(list,item);
+	list.splice(0,0,item);
+};
+core.RecentProjectsList.updateMenu = function() {
+	var submenu = menu.BootstrapMenu.getMenu("File").getSubmenu("Open Recent Project");
+	submenu.clear();
+	var _g1 = 0;
+	var _g = core.RecentProjectsList.projectList.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		submenu.addMenuItem(core.RecentProjectsList.projectList[i],i + 1,(function(f,a1) {
+			return function() {
+				return f(a1);
+			};
+		})(openproject.OpenProject.openProject,core.RecentProjectsList.projectList[i]));
+	}
+	var submenu1 = menu.BootstrapMenu.getMenu("Project").getSubmenu("Build Recent Project");
+	submenu1.clear();
+	var _g11 = 0;
+	var _g2 = core.RecentProjectsList.projectList.length;
+	while(_g11 < _g2) {
+		var i1 = _g11++;
+		submenu1.addMenuItem(core.RecentProjectsList.projectList[i1],i1 + 1,(function(f1,a11) {
+			return function() {
+				return f1(a11);
+			};
+		})(core.RunProject.buildProject,core.RecentProjectsList.projectList[i1]));
+	}
+};
+core.RecentProjectsList.updateWelcomeScreen = function() {
+	var listGroup;
+	listGroup = js.Boot.__cast(window.document.getElementById("recentProjectsList") , HTMLDivElement);
+	while(listGroup.firstChild != null) listGroup.removeChild(listGroup.firstChild);
+	var _g1 = 0;
+	var _g = core.RecentProjectsList.projectList.length;
+	while(_g1 < _g) {
+		var i = [_g1++];
+		var a;
+		var _this = window.document;
+		a = _this.createElement("a");
+		a.href = "#";
+		a.className = "list-group-item recentProject";
+		a.textContent = core.RecentProjectsList.projectList[i[0]];
+		a.onclick = (function(i) {
+			return function(e) {
+				openproject.OpenProject.openProject(core.RecentProjectsList.projectList[i[0]]);
+			};
+		})(i);
+		listGroup.appendChild(a);
+	}
+};
+core.RecentProjectsList.updateRecentFileMenu = function() {
+	var submenu = menu.BootstrapMenu.getMenu("File").getSubmenu("Open Recent File");
+	submenu.clear();
+	var _g1 = 0;
+	var _g = core.RecentProjectsList.fileList.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		submenu.addMenuItem(core.RecentProjectsList.fileList[i],i + 1,(function(f,a1) {
+			return function() {
+				return f(a1);
+			};
+		})(tabmanager.TabManager.openFileInNewTab,core.RecentProjectsList.fileList[i]));
+	}
+};
 core.RunProject = function() { };
 $hxClasses["core.RunProject"] = core.RunProject;
 core.RunProject.__name__ = ["core","RunProject"];
 core.RunProject.load = function() {
 	menu.BootstrapMenu.getMenu("Project",80).addMenuItem("Run",1,core.RunProject.runProject,"F5");
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Build",2,core.RunProject.buildProject,"F8");
-	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set this hxml as project build file",3,core.RunProject.setHxmlAsProjectBuildFile);
+	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File",3,core.RunProject.setHxmlAsProjectBuildFile);
+	menu.BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
 };
 core.RunProject.setHxmlAsProjectBuildFile = function() {
 	var path = tabmanager.TabManager.getCurrentDocumentPath();
 	var extname = js.Node.require("path").extname(path);
 	var buildHxml = extname == ".hxml";
 	if(buildHxml) {
+		var noproject = projectaccess.ProjectAccess.currentProject.path == null;
 		var project = projectaccess.ProjectAccess.currentProject;
 		project.type = 2;
 		project.main = js.Node.require("path").basename(path);
 		project.path = js.Node.require("path").dirname(path);
-		projectaccess.ProjectAccess.save();
+		projectaccess.ProjectAccess.save(function() {
+			if(noproject) openproject.OpenProject.openProject(js.Node.require("path").join(project.path,"project.json"));
+		});
 		Alertify.success(watchers.LocaleWatcher.getStringSync("Done"));
 	} else Alertify.error(watchers.LocaleWatcher.getStringSync("Currently active document is not a hxml file"));
 };
 core.RunProject.runProject = function() {
-	core.RunProject.buildProject(function() {
+	core.RunProject.buildProject(null,function() {
 		var _g = projectaccess.ProjectAccess.currentProject.runActionType;
 		switch(_g) {
 		case 0:
@@ -2591,10 +2761,10 @@ core.RunProject.runProject = function() {
 		case 2:
 			var command = projectaccess.ProjectAccess.currentProject.runActionText;
 			if(core.RunProject.isValidCommand(command)) {
-				var params = core.RunProject.preprocessCommand(command).split(" ");
+				var params = core.RunProject.preprocessCommand(command,projectaccess.ProjectAccess.currentProject.path).split(" ");
 				var process = params.shift();
 				core.RunProject.killRunProcess();
-				core.RunProject.runProcess = core.ProcessHelper.runProcessAndPrintOutputToConsole(process,params);
+				core.RunProject.runProcess = core.ProcessHelper.runPersistentProcess(process,params,null,true);
 				var $window = nodejs.webkit.Window.get();
 				$window.on("close",function(e) {
 					core.RunProject.killRunProcess();
@@ -2618,18 +2788,28 @@ core.RunProject.isValidCommand = function(command) {
 	if(command != null && StringTools.trim(command) != "") valid = true;
 	return valid;
 };
-core.RunProject.buildProject = function(onComplete) {
-	if(projectaccess.ProjectAccess.currentProject.path == null) Alertify.error(watchers.LocaleWatcher.getStringSync("Please open or create project first!")); else tabmanager.TabManager.saveAll(function() {
+core.RunProject.buildProject = function(pathToProject,onComplete) {
+	var project;
+	if(pathToProject != null) {
+		var options = { };
+		options.encoding = "utf8";
+		var data = js.Node.require("fs").readFileSync(pathToProject,options);
+		project = tjson.TJSON.parse(data);
+	} else project = projectaccess.ProjectAccess.currentProject;
+	core.RunProject.build(project,onComplete);
+};
+core.RunProject.build = function(project,onComplete) {
+	if(project.path == null) Alertify.error(watchers.LocaleWatcher.getStringSync("Please open or create project first!")); else tabmanager.TabManager.saveAll(function() {
 		var path = tabmanager.TabManager.getCurrentDocumentPath();
 		var extname = js.Node.require("path").extname(path);
 		var buildHxml = extname == ".hxml";
 		var dirname = js.Node.require("path").dirname(path);
 		var filename = js.Node.require("path").basename(path);
-		if(buildHxml || projectaccess.ProjectAccess.currentProject.type == 2) {
+		if(buildHxml || project.type == 2) {
 			var hxmlData;
 			if(!buildHxml) {
-				dirname = projectaccess.ProjectAccess.currentProject.path;
-				filename = projectaccess.ProjectAccess.currentProject.main;
+				dirname = project.path;
+				filename = project.main;
 				var options = { };
 				options.encoding = "utf8";
 				js.Node.require("fs").readFile(js.Node.require("path").join(dirname,filename),options,function(err,data) {
@@ -2639,14 +2819,14 @@ core.RunProject.buildProject = function(onComplete) {
 					} else console.log(err);
 				});
 			} else {
-				hxmlData = cm.CodeMirrorEditor.editor.getValue();
+				hxmlData = cm.Editor.editor.getValue();
 				core.RunProject.checkHxml(dirname,filename,hxmlData,onComplete);
 			}
 		} else {
-			var command = projectaccess.ProjectAccess.currentProject.buildActionCommand;
-			command = core.RunProject.preprocessCommand(command);
-			if(projectaccess.ProjectAccess.currentProject.type == 0) command = [command].concat(projectaccess.ProjectAccess.currentProject.args).join(" ");
-			var params = core.RunProject.preprocessCommand(command).split(" ");
+			var command = project.buildActionCommand;
+			command = core.RunProject.preprocessCommand(command,project.path);
+			if(project.type == 0) command = [command].concat(project.args).join(" ");
+			var params = core.RunProject.preprocessCommand(command,project.path).split(" ");
 			var process = params.shift();
 			core.ProcessHelper.runProcessAndPrintOutputToConsole(process,params,onComplete);
 		}
@@ -2681,9 +2861,9 @@ core.RunProject.buildHxml = function(dirname,filename,useCompilationServer,start
 	var process = params.shift();
 	core.ProcessHelper.runProcessAndPrintOutputToConsole(process,params,onComplete);
 };
-core.RunProject.preprocessCommand = function(command) {
+core.RunProject.preprocessCommand = function(command,path) {
 	var processedCommand = command;
-	processedCommand = StringTools.replace(processedCommand,"%path%",projectaccess.ProjectAccess.currentProject.path);
+	processedCommand = StringTools.replace(processedCommand,"%path%",path);
 	var ereg = new EReg("%join%[(](.+)[)]","");
 	if(ereg.match(processedCommand)) {
 		var matchedString = ereg.matched(1);
@@ -2711,7 +2891,7 @@ core.Splitter.show = function() {
 		new $("#thirdNested").jqxSplitter({ panels : panels});
 		new $("#thirdNested").jqxSplitter("expand");
 		new $("#thirdNested").jqxSplitter({ showSplitBar : true});
-		new $("#annotationRuler").fadeIn();
+		new $("#annotationRuler").fadeIn(250);
 		core.WelcomeScreen.hide();
 	}
 };
@@ -2731,7 +2911,7 @@ core.Splitter.hide = function() {
 	new $("#thirdNested").jqxSplitter("collapse");
 	new $("#thirdNested").jqxSplitter({ resizable : false});
 	new $("#thirdNested").jqxSplitter({ showSplitBar : false});
-	new $("#annotationRuler").fadeOut();
+	new $("#annotationRuler").fadeOut(250);
 	if(tabmanager.TabManager.tabMap != null && tabmanager.TabManager.tabMap.getTabs().length == 0) core.WelcomeScreen.show();
 };
 core.WelcomeScreen = function() { };
@@ -2741,10 +2921,35 @@ core.WelcomeScreen.load = function() {
 	core.WelcomeScreen.div = js.Boot.__cast(window.document.getElementById("welcomeScreen") , HTMLDivElement);
 	new $("#createNewProject").on("click",null,newprojectdialog.NewProjectDialog.show);
 	new $("#openProject").on("click",null,function() {
-		return openproject.OpenProject.openProject(null);
+		return openproject.OpenProject.openProject(null,true);
 	});
+	var links = window.document.getElementsByClassName("welcome-screen-link");
+	var _g1 = 0;
+	var _g = links.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var link = [js.Boot.__cast(links.item(i) , HTMLLIElement)];
+		link[0].onclick = (function(link) {
+			return function(e) {
+				var _g3 = 0;
+				var _g2 = links.length;
+				while(_g3 < _g2) {
+					var j = _g3++;
+					var link2;
+					link2 = js.Boot.__cast(links.item(j) , HTMLLIElement);
+					if(link2 != link[0]) {
+						link2.classList.remove("active");
+						new $("#welcomeScreenPage" + Std.string(j + 1)).hide(0);
+					} else {
+						link2.classList.add("active");
+						new $("#welcomeScreenPage" + Std.string(j + 1)).fadeIn(250);
+					}
+				}
+			};
+		})(link);
+	}
 	new $("#github").on("click",null,function() {
-		return nodejs.webkit.Shell.openExternal("https://github.com/misterpah/HIDE/tree/master");
+		return nodejs.webkit.Shell.openExternal("https://github.com/as3boyan/HIDE");
 	});
 	new $("#as3boyan").on("click",null,function() {
 		return nodejs.webkit.Shell.openExternal("http://twitter.com/As3Boyan");
@@ -2754,10 +2959,10 @@ core.WelcomeScreen.load = function() {
 	});
 };
 core.WelcomeScreen.show = function() {
-	new $(core.WelcomeScreen.div).fadeIn();
+	new $(core.WelcomeScreen.div).fadeIn(250);
 };
 core.WelcomeScreen.hide = function() {
-	new $(core.WelcomeScreen.div).fadeOut();
+	new $(core.WelcomeScreen.div).fadeOut(250);
 };
 var dialogs = {};
 dialogs.ModalDialog = function(title) {
@@ -2800,7 +3005,12 @@ dialogs.ModalDialog = function(title) {
 $hxClasses["dialogs.ModalDialog"] = dialogs.ModalDialog;
 dialogs.ModalDialog.__name__ = ["dialogs","ModalDialog"];
 dialogs.ModalDialog.prototype = {
-	setTitle: function(title) {
+	modal: null
+	,header: null
+	,body: null
+	,footer: null
+	,h4: null
+	,setTitle: function(title) {
 		this.h4.setAttribute("localeString",title);
 		this.h4.textContent = watchers.LocaleWatcher.getStringSync(title);
 	}
@@ -2857,7 +3067,9 @@ $hxClasses["dialogs.BrowseFolderDialog"] = dialogs.BrowseFolderDialog;
 dialogs.BrowseFolderDialog.__name__ = ["dialogs","BrowseFolderDialog"];
 dialogs.BrowseFolderDialog.__super__ = dialogs.ModalDialog;
 dialogs.BrowseFolderDialog.prototype = $extend(dialogs.ModalDialog.prototype,{
-	setDefaultValue: function(_value) {
+	onComplete: null
+	,input: null
+	,setDefaultValue: function(_value) {
 		this.input.value = _value;
 	}
 	,setCallback: function(_onComplete) {
@@ -2963,8 +3175,8 @@ filetree.ContextMenu.createContextMenu = function() {
 		}
 		ev.preventDefault();
 		contextMenu.style.display = "block";
-		contextMenu.style.left = "" + ev.pageX + "px";
-		contextMenu.style.top = "" + ev.pageY + "px";
+		contextMenu.style.left = (ev.pageX == null?"null":"" + ev.pageX) + "px";
+		contextMenu.style.top = (ev.pageY == null?"null":"" + ev.pageY) + "px";
 		return false;
 	});
 };
@@ -3152,22 +3364,28 @@ haxe.Serializer.run = function(v) {
 	return s.toString();
 };
 haxe.Serializer.prototype = {
-	toString: function() {
+	buf: null
+	,cache: null
+	,shash: null
+	,scount: null
+	,useCache: null
+	,useEnumIndex: null
+	,toString: function() {
 		return this.buf.b;
 	}
 	,serializeString: function(s) {
 		var x = this.shash.get(s);
 		if(x != null) {
 			this.buf.b += "R";
-			this.buf.b += "" + x;
+			if(x == null) this.buf.b += "null"; else this.buf.b += "" + x;
 			return;
 		}
 		this.shash.set(s,this.scount++);
 		this.buf.b += "y";
 		s = encodeURIComponent(s);
-		this.buf.b += "" + s.length;
+		if(s.length == null) this.buf.b += "null"; else this.buf.b += "" + s.length;
 		this.buf.b += ":";
-		this.buf.b += s;
+		if(s == null) this.buf.b += "null"; else this.buf.b += "" + s;
 	}
 	,serializeRef: function(v) {
 		var vt = typeof(v);
@@ -3178,7 +3396,7 @@ haxe.Serializer.prototype = {
 			var ci = this.cache[i];
 			if(typeof(ci) == vt && ci == v) {
 				this.buf.b += "r";
-				this.buf.b += "" + i;
+				if(i == null) this.buf.b += "null"; else this.buf.b += "" + i;
 				return true;
 			}
 		}
@@ -3210,13 +3428,13 @@ haxe.Serializer.prototype = {
 					return;
 				}
 				this.buf.b += "i";
-				this.buf.b += "" + v1;
+				if(v1 == null) this.buf.b += "null"; else this.buf.b += "" + v1;
 				break;
 			case 2:
 				var v2 = v;
 				if(Math.isNaN(v2)) this.buf.b += "k"; else if(!Math.isFinite(v2)) if(v2 < 0) this.buf.b += "m"; else this.buf.b += "p"; else {
 					this.buf.b += "d";
-					this.buf.b += "" + v2;
+					if(v2 == null) this.buf.b += "null"; else this.buf.b += "" + v2;
 				}
 				break;
 			case 3:
@@ -3241,7 +3459,7 @@ haxe.Serializer.prototype = {
 							if(ucount > 0) {
 								if(ucount == 1) this.buf.b += "n"; else {
 									this.buf.b += "u";
-									this.buf.b += "" + ucount;
+									if(ucount == null) this.buf.b += "null"; else this.buf.b += "" + ucount;
 								}
 								ucount = 0;
 							}
@@ -3251,7 +3469,7 @@ haxe.Serializer.prototype = {
 					if(ucount > 0) {
 						if(ucount == 1) this.buf.b += "n"; else {
 							this.buf.b += "u";
-							this.buf.b += "" + ucount;
+							if(ucount == null) this.buf.b += "null"; else this.buf.b += "" + ucount;
 						}
 					}
 					this.buf.b += "h";
@@ -3289,7 +3507,7 @@ haxe.Serializer.prototype = {
 					while( $it2.hasNext() ) {
 						var k1 = $it2.next();
 						this.buf.b += ":";
-						this.buf.b += "" + k1;
+						if(k1 == null) this.buf.b += "null"; else this.buf.b += "" + k1;
 						this.serialize(v5.get(k1));
 					}
 					this.buf.b += "h";
@@ -3336,9 +3554,9 @@ haxe.Serializer.prototype = {
 					}
 					var chars = charsBuf.b;
 					this.buf.b += "s";
-					this.buf.b += "" + chars.length;
+					if(chars.length == null) this.buf.b += "null"; else this.buf.b += "" + chars.length;
 					this.buf.b += ":";
-					this.buf.b += chars;
+					if(chars == null) this.buf.b += "null"; else this.buf.b += "" + chars;
 					break;
 				default:
 					if(this.useCache) this.cache.pop();
@@ -3375,7 +3593,7 @@ haxe.Serializer.prototype = {
 				} else this.serializeString(v[0]);
 				this.buf.b += ":";
 				var l1 = v.length;
-				this.buf.b += "" + (l1 - 2);
+				this.buf.b += Std.string(l1 - 2);
 				var _g11 = 2;
 				while(_g11 < l1) {
 					var i3 = _g11++;
@@ -3410,7 +3628,8 @@ haxe.Timer.delay = function(f,time_ms) {
 	return t;
 };
 haxe.Timer.prototype = {
-	stop: function() {
+	id: null
+	,stop: function() {
 		if(this.id == null) return;
 		clearInterval(this.id);
 		this.id = null;
@@ -3448,7 +3667,13 @@ haxe.Unserializer.run = function(v) {
 	return new haxe.Unserializer(v).unserialize();
 };
 haxe.Unserializer.prototype = {
-	setResolver: function(r) {
+	buf: null
+	,pos: null
+	,length: null
+	,cache: null
+	,scache: null
+	,resolver: null
+	,setResolver: function(r) {
 		if(r == null) this.resolver = { resolveClass : function(_) {
 			return null;
 		}, resolveEnum : function(_1) {
@@ -3689,6 +3914,15 @@ haxe.Unserializer.prototype = {
 	}
 	,__class__: haxe.Unserializer
 };
+haxe.Utf8 = function(size) {
+	this.__b = "";
+};
+$hxClasses["haxe.Utf8"] = haxe.Utf8;
+haxe.Utf8.__name__ = ["haxe","Utf8"];
+haxe.Utf8.prototype = {
+	__b: null
+	,__class__: haxe.Utf8
+};
 haxe.io = {};
 haxe.io.Bytes = function(length,b) {
 	this.length = length;
@@ -3704,7 +3938,9 @@ haxe.io.Bytes.ofString = function(s) {
 	return new haxe.io.Bytes(nb.length,nb);
 };
 haxe.io.Bytes.prototype = {
-	get: function(pos) {
+	length: null
+	,b: null
+	,get: function(pos) {
 		return this.b[pos];
 	}
 	,set: function(pos,v) {
@@ -3758,7 +3994,10 @@ haxe.crypto.BaseCode = function(base) {
 $hxClasses["haxe.crypto.BaseCode"] = haxe.crypto.BaseCode;
 haxe.crypto.BaseCode.__name__ = ["haxe","crypto","BaseCode"];
 haxe.crypto.BaseCode.prototype = {
-	initTable: function() {
+	base: null
+	,nbits: null
+	,tbl: null
+	,initTable: function() {
 		var tbl = new Array();
 		var _g = 0;
 		while(_g < 256) {
@@ -3806,7 +4045,9 @@ haxe.ds.GenericCell = function(elt,next) {
 $hxClasses["haxe.ds.GenericCell"] = haxe.ds.GenericCell;
 haxe.ds.GenericCell.__name__ = ["haxe","ds","GenericCell"];
 haxe.ds.GenericCell.prototype = {
-	__class__: haxe.ds.GenericCell
+	elt: null
+	,next: null
+	,__class__: haxe.ds.GenericCell
 };
 haxe.ds.IntMap = function() {
 	this.h = { };
@@ -3815,7 +4056,8 @@ $hxClasses["haxe.ds.IntMap"] = haxe.ds.IntMap;
 haxe.ds.IntMap.__name__ = ["haxe","ds","IntMap"];
 haxe.ds.IntMap.__interfaces__ = [IMap];
 haxe.ds.IntMap.prototype = {
-	set: function(key,value) {
+	h: null
+	,set: function(key,value) {
 		this.h[key] = value;
 	}
 	,get: function(key) {
@@ -3838,10 +4080,14 @@ $hxClasses["haxe.ds.ObjectMap"] = haxe.ds.ObjectMap;
 haxe.ds.ObjectMap.__name__ = ["haxe","ds","ObjectMap"];
 haxe.ds.ObjectMap.__interfaces__ = [IMap];
 haxe.ds.ObjectMap.prototype = {
-	set: function(key,value) {
+	h: null
+	,set: function(key,value) {
 		var id = key.__id__ || (key.__id__ = ++haxe.ds.ObjectMap.count);
 		this.h[id] = value;
 		this.h.__keys__[id] = key;
+	}
+	,get: function(key) {
+		return this.h[key.__id__];
 	}
 	,keys: function() {
 		var a = [];
@@ -4054,7 +4300,9 @@ haxe.macro.Printer = function(tabString) {
 $hxClasses["haxe.macro.Printer"] = haxe.macro.Printer;
 haxe.macro.Printer.__name__ = ["haxe","macro","Printer"];
 haxe.macro.Printer.prototype = {
-	printUnop: function(op) {
+	tabs: null
+	,tabString: null
+	,printUnop: function(op) {
 		switch(op[1]) {
 		case 0:
 			return "++";
@@ -4453,7 +4701,8 @@ haxe.xml._Fast.NodeAccess = function(x) {
 $hxClasses["haxe.xml._Fast.NodeAccess"] = haxe.xml._Fast.NodeAccess;
 haxe.xml._Fast.NodeAccess.__name__ = ["haxe","xml","_Fast","NodeAccess"];
 haxe.xml._Fast.NodeAccess.prototype = {
-	resolve: function(name) {
+	__x: null
+	,resolve: function(name) {
 		var x = this.__x.elementsNamed(name).next();
 		if(x == null) {
 			var xname;
@@ -4470,7 +4719,8 @@ haxe.xml._Fast.AttribAccess = function(x) {
 $hxClasses["haxe.xml._Fast.AttribAccess"] = haxe.xml._Fast.AttribAccess;
 haxe.xml._Fast.AttribAccess.__name__ = ["haxe","xml","_Fast","AttribAccess"];
 haxe.xml._Fast.AttribAccess.prototype = {
-	resolve: function(name) {
+	__x: null
+	,resolve: function(name) {
 		if(this.__x.nodeType == Xml.Document) throw "Cannot access document attribute " + name;
 		var v = this.__x.get(name);
 		if(v == null) throw this.__x.get_nodeName() + " is missing attribute " + name;
@@ -4484,7 +4734,8 @@ haxe.xml._Fast.HasAttribAccess = function(x) {
 $hxClasses["haxe.xml._Fast.HasAttribAccess"] = haxe.xml._Fast.HasAttribAccess;
 haxe.xml._Fast.HasAttribAccess.__name__ = ["haxe","xml","_Fast","HasAttribAccess"];
 haxe.xml._Fast.HasAttribAccess.prototype = {
-	resolve: function(name) {
+	__x: null
+	,resolve: function(name) {
 		if(this.__x.nodeType == Xml.Document) throw "Cannot access document attribute " + name;
 		return this.__x.exists(name);
 	}
@@ -4496,7 +4747,8 @@ haxe.xml._Fast.HasNodeAccess = function(x) {
 $hxClasses["haxe.xml._Fast.HasNodeAccess"] = haxe.xml._Fast.HasNodeAccess;
 haxe.xml._Fast.HasNodeAccess.__name__ = ["haxe","xml","_Fast","HasNodeAccess"];
 haxe.xml._Fast.HasNodeAccess.prototype = {
-	resolve: function(name) {
+	__x: null
+	,resolve: function(name) {
 		return this.__x.elementsNamed(name).hasNext();
 	}
 	,__class__: haxe.xml._Fast.HasNodeAccess
@@ -4507,7 +4759,8 @@ haxe.xml._Fast.NodeListAccess = function(x) {
 $hxClasses["haxe.xml._Fast.NodeListAccess"] = haxe.xml._Fast.NodeListAccess;
 haxe.xml._Fast.NodeListAccess.__name__ = ["haxe","xml","_Fast","NodeListAccess"];
 haxe.xml._Fast.NodeListAccess.prototype = {
-	resolve: function(name) {
+	__x: null
+	,resolve: function(name) {
 		var l = new List();
 		var $it0 = this.__x.elementsNamed(name);
 		while( $it0.hasNext() ) {
@@ -4530,7 +4783,13 @@ haxe.xml.Fast = function(x) {
 $hxClasses["haxe.xml.Fast"] = haxe.xml.Fast;
 haxe.xml.Fast.__name__ = ["haxe","xml","Fast"];
 haxe.xml.Fast.prototype = {
-	get_name: function() {
+	x: null
+	,node: null
+	,nodes: null
+	,att: null
+	,has: null
+	,hasNode: null
+	,get_name: function() {
 		if(this.x.nodeType == Xml.Document) return "Document"; else return this.x.get_nodeName();
 	}
 	,get_innerData: function() {
@@ -4789,7 +5048,7 @@ haxe.xml.Parser.doParse = function(str,p,parent) {
 					var i;
 					if(s.charCodeAt(1) == 120) i = Std.parseInt("0" + HxOverrides.substr(s,1,s.length - 1)); else i = Std.parseInt(HxOverrides.substr(s,1,s.length - 1));
 					buf.add(String.fromCharCode(i));
-				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += "&" + s + ";"; else buf.add(haxe.xml.Parser.escapes.get(s));
+				} else if(!haxe.xml.Parser.escapes.exists(s)) buf.b += Std.string("&" + s + ";"); else buf.add(haxe.xml.Parser.escapes.get(s));
 				start = p + 1;
 				state = next;
 			}
@@ -4994,7 +5253,9 @@ haxeparser.Token = function(tok,pos) {
 $hxClasses["haxeparser.Token"] = haxeparser.Token;
 haxeparser.Token.__name__ = ["haxeparser","Token"];
 haxeparser.Token.prototype = {
-	__class__: haxeparser.Token
+	tok: null
+	,pos: null
+	,__class__: haxeparser.Token
 };
 haxeparser.TypeDef = $hxClasses["haxeparser.TypeDef"] = { __ename__ : ["haxeparser","TypeDef"], __constructs__ : ["EClass","EEnum","EAbstract","EImport","ETypedef","EUsing"] };
 haxeparser.TypeDef.EClass = function(d) { var $x = ["EClass",0,d]; $x.__enum__ = haxeparser.TypeDef; $x.toString = $estr; return $x; };
@@ -5054,7 +5315,9 @@ haxeparser.LexerError = function(msg,pos) {
 $hxClasses["haxeparser.LexerError"] = haxeparser.LexerError;
 haxeparser.LexerError.__name__ = ["haxeparser","LexerError"];
 haxeparser.LexerError.prototype = {
-	__class__: haxeparser.LexerError
+	msg: null
+	,pos: null
+	,__class__: haxeparser.LexerError
 };
 var hxparse = {};
 hxparse.Lexer = function(input,sourceName) {
@@ -5083,7 +5346,12 @@ hxparse.Lexer.buildRuleset = function(rules) {
 	return new hxparse.Ruleset(new hxparse.LexEngine(cases).firstState(),functions,eofFunction);
 };
 hxparse.Lexer.prototype = {
-	curPos: function() {
+	current: null
+	,input: null
+	,source: null
+	,pos: null
+	,eof: null
+	,curPos: function() {
 		return new hxparse.Position(this.source,this.pos - this.current.length,this.pos);
 	}
 	,token: function(ruleset) {
@@ -5095,7 +5363,7 @@ hxparse.Lexer.prototype = {
 		var lastMatchPos = this.pos;
 		var start = this.pos;
 		while(true) {
-			if(state.final > -1) {
+			if(state["final"] > -1) {
 				lastMatch = state;
 				lastMatchPos = this.pos;
 			}
@@ -5110,8 +5378,8 @@ hxparse.Lexer.prototype = {
 		}
 		this.pos = lastMatchPos;
 		this.current = byte.js._ByteData.ByteData_Impl_.readString(this.input,start,this.pos - start);
-		if(lastMatch == null || lastMatch.final == -1) throw new hxparse.UnexpectedChar(String.fromCharCode(this.input[this.pos]),new hxparse.Position(this.source,this.pos - this.current.length,this.pos));
-		return ruleset.functions[lastMatch.final](this);
+		if(lastMatch == null || lastMatch["final"] == -1) throw new hxparse.UnexpectedChar(String.fromCharCode(this.input[this.pos]),new hxparse.Position(this.source,this.pos - this.current.length,this.pos));
+		return ruleset.functions[lastMatch["final"]](this);
 	}
 	,__class__: hxparse.Lexer
 };
@@ -5330,7 +5598,12 @@ hxparse.LexEngine.parseInner = function(pattern,i,pDepth) {
 	return { pattern : r, pos : i};
 };
 hxparse.LexEngine.prototype = {
-	firstState: function() {
+	uid: null
+	,nodes: null
+	,finals: null
+	,states: null
+	,hstates: null
+	,firstState: function() {
 		return this.states[0];
 	}
 	,makeState: function(nodes) {
@@ -5340,7 +5613,7 @@ hxparse.LexEngine.prototype = {
 		while(_g1 < nodes.length) {
 			var n = nodes[_g1];
 			++_g1;
-			buf.b += "" + n.id;
+			if(n.id == null) buf.b += "null"; else buf.b += "" + n.id;
 			buf.b += "-";
 		}
 		var key = buf.b;
@@ -5379,13 +5652,13 @@ hxparse.LexEngine.prototype = {
 					var n1 = nodes[_g31];
 					++_g31;
 					if(n1 == f) {
-						s.final = n1.pid;
+						s["final"] = n1.pid;
 						return;
 					}
 				}
 			}
 		};
-		if(s.final == -1) setFinal();
+		if(s["final"] == -1) setFinal();
 		return s;
 	}
 	,getTransitions: function(nodes) {
@@ -5487,43 +5760,43 @@ hxparse.LexEngine.prototype = {
 		}
 		return nodes;
 	}
-	,initNode: function(p,final,pid) {
+	,initNode: function(p,$final,pid) {
 		switch(p[1]) {
 		case 0:
-			return final;
+			return $final;
 		case 1:
 			var c = p[2];
 			var n = new hxparse._LexEngine.Node(this.uid++,pid);
-			n.trans.push({ chars : c, n : final});
+			n.trans.push({ chars : c, n : $final});
 			return n;
 		case 2:
 			var p1 = p[2];
 			var n1 = new hxparse._LexEngine.Node(this.uid++,pid);
 			var an = this.initNode(p1,n1,pid);
 			n1.epsilon.push(an);
-			n1.epsilon.push(final);
+			n1.epsilon.push($final);
 			return n1;
 		case 3:
 			var p2 = p[2];
 			var n2 = new hxparse._LexEngine.Node(this.uid++,pid);
 			var an1 = this.initNode(p2,n2,pid);
 			n2.epsilon.push(an1);
-			n2.epsilon.push(final);
+			n2.epsilon.push($final);
 			return an1;
 		case 4:
 			var b = p[3];
 			var a = p[2];
-			return this.initNode(a,this.initNode(b,final,pid),pid);
+			return this.initNode(a,this.initNode(b,$final,pid),pid);
 		case 5:
 			var b1 = p[3];
 			var a1 = p[2];
 			var n3 = new hxparse._LexEngine.Node(this.uid++,pid);
-			n3.epsilon.push(this.initNode(a1,final,pid));
-			n3.epsilon.push(this.initNode(b1,final,pid));
+			n3.epsilon.push(this.initNode(a1,$final,pid));
+			n3.epsilon.push(this.initNode(b1,$final,pid));
 			return n3;
 		case 6:
 			var p3 = p[2];
-			return this.initNode(p3,final,pid);
+			return this.initNode(p3,$final,pid);
 		}
 	}
 	,__class__: hxparse.LexEngine
@@ -5548,7 +5821,11 @@ hxparse._LexEngine.Node = function(id,pid) {
 $hxClasses["hxparse._LexEngine.Node"] = hxparse._LexEngine.Node;
 hxparse._LexEngine.Node.__name__ = ["hxparse","_LexEngine","Node"];
 hxparse._LexEngine.Node.prototype = {
-	__class__: hxparse._LexEngine.Node
+	id: null
+	,pid: null
+	,trans: null
+	,epsilon: null
+	,__class__: hxparse._LexEngine.Node
 };
 hxparse.Ruleset = function(state,functions,eofFunction) {
 	this.state = state;
@@ -5558,7 +5835,10 @@ hxparse.Ruleset = function(state,functions,eofFunction) {
 $hxClasses["hxparse.Ruleset"] = hxparse.Ruleset;
 hxparse.Ruleset.__name__ = ["hxparse","Ruleset"];
 hxparse.Ruleset.prototype = {
-	__class__: hxparse.Ruleset
+	state: null
+	,functions: null
+	,eofFunction: null
+	,__class__: hxparse.Ruleset
 };
 hxparse.Position = function(source,min,max) {
 	this.psource = source;
@@ -5568,7 +5848,10 @@ hxparse.Position = function(source,min,max) {
 $hxClasses["hxparse.Position"] = hxparse.Position;
 hxparse.Position.__name__ = ["hxparse","Position"];
 hxparse.Position.prototype = {
-	toString: function() {
+	psource: null
+	,pmin: null
+	,pmax: null
+	,toString: function() {
 		return "" + this.psource + ":characters " + this.pmin + "-" + this.pmax;
 	}
 	,getLinePosition: function(input) {
@@ -5814,7 +6097,9 @@ haxeparser.ParserError = function(message,pos) {
 $hxClasses["haxeparser.ParserError"] = haxeparser.ParserError;
 haxeparser.ParserError.__name__ = ["haxeparser","ParserError"];
 haxeparser.ParserError.prototype = {
-	__class__: haxeparser.ParserError
+	msg: null
+	,pos: null
+	,__class__: haxeparser.ParserError
 };
 haxeparser.SmallType = $hxClasses["haxeparser.SmallType"] = { __ename__ : ["haxeparser","SmallType"], __constructs__ : ["SNull","SBool","SFloat","SString"] };
 haxeparser.SmallType.SNull = ["SNull",0];
@@ -5830,7 +6115,11 @@ hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token = function(stream,ruleset) 
 $hxClasses["hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token"] = hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token;
 hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token.__name__ = ["hxparse","Parser_haxeparser_HaxeLexer_haxeparser_Token"];
 hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token.prototype = {
-	peek: function(n) {
+	ruleset: null
+	,last: null
+	,stream: null
+	,token: null
+	,peek: function(n) {
 		if(this.token == null) {
 			this.token = new haxe.ds.GenericCell(this.stream.token(this.ruleset),null);
 			n--;
@@ -6045,7 +6334,12 @@ haxeparser.HaxeParser.aadd = function(a,t) {
 };
 haxeparser.HaxeParser.__super__ = hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token;
 haxeparser.HaxeParser.prototype = $extend(hxparse.Parser_haxeparser_HaxeLexer_haxeparser_Token.prototype,{
-	parse: function() {
+	defines: null
+	,mstack: null
+	,doResume: null
+	,doc: null
+	,inMacro: null
+	,parse: function() {
 		return this.parseFile();
 	}
 	,peek: function(n) {
@@ -10401,12 +10695,19 @@ haxeprinter.Printer = function() {
 $hxClasses["haxeprinter.Printer"] = haxeprinter.Printer;
 haxeprinter.Printer.__name__ = ["haxeprinter","Printer"];
 haxeprinter.Printer.prototype = {
-	setIndent: function(level) {
+	config: null
+	,buf: null
+	,line: null
+	,lineLen: null
+	,indentLevel: null
+	,indent: null
+	,col: null
+	,setIndent: function(level) {
 		this.indentLevel = level;
 		if(this.config.indent_with_tabs) this.indent = StringTools.lpad("","\t",this.indentLevel); else this.indent = StringTools.lpad(""," ",this.indentLevel * this.config.tab_width | 0);
 	}
 	,newline: function() {
-		this.buf.b += this.line.b + "\n";
+		this.buf.b += Std.string(this.line.b + "\n");
 		this.line = new StringBuf();
 		this.col = 0;
 		this.lineLen = 0;
@@ -10414,19 +10715,19 @@ haxeprinter.Printer.prototype = {
 	,print: function(s,style) {
 		if(style == null) style = haxeprinter.Style.SNormal;
 		this.lineLen += s.length;
-		this.line.b += s;
+		if(s == null) this.line.b += "null"; else this.line.b += "" + s;
 	}
 	,breakPoint: function(force) {
 		if(force == null) force = false;
 		if(this.col > 0 && (force || this.col + this.lineLen > this.config.maximum_line_length)) {
 			this.buf.b += "\n";
 			this.setIndent(this.indentLevel + 1);
-			this.buf.b += this.indent;
+			this.buf.b += Std.string(this.indent);
 			this.col = this.indent.length;
 			this.setIndent(this.indentLevel - 1);
 		}
 		this.col += this.lineLen;
-		this.buf.b += this.line.b;
+		this.buf.b += Std.string(this.line.b);
 		this.line = new StringBuf();
 		this.lineLen = 0;
 	}
@@ -11022,11 +11323,13 @@ haxeproject.HaxeProject.load = function() {
 	newprojectdialog.NewProjectDialog.getCategory("Haxe").addItem("C++ Project",haxeproject.HaxeProject.createCppProject);
 	newprojectdialog.NewProjectDialog.getCategory("Haxe").addItem("Java Project",haxeproject.HaxeProject.createJavaProject);
 	newprojectdialog.NewProjectDialog.getCategory("Haxe").addItem("C# Project",haxeproject.HaxeProject.createCSharpProject);
-	HIDE.readFile(null,"templates/Main.hx",function(data) {
-		haxeproject.HaxeProject.code = data;
+	var options = { };
+	options.encoding = "utf8";
+	js.Node.require("fs").readFile("templates/Main.hx",options,function(error,data) {
+		if(error == null) haxeproject.HaxeProject.code = data; else Alertify.error("Can't load template " + "templates/Main.hx");
 	});
-	HIDE.readFile(null,"templates/index.html",function(data1) {
-		haxeproject.HaxeProject.indexPageCode = data1;
+	js.Node.require("fs").readFile("templates/index.html",options,function(error1,data1) {
+		if(error1 == null) haxeproject.HaxeProject.indexPageCode = data1; else Alertify.error("Can't load template " + "templates/index.html");
 	});
 };
 haxeproject.HaxeProject.createCSharpProject = function(data) {
@@ -11136,13 +11439,15 @@ hxparse.NoMatch = function(pos,token) {
 $hxClasses["hxparse.NoMatch"] = hxparse.NoMatch;
 hxparse.NoMatch.__name__ = ["hxparse","NoMatch"];
 hxparse.NoMatch.prototype = {
-	toString: function() {
+	pos: null
+	,token: null
+	,toString: function() {
 		return "" + Std.string(this.pos) + ": No match: " + Std.string(this.token);
 	}
 	,__class__: hxparse.NoMatch
 };
 hxparse.State = function() {
-	this.final = -1;
+	this["final"] = -1;
 	var this1;
 	this1 = new Array(256);
 	this.trans = this1;
@@ -11150,7 +11455,9 @@ hxparse.State = function() {
 $hxClasses["hxparse.State"] = hxparse.State;
 hxparse.State.__name__ = ["hxparse","State"];
 hxparse.State.prototype = {
-	__class__: hxparse.State
+	trans: null
+	,'final': null
+	,__class__: hxparse.State
 };
 hxparse.Unexpected = function(token,pos) {
 	this.token = token;
@@ -11159,20 +11466,24 @@ hxparse.Unexpected = function(token,pos) {
 $hxClasses["hxparse.Unexpected"] = hxparse.Unexpected;
 hxparse.Unexpected.__name__ = ["hxparse","Unexpected"];
 hxparse.Unexpected.prototype = {
-	toString: function() {
+	token: null
+	,pos: null
+	,toString: function() {
 		return "Unexpected " + Std.string(this.token) + " at " + Std.string(this.pos);
 	}
 	,__class__: hxparse.Unexpected
 };
-hxparse.UnexpectedChar = function(char,pos) {
-	this.char = char;
+hxparse.UnexpectedChar = function($char,pos) {
+	this["char"] = $char;
 	this.pos = pos;
 };
 $hxClasses["hxparse.UnexpectedChar"] = hxparse.UnexpectedChar;
 hxparse.UnexpectedChar.__name__ = ["hxparse","UnexpectedChar"];
 hxparse.UnexpectedChar.prototype = {
-	toString: function() {
-		return "" + Std.string(this.pos) + ": Unexpected " + this.char;
+	'char': null
+	,pos: null
+	,toString: function() {
+		return "" + Std.string(this.pos) + ": Unexpected " + this["char"];
 	}
 	,__class__: hxparse.UnexpectedChar
 };
@@ -11300,8 +11611,8 @@ menu.MenuButtonItem = function(_menu,_text,_onClickFunction,_hotkey,_submenu) {
 	var _this = window.document;
 	span = _this.createElement("span");
 	span.style.color = "silver";
-	span.style.float = "right";
-	core.Hotkeys.add(menuItem,hotkeyText,span,_onClickFunction);
+	span.style["float"] = "right";
+	if(!_submenu) core.Hotkeys.add(menuItem,hotkeyText,span,_onClickFunction);
 	var _this1 = window.document;
 	this.li = _this1.createElement("li");
 	this.li.classList.add("menu-item");
@@ -11324,7 +11635,9 @@ $hxClasses["menu.MenuButtonItem"] = menu.MenuButtonItem;
 menu.MenuButtonItem.__name__ = ["menu","MenuButtonItem"];
 menu.MenuButtonItem.__interfaces__ = [menu.MenuItem];
 menu.MenuButtonItem.prototype = {
-	getElement: function() {
+	li: null
+	,position: null
+	,getElement: function() {
 		return this.li;
 	}
 	,__class__: menu.MenuButtonItem
@@ -11338,7 +11651,8 @@ $hxClasses["menu.Separator"] = menu.Separator;
 menu.Separator.__name__ = ["menu","Separator"];
 menu.Separator.__interfaces__ = [menu.MenuItem];
 menu.Separator.prototype = {
-	getElement: function() {
+	li: null
+	,getElement: function() {
 		return this.li;
 	}
 	,__class__: menu.Separator
@@ -11367,11 +11681,13 @@ menu.Submenu = $hx_exports.ui.menu.basic.Submenu = function(_parentMenu,_name) {
 	a2.onclick = function(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		li2.classList.add("open");
-		var menu = _g.ul;
-		var newpos;
-		if(menu.offsetLeft + menu.clientWidth + 30 > window.innerWidth) newpos = -menu.clientWidth; else newpos = li2.clientWidth;
-		menu.style.left = "" + newpos + "px";
+		if(_g.ul.childElementCount > 0) {
+			li2.classList.add("open");
+			var menu = _g.ul;
+			var newpos;
+			if(menu.offsetLeft + menu.clientWidth + 30 > window.innerWidth) newpos = -menu.clientWidth; else newpos = li2.clientWidth;
+			menu.style.left = (newpos == null?"null":"" + newpos) + "px";
+		}
 	};
 	li2.appendChild(a2);
 	this.ul.classList.add("dropdown-menu");
@@ -11380,9 +11696,16 @@ menu.Submenu = $hx_exports.ui.menu.basic.Submenu = function(_parentMenu,_name) {
 $hxClasses["menu.Submenu"] = menu.Submenu;
 menu.Submenu.__name__ = ["menu","Submenu"];
 menu.Submenu.prototype = {
-	addMenuItem: function(_text,_position,_onClickFunction,_hotkey) {
+	ul: null
+	,li: null
+	,name: null
+	,parentMenu: null
+	,addMenuItem: function(_text,_position,_onClickFunction,_hotkey) {
 		var menuButtonItem = new menu.MenuButtonItem(this.parentMenu + "->" + this.name,_text,_onClickFunction,_hotkey,true);
 		this.ul.appendChild(menuButtonItem.getElement());
+	}
+	,clear: function() {
+		while(this.ul.firstChild != null) this.ul.removeChild(this.ul.firstChild);
 	}
 	,getElement: function() {
 		return this.li;
@@ -11422,7 +11745,13 @@ menu.Menu = $hx_exports.ui.menu.basic.Menu = function(_text,_headerText) {
 $hxClasses["menu.Menu"] = menu.Menu;
 menu.Menu.__name__ = ["menu","Menu"];
 menu.Menu.prototype = {
-	addMenuItem: function(_text,_position,_onClickFunction,_hotkey) {
+	li: null
+	,ul: null
+	,items: null
+	,name: null
+	,submenus: null
+	,position: null
+	,addMenuItem: function(_text,_position,_onClickFunction,_hotkey) {
 		var menuButtonItem = new menu.MenuButtonItem(this.name,_text,_onClickFunction,_hotkey);
 		menuButtonItem.position = _position;
 		if(menuButtonItem.position != null && this.items.length > 0 && this.ul.childNodes.length > 0) {
@@ -11455,6 +11784,7 @@ menu.Menu.prototype = {
 	,addSubmenu: function(_text) {
 		var submenu = new menu.Submenu(this.name,_text);
 		this.ul.appendChild(submenu.getElement());
+		this.submenus.set(_text,submenu);
 		return submenu;
 	}
 	,addToDocument: function() {
@@ -11516,13 +11846,16 @@ mustache.Mustache = function(template,data) {
 $hxClasses["mustache.Mustache"] = mustache.Mustache;
 mustache.Mustache.__name__ = ["mustache","Mustache"];
 mustache.Mustache.render = function(template,data) {
-	console.log(template);
 	var mustache1 = new mustache.Mustache(template,data);
-	console.log(mustache1._render());
 	return mustache1._render();
 };
 mustache.Mustache.prototype = {
-	_render: function() {
+	template: null
+	,data: null
+	,context: null
+	,stack: null
+	,replacing: null
+	,_render: function() {
 		var canReplace = true;
 		while(canReplace) canReplace = this._replaceNext();
 		return this.template;
@@ -11609,7 +11942,13 @@ newprojectdialog.Category = $hx_exports.newprojectdialog.Category = function(_na
 $hxClasses["newprojectdialog.Category"] = newprojectdialog.Category;
 newprojectdialog.Category.__name__ = ["newprojectdialog","Category"];
 newprojectdialog.Category.prototype = {
-	getCategory: function(name) {
+	element: null
+	,items: null
+	,subcategories: null
+	,position: null
+	,name: null
+	,parent: null
+	,getCategory: function(name) {
 		if(!this.subcategories.exists(name)) newprojectdialog.NewProjectDialog.createSubcategory(name,this);
 		return this.subcategories.get(name);
 	}
@@ -11663,7 +12002,11 @@ newprojectdialog.Item = $hx_exports.newprojectdialog.Item = function(_name,_crea
 $hxClasses["newprojectdialog.Item"] = newprojectdialog.Item;
 newprojectdialog.Item.__name__ = ["newprojectdialog","Item"];
 newprojectdialog.Item.prototype = {
-	__class__: newprojectdialog.Item
+	name: null
+	,showCreateDirectoryOption: null
+	,nameLocked: null
+	,createProjectFunction: null
+	,__class__: newprojectdialog.Item
 };
 newprojectdialog.NewProjectDialog = $hx_exports.newprojectdialog.NewProjectDialog = function() { };
 $hxClasses["newprojectdialog.NewProjectDialog"] = newprojectdialog.NewProjectDialog;
@@ -11871,14 +12214,14 @@ newprojectdialog.NewProjectDialog.addCategoryToDocument = function(category) {
 	}
 };
 newprojectdialog.NewProjectDialog.generateFolderName = function(path,folder,n,onGenerated) {
-	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + ("" + n)),function(exists) {
+	if(path != "" && folder != "") js.Node.require("fs").exists(js.Node.require("path").join(path,folder + (n == null?"null":"" + n)),function(exists) {
 		if(exists) newprojectdialog.NewProjectDialog.generateFolderName(path,folder,n + 1,onGenerated); else {
-			newprojectdialog.NewProjectDialog.projectName.value = folder + ("" + n);
+			newprojectdialog.NewProjectDialog.projectName.value = folder + (n == null?"null":"" + n);
 			newprojectdialog.NewProjectDialog.updateHelpBlock();
 			if(onGenerated != null) onGenerated();
 		}
 	}); else {
-		newprojectdialog.NewProjectDialog.projectName.value = folder + ("" + n);
+		newprojectdialog.NewProjectDialog.projectName.value = folder + (n == null?"null":"" + n);
 		newprojectdialog.NewProjectDialog.updateHelpBlock();
 	}
 };
@@ -11907,7 +12250,7 @@ newprojectdialog.NewProjectDialog.createPage1 = function() {
 	well = _this1.createElement("div");
 	well.id = "new-project-dialog-well";
 	well.className = "well";
-	well.style.float = "left";
+	well.style["float"] = "left";
 	well.style.width = "50%";
 	well.style.height = "250px";
 	well.style.marginBottom = "0";
@@ -11917,7 +12260,7 @@ newprojectdialog.NewProjectDialog.createPage1 = function() {
 	newprojectdialog.NewProjectDialog.tree.className = "nav nav-list";
 	well.appendChild(newprojectdialog.NewProjectDialog.tree);
 	newprojectdialog.NewProjectDialog.list = newprojectdialog.NewProjectDialog.createList();
-	newprojectdialog.NewProjectDialog.list.style.float = "left";
+	newprojectdialog.NewProjectDialog.list.style["float"] = "left";
 	newprojectdialog.NewProjectDialog.list.style.width = "50%";
 	newprojectdialog.NewProjectDialog.list.style.height = "250px";
 	newprojectdialog.NewProjectDialog.page1.appendChild(newprojectdialog.NewProjectDialog.list);
@@ -12206,7 +12549,12 @@ openflproject.CreateOpenFLProject = function() { };
 $hxClasses["openflproject.CreateOpenFLProject"] = openflproject.CreateOpenFLProject;
 openflproject.CreateOpenFLProject.__name__ = ["openflproject","CreateOpenFLProject"];
 openflproject.CreateOpenFLProject.createOpenFLProject = function(params,path,onComplete) {
-	core.ProcessHelper.runProcess("haxelib",["run","lime-tools","create"].concat(params),path,onComplete);
+	var processParams = ["run","lime","create"].concat(params);
+	core.ProcessHelper.runProcess("haxelib",processParams,path,onComplete,function(code,stdout,stderr) {
+		Alertify.error(["haxelib"].concat(processParams).join(" ") + " " + (code == null?"null":"" + code));
+		if(stdout != "") Alertify.error("stdout:\n" + stdout);
+		if(stderr != "") Alertify.error("stderr:\n" + stderr);
+	});
 };
 openflproject.OpenFLProject = function() { };
 $hxClasses["openflproject.OpenFLProject"] = openflproject.OpenFLProject;
@@ -12255,9 +12603,9 @@ openflproject.OpenFLProject.createProject = function(data) {
 	project.type = 1;
 	project.openFLTarget = "flash";
 	project.path = pathToProject;
-	project.buildActionCommand = ["haxelib","run","lime-tools","build","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
+	project.buildActionCommand = ["haxelib","run","lime","build","\"%join%(%path%,project.xml)\"",project.openFLTarget,"--connect","5000"].join(" ");
 	project.runActionType = 2;
-	project.runActionText = ["haxelib","run","lime-tools","run","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
+	project.runActionText = ["haxelib","run","lime","run","\"%join%(%path%,project.xml)\"",project.openFLTarget].join(" ");
 	projectaccess.ProjectAccess.currentProject = project;
 	openflproject.OpenFLTools.getParams(project.path,project.openFLTarget,function(stdout) {
 		var args = [];
@@ -12284,11 +12632,11 @@ openflproject.OpenFLTools = $hx_exports.openflproject.OpenFLTools = function() {
 $hxClasses["openflproject.OpenFLTools"] = openflproject.OpenFLTools;
 openflproject.OpenFLTools.__name__ = ["openflproject","OpenFLTools"];
 openflproject.OpenFLTools.getParams = function(path,target,onLoaded) {
-	core.ProcessHelper.runProcess("haxelib",["run","openfl","display",target],path,function(stdout,stderr) {
+	core.ProcessHelper.runProcess("haxelib",["run","lime","display",target],path,function(stdout,stderr) {
 		if(onLoaded != null) onLoaded(stdout);
 		openflproject.OpenFLTools.printStderr(stderr);
 	},function(code,stdout1,stderr1) {
-		Alertify.error("OpenFL tools error. Please update OpenFL.(haxelib upgrade)");
+		Alertify.error("OpenFL tools error. OpenFL may be not installed. Please update OpenFL.(haxelib upgrade)");
 		Alertify.error("OpenFL tools process exit code " + code);
 		openflproject.OpenFLTools.printStderr(stderr1);
 	});
@@ -12300,8 +12648,11 @@ var openproject = {};
 openproject.OpenProject = function() { };
 $hxClasses["openproject.OpenProject"] = openproject.OpenProject;
 openproject.OpenProject.__name__ = ["openproject","OpenProject"];
-openproject.OpenProject.openProject = function(pathToProject) {
-	if(pathToProject == null) core.FileDialog.openFile(openproject.OpenProject.parseProject); else openproject.OpenProject.checkIfFileExists(pathToProject);
+openproject.OpenProject.openProject = function(pathToProject,project) {
+	if(project == null) project = false;
+	if(pathToProject == null) {
+		if(project) core.FileDialog.openFile(openproject.OpenProject.parseProject,".json,.xml,.hxml"); else core.FileDialog.openFile(openproject.OpenProject.parseProject);
+	} else openproject.OpenProject.checkIfFileExists(pathToProject);
 };
 openproject.OpenProject.checkIfFileExists = function(path) {
 	js.Node.require("fs").exists(path,function(exists) {
@@ -12317,7 +12668,7 @@ openproject.OpenProject.parseProject = function(path) {
 		options.encoding = "utf8";
 		js.Node.require("fs").readFile(path,options,function(error,data) {
 			var pathToProject = js.Node.require("path").dirname(path);
-			projectaccess.ProjectAccess.currentProject = tjson.TJSON.parse(data);
+			projectaccess.ProjectAccess.currentProject = openproject.OpenProject.parseProjectData(data);
 			projectaccess.ProjectAccess.currentProject.path = pathToProject;
 			if(projectaccess.ProjectAccess.currentProject.type == 2) tabmanager.TabManager.openFileInNewTab(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,projectaccess.ProjectAccess.currentProject.main));
 			parser.ClasspathWalker.parseProjectArguments();
@@ -12343,6 +12694,7 @@ openproject.OpenProject.parseProject = function(path) {
 			filetree.FileTree.load(projectaccess.ProjectAccess.currentProject.name,pathToProject);
 			core.Splitter.show();
 			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
+			core.RecentProjectsList.add(path);
 		});
 		break;
 	case "project.xml":case "application.xml":
@@ -12373,6 +12725,7 @@ openproject.OpenProject.parseProject = function(path) {
 			});
 			core.Splitter.show();
 			js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProjectHide);
+			core.RecentProjectsList.add(pathToProjectHide);
 		});
 		break;
 	default:
@@ -12394,6 +12747,7 @@ openproject.OpenProject.parseProject = function(path) {
 			});
 			core.Splitter.show();
 			js.Browser.getLocalStorage().setItem("pathToLastProject",pathToProjectHide1);
+			core.RecentProjectsList.add(pathToProjectHide1);
 			break;
 		default:
 		}
@@ -12408,6 +12762,17 @@ openproject.OpenProject.closeProject = function() {
 	projectaccess.ProjectAccess.currentProject.path = null;
 	core.Splitter.hide();
 	js.Browser.getLocalStorage().removeItem("pathToLastProject");
+};
+openproject.OpenProject.parseProjectData = function(data) {
+	var project = null;
+	try {
+		project = tjson.TJSON.parse(data);
+	} catch( unknown ) {
+		console.log(unknown);
+		console.log(data);
+		project = js.Node.parse(data);
+	}
+	return project;
 };
 var parser = {};
 parser.ClassParser = function() { };
@@ -12718,7 +13083,7 @@ pluginloader.PluginManager.loadPlugins = function(compile) {
 		var relativePathToPlugin = js.Node.require("path").join(path,pathToPlugin);
 		pluginloader.PluginManager.pathToPlugins.set(pluginName,relativePathToPlugin);
 		var absolutePathToPlugin = js.Node.require("path").resolve(relativePathToPlugin);
-		if(pluginloader.PluginManager.firstRun) pluginloader.PluginManager.pluginsMTime.set(pluginName,Std.parseInt("" + new Date().getTime()));
+		if(pluginloader.PluginManager.firstRun) pluginloader.PluginManager.pluginsMTime.set(pluginName,Std.parseInt(Std.string(new Date().getTime())));
 		if(compile && (!pluginloader.PluginManager.pluginsMTime.exists(pluginName) || pluginloader.PluginManager.pluginsMTime.get(pluginName) < pluginloader.PluginManager.walk(absolutePathToPlugin))) pluginloader.PluginManager.compilePlugin(pluginName,absolutePathToPlugin,pluginloader.PluginManager.loadPlugin); else pluginloader.PluginManager.loadPlugin(absolutePathToPlugin);
 	});
 	haxe.Timer.delay(function() {
@@ -12816,9 +13181,9 @@ pluginloader.PluginManager.startPluginCompilation = function(name,pathToPlugin,o
 	var haxeCompilerProcess = js.Node.require("child_process").exec(command,{ },function(err,stdout,stderr) {
 		if(err == null) {
 			delta = new Date().getTime() - startTime;
-			Std.string(console.log(name + " compilation took " + ("" + delta))) + " ms";
+			Std.string(console.log(name + " compilation took " + (delta == null?"null":"" + delta))) + " ms";
 			onSuccess(pathToPlugin);
-			pluginloader.PluginManager.pluginsMTime.set(name,Std.parseInt("" + new Date().getTime()));
+			pluginloader.PluginManager.pluginsMTime.set(name,Std.parseInt(Std.string(new Date().getTime())));
 		} else {
 			var element = window.document.getElementById("plugin-compilation-console");
 			var textarea;
@@ -12863,7 +13228,7 @@ pluginloader.PluginManager.checkRequiredPluginsData = function() {
 	if(Lambda.count(pluginloader.PluginManager.pathToPlugins) == pluginloader.PluginManager.plugins.length) {
 		console.log("all plugins loaded");
 		var delta = new Date().getTime() - Main.currentTime;
-		console.log("Loading took: " + ("" + delta) + " ms");
+		console.log("Loading took: " + (delta == null?"null":"" + delta) + " ms");
 		var options = { };
 		options.encoding = "utf8";
 		js.Node.require("fs").readFile("../.travis.yml.template",options,function(error,data) {
@@ -12919,7 +13284,23 @@ projectaccess.Project = $hx_exports.projectaccess.Project = function() {
 $hxClasses["projectaccess.Project"] = projectaccess.Project;
 projectaccess.Project.__name__ = ["projectaccess","Project"];
 projectaccess.Project.prototype = {
-	__class__: projectaccess.Project
+	type: null
+	,target: null
+	,name: null
+	,main: null
+	,projectPackage: null
+	,company: null
+	,license: null
+	,url: null
+	,args: null
+	,files: null
+	,activeFile: null
+	,path: null
+	,openFLTarget: null
+	,runActionType: null
+	,runActionText: null
+	,buildActionCommand: null
+	,__class__: projectaccess.Project
 };
 projectaccess.ProjectAccess = $hx_exports.projectaccess.ProjectAccess = function() { };
 $hxClasses["projectaccess.ProjectAccess"] = projectaccess.ProjectAccess;
@@ -12992,7 +13373,6 @@ projectaccess.ProjectOptions.create = function() {
 		++_g;
 		projectaccess.ProjectOptions.projectTargetList.appendChild(projectaccess.ProjectOptions.createListItem(target));
 	}
-	projectaccess.ProjectOptions.projectTargetList.disabled = true;
 	projectaccess.ProjectOptions.projectTargetList.onchange = projectaccess.ProjectOptions.update;
 	projectaccess.ProjectOptions.openFLTargets = ["flash","html5","neko","android","blackberry","emscripten","webos","tizen","ios","windows","mac","linux"];
 	var _g2 = 0;
@@ -13004,7 +13384,16 @@ projectaccess.ProjectOptions.create = function() {
 	}
 	projectaccess.ProjectOptions.openFLTargetList.onchange = function(_) {
 		projectaccess.ProjectAccess.currentProject.openFLTarget = projectaccess.ProjectOptions.openFLTargets[projectaccess.ProjectOptions.openFLTargetList.selectedIndex];
-		projectaccess.ProjectAccess.currentProject.buildActionCommand = ["haxelib","run","openfl","build",HIDE.surroundWithQuotes(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,"project.xml")),projectaccess.ProjectAccess.currentProject.openFLTarget].join(" ");
+		var buildParams = ["haxelib","run","openfl","build",HIDE.surroundWithQuotes(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,"project.xml")),projectaccess.ProjectAccess.currentProject.openFLTarget];
+		var _g3 = projectaccess.ProjectAccess.currentProject.openFLTarget;
+		switch(_g3) {
+		case "flash":case "html5":case "neko":
+			buildParams = buildParams.concat(["--connect","5000"]);
+			break;
+		default:
+		}
+		projectaccess.ProjectAccess.currentProject.buildActionCommand = buildParams.join(" ");
+		console.log(buildParams);
 		projectaccess.ProjectAccess.currentProject.runActionType = 2;
 		projectaccess.ProjectAccess.currentProject.runActionText = ["haxelib","run","openfl","run",HIDE.surroundWithQuotes(js.Node.require("path").join(projectaccess.ProjectAccess.currentProject.path,"project.xml")),projectaccess.ProjectAccess.currentProject.openFLTarget].join(" ");
 		projectaccess.ProjectOptions.updateProjectOptions();
@@ -13024,10 +13413,10 @@ projectaccess.ProjectOptions.create = function() {
 	projectaccess.ProjectOptions.runActionList = _this9.createElement("select");
 	projectaccess.ProjectOptions.runActionList.style.width = "100%";
 	projectaccess.ProjectOptions.runActionList.onchange = projectaccess.ProjectOptions.update;
-	var _g3 = 0;
-	while(_g3 < actions.length) {
-		var action = actions[_g3];
-		++_g3;
+	var _g4 = 0;
+	while(_g4 < actions.length) {
+		var action = actions[_g4];
+		++_g4;
 		projectaccess.ProjectOptions.runActionList.appendChild(projectaccess.ProjectOptions.createListItem(action));
 	}
 	var _this10 = window.document;
@@ -13216,8 +13605,8 @@ tabmanager.ContextMenu.createContextMenu = function() {
 tabmanager.ContextMenu.showMenu = function(path,e) {
 	tabmanager.ContextMenu.contextMenu.setAttribute("path",path);
 	tabmanager.ContextMenu.contextMenu.style.display = "block";
-	tabmanager.ContextMenu.contextMenu.style.left = "" + e.pageX + "px";
-	tabmanager.ContextMenu.contextMenu.style.top = "" + e.pageY + "px";
+	tabmanager.ContextMenu.contextMenu.style.left = (e.pageX == null?"null":"" + e.pageX) + "px";
+	tabmanager.ContextMenu.contextMenu.style.top = (e.pageY == null?"null":"" + e.pageY) + "px";
 };
 tabmanager.ContextMenu.createContextMenuItem = function(text,onClick) {
 	var li;
@@ -13274,7 +13663,14 @@ tabmanager.Tab = function(_name,_path,_doc,_save) {
 $hxClasses["tabmanager.Tab"] = tabmanager.Tab;
 tabmanager.Tab.__name__ = ["tabmanager","Tab"];
 tabmanager.Tab.prototype = {
-	startWatcher: function() {
+	name: null
+	,path: null
+	,doc: null
+	,li: null
+	,span3: null
+	,watcher: null
+	,ignoreNextUpdates: null
+	,startWatcher: function() {
 		var _g = this;
 		this.watcher = watchers.Watcher.watchFileForUpdates(this.path,function() {
 			if(_g.ignoreNextUpdates <= 0) Alertify.confirm(watchers.LocaleWatcher.getStringSync("File ") + _g.path + watchers.LocaleWatcher.getStringSync(" was changed. Reload?"),function(e) {
@@ -13328,7 +13724,8 @@ tabmanager.TabManager.createNewTab = function(name,path,doc,save) {
 		var relativePath = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,path);
 		if(HxOverrides.indexOf(projectaccess.ProjectAccess.currentProject.files,relativePath,0) == -1) projectaccess.ProjectAccess.currentProject.files.push(relativePath);
 	}
-	cm.CodeMirrorEditor.resize();
+	core.RecentProjectsList.addFile(path);
+	cm.Editor.resize();
 };
 tabmanager.TabManager.openFile = function(path,onComplete) {
 	var options = { };
@@ -13387,10 +13784,10 @@ tabmanager.TabManager.createNewFile = function(path) {
 };
 tabmanager.TabManager.checkTabsCount = function() {
 	if(window.document.getElementById("editor").style.display == "none" && tabmanager.TabManager.tabMap.getTabs().length > 0) {
-		new $("#editor").fadeIn();
+		new $("#editor").fadeIn(250);
 		core.WelcomeScreen.hide();
-		cm.CodeMirrorEditor.editor.refresh();
-		cm.CodeMirrorEditor.resize();
+		cm.Editor.editor.refresh();
+		cm.Editor.resize();
 	}
 };
 tabmanager.TabManager.closeAll = function() {
@@ -13418,7 +13815,7 @@ tabmanager.TabManager.closeTab = function(path,switchToTab) {
 		if(e) tabmanager.TabManager.saveDoc(path);
 		tabmanager.TabManager.removeTab(path,switchToTab);
 	}); else tabmanager.TabManager.removeTab(path,switchToTab);
-	cm.CodeMirrorEditor.resize();
+	cm.Editor.resize();
 };
 tabmanager.TabManager.removeTab = function(path,switchToTab) {
 	var tab = tabmanager.TabManager.tabMap.get(path);
@@ -13427,7 +13824,7 @@ tabmanager.TabManager.removeTab = function(path,switchToTab) {
 	if(tabmanager.TabManager.tabMap.getTabs().length > 0) {
 		if(switchToTab) tabmanager.TabManager.showPreviousTab();
 	} else {
-		new $("#editor").fadeOut();
+		new $("#editor").fadeOut(250);
 		if(projectaccess.ProjectAccess.currentProject.path != null) core.WelcomeScreen.hide(); else core.WelcomeScreen.show();
 		tabmanager.TabManager.selectedPath = null;
 	}
@@ -13502,7 +13899,7 @@ tabmanager.TabManager.selectDoc = function(path) {
 	}
 	tabmanager.TabManager.selectedPath = path;
 	if(projectaccess.ProjectAccess.currentProject.path != null) projectaccess.ProjectAccess.currentProject.activeFile = js.Node.require("path").relative(projectaccess.ProjectAccess.currentProject.path,tabmanager.TabManager.selectedPath);
-	cm.CodeMirrorEditor.editor.swapDoc(tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath).doc);
+	cm.Editor.editor.swapDoc(tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath).doc);
 	if(js.Node.require("path").extname(tabmanager.TabManager.selectedPath) == ".hx") core.HaxeLint.updateLinting();
 };
 tabmanager.TabManager.getCurrentDocumentPath = function() {
@@ -13552,7 +13949,8 @@ tabmanager.TabMap = function() {
 $hxClasses["tabmanager.TabMap"] = tabmanager.TabMap;
 tabmanager.TabMap.__name__ = ["tabmanager","TabMap"];
 tabmanager.TabMap.prototype = {
-	get: function(path) {
+	tabArray: null
+	,get: function(path) {
 		var tab = null;
 		var _g = 0;
 		var _g1 = this.tabArray;
@@ -13642,7 +14040,7 @@ tjson.TJSON.encode = function(obj,style) {
 	var st;
 	if(js.Boot.__instanceof(style,tjson.EncodeStyle)) st = style; else if(style == "fancy") st = new tjson.FancyStyle(); else st = new tjson.SimpleStyle();
 	var buffer = new StringBuf();
-	if((obj instanceof Array) && obj.__enum__ == null || js.Boot.__instanceof(obj,List)) tjson.TJSON.encodeIterable(buffer,obj,st,0); else tjson.TJSON.encodeAnonymousObject(buffer,obj,st,0);
+	if((obj instanceof Array) && obj.__enum__ == null || js.Boot.__instanceof(obj,List)) tjson.TJSON.encodeIterable(buffer,obj,st,0); else if(js.Boot.__instanceof(obj,haxe.ds.StringMap)) tjson.TJSON.encodeMap(buffer,obj,st,0); else tjson.TJSON.encodeObject(buffer,obj,st,0);
 	return buffer.b;
 };
 tjson.TJSON.defaultStringProcessor = function(str) {
@@ -13658,7 +14056,8 @@ tjson.TJSON.doObject = function() {
 	var o = { };
 	var val = "";
 	var key;
-	while((key = tjson.TJSON.getNextSymbol()) != "") {
+	while(tjson.TJSON.pos < tjson.TJSON.json.length) {
+		key = tjson.TJSON.getNextSymbol();
 		if(key == "," && !tjson.TJSON.lastSymbolQuoted) continue;
 		if(key == "}" && !tjson.TJSON.lastSymbolQuoted) return o;
 		var seperator = tjson.TJSON.getNextSymbol();
@@ -13672,7 +14071,8 @@ tjson.TJSON.doObject = function() {
 tjson.TJSON.doArray = function() {
 	var a = new Array();
 	var val;
-	while((val = tjson.TJSON.getNextSymbol()) != "") {
+	while(tjson.TJSON.pos < tjson.TJSON.json.length) {
+		val = tjson.TJSON.getNextSymbol();
 		if(val == "," && !tjson.TJSON.lastSymbolQuoted) continue; else if(val == "]" && !tjson.TJSON.lastSymbolQuoted) return a; else if(val == "{" && !tjson.TJSON.lastSymbolQuoted) val = tjson.TJSON.doObject(); else if(val == "[" && !tjson.TJSON.lastSymbolQuoted) val = tjson.TJSON.doArray(); else val = tjson.TJSON.convertSymbolToProperType(val);
 		a.push(val);
 	}
@@ -13684,6 +14084,7 @@ tjson.TJSON.convertSymbolToProperType = function(symbol) {
 	if(tjson.TJSON.looksLikeInt(symbol)) return Std.parseInt(symbol);
 	if(symbol.toLowerCase() == "true") return true;
 	if(symbol.toLowerCase() == "false") return false;
+	if(symbol.toLowerCase() == "null") return null;
 	return symbol;
 };
 tjson.TJSON.looksLikeFloat = function(s) {
@@ -13746,6 +14147,23 @@ tjson.TJSON.getNextSymbol = function() {
 					symbol += "/";
 					continue;
 				}
+				if(c == "u") {
+					var hexValue = 0;
+					var _g = 0;
+					while(_g < 4) {
+						var i = _g++;
+						if(tjson.TJSON.pos >= tjson.TJSON.json.length) throw "Unfinished UTF8 character";
+						var nc;
+						var index = tjson.TJSON.pos++;
+						nc = HxOverrides.cca(tjson.TJSON.json,index);
+						hexValue = hexValue << 4;
+						if(nc >= 48 && nc <= 57) hexValue += nc - 48; else if(nc >= 65 && nc <= 70) hexValue += 10 + nc - 65; else if(nc >= 97 && nc <= 102) hexValue += 10 + nc - 95; else throw "Not a hex digit";
+					}
+					var utf = new haxe.Utf8();
+					utf.__b += String.fromCharCode(hexValue);
+					symbol += utf.__b;
+					continue;
+				}
 				throw "Invalid escape sequence '\\" + c + "'";
 			} else {
 				if(c == "\\") {
@@ -13794,16 +14212,31 @@ tjson.TJSON.getNextSymbol = function() {
 	if(inQuote) throw "Unexpected end of data. Expected ( " + quoteType + " )";
 	return symbol;
 };
-tjson.TJSON.encodeAnonymousObject = function(buffer,obj,style,depth) {
+tjson.TJSON.encodeObject = function(buffer,obj,style,depth) {
 	buffer.add(style.beginObject(depth));
 	var fieldCount = 0;
+	var fields;
+	var cls = Type.getClass(obj);
+	if(cls != null) fields = Type.getInstanceFields(cls); else fields = Reflect.fields(obj);
 	var _g = 0;
-	var _g1 = Reflect.fields(obj);
-	while(_g < _g1.length) {
-		var field = _g1[_g];
+	while(_g < fields.length) {
+		var field = fields[_g];
 		++_g;
 		if(fieldCount++ > 0) buffer.add(style.entrySeperator(depth)); else buffer.add(style.firstEntry(depth));
 		var value = Reflect.field(obj,field);
+		buffer.add("\"" + field + "\"" + style.keyValueSeperator(depth));
+		tjson.TJSON.encodeValue(buffer,value,style,depth);
+	}
+	buffer.add(style.endObject(depth));
+};
+tjson.TJSON.encodeMap = function(buffer,obj,style,depth) {
+	buffer.add(style.beginObject(depth));
+	var fieldCount = 0;
+	var $it0 = obj.keys();
+	while( $it0.hasNext() ) {
+		var field = $it0.next();
+		if(fieldCount++ > 0) buffer.add(style.entrySeperator(depth)); else buffer.add(style.firstEntry(depth));
+		var value = obj.get(field);
 		buffer.add("\"" + field + "\"" + style.keyValueSeperator(depth));
 		tjson.TJSON.encodeValue(buffer,value,style,depth);
 	}
@@ -13827,13 +14260,20 @@ tjson.TJSON.encodeValue = function(buffer,value,style,depth) {
 	} else if(js.Boot.__instanceof(value,List)) {
 		var v1 = value;
 		tjson.TJSON.encodeIterable(buffer,v1,style,depth + 1);
-	} else if(typeof(value) == "string") buffer.add("\"" + StringTools.replace(StringTools.replace(StringTools.replace(StringTools.replace(Std.string(value),"\\","\\\\"),"\n","\\n"),"\r","\\r"),"\"","\\\"") + "\""); else if(typeof(value) == "boolean") buffer.add(value); else if(Reflect.isObject(value)) tjson.TJSON.encodeAnonymousObject(buffer,value,style,depth + 1); else throw "Unsupported field type: " + Std.string(value);
+	} else if(js.Boot.__instanceof(value,haxe.ds.StringMap)) tjson.TJSON.encodeMap(buffer,value,style,depth + 1); else if(typeof(value) == "string") buffer.add("\"" + StringTools.replace(StringTools.replace(StringTools.replace(StringTools.replace(Std.string(value),"\\","\\\\"),"\n","\\n"),"\r","\\r"),"\"","\\\"") + "\""); else if(typeof(value) == "boolean") buffer.add(value); else if(Reflect.isObject(value)) tjson.TJSON.encodeObject(buffer,value,style,depth + 1); else if(value == null) buffer.b += "null"; else throw "Unsupported field type: " + Std.string(value);
 };
 tjson.EncodeStyle = function() { };
 $hxClasses["tjson.EncodeStyle"] = tjson.EncodeStyle;
 tjson.EncodeStyle.__name__ = ["tjson","EncodeStyle"];
 tjson.EncodeStyle.prototype = {
-	__class__: tjson.EncodeStyle
+	beginObject: null
+	,endObject: null
+	,beginArray: null
+	,endArray: null
+	,firstEntry: null
+	,entrySeperator: null
+	,keyValueSeperator: null
+	,__class__: tjson.EncodeStyle
 };
 tjson.SimpleStyle = function() {
 };
@@ -13873,7 +14313,8 @@ $hxClasses["tjson.FancyStyle"] = tjson.FancyStyle;
 tjson.FancyStyle.__name__ = ["tjson","FancyStyle"];
 tjson.FancyStyle.__interfaces__ = [tjson.EncodeStyle];
 tjson.FancyStyle.prototype = {
-	beginObject: function(depth) {
+	tab: null
+	,beginObject: function(depth) {
 		return "{\n";
 	}
 	,endObject: function(depth) {
@@ -13894,6 +14335,7 @@ tjson.FancyStyle.prototype = {
 	,keyValueSeperator: function(depth) {
 		return " : ";
 	}
+	,charTimesNCache: null
 	,charTimesN: function(n) {
 		if(n < this.charTimesNCache.length) return this.charTimesNCache[n]; else return this.charTimesNCache[n] = this.charTimesN(n - 1) + this.tab;
 	}
@@ -13906,7 +14348,7 @@ watchers.LocaleWatcher.__name__ = ["watchers","LocaleWatcher"];
 watchers.LocaleWatcher.load = function() {
 	if(watchers.LocaleWatcher.watcher != null) watchers.LocaleWatcher.watcher.close();
 	watchers.LocaleWatcher.parse();
-	watchers.Watcher.watchFileForUpdates(watchers.SettingsWatcher.settings.locale,function() {
+	watchers.Watcher.watchFileForUpdates(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),function() {
 		watchers.LocaleWatcher.parse();
 		watchers.LocaleWatcher.processHtmlElements();
 	},1000);
@@ -13921,7 +14363,7 @@ watchers.LocaleWatcher.load = function() {
 watchers.LocaleWatcher.parse = function() {
 	var options = { };
 	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync(watchers.SettingsWatcher.settings.locale,options);
+	var data = js.Node.require("fs").readFileSync(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),options);
 	watchers.LocaleWatcher.localeData = tjson.TJSON.parse(data);
 };
 watchers.LocaleWatcher.getStringSync = function(name) {
@@ -13929,7 +14371,7 @@ watchers.LocaleWatcher.getStringSync = function(name) {
 	if(Object.prototype.hasOwnProperty.call(watchers.LocaleWatcher.localeData,name)) value = Reflect.field(watchers.LocaleWatcher.localeData,name); else {
 		watchers.LocaleWatcher.localeData[name] = name;
 		var data = tjson.TJSON.encode(watchers.LocaleWatcher.localeData,"fancy");
-		js.Node.require("fs").writeFileSync(watchers.SettingsWatcher.settings.locale,data,"utf8");
+		js.Node.require("fs").writeFileSync(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),data,"utf8");
 	}
 	return value;
 };
@@ -14083,9 +14525,11 @@ core.Utils.OTHER = 3;
 core.Hotkeys.hotkeys = new Array();
 core.Hotkeys.commandMap = new haxe.ds.StringMap();
 core.Hotkeys.spanMap = new haxe.ds.StringMap();
-core.Hotkeys.commandKey = core.Utils.os == 3;
+core.Hotkeys.commandKey = core.Utils.os == 2;
 core.PreserveWindowState.isMaximizationEvent = false;
 core.PreserveWindowState.window = nodejs.webkit.Window.get();
+core.RecentProjectsList.projectList = [];
+core.RecentProjectsList.fileList = [];
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
@@ -14354,7 +14798,7 @@ haxeparser.HaxeLexer.string = hxparse.Lexer.buildRuleset([{ rule : "\\\\\\\\", f
 }},{ rule : "\"", func : function(lexer6) {
 	return new hxparse.Position(lexer6.source,lexer6.pos - lexer6.current.length,lexer6.pos).pmax;
 }},{ rule : "[^\\\\\"]+", func : function(lexer7) {
-	haxeparser.HaxeLexer.buf.b += lexer7.current;
+	if(lexer7.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer7.current;
 	return lexer7.token(haxeparser.HaxeLexer.string);
 }}]);
 haxeparser.HaxeLexer.string2 = hxparse.Lexer.buildRuleset([{ rule : "\\\\\\\\", func : function(lexer) {
@@ -14375,7 +14819,7 @@ haxeparser.HaxeLexer.string2 = hxparse.Lexer.buildRuleset([{ rule : "\\\\\\\\", 
 }},{ rule : "'", func : function(lexer5) {
 	return new hxparse.Position(lexer5.source,lexer5.pos - lexer5.current.length,lexer5.pos).pmax;
 }},{ rule : "[^\\\\']+", func : function(lexer6) {
-	haxeparser.HaxeLexer.buf.b += lexer6.current;
+	if(lexer6.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer6.current;
 	return lexer6.token(haxeparser.HaxeLexer.string2);
 }}]);
 haxeparser.HaxeLexer.comment = hxparse.Lexer.buildRuleset([{ rule : "*/", func : function(lexer) {
@@ -14384,7 +14828,7 @@ haxeparser.HaxeLexer.comment = hxparse.Lexer.buildRuleset([{ rule : "*/", func :
 	haxeparser.HaxeLexer.buf.b += "*";
 	return lexer1.token(haxeparser.HaxeLexer.comment);
 }},{ rule : "[^\\*]+", func : function(lexer2) {
-	haxeparser.HaxeLexer.buf.b += lexer2.current;
+	if(lexer2.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer2.current;
 	return lexer2.token(haxeparser.HaxeLexer.comment);
 }}]);
 haxeparser.HaxeLexer.regexp = hxparse.Lexer.buildRuleset([{ rule : "\\\\/", func : function(lexer) {
@@ -14400,15 +14844,15 @@ haxeparser.HaxeLexer.regexp = hxparse.Lexer.buildRuleset([{ rule : "\\\\/", func
 	haxeparser.HaxeLexer.buf.b += "\t";
 	return lexer3.token(haxeparser.HaxeLexer.regexp);
 }},{ rule : "\\\\[\\$\\.*+\\^|{}\\[\\]()?\\-0-9]", func : function(lexer4) {
-	haxeparser.HaxeLexer.buf.b += lexer4.current;
+	if(lexer4.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer4.current;
 	return lexer4.token(haxeparser.HaxeLexer.regexp);
 }},{ rule : "\\\\[wWbBsSdDx]", func : function(lexer5) {
-	haxeparser.HaxeLexer.buf.b += lexer5.current;
+	if(lexer5.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer5.current;
 	return lexer5.token(haxeparser.HaxeLexer.regexp);
 }},{ rule : "/", func : function(lexer6) {
 	return lexer6.token(haxeparser.HaxeLexer.regexp_options);
 }},{ rule : "[^\\\\/\r\n]+", func : function(lexer7) {
-	haxeparser.HaxeLexer.buf.b += lexer7.current;
+	if(lexer7.current == null) haxeparser.HaxeLexer.buf.b += "null"; else haxeparser.HaxeLexer.buf.b += "" + lexer7.current;
 	return lexer7.token(haxeparser.HaxeLexer.regexp);
 }}]);
 haxeparser.HaxeLexer.regexp_options = hxparse.Lexer.buildRuleset([{ rule : "[gimsu]*", func : function(lexer) {

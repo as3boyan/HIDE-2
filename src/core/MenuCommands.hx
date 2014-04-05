@@ -87,18 +87,21 @@ class MenuCommands
 		//Ctrl-N
 		BootstrapMenu.getMenu("File").addMenuItem("New File...", 2, TabManager.createFileInNewTab, "Ctrl-N");
 		BootstrapMenu.getMenu("File").addSeparator();
-		BootstrapMenu.getMenu("File").addMenuItem("Open...", 3, OpenProject.openProject, "Ctrl-O");
+		BootstrapMenu.getMenu("File").addMenuItem("Open Project...", 3, OpenProject.openProject.bind(null, true));
+		BootstrapMenu.getMenu("File").addSubmenu("Open Recent Project");
 		BootstrapMenu.getMenu("File").addMenuItem("Close Project", 4, OpenProject.closeProject);
+		BootstrapMenu.getMenu("File").addMenuItem("Open File...", 5, OpenProject.openProject, "Ctrl-O");
+		BootstrapMenu.getMenu("File").addSubmenu("Open Recent File");
 		BootstrapMenu.getMenu("File").addSeparator();
 		
 		//Ctrl-S
-		BootstrapMenu.getMenu("File").addMenuItem("Save", 5, TabManager.saveActiveFile, "Ctrl-S");
+		BootstrapMenu.getMenu("File").addMenuItem("Save", 6, TabManager.saveActiveFile, "Ctrl-S");
 		//Ctrl-Shift-S
-		BootstrapMenu.getMenu("File").addMenuItem("Save As...", 6, TabManager.saveActiveFileAs, "Ctrl-Shift-S");
-		BootstrapMenu.getMenu("File").addMenuItem("Save All", 7, TabManager.saveAll);
+		BootstrapMenu.getMenu("File").addMenuItem("Save As...", 7, TabManager.saveActiveFileAs, "Ctrl-Shift-S");
+		BootstrapMenu.getMenu("File").addMenuItem("Save All", 8, TabManager.saveAll);
 		BootstrapMenu.getMenu("File").addSeparator();
 		
-		BootstrapMenu.getMenu("File").addMenuItem("Exit", 8, App.closeAllWindows);
+		BootstrapMenu.getMenu("File").addMenuItem("Exit", 9, App.closeAllWindows);
 		
 		Window.get().on('close', TabManager.saveAll);
 		

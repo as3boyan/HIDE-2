@@ -1,7 +1,7 @@
 package core;
 import byte.ByteData;
 import cm.CMDoc;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import core.HaxeLint.Info;
 import haxe.macro.Expr;
 import haxe.macro.Expr.Field;
@@ -14,6 +14,7 @@ import haxeparser.HaxeParser;
 import haxeparser.HaxeParser.ParserErrorMsg;
 import hxparse.NoMatch;
 import hxparse.Unexpected;
+import jQuery.JQuery;
 import js.Node;
 import tabmanager.TabManager;
 
@@ -189,7 +190,7 @@ class HaxeParserProvider
 	
 	public static function getClassName():Void 
 	{
-		var cm = CodeMirrorEditor.editor;
+		var cm = Editor.editor;
 		var pos = cm.indexFromPos(cm.getCursor());
 		//trace(pos);
 		
@@ -275,7 +276,7 @@ class HaxeParserProvider
 		{			
 			if (Reflect.hasField(e, "pos")) 
 			{		
-				var cm = CodeMirrorEditor.editor;
+				var cm = Editor.editor;
 				
 				var message:String = "Parser error:\n";
 				

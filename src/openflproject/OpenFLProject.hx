@@ -104,9 +104,9 @@ class OpenFLProject
 		//project.target = target;
 		project.openFLTarget = "flash";
 		project.path = pathToProject;
-		project.buildActionCommand = ["haxelib", "run", "lime-tools", "build", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
+		project.buildActionCommand = ["haxelib", "run", "lime", "build", '"%join%(%path%,project.xml)"', project.openFLTarget, "--connect", "5000"].join(" ");
 		project.runActionType = Project.COMMAND;
-		project.runActionText = ["haxelib", "run", "lime-tools", "run", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
+		project.runActionText = ["haxelib", "run", "lime", "run", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
 		
 		ProjectAccess.currentProject = project;
 		

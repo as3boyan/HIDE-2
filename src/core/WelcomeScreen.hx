@@ -5,6 +5,7 @@ import js.html.AnchorElement;
 import js.html.DivElement;
 import js.html.HeadingElement;
 import js.html.LIElement;
+import js.html.NodeList;
 import js.html.UListElement;
 import js.Node;
 import newprojectdialog.NewProjectDialog;
@@ -23,35 +24,38 @@ class WelcomeScreen
 	{		
 		div = cast(Browser.document.getElementById("welcomeScreen"), DivElement);
 		
-		//div = Browser.document.createDivElement();
-		//div.id = "welcomeScreen";
-		
-		//new JQuery().html()
-		
-		//var h3 = cast(Browser.document.createElement("h3"), HeadingElement);
-		//h3.textContent = "Welcome to HIDE";
-		//siteWrapper.appendChild(h3);
-		//
-		//var ul:UListElement = Browser.document.createUListElement();
-		//siteWrapper.appendChild(ul);
-		//
-		//ul.appendChild(createListElement("Create New Project...", NewProjectDialog.show));
-		//ul.appendChild(createListElement("Open File or Project...", OpenProject.openProject));
-		
-		//var options:NodeFsFileOptions = { };
-		//options.encoding = NodeC.UTF8;
-		
-		//var data:String = Node.fs.readFileSync("welcomeScreen.html", options);
-		
-		//new JQuery(div).html(data);
-		
-		//new JQuery("#editor").append(div);
-		
 		new JQuery("#createNewProject").on("click", NewProjectDialog.show);
 		
-		new JQuery("#openProject").on("click", OpenProject.openProject.bind(null));
+		new JQuery("#openProject").on("click", OpenProject.openProject.bind(null, true));
 		
-		new JQuery("#github").on("click", Shell.openExternal.bind("https://github.com/misterpah/HIDE/tree/master"));
+		var links:NodeList = Browser.document.getElementsByClassName("welcome-screen-link");
+		
+		for (i in 0...links.length) 
+		{
+			var link = cast(links.item(i), LIElement);
+			link.onclick = function (e):Void 
+			{
+				for (j in 0...links.length) 
+				{
+					var link2 = cast(links.item(j), LIElement);
+					
+					if (link2 != link) 
+					{
+						link2.classList.remove("active");
+						
+						new JQuery("#welcomeScreenPage" + Std.string(j + 1)).hide(0);
+					}
+					else 
+					{
+						link2.classList.add("active");
+						
+						new JQuery("#welcomeScreenPage" + Std.string(j + 1)).fadeIn(250);
+					}
+				}
+			};
+		}
+		
+		new JQuery("#github").on("click", Shell.openExternal.bind("https://github.com/as3boyan/HIDE"));
 		new JQuery("#as3boyan").on("click", Shell.openExternal.bind("http://twitter.com/As3Boyan"));
 		new JQuery("#misterpah").on("click", Shell.openExternal.bind("http://twitter.com/misterpah"));
 	}
@@ -75,11 +79,11 @@ class WelcomeScreen
 	
 	public static function show():Void
 	{
-		new JQuery(div).fadeIn();
+		new JQuery(div).fadeIn(250);
 	}
 	
 	public static function hide():Void
 	{
-		new JQuery(div).fadeOut();
+		new JQuery(div).fadeOut(250);
 	}
 }

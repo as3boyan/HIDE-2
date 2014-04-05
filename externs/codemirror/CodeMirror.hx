@@ -111,7 +111,8 @@ public function execCommand(command:String):Void;
 public function replaceRange(replacement: String, from: Pos, to: Pos, ?origin: String):Void;
 public function setSelection(anchor: Pos, ?head: Pos, ?options: Dynamic):Void;
 
-public function markText(from : Pos, to : Pos, className : String ) : MarkedText;
+public function markText(from : Pos, to : Pos, options:{className : String} ) : MarkedText;
+function getAllMarks():Array<MarkedText>;
 
 public function setMarker( line : Int , ?text : String , ?className : String ) : LineHandle;
 @:overload( function( line : LineHandle ) : Void {})

@@ -1,4 +1,5 @@
 package projectaccess;
+import haxe.ds.ArraySort;
 import js.Browser;
 import js.html.DivElement;
 import js.html.OptionElement;
@@ -72,7 +73,7 @@ import watchers.LocaleWatcher;
 			projectTargetList.appendChild(createListItem(target));
 		}
 		
-		projectTargetList.disabled = true;
+		//projectTargetList.disabled = true;
 		projectTargetList.onchange = update;
 		
 		openFLTargets = ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"];
@@ -86,7 +87,20 @@ import watchers.LocaleWatcher;
 		{
 			ProjectAccess.currentProject.openFLTarget = openFLTargets[openFLTargetList.selectedIndex];
 			
-			ProjectAccess.currentProject.buildActionCommand = ["haxelib", "run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
+			var buildParams:Array<String> = ["haxelib", "run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget];
+			
+			switch (ProjectAccess.currentProject.openFLTarget) 
+			{
+				case "flash", "html5", "neko":
+					buildParams = buildParams.concat(["--connect", "5000"]);
+				default:
+					
+			}
+			
+			ProjectAccess.currentProject.buildActionCommand = buildParams.join(" ");
+			
+			trace(buildParams);
+			
 			ProjectAccess.currentProject.runActionType = Project.COMMAND;
 			ProjectAccess.currentProject.runActionText = ["haxelib", "run", "openfl", "run", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
 			

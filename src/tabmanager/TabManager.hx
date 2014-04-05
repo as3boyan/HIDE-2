@@ -1,8 +1,9 @@
 package tabmanager;
 import cm.CMDoc;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import core.FileDialog;
 import core.HaxeLint;
+import core.RecentProjectsList;
 import core.WelcomeScreen;
 import filetree.FileTree;
 import haxe.ds.StringMap.StringMap;
@@ -66,7 +67,9 @@ import watchers.LocaleWatcher;
 			}
 		}
 		
-		CodeMirrorEditor.resize();
+		RecentProjectsList.addFile(path);
+		
+		Editor.resize();
 	}
 	
 	public static function openFile(path:String, onComplete:String->Void)
@@ -202,13 +205,13 @@ import watchers.LocaleWatcher;
 	{			
 		if (Browser.document.getElementById("editor").style.display == "none" && tabMap.getTabs().length > 0)
 		{
-			new JQuery("#editor").fadeIn();
+			new JQuery("#editor").fadeIn(250);
 			
 			WelcomeScreen.hide();
 			
-			CodeMirrorEditor.editor.refresh();
+			Editor.editor.refresh();
 			
-			CodeMirrorEditor.resize();
+			Editor.resize();
 			//Main.updateMenu();
 		}
 	}
@@ -257,7 +260,7 @@ import watchers.LocaleWatcher;
 			removeTab(path, switchToTab);
 		}
 		
-		CodeMirrorEditor.resize();
+		Editor.resize();
 	}
 	
 	static function removeTab(path:String, ?switchToTab:Bool)
@@ -276,7 +279,7 @@ import watchers.LocaleWatcher;
 		}
 		else 
 		{
-			new JQuery("#editor").fadeOut();
+			new JQuery("#editor").fadeOut(250);
 			
 			if (ProjectAccess.currentProject.path != null) 
 			{
@@ -393,7 +396,7 @@ import watchers.LocaleWatcher;
 			ProjectAccess.currentProject.activeFile = Node.path.relative(ProjectAccess.currentProject.path, selectedPath);
 		}
 		
-		CodeMirrorEditor.editor.swapDoc(tabMap.get(selectedPath).doc);
+		Editor.editor.swapDoc(tabMap.get(selectedPath).doc);
 		
 		if (Node.path.extname(selectedPath) == ".hx") 
 		{

@@ -1,14 +1,16 @@
 package core;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import js.Browser;
 import js.html.TextAreaElement;
 import js.Node;
 import menu.BootstrapMenu;
 import nodejs.webkit.Shell;
 import nodejs.webkit.Window;
+import openproject.OpenProject;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
 import tabmanager.TabManager;
+import tjson.TJSON;
 import watchers.LocaleWatcher;
 
 /**
@@ -23,7 +25,8 @@ class RunProject
 	{
 		BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, runProject, "F5");
 		BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, buildProject, "F8");
-		BootstrapMenu.getMenu("Project").addMenuItem("Set this hxml as project build file", 3, setHxmlAsProjectBuildFile);
+		BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File", 3, setHxmlAsProjectBuildFile);
+		BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
 	}
 	
 	static function setHxmlAsProjectBuildFile():Void
@@ -34,11 +37,20 @@ class RunProject
 		
 		if (buildHxml) 
 		{
+			var noproject:Bool = ProjectAccess.currentProject.path == null;
+			
 			var project:Project = ProjectAccess.currentProject;
 			project.type = Project.HXML;
 			project.main = Node.path.basename(path);
 			project.path = Node.path.dirname(path);
-			ProjectAccess.save();
+			ProjectAccess.save(function ():Void 
+			{
+				if (noproject) 
+				{
+					OpenProject.openProject(Node.path.join(project.path, "project.json"));
+				}
+			}
+			);
 			Alertify.success(LocaleWatcher.getStringSync("Done"));
 		}
 		else 
@@ -49,7 +61,7 @@ class RunProject
 	
 	static function runProject():Void
 	{		
-		buildProject(function ()
+		buildProject(null, function ()
 		{			
 			switch (ProjectAccess.currentProject.runActionType) 
 			{
@@ -81,13 +93,13 @@ class RunProject
 					
 					if (isValidCommand(command)) 
 					{
-						var params:Array<String> = preprocessCommand(command).split(" ");
+						var params:Array<String> = preprocessCommand(command, ProjectAccess.currentProject.path).split(" ");
 						
 						var process:String = params.shift();
 						
 						killRunProcess();
 						
-						runProcess = ProcessHelper.runProcessAndPrintOutputToConsole(process, params);
+						runProcess = ProcessHelper.runPersistentProcess(process, params, null, true);
 						
 						var window:Window = Window.get();
 		
@@ -128,9 +140,29 @@ class RunProject
 		return valid;
 	}
 	
-	static function buildProject(?onComplete:Dynamic):Void
+	public static function buildProject(?pathToProject:String, ?onComplete:Dynamic):Void
 	{		
-		if (ProjectAccess.currentProject.path == null)
+		var project:Project;
+		
+		if (pathToProject != null) 
+		{
+			var options:NodeFsFileOptions = { };
+			options.encoding = NodeC.UTF8;
+			
+			var data:String = Node.fs.readFileSync(pathToProject, options);
+			project = TJSON.parse(data);
+		}
+		else 
+		{
+			project = ProjectAccess.currentProject;
+		}
+		
+		build(project, onComplete);
+	}
+	
+	static function build(project:Project, onComplete:Dynamic)
+	{
+		if (project.path == null)
 		{
 			Alertify.error(LocaleWatcher.getStringSync("Please open or create project first!"));
 		}
@@ -145,17 +177,17 @@ class RunProject
 				var dirname:String = Node.path.dirname(path);
 				var filename:String = Node.path.basename(path);
 				
-				if (buildHxml || ProjectAccess.currentProject.type == Project.HXML) 
+				if (buildHxml || project.type == Project.HXML) 
 				{
 					var hxmlData:String;
 					
 					if (!buildHxml) 
 					{
-						dirname = ProjectAccess.currentProject.path;
-						filename = ProjectAccess.currentProject.main;
+						dirname = project.path;
+						filename = project.main;
 						
-						var options:js.Node.NodeFsFileOptions = { };
-						options.encoding = js.Node.NodeC.UTF8;
+						var options:NodeFsFileOptions = { };
+						options.encoding = NodeC.UTF8;
 						
 						Node.fs.readFile(Node.path.join(dirname, filename), options, function (err:js.NodeErr, data:String):Void
 						{
@@ -173,21 +205,21 @@ class RunProject
 					}
 					else 
 					{
-						hxmlData = CodeMirrorEditor.editor.getValue();	
+						hxmlData = Editor.editor.getValue();	
 						checkHxml(dirname, filename, hxmlData, onComplete);
 					}
 				}
 				else 
 				{
-					var command:String = ProjectAccess.currentProject.buildActionCommand;
-					command = preprocessCommand(command);
+					var command:String = project.buildActionCommand;
+					command = preprocessCommand(command, project.path);
 					
-					if (ProjectAccess.currentProject.type == Project.HAXE)
+					if (project.type == Project.HAXE)
 					{
-						command = [command].concat(ProjectAccess.currentProject.args).join(" ");
+						command = [command].concat(project.args).join(" ");
 					}
 					
-					var params:Array<String> = preprocessCommand(command).split(" ");
+					var params:Array<String> = preprocessCommand(command, project.path).split(" ");
 					var process:String = params.shift();
 					
 					ProcessHelper.runProcessAndPrintOutputToConsole(process, params, onComplete);			
@@ -197,7 +229,7 @@ class RunProject
 		}
 	}
 	
-	private static function checkHxml(dirname:String, filename:String, hxmlData:String, ?onComplete:Dynamic)
+	static function checkHxml(dirname:String, filename:String, hxmlData:String, ?onComplete:Dynamic)
 	{
 		var useCompilationServer:Bool = true;
 		var startCommandLine:Bool = false;
@@ -248,11 +280,11 @@ class RunProject
 		ProcessHelper.runProcessAndPrintOutputToConsole(process, params, onComplete);
 	}
 	
-	private static function preprocessCommand(command:String):String
+	private static function preprocessCommand(command:String, path:String):String
 	{
 		var processedCommand:String = command;
 		
-		processedCommand = StringTools.replace(processedCommand, "%path%", ProjectAccess.currentProject.path);
+		processedCommand = StringTools.replace(processedCommand, "%path%", path);
 		
 		var ereg:EReg = ~/%join%[(](.+)[)]/;
 		

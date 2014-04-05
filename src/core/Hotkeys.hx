@@ -26,7 +26,7 @@ typedef Hotkey =
 	static var spanMap:StringMap<SpanElement> = new StringMap();
 	public static var data:Dynamic;
 	static var pathToData:String;
-	static var commandKey:Bool = Utils.os == Utils.OTHER;
+	static var commandKey:Bool = Utils.os == Utils.MAC;
 	
 	public static function prepare():Void
 	{

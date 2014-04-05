@@ -9,7 +9,7 @@ import menu.BootstrapMenu;
  * ...
  * @author AS3Boyan
  */
-class CodeMirrorZoom
+class Zoom
 {	
 	public static function load():Void
 	{

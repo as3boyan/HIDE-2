@@ -14,15 +14,24 @@ package core;
 	public static var os:Int;
 	
 	public static function prepare():Void
-	{		
-		switch(js.Node.os.type())
-        {
-			case "Windows_NT":
-				os = WINDOWS;
-			case "Linux":
-				os = LINUX;
-			case _:
-				os = OTHER;
-        }
+	{	
+		//https://github.com/Witcher42/os-cli/blob/master/bin/os.js
+		
+		var platform = js.Node.os.platform();
+		
+		os = OTHER;
+		
+		if (platform == 'linux') 
+		{
+			os = LINUX;
+		}
+		else if (platform == 'darwin') 
+		{
+			os = MAC;
+		}
+		else if (platform.indexOf('win') == 0) 
+		{
+			os = WINDOWS;
+		}
 	}
 }

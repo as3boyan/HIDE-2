@@ -27,7 +27,7 @@ class LocaleWatcher
 		
 		parse();
 		
-		Watcher.watchFileForUpdates(SettingsWatcher.settings.locale, function ():Void 
+		Watcher.watchFileForUpdates(Node.path.join("locale", SettingsWatcher.settings.locale), function ():Void 
 		{
 			parse();
 			processHtmlElements();
@@ -55,7 +55,7 @@ class LocaleWatcher
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
 		
-		var data:String = Node.fs.readFileSync(SettingsWatcher.settings.locale, options);
+		var data:String = Node.fs.readFileSync(Node.path.join("locale", SettingsWatcher.settings.locale), options);
 		
 		localeData = TJSON.parse(data);
 	}
@@ -72,7 +72,7 @@ class LocaleWatcher
 		{
 			Reflect.setField(localeData, name, name);
 			var data:String = TJSON.encode(localeData, 'fancy');
-			Node.fs.writeFileSync(SettingsWatcher.settings.locale, data, NodeC.UTF8);
+			Node.fs.writeFileSync(Node.path.join("locale", SettingsWatcher.settings.locale), data, NodeC.UTF8);
 		}
 		
 		return value;

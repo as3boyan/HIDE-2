@@ -4,6 +4,7 @@ import core.FunctionParametersHelper;
 import core.HaxeLint;
 import core.HaxeParserProvider;
 import core.Helper;
+import core.OutlinePanel;
 import haxe.Json;
 import haxe.Timer;
 import jQuery.JQuery;
@@ -14,6 +15,7 @@ import js.html.TextAreaElement;
 import js.Lib;
 import js.Node;
 import menu.BootstrapMenu;
+import nodejs.webkit.Window;
 import projectaccess.ProjectAccess;
 import tabmanager.TabManager;
 import tjson.TJSON;
@@ -22,7 +24,7 @@ import tjson.TJSON;
  * ...
  * @author AS3Boyan
  */
-class CodeMirrorEditor
+class Editor
 {	
 	public static var editor:CodeMirror;
 	public static var regenerateCompletionOnDot:Bool;
@@ -61,7 +63,7 @@ class CodeMirrorEditor
 		
 		editor = CodeMirror.fromTextArea(Browser.document.getElementById("code"), options);
 		
-		new JQuery("#editor").hide();
+		new JQuery("#editor").hide(250);
 		
 		loadThemes([
 		"3024-day",
@@ -113,7 +115,7 @@ class CodeMirrorEditor
 			  
 		  }
 		
-		trace(CodeMirrorEditor.editor);
+		trace(Editor.editor);
 		  
 		Node.fs.writeFileSync("bindings.txt", value, NodeC.UTF8);
 		
@@ -124,7 +126,7 @@ class CodeMirrorEditor
 				editor.refresh();
 			}, 100);
 			
-			resize();
+			Timer.delay(resize, 50);
 		}
 		);
 		
@@ -139,9 +141,12 @@ class CodeMirrorEditor
 		
 		editor.on("cursorActivity", function (cm:CodeMirror)
 		{
-			Helper.debounce("cursorActivity", FunctionParametersHelper.update.bind(cm), 100);
-			
-			ColorPreview.update(editor);
+			Helper.debounce("cursorActivity", function ():Void 
+			{
+				FunctionParametersHelper.update(cm);
+				ColorPreview.update(cm);
+				ERegPreview.update(cm);
+			}, 100);
 		}
 		);
 		
@@ -164,6 +169,8 @@ class CodeMirrorEditor
 				Helper.debounce("change", function ():Void 
 				{
 					HaxeParserProvider.getClassName();
+					//OutlinePanel.update();
+					//OutlinePanel.add(type.data[i].name);
 					HaxeLint.updateLinting();
 				}, 100);
 				

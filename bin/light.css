@@ -5,6 +5,16 @@ html, body
     height: 100%;
 }
 
+.jqx-tabs
+{
+	border: none;
+}
+
+.jqx-widget-content
+{
+	border: none;
+}
+
 /*
  * Base structure
  */
@@ -21,6 +31,49 @@ html, body
   text-align: center;
   text-shadow: 0 1px 3px rgba(0,0,0,.5);
   box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+}
+
+#welcomeScreenPage2
+{
+	display: none;
+}
+
+#welcomeScreenPage3
+{
+	display: none;
+}
+
+.recentProject
+{
+	background-color: #D5D5D5;
+	border: 1px solid #1F1D1D;
+	text-shadow: none;
+	font-size: large;
+	font-weight: bold;
+}
+
+.welcomeHeading
+{
+	text-shadow: none;
+	background-color: #D1D1D1;
+}
+
+.welcomeHeadingTitle
+{
+	color: #555;
+	font-size: large;
+	font-weight: bold;
+}
+
+.welcomeBody
+{
+	color: #000000;
+	text-shadow: none;
+}
+
+.showRegex
+{
+	background-color: #E3E8E7;
 }
 
 /*
@@ -376,7 +429,7 @@ background-repeat: repeat-x;
 ul.tabs {
   list-style: none;
   margin: 0 0 -1px 0;
-  padding: 2px 0 0 37px;
+  padding: 5px 0 0 37px;
   font-family: "Ubuntu Mono";
   overflow: hidden;
   z-index: 0;

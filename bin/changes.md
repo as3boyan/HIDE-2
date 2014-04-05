@@ -1,10 +1,19 @@
 0.3.5
 -----------
 
-* ADDED: Hxml syntax highlighting mode
-* ADDED: Check default path for Haxe on all platforms
+* FIX: opening two instances of flash player issue
+* FIX: showing multiple notifications issue for run command(will show only one for build)
+* FIX: code editor resize on window maximize/unmaximize event
 * CHANGED: Show file list(Ctrl-Shift-O) for any file(previously worked only for *.hxml and *.hx)
 * CHANGED: Do not show prompt for path to Haxe dialog if 'std' folder was found
+* CHANGED: config files moved to 'config' folder
+* CHANGED: locale files moved to 'locale' folder
+* CHANGED: File->Open... was replaced with File->Open Project...(with file extension filter) and File->Open File
+* CHANGED: Do not add hotkeys for submenu menu items
+* ADDED: Hxml syntax highlighting mode
+* ADDED: Check default path for Haxe on all platforms
+* ADDED: EReg Preview
+* UPDATED: lime/OpenFL support updated to work with latest versions
 
 0.3.4
 -----------

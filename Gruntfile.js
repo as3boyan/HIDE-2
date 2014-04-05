@@ -23,6 +23,7 @@ module.exports = function(grunt) {
 			linux32: true, // We want to build it for linux32
 			linux64: true // We want to build it for linux64
 		},
+		//src: ['bin/package.json']
 		src: ['./bin/**/*'] // Your node-webkit app
 	  },
 	});

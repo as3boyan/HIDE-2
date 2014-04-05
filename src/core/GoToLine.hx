@@ -1,5 +1,5 @@
 package core;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import tabmanager.TabManager;
 
 /**
@@ -14,7 +14,7 @@ class GoToLine
 		{
 			Alertify.prompt("Go to Line", function (e:Bool, str:String):Void 
 			{
-				CodeMirrorEditor.editor.centerOnLine(Std.parseInt(str));
+				Editor.editor.centerOnLine(Std.parseInt(str));
 			}
 			);
 		}

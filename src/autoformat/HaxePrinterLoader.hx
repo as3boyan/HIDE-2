@@ -1,5 +1,5 @@
 package autoformat;
-import cm.CodeMirrorEditor;
+import cm.Editor;
 import js.Node;
 import menu.BootstrapMenu;
 import tabmanager.TabManager;
@@ -16,12 +16,12 @@ class HaxePrinterLoader
 		{
 			if (js.Node.path.extname(TabManager.getCurrentDocumentPath()) == ".hx") 
 			{
-				var data:String = CodeMirrorEditor.editor.getValue();
+				var data:String = Editor.editor.getValue();
 				
 				if (data != "") 
 				{
 					data = HaxePrinter.formatSource(data);
-					CodeMirrorEditor.editor.setValue(data);
+					Editor.editor.setValue(data);
 				}
 			}
 		}
