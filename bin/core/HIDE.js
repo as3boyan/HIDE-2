@@ -401,6 +401,9 @@ Main.main = function() {
 		});
 		Main.window.show();
 	});
+	core.ProcessHelper.checkProcessInstalled("git",[],function(installed3) {
+		console.log("git installed " + (installed3 == null?"null":"" + installed3));
+	});
 	Main.window.on("close",function(e1) {
 		nodejs.webkit.App.closeAllWindows();
 	});
@@ -1121,7 +1124,7 @@ cm.Editor.load = function() {
 	readFileOptions.encoding = "utf8";
 	var options = { };
 	try {
-		options = tjson.TJSON.parse(js.Node.require("fs").readFileSync(js.Node.require("path").join("config","editor.json"),readFileOptions));
+		options = tjson.TJSON.parse(js.Node.require("fs").readFileSync(js.Node.require("path").join("core","config","editor.json"),readFileOptions));
 	} catch( err ) {
 		if( js.Boot.__instanceof(err,Error) ) {
 			console.log(err);
@@ -1573,6 +1576,7 @@ core.Completion.getCompletion = function(onComplete,_pos) {
 		var projectArguments = projectaccess.ProjectAccess.currentProject.args.slice();
 		if(projectaccess.ProjectAccess.currentProject.type == 2) projectArguments.push(projectaccess.ProjectAccess.currentProject.main);
 		projectArguments.push("--display");
+		projectArguments.push("--no-output");
 		var cm1 = cm.Editor.editor;
 		core.Completion.cur = _pos;
 		if(_pos == null) core.Completion.cur = cm1.getCursor();
@@ -2358,7 +2362,7 @@ core.Hotkeys = $hx_exports.Hotkeys = function() { };
 $hxClasses["core.Hotkeys"] = core.Hotkeys;
 core.Hotkeys.__name__ = ["core","Hotkeys"];
 core.Hotkeys.prepare = function() {
-	core.Hotkeys.pathToData = js.Node.require("path").join("config","hotkeys.json");
+	core.Hotkeys.pathToData = js.Node.require("path").join("core","config","hotkeys.json");
 	core.Hotkeys.parseData();
 	var options = { };
 	options.interval = 1500;
@@ -14470,7 +14474,7 @@ watchers.LocaleWatcher.__name__ = ["watchers","LocaleWatcher"];
 watchers.LocaleWatcher.load = function() {
 	if(watchers.LocaleWatcher.watcher != null) watchers.LocaleWatcher.watcher.close();
 	watchers.LocaleWatcher.parse();
-	watchers.Watcher.watchFileForUpdates(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),function() {
+	watchers.Watcher.watchFileForUpdates(watchers.LocaleWatcher.pathToLocale,function() {
 		watchers.LocaleWatcher.parse();
 		watchers.LocaleWatcher.processHtmlElements();
 	},1000);
@@ -14483,9 +14487,10 @@ watchers.LocaleWatcher.load = function() {
 	}
 };
 watchers.LocaleWatcher.parse = function() {
+	watchers.LocaleWatcher.pathToLocale = js.Node.require("path").join("core","locale",watchers.SettingsWatcher.settings.locale);
 	var options = { };
 	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),options);
+	var data = js.Node.require("fs").readFileSync(watchers.LocaleWatcher.pathToLocale,options);
 	watchers.LocaleWatcher.localeData = tjson.TJSON.parse(data);
 };
 watchers.LocaleWatcher.getStringSync = function(name) {
@@ -14493,7 +14498,7 @@ watchers.LocaleWatcher.getStringSync = function(name) {
 	if(Object.prototype.hasOwnProperty.call(watchers.LocaleWatcher.localeData,name)) value = Reflect.field(watchers.LocaleWatcher.localeData,name); else {
 		watchers.LocaleWatcher.localeData[name] = name;
 		var data = tjson.TJSON.encode(watchers.LocaleWatcher.localeData,"fancy");
-		js.Node.require("fs").writeFileSync(js.Node.require("path").join("locale",watchers.SettingsWatcher.settings.locale),data,"utf8");
+		js.Node.require("fs").writeFileSync(watchers.LocaleWatcher.pathToLocale,data,"utf8");
 	}
 	return value;
 };
@@ -14514,7 +14519,8 @@ watchers.SettingsWatcher = function() { };
 $hxClasses["watchers.SettingsWatcher"] = watchers.SettingsWatcher;
 watchers.SettingsWatcher.__name__ = ["watchers","SettingsWatcher"];
 watchers.SettingsWatcher.load = function() {
-	watchers.Watcher.watchFileForUpdates(js.Node.require("path").join("config","settings.json"),watchers.SettingsWatcher.parse,3000);
+	watchers.SettingsWatcher.pathToSettings = js.Node.require("path").join("core","config","settings.json");
+	watchers.Watcher.watchFileForUpdates(watchers.SettingsWatcher.pathToSettings,watchers.SettingsWatcher.parse,3000);
 	watchers.SettingsWatcher.parse();
 	nodejs.webkit.Window.get().on("close",function(e) {
 		if(watchers.SettingsWatcher.watcher != null) watchers.SettingsWatcher.watcher.close();
@@ -14523,7 +14529,7 @@ watchers.SettingsWatcher.load = function() {
 watchers.SettingsWatcher.parse = function() {
 	var options = { };
 	options.encoding = "utf8";
-	var data = js.Node.require("fs").readFileSync(js.Node.require("path").join("config","settings.json"),options);
+	var data = js.Node.require("fs").readFileSync(watchers.SettingsWatcher.pathToSettings,options);
 	watchers.SettingsWatcher.settings = tjson.TJSON.parse(data);
 	watchers.ThemeWatcher.load();
 	watchers.LocaleWatcher.load();
@@ -14532,9 +14538,10 @@ watchers.ThemeWatcher = function() { };
 $hxClasses["watchers.ThemeWatcher"] = watchers.ThemeWatcher;
 watchers.ThemeWatcher.__name__ = ["watchers","ThemeWatcher"];
 watchers.ThemeWatcher.load = function() {
+	watchers.ThemeWatcher.pathToTheme = js.Node.require("path").join("core",watchers.SettingsWatcher.settings.theme);
 	if(watchers.ThemeWatcher.watcher != null) watchers.ThemeWatcher.watcher.close();
-	watchers.Watcher.watchFileForUpdates(watchers.SettingsWatcher.settings.theme,function() {
-		new $("#theme").attr("href",watchers.SettingsWatcher.settings.theme);
+	watchers.Watcher.watchFileForUpdates(watchers.ThemeWatcher.pathToTheme,function() {
+		new $("#theme").attr("href",watchers.ThemeWatcher.pathToTheme);
 	},1000);
 	if(!watchers.ThemeWatcher.listenerAdded) {
 		nodejs.webkit.Window.get().on("close",function(e) {

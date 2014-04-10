@@ -12,17 +12,20 @@ class ThemeWatcher
 {
 	static var watcher:Dynamic;
 	static var listenerAdded:Bool = false;
+    static var pathToTheme:String;
 	
 	public static function load() 
 	{		
+        pathToTheme = js.Node.path.join("core", SettingsWatcher.settings.theme);
+        
 		if (watcher != null) 
 		{
 			watcher.close();
 		}
 		
-		Watcher.watchFileForUpdates(SettingsWatcher.settings.theme, function ():Void 
+		Watcher.watchFileForUpdates(pathToTheme, function ():Void 
 		{
-			new JQuery("#theme").attr("href", SettingsWatcher.settings.theme);
+			new JQuery("#theme").attr("href", pathToTheme);
 		}, 1000);
 		
 		if (!listenerAdded) 

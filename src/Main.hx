@@ -158,6 +158,12 @@ class Main
 			window.show();
 		}
 		);
+        
+        ProcessHelper.checkProcessInstalled("git", [], function (installed:Bool)
+        {
+			trace("git installed " + Std.string(installed));
+        }
+        );
 		
 		window.on("close", function (e)
 		{

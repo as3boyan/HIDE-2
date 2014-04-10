@@ -40,7 +40,7 @@ class Editor
 		
 		try 
 		{
-			options = TJSON.parse(Node.fs.readFileSync(Node.path.join("config","editor.json"), readFileOptions));
+			options = TJSON.parse(Node.fs.readFileSync(Node.path.join("core","config","editor.json"), readFileOptions));
 		}
 		catch (err:Error)
 		{

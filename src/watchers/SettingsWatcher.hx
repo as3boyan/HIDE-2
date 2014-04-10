@@ -18,10 +18,14 @@ class SettingsWatcher
 {
 	public static var settings:Settings;
 	public static var watcher:Dynamic;
+    
+    static var pathToSettings:String;
 	
 	public static function load():Void 
 	{
-		Watcher.watchFileForUpdates(Node.path.join("config","settings.json"), parse, 3000);
+        pathToSettings = Node.path.join("core","config","settings.json");
+        
+		Watcher.watchFileForUpdates(pathToSettings, parse, 3000);
 		
 		parse();
 		
@@ -40,7 +44,7 @@ class SettingsWatcher
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
 		
-		var data:String = Node.fs.readFileSync(Node.path.join("config","settings.json"), options);
+		var data:String = Node.fs.readFileSync(pathToSettings, options);
 		settings = TJSON.parse(data);
 		
 		ThemeWatcher.load();

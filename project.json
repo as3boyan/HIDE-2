@@ -11,11 +11,9 @@
 
     ]
     ,"files" : [
-         "HIDE.hxml"
-        ,"src\\Main.hx"
-        ,"../../../usr/lib/haxe/lib/HIDE/0,3,4/changes.md"
+         "src\\Main.hx"
     ]
-    ,"activeFile" : "../../../usr/lib/haxe/lib/HIDE/0,3,4/changes.md"
+    ,"activeFile" : "src/Main.hx"
     ,"path" : "/home/as3boyan/HIDE-2"
     ,"openFLTarget" : null
     ,"runActionType" : 2

@@ -4,7 +4,6 @@ import js.Browser;
 import js.html.Element;
 import js.Node;
 import nodejs.webkit.Window;
-//import jQuery.JQuery;
 import js.node.Watchr;
 import tjson.TJSON;
 
@@ -17,9 +16,10 @@ class LocaleWatcher
 	static var localeData:Dynamic;
 	static var watcher:Dynamic;
 	static var listenerAdded:Bool = false;
+    static var pathToLocale:String;
 	
 	public static function load():Void 
-	{
+	{        
 		if (watcher != null) 
 		{
 			watcher.close();
@@ -27,7 +27,7 @@ class LocaleWatcher
 		
 		parse();
 		
-		Watcher.watchFileForUpdates(Node.path.join("locale", SettingsWatcher.settings.locale), function ():Void 
+		Watcher.watchFileForUpdates(pathToLocale, function ():Void 
 		{
 			parse();
 			processHtmlElements();
@@ -52,10 +52,12 @@ class LocaleWatcher
 	
 	static function parse():Void 
 	{
+        pathToLocale = Node.path.join("core", "locale", SettingsWatcher.settings.locale);
+        
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
 		
-		var data:String = Node.fs.readFileSync(Node.path.join("locale", SettingsWatcher.settings.locale), options);
+		var data:String = Node.fs.readFileSync(pathToLocale, options);
 		
 		localeData = TJSON.parse(data);
 	}
@@ -72,7 +74,7 @@ class LocaleWatcher
 		{
 			Reflect.setField(localeData, name, name);
 			var data:String = TJSON.encode(localeData, 'fancy');
-			Node.fs.writeFileSync(Node.path.join("locale", SettingsWatcher.settings.locale), data, NodeC.UTF8);
+			Node.fs.writeFileSync(pathToLocale, data, NodeC.UTF8);
 		}
 		
 		return value;

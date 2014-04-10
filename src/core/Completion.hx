@@ -179,6 +179,7 @@ class Completion
 			}
 			
 			projectArguments.push("--display");
+			projectArguments.push("--no-output");
 			
 			var cm:CodeMirror = Editor.editor;
 			cur = _pos;
