@@ -1,0 +1,7 @@
+[submodule "bin/core/includes/CodeMirror-4"]
+	path = bin/core/includes/CodeMirror-4
+	url = git://github.com/marijnh/CodeMirror.git
+[submodule "bin/core/includes/alertify.js"]
+	path = bin/core/includes/alertify.js
+	url = git://github.com/fabien-d/alertify.js
+	branch = 0.3

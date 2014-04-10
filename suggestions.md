@@ -122,6 +122,8 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Automatically fix missing colon
 * Standalone package each platform(install Haxe if not installed, get updates from haxelib)
 * Toggle EReg preview from popup over EReg
+* Build Failed Behaviour Change: if errors not found, then switch to Output(if haxelibs missing propose to install)
+* Add Enter hotkey for Browse File Dialog
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

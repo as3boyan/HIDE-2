@@ -13,11 +13,12 @@
     ,"files" : [
          "HIDE.hxml"
         ,"src\\Main.hx"
+        ,"../../../usr/lib/haxe/lib/HIDE/0,3,4/changes.md"
     ]
-    ,"activeFile" : "src\\Main.hx"
-    ,"path" : "c:\\GitHub\\HIDE"
+    ,"activeFile" : "../../../usr/lib/haxe/lib/HIDE/0,3,4/changes.md"
+    ,"path" : "/home/as3boyan/HIDE-2"
     ,"openFLTarget" : null
-    ,"runActionType" : 0
-    ,"runActionText" : null
+    ,"runActionType" : 2
+    ,"runActionText" : "haxelib run node-webkit"
     ,"buildActionCommand" : null
 }

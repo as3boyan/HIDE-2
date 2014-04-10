@@ -4,7 +4,7 @@
 -cp libs/haxeprinter/src
 -cp libs/nodejs-std
 -cp externs/alertify
--js ./bin/HIDE.js
+-js ./bin/core/HIDE.js
 -main Main
 -lib jQueryExtern
 -lib hxparse

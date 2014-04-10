@@ -25,6 +25,7 @@ class RecentProjectsList
 		{
 			var recentProjectsData:String = localStorage2.getItem("recentProjects");
 			var recentFilesData:String = localStorage2.getItem("recentFiles");
+			var recentFilesData:String = localStorage2.getItem("recentFiles");
 			
 			if (recentProjectsData != null) 
 			{

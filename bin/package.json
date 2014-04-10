@@ -6,16 +6,16 @@
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-node-webkit-builder": "^0.1.19"
   },
-  "main": "index.html",
+  "main": "core/index.html",
   "window": {
     "title": "HIDE",
-    "toolbar": false,
+    "toolbar": true,
     "frame": true,
     "width": 800,
     "height": 600,
     "position": "center",
     "min_width": 800,
     "min_height": 600,
-	"show": false
+	"show": true
   }  
 }
