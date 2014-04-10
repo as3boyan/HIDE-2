@@ -65,27 +65,20 @@ class ContextMenu
 					{
 						js.Node.fs.mkdir(js.Node.path.join(path, dirname), function (error):Void
 						{
-							FileTree.load();
+							//FileTree.load();
 						});
 					}
 				}
 			}, "New Folder");
 		});
 		
-		addContextMenuItemToStringMap("Open File", function ()
-		{
-			TabManager.openFileInNewTab(path);
-		});
+		addContextMenuItemToStringMap("Open File", TabManager.openFileInNewTab.bind(path));
+		addContextMenuItemToStringMap("Open using OS", Shell.openItem.bind(path));
 		
-		addContextMenuItemToStringMap("Open using OS", function ()
-		{
-			Shell.openItem(path);
-		});
+		addContextMenuItemToStringMap("Show Item In Folder", Shell.showItemInFolder.bind(path));
 		
-		addContextMenuItemToStringMap("Show Item In Folder", function ()
-		{
-			Shell.showItemInFolder(path);
-		});
+		addContextMenuItemToStringMap("Hide Item", null);
+		addContextMenuItemToStringMap("Show Hidden Items", null);
 		
 		addContextMenuItemToStringMap("Refresh", FileTree.load);
 		
@@ -94,49 +87,53 @@ class ContextMenu
 		ul.appendChild(menuItems.get("Open File"));
 		ul.appendChild(menuItems.get("Open using OS"));
 		ul.appendChild(menuItems.get("Show Item In Folder"));
+		ul.appendChild(createSeparator());
+		ul.appendChild(menuItems.get("Hide Item"));
+		ul.appendChild(menuItems.get("Show Hidden Items"));
+		ul.appendChild(createSeparator());
 		ul.appendChild(menuItems.get("Refresh"));
 		
 		contextMenu.appendChild(ul);
 		
 		Browser.document.body.appendChild(contextMenu);
 		
-		FileTree.treeWell.addEventListener('contextmenu', function(ev:MouseEvent) 
-		{ 
-			itemType = cast(ev.target, Element).getAttribute("itemType");
-			path = cast(ev.target, Element).getAttribute("path");
-			
-			menuItems.get("New File...").style.display = "none";
-			menuItems.get("New Folder...").style.display = "none";
-			menuItems.get("Open File").style.display = "none";
-			menuItems.get("Open using OS").style.display = "none";
-			menuItems.get("Show Item In Folder").style.display = "none";
-			
-			if (itemType != null) 
-			{
-				switch (itemType) 
-				{
-					case "file":
-						menuItems.get("Open File").style.display = "";
-						menuItems.get("Open using OS").style.display = "";
-						menuItems.get("Show Item In Folder").style.display = "";
-					case "folder":
-						menuItems.get("New File...").style.display = "";
-						menuItems.get("New Folder...").style.display = "";
-						menuItems.get("Show Item In Folder").style.display = "";
-					default:
-						
-				}
-			}
-			
-			ev.preventDefault();
-				
-			contextMenu.style.display = "block";
-			contextMenu.style.left = Std.string(ev.pageX) + "px";
-			contextMenu.style.top = Std.string(ev.pageY) + "px";
-			
-			return false;
-		}
-		);
+		//FileTree.treeWell.addEventListener('contextmenu', function(ev:MouseEvent) 
+		//{ 
+			//itemType = cast(ev.target, Element).getAttribute("itemType");
+			//path = cast(ev.target, Element).getAttribute("path");
+			//
+			//menuItems.get("New File...").style.display = "none";
+			//menuItems.get("New Folder...").style.display = "none";
+			//menuItems.get("Open File").style.display = "none";
+			//menuItems.get("Open using OS").style.display = "none";
+			//menuItems.get("Show Item In Folder").style.display = "none";
+			//
+			//if (itemType != null) 
+			//{
+				//switch (itemType) 
+				//{
+					//case "file":
+						//menuItems.get("Open File").style.display = "";
+						//menuItems.get("Open using OS").style.display = "";
+						//menuItems.get("Show Item In Folder").style.display = "";
+					//case "folder":
+						//menuItems.get("New File...").style.display = "";
+						//menuItems.get("New Folder...").style.display = "";
+						//menuItems.get("Show Item In Folder").style.display = "";
+					//default:
+						//
+				//}
+			//}
+			//
+			//ev.preventDefault();
+				//
+			//contextMenu.style.display = "block";
+			//contextMenu.style.left = Std.string(ev.pageX) + "px";
+			//contextMenu.style.top = Std.string(ev.pageY) + "px";
+			//
+			//return false;
+		//}
+		//);
 	}
 	
 	public static function createContextMenuItem(text:String, onClick:Dynamic):LIElement
@@ -155,7 +152,14 @@ class ContextMenu
 		return li;
 	}
 	
-	private static function addContextMenuItemToStringMap(text:String, ?onClick:Dynamic):Void
+	static function createSeparator():LIElement
+	{
+		var li:LIElement = Browser.document.createLIElement();
+		li.className = "divider";
+		return li;
+	}
+	
+	static function addContextMenuItemToStringMap(text:String, ?onClick:Dynamic):Void
 	{
 		menuItems.set(text, createContextMenuItem(text, onClick));
 	}

@@ -133,7 +133,7 @@ class Completion
 		TabManager.openFileInNewTab(path);
 	}
 	
-	public static function getCurrentWord(cm:CodeMirror, ?options:Dynamic, ?pos:Pos):String
+	public static function getCurrentWord(cm:CodeMirror, ?options:Dynamic, ?pos:Pos):{word:String, from:CodeMirror.Pos, to:CodeMirror.Pos}
 	{
 		if (options != null && options.word != null)
 		{
@@ -164,7 +164,7 @@ class Completion
 			curWord = curLine.substring(start, end);
 		}
 		
-		return curWord;
+		return {word:curWord, from: {line:cur.line, ch: start}, to: {line:cur.line, ch: end}};
 	}
 	
 	public static function getCompletion(onComplete:Dynamic, ?_pos:Pos)

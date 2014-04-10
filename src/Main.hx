@@ -1,5 +1,6 @@
 package ;
 
+import core.ProcessHelper;
 import core.RecentProjectsList;
 import core.Splitter;
 import core.WelcomeScreen;
@@ -62,11 +63,7 @@ class Main
 		{
 			trace(err);
 			
-			//window.on("loaded", function ():Void 
-			//{
-				//window.show();
-			//}
-			//);
+			window.show();
 			
 			//if (!window.isDevToolsOpen()) 
 			//{
@@ -118,54 +115,53 @@ class Main
 			
 			currentTime = Date.now().getTime();
 			
-			checkHaxeInstalled(function ()
+			ProcessHelper.checkProcessInstalled("haxe", ["-v"], function (installed:Bool)
 			{
-				HaxeServer.check();
-				PluginManager.loadPlugins();
-			}
-			,
-			function ()
-			{
-				Alertify.error("Haxe compiler is not found");
-				PluginManager.loadPlugins(false);
+				if (installed) 
+				{
+					HaxeServer.check();
+					PluginManager.loadPlugins();
+				}
+				else 
+				{
+					Alertify.error("Haxe compiler is not found");
+					PluginManager.loadPlugins(false);
+				}
 			}
 			);
+			
+			ProcessHelper.checkProcessInstalled("npm", ["-v"], function (installed:Bool):Void 
+			{
+				trace("npm installed " + Std.string(installed));
+				
+				if (installed) 
+				{
+					ProcessHelper.runProcess("npm", ["list", "-g", "flambe"], null, function (stdout:String, stderr:String):Void 
+					{
+						trace("flambe installed " + Std.string(stdout.indexOf("(empty)") == -1));
+					}
+					, function (code, stdout, stderr):Void 
+					{
+						trace("flambe installed " + Std.string(stdout.indexOf("(empty)") == -1));
+					}
+					);
+				}
+			}
+			);
+			
+			ProcessHelper.checkProcessInstalled("haxelib run lime", [], function (installed:Bool):Void 
+			{
+				trace("lime installed " + Std.string(installed));
+			}
+			);
+			
+			window.show();
 		}
 		);
 		
 		window.on("close", function (e)
 		{
-			App.closeAllWindows();
-			//for (w in HIDE.windows)
-			//{
-				//w.close(true);
-			//}
-			
-			window.close();
-		}
-		);
-	}
-	
-	private static function checkHaxeInstalled(onSuccess:Dynamic, onFailed:Dynamic):Void
-	{
-		Node.child_process.exec("haxe", { }, function (error, stdout, stderr) 
-		{			
-			if (error == null)
-			{
-				onSuccess();
-			}
-			else 
-			{
-				//if (error.code = 1)
-				//{
-					//
-				//}
-				
-				trace(error);
-				trace(stdout);
-				trace(stderr);
-				onFailed();
-			}
+			App.closeAllWindows();			
 		}
 		);
 	}

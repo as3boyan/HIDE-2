@@ -37,4 +37,5 @@
     ,"Project->Run" : "F5"
     ,"Project->Build" : "F8"
     ,"Project->Set This Hxml As Project Build File" : ""
+    ,"Options->Open haxelib manager" : ""
 }

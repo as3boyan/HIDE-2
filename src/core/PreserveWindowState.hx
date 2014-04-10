@@ -116,8 +116,6 @@ class PreserveWindowState
 			currWinMode = 'normal';
 			dumpWindowState();
 		}
-		
-		window.show();
 	}
 
 	private static function dumpWindowState():Void

@@ -1,5 +1,6 @@
 package dialogs;
 import bootstrap.ButtonManager;
+import bootstrap.InputGroupButton;
 import core.FileDialog;
 import js.Browser;
 import js.html.DivElement;
@@ -18,19 +19,11 @@ class BrowseFolderDialog extends ModalDialog
 	{
 		super(title);
 		
-		var inputGroup = Browser.document.createDivElement();
-		inputGroup.className = "input-group";
+		var inputGroupButton = new InputGroupButton("Browse");
 		
-		input = Browser.document.createInputElement();
-		input.type = "text";
-		input.className = "form-control";
-		inputGroup.appendChild(input);
+		input = inputGroupButton.getInput();
 		
-		var span = Browser.document.createSpanElement();
-		span.className = "input-group-btn";
-		
-		var browseButton = ButtonManager.createButton("Browse");
-		span.appendChild(browseButton);
+		var browseButton = inputGroupButton.getButton();
 		
 		browseButton.onclick = function (e):Void 
 		{
@@ -41,9 +34,7 @@ class BrowseFolderDialog extends ModalDialog
 			);
 		};
 		
-		inputGroup.appendChild(span);
-		
-		getBody().appendChild(inputGroup);
+		getBody().appendChild(inputGroupButton.getElement());
 		
 		var okButton = ButtonManager.createButton("OK", false, false, true);
 		

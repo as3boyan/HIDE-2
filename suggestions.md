@@ -115,6 +115,13 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Prevent getting completion from Haxe more than one time(if no completion found for it) for function parameters hint
 * Fix match brackets
 * Split RunProject to multiple classes
+* Show hints for variables
+* Search in API reference
+* Replace tab tooltips with tooltips from Bootstrap
+* Fix indentation for "for" loop
+* Automatically fix missing colon
+* Standalone package each platform(install Haxe if not installed, get updates from haxelib)
+* Toggle EReg preview from popup over EReg
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

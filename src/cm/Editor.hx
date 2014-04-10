@@ -160,8 +160,10 @@ class Editor
 		
 		var basicTypes = ["Array", "Map", "StringMap"];
 		
-		editor.on("change", function (cm:CodeMirror):Void 
-		{			
+		var ignoreNewLineKeywords = ["function", "for ", "while"];
+		
+		editor.on("change", function (cm:CodeMirror, e:CodeMirror.ChangeEvent):Void 
+		{
 			var extname:String = Node.path.extname(TabManager.getCurrentDocumentPath());
 			
 			if (extname == ".hx") 
@@ -177,7 +179,23 @@ class Editor
 				var cursor = cm.getCursor();
 				var data = cm.getLine(cursor.line);
 				
-				if (data.charAt(cursor.ch - 1) == ":") 
+				//if (StringTools.endsWith(e.text[0], ";")) 
+				//{
+					//var insertNewLine:Bool = true;
+					//
+					//for (keyword in ignoreNewLineKeywords) 
+					//{
+						//if (data.indexOf(keyword) != -1) 
+						//{
+							//insertNewLine = false;
+							//break;
+						//}
+					//}
+					//
+					//cm.execCommand("newlineAndIndent");
+				//}
+				
+				if (data.charAt(cursor.ch - 1) == ":")
 				{
 					if (data.charAt(cursor.ch - 2) == "@")
 					{

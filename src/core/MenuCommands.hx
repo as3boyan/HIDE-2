@@ -1,4 +1,5 @@
 package core;
+import dialogs.DialogManager;
 import filetree.FileTree;
 import js.Node;
 import menu.BootstrapMenu;
@@ -66,11 +67,6 @@ class MenuCommands
 		
 		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console", 3, window.showDevTools);
 		
-		BootstrapMenu.getMenu("Options").addMenuItem("Open settings", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","settings.json")));
-		BootstrapMenu.getMenu("Options").addMenuItem("Open stylesheet", 1, TabManager.openFileInNewTab.bind(SettingsWatcher.settings.theme));
-		BootstrapMenu.getMenu("Options").addMenuItem("Open editor configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","editor.json")));
-		BootstrapMenu.getMenu("Options").addMenuItem("Open templates folder", 1, FileTree.load.bind("templates", "templates"));
-		BootstrapMenu.getMenu("Options").addMenuItem("Open localization file", 1, TabManager.openFileInNewTab.bind(Node.path.join("locale",SettingsWatcher.settings.locale)));
 		BootstrapMenu.getMenu("Help").addMenuItem("Show code editor key bindings", 2, TabManager.openFileInNewTab.bind("bindings.txt"));
 		
 		//Ctrl-Tab
@@ -105,6 +101,12 @@ class MenuCommands
 		
 		Window.get().on('close', TabManager.saveAll);
 		
+		BootstrapMenu.getMenu("Options").addMenuItem("Open haxelib manager", 1, DialogManager.showHaxelibManagerDialog);
+		BootstrapMenu.getMenu("Options").addMenuItem("Open settings", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","settings.json")));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open stylesheet", 1, TabManager.openFileInNewTab.bind(SettingsWatcher.settings.theme));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open editor configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","editor.json")));
+		//BootstrapMenu.getMenu("Options").addMenuItem("Open templates folder", 1, FileTree.load.bind("templates", "templates"));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open localization file", 1, TabManager.openFileInNewTab.bind(Node.path.join("locale",SettingsWatcher.settings.locale)));
 		BootstrapMenu.getMenu("Options", 90).addMenuItem("Open hotkey configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","hotkeys.json")));
 		
 		Hotkeys.add("Code Editor->Go to Line", "Ctrl-G", null, GoToLine.show);

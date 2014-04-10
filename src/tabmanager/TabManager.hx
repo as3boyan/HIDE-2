@@ -198,7 +198,7 @@ import watchers.LocaleWatcher;
 		
 		checkTabsCount();
 		
-		FileTree.load();
+		//FileTree.load();
 	}
 	
 	private static function checkTabsCount():Void

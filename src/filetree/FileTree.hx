@@ -1,11 +1,13 @@
 package filetree;
 import jQuery.JQuery;
+import jQuery.JQueryStatic;
 import js.Browser;
 import js.html.AnchorElement;
 import js.html.DivElement;
 import js.html.LIElement;
 import js.html.MouseEvent;
 import js.html.UListElement;
+import js.node.Watchr;
 import tabmanager.TabManager;
 
 /**
@@ -18,31 +20,109 @@ import tabmanager.TabManager;
 	static var lastProjectPath:String;
 	public static var treeWell:DivElement;
 	
+	static var clickedItem:Dynamic;
+	static var contextMenu:Dynamic;
+	
 	public static function init():Void
 	{
+		clickedItem = null;
+		
+		var li:LIElement = Browser.document.createLIElement();
+		li.textContent = "New File...";
+		new JQuery("#filetreemenu").append(li);
+		
+		contextMenu = untyped new JQuery("#jqxMenu").jqxMenu({ autoOpenPopup: false, mode: 'popup' });
+		
+		attachContextMenu();
+		
+		// disable the default browser's context menu.
+		new JQuery(Browser.document).on('contextmenu', function (e) {
+			if (new JQuery(e.target).parents('.jqx-tree').length > 0) {
+				return false;
+			}
+			return true;
+		});
+		
+		new JQuery("#jqxMenu").on('itemclick', function (event) 
+		{
+			
+			var item = JQueryStatic.trim(new JQuery(event.args).text());
+			switch (item) {
+				case "New File...":
+					var selectedItem = untyped new JQuery('#filetree').jqxTree('selectedItem');
+					if (selectedItem != null) {
+						untyped new JQuery('#filetree').jqxTree('addTo', { label: 'New File' }, selectedItem.element);
+						attachContextMenu();
+					}
+				case "New Folder...":
+					var selectedItem = untyped new JQuery('#filetree').jqxTree('selectedItem');
+					if (selectedItem != null) {
+						untyped new JQuery('#filetree').jqxTree('addTo', { label: 'New Folder' }, selectedItem.element);
+						attachContextMenu();
+					}
+				case "Remove Item":
+					var selectedItem = untyped new JQuery('#filetree').jqxTree('selectedItem');
+					if (selectedItem != null) {
+						untyped new JQuery('#filetree').jqxTree('removeItem', selectedItem.element);
+						attachContextMenu();
+					}
+			}
+		}
+		);
+		
 		//<div id="tree_well" class="well" style="overflow: auto; padding: 0; margin: 0; width: 100%; height: 100%; font-size: 10pt; line-height: 1;">
 			//<ul id="tree" class="nav nav-list" style="padding: 5px 0px;">
 			//</ul>
 		//</div>
 		
-		treeWell = Browser.document.createDivElement();
-		treeWell.id = "tree-well";
-		treeWell.className = "well";
-		
-		var tree:UListElement = Browser.document.createUListElement();
-		tree.className = "nav nav-list";
-		tree.id = "tree";
-		treeWell.appendChild(tree);
-		
-		new jQuery.JQuery("#filetree").append(treeWell);
-		
-		load("HIDE", "../");
-		
-		ContextMenu.createContextMenu();
+		//treeWell = Browser.document.createDivElement();
+		//treeWell.id = "tree-well";
+		//treeWell.className = "well";
+		//
+		//var tree:UListElement = Browser.document.createUListElement();
+		//tree.className = "nav nav-list";
+		//tree.id = "tree";
+		//treeWell.appendChild(tree);
+		//
+		//new jQuery.JQuery("#filetree").append(treeWell);
+		//
+		//load("HIDE", "../");
+		//
+		//ContextMenu.createContextMenu();
+	}
+	
+	static function attachContextMenu() 
+	{
+		// open the context menu when the user presses the mouse right button.
+		new JQuery("#filetree li").on('mousedown', function (event) {
+			var target = new JQuery(event.target).parents('li:first')[0];
+			var rightClick = isRightClick(event);
+			if (rightClick && target != null) 
+			{
+				untyped new JQuery("#filetree").jqxTree('selectItem', target);
+				var scrollTop = new JQuery(Browser.window).scrollTop();
+				var scrollLeft = new JQuery(Browser.window).scrollLeft();
+				contextMenu.jqxMenu('open', Std.parseInt(event.clientX) + 5 + scrollLeft, Std.parseInt(event.clientY) + 5 + scrollTop);
+				return false;
+			}
+			else 
+			{
+				return true;
+			}
+		});
+	}
+	
+	static function isRightClick(event:Dynamic):Bool
+	{
+		var rightclick = null;
+		if (!event) var event = Browser.window.event;
+		if (event.which) rightclick = (event.which == 3);
+		else if (event.button) rightclick = (event.button == 2);
+		return rightclick;
 	}
 	
 	public static function load(?projectName:String, ?path:String):Void
-	{		
+	{
 		if (projectName == null)
 		{
 			projectName = lastProjectName;
@@ -53,15 +133,21 @@ import tabmanager.TabManager;
 			path = lastProjectPath;
 		}
 		
-		var tree:UListElement = cast(Browser.document.getElementById("tree"), UListElement);
+		var config:Config = { };
 		
-		new JQuery(tree).children().remove();
 		
-		var rootTreeElement:LIElement = createDirectoryElement(projectName, path);		
+		Watchr.watch(config);
 		
-		tree.appendChild(rootTreeElement);
-		
-		readDir(path, rootTreeElement);
+		//var tree:UListElement = cast(Browser.document.getElementById("tree"), UListElement);
+		//
+		//new JQuery(tree).children().remove();
+		//
+		//var rootTreeElement:LIElement = createDirectoryElement(projectName, path);		
+		//
+		//tree.appendChild(rootTreeElement);
+		//
+		//readDir(path, rootTreeElement);
+		//
 		
 		lastProjectName = projectName;
 		lastProjectPath = path;

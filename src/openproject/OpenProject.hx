@@ -120,7 +120,7 @@ class OpenProject
 					}
 					
 					ProjectOptions.updateProjectOptions();
-					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
+					//FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
 					Splitter.show();
 					
@@ -163,7 +163,7 @@ class OpenProject
 					
 					ProjectAccess.save(function ()
 					{
-						FileTree.load(project.name, pathToProject);
+						//FileTree.load(project.name, pathToProject);
 					}
 					);
 					
@@ -197,7 +197,7 @@ class OpenProject
 							
 							ProjectAccess.save(function ()
 							{
-								FileTree.load(project.name, pathToProject);
+								//FileTree.load(project.name, pathToProject);
 							}
 							);
 							
@@ -229,6 +229,18 @@ class OpenProject
 	}
 	
 	public static function closeProject():Void
+	{
+		if (ProjectAccess.currentProject.path != null) 
+		{
+			ProjectAccess.save(updateProjectData);
+		}
+		else 
+		{
+			updateProjectData();
+		}
+	}
+	
+	static function updateProjectData()
 	{
 		ProjectAccess.currentProject.path = null;
 		Splitter.hide();

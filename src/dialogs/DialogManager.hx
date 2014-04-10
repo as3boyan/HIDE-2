@@ -7,10 +7,12 @@ package dialogs;
 class DialogManager
 {
 	static var browseFolderDialog:BrowseFolderDialog;
+	static var haxelibManagerDialog:HaxelibManagerDialog;
 	
 	public static function load():Void
 	{
 		browseFolderDialog =  new BrowseFolderDialog();
+		haxelibManagerDialog = new HaxelibManagerDialog();
 	}
 	
 	public static function showBrowseFolderDialog(title:String, onComplete:String->Void, ?defaultValue:String = ""):Void
@@ -21,8 +23,14 @@ class DialogManager
 		browseFolderDialog.show();
 	}
 	
+	public static function showHaxelibManagerDialog()
+	{
+		haxelibManagerDialog.show();
+	}
+	
 	public static function hide():Void 
 	{
 		browseFolderDialog.hide();
+		haxelibManagerDialog.hide();
 	}
 }

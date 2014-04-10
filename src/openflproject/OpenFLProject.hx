@@ -134,7 +134,7 @@ class OpenFLProject
 			
 			ProjectAccess.save(function ()
 			{
-				FileTree.load(project.name, pathToProject);
+				//FileTree.load(project.name, pathToProject);
 			}
 			);
 			

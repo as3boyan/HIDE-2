@@ -4,6 +4,7 @@
 * FIX: opening two instances of flash player issue
 * FIX: showing multiple notifications issue for run command(will show only one for build)
 * FIX: code editor resize on window maximize/unmaximize event
+* FIX: functions parameters hint issue(for functions with one argument, do not show function parameters for non-functions)
 * CHANGED: Show file list(Ctrl-Shift-O) for any file(previously worked only for *.hxml and *.hx)
 * CHANGED: Do not show prompt for path to Haxe dialog if 'std' folder was found
 * CHANGED: config files moved to 'config' folder
@@ -13,6 +14,7 @@
 * ADDED: Hxml syntax highlighting mode
 * ADDED: Check default path for Haxe on all platforms
 * ADDED: EReg Preview
+* ADDED: Color Picker
 * UPDATED: lime/OpenFL support updated to work with latest versions
 
 0.3.4

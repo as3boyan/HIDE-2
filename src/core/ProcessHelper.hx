@@ -20,9 +20,7 @@ import tabmanager.TabManager;
 	
 	public static function runProcess(process:String, params:Array<String>, path:String, onComplete:String->String->Void, ?onFailed:Int->String->String->Void):NodeChildProcess
 	{		
-		var command:String = process + " " + params.join(" ");
-		
-		//trace(command);
+		var command:String = processParamsToCommand(process, params);
 		
 		var options:NodeExecOpt = { };
 		
@@ -59,7 +57,7 @@ import tabmanager.TabManager;
 	
 	public static function runProcessAndPrintOutputToConsole(process:String, params:Array<String>, ?onComplete:Void->Void):NodeChildProcess
 	{
-		var command:String = process + " " + params.join(" ");
+		var command:String = processParamsToCommand(process, params);
 		
 		var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
 		textarea.value = "Build started\n";
@@ -143,7 +141,6 @@ import tabmanager.TabManager;
 						new JQuery("#errors").append(a);
 						
 						var info:HaxeLint.Info = { from: {line:lineNumber, ch:start}, to: {line:lineNumber, ch:end}, message: message, severity: "error" };
-						trace(info);
 						data.push(info);
 						
 						//Check if it's open
@@ -244,5 +241,38 @@ import tabmanager.TabManager;
 		);	
 		
 		return process;
+	}
+	
+	public static function checkProcessInstalled(process:String, params:Array<String>, onComplete:Bool->Void):Void
+	{
+		var installed:Bool;
+		
+		Node.child_process.exec(processParamsToCommand(process, params), { }, function (error, stdout, stderr) 
+		{			
+			if (error == null)
+			{
+				installed = true;
+			}
+			else 
+			{
+				//if (error.code = 1)
+				//{
+					//process not found
+				//}
+				
+				trace(error);
+				trace(stdout);
+				trace(stderr);
+				installed = false;
+			}
+			
+			onComplete(installed);
+		}
+		);
+	}
+	
+	static function processParamsToCommand(process:String, params:Array<String>):String
+	{
+		return [process].concat(params).join(" ");
 	}
 }

@@ -1,4 +1,5 @@
 package completion;
+import core.HaxeHelper;
 import core.ProcessHelper;
 
 /**
@@ -24,52 +25,53 @@ class Hxml
 		getArguments(getDefines.bind(getHaxelibList));
 	}
 	
-	static function getArguments(onComplete:Dynamic)
+	static private function getHaxelibList(onComplete:Dynamic) 
 	{
-		ProcessHelper.runProcess("haxe", ["--help"], null, function (stdout:String, stderr:String):Void 
+		HaxeHelper.getHaxelibList(function (data:Array<String>):Void 
 		{
-			var regex:EReg = ~/-+[A-Z-]+ /gim;
-			regex.map(stderr, function (ereg:EReg):String
+			for (item in data)
 			{
-				var str = ereg.matched(0);
-				completions.push({text: str.substr(0, str.length - 1)});
-				return str;
+				completions.push({text: "-lib " + item});
 			}
-			);
-			onComplete();
+			
+			if (onComplete != null) 
+			{
+				onComplete();
+			}
 		}
 		);
 	}
 	
-	static function getDefines(onComplete:Dynamic)
+	static private function getDefines(onComplete:Dynamic) 
 	{
-		ProcessHelper.runProcess("haxe", ["--help-defines"], null, function (stdout:String, stderr:String):Void 
+		HaxeHelper.getDefines(function (data:Array<String>):Void 
 		{
-			var regex:EReg = ~/[A-Z-]+ +:/gim;
-			regex.map(stdout, function (ereg:EReg):String
+			for (item in data)
 			{
-				var str = ereg.matched(0);
-				completions.push({text: "-D " + StringTools.trim(str.substr(0, str.length - 1))});
-				return ereg.matched(0);
+				completions.push( { text: "-D " + item } );
 			}
-			);
-			onComplete();
+			
+			if (onComplete != null) 
+			{
+				onComplete();
+			}
 		}
 		);
 	}
 	
-	static function getHaxelibList()
+	static private function getArguments(?onComplete:Dynamic) 
 	{
-		ProcessHelper.runProcess("haxelib", ["list"], null, function (stdout:String, stderr:String):Void 
+		HaxeHelper.getArguments(function (data:Array<String>):Void 
 		{
-			var regex:EReg = ~/^[A-Z-]+:/gim;
-			regex.map(stdout, function (ereg:EReg):String
+			for (item in data)
 			{
-				var str = ereg.matched(0);
-				completions.push({text: "-lib " + str.substr(0, str.length - 1)});
-				return str;
+				completions.push( { text: item } );
 			}
-			);
+			
+			if (onComplete != null) 
+			{
+				onComplete();
+			}
 		}
 		);
 	}

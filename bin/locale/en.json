@@ -138,4 +138,8 @@
     ,"PlayingSound" : "PlayingSound"
     ,"SimpleBox2D" : "SimpleBox2D"
     ,"SimpleOpenGLView" : "SimpleOpenGLView"
+    ,"Please specify path to Haxe compiler(parent folder of std): " : "Please specify path to Haxe compiler(parent folder of std): "
+    ,"Open haxelib manager" : "Open haxelib manager"
+    ,"haxelib manager" : "haxelib manager"
+    ,"Search" : "Search"
 }
