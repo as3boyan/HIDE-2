@@ -287,6 +287,50 @@ class FileTree
 			}
 		}
 		);
+		
+		new JQuery('#filetree').bind('dragEnd', function (event) {
+                var target = event.args.originalEvent.target;
+                var targetParents = new JQuery(target).parents();
+                var item:Dynamic = null;
+                JQueryStatic.each(untyped new JQuery("#filetree").jqxTree('getItems'), function (index, value) {
+                    if (value.label == event.args.label && value.value == event.args.value) {
+                        item = value;
+                        untyped __js__('return false');
+                    }
+                });
+                if (item) {
+                    var parents = new JQuery(item.element).parents('li');
+                    var path = "";
+					
+                    JQueryStatic.each(parents, function (index, value) {
+                        var item = untyped new JQuery("#filetree").jqxTree('getItem', value);
+						
+						if (item.level > 0) 
+						{
+							 path = item.label + "/" + path;
+						}
+                    });
+					
+					var topDirectory = untyped new JQuery("#filetree").jqxTree('getItems')[0].value.path;
+					var selectedItem = untyped new JQuery("#filetree").jqxTree('getSelectedItem');
+					
+					var previousPath = selectedItem.value.path;
+                    var newPath = Node.path.join(topDirectory, path, selectedItem.label);
+					
+					Mv.move(previousPath, newPath, function (error:NodeErr):Void 
+					{
+						if (error == null) 
+						{
+							Alertify.success("File were successfully moved to " + newPath);
+						}
+						else 
+						{
+							Alertify.error("Can't move file from " + previousPath + " to " + newPath);
+						}
+					}
+					);
+                }
+            });
 	}
 	
 	static function appendToContextMenu(name:String, onClick:Dynamic)

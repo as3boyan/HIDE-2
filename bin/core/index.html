@@ -17,11 +17,11 @@
             $("#tabs2").jqxTabs({  height: '100%', width: '100%' });
             $("#tabs1").jqxTabs({  height: '100%', width: '100%' });
 			
-			$('#filetree').jqxTree({width: '100%', height: '100%'});
+			$('#filetree').jqxTree({allowDrag: true, allowDrop: true, width: '100%', height: '100%'});
 			$('#filetree').jqxTree('selectItem', null);
 			
 			// Create jqxTree
-			$('#outline').jqxTree({width: '100%', height: '100%'});
+			$('#outline').jqxTree({allowDrag: false, allowDrop: false, width: '100%', height: '100%'});
             $('#outline').jqxTree('selectItem', null);
 			
 			$(".colorPreview").spectrum({});

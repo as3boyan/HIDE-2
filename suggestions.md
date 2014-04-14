@@ -124,6 +124,8 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Toggle EReg preview from popup over EReg
 * Build Failed Behaviour Change: if errors not found, then switch to Output(if haxelibs missing propose to install)
 * Add Enter hotkey for Browse File Dialog
+* Run Grunt for current project(add support for multiple build/run commands)
+* Add current HIDE version(from haxelib.json) to issue reporter
 
 ###Important
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)

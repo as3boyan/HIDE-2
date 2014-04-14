@@ -3393,6 +3393,32 @@ filetree.FileTree.init = function() {
 		var item1 = new $("#filetree").jqxTree("getSelectedItem");
 		if(item1.value.type == "file") tabmanager.TabManager.openFileInNewTab(item1.value.path);
 	});
+	new $("#filetree").bind("dragEnd",function(event2) {
+		var target = event2.args.originalEvent.target;
+		var targetParents = new $(target).parents();
+		var item2 = null;
+		$.each(new $("#filetree").jqxTree("getItems"),function(index,value) {
+			if(value.label == event2.args.label && value.value == event2.args.value) {
+				item2 = value;
+				return false;
+			}
+		});
+		if(item2) {
+			var parents = new $(item2.element).parents("li");
+			var path4 = "";
+			$.each(parents,function(index1,value1) {
+				var item3 = new $("#filetree").jqxTree("getItem",value1);
+				if(item3.level > 0) path4 = item3.label + "/" + path4;
+			});
+			var topDirectory = new $("#filetree").jqxTree("getItems")[0].value.path;
+			var selectedItem10 = new $("#filetree").jqxTree("getSelectedItem");
+			var previousPath = selectedItem10.value.path;
+			var newPath = js.Node.require("path").join(topDirectory,path4,selectedItem10.label);
+			js.node.Mv.move(previousPath,newPath,function(error4) {
+				if(error4 == null) Alertify.success("File were successfully moved to " + newPath); else Alertify.error("Can't move file from " + previousPath + " to " + newPath);
+			});
+		}
+	});
 };
 filetree.FileTree.appendToContextMenu = function(name,onClick) {
 	var li;
