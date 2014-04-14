@@ -4,7 +4,7 @@ package core;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class Utils
+class Utils
 {
 	inline public static var WINDOWS:Int = 0;
 	inline public static var LINUX:Int = 1;

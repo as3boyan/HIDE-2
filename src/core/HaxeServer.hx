@@ -6,7 +6,7 @@ import nodejs.webkit.Window;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class HaxeServer
+class HaxeServer
 {
 	static var haxeServer:NodeChildProcess;
 

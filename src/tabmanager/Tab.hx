@@ -80,12 +80,12 @@ class Tab
 			{
 				Alertify.confirm(LocaleWatcher.getStringSync("File ") + path + LocaleWatcher.getStringSync(" was changed. Reload?"), function (e)
 				{
-					if (e != null) 
+					if (e) 
 					{
 						TabManager.openFile(path, function (code:String):Void 
 						{
 							doc.setValue(code);
-							doc.clearHistory();
+							doc.markClean();
 							setChanged(false);
 						}
 						);
@@ -128,7 +128,7 @@ class Tab
 		ignoreNextUpdates++;
 		
 		Node.fs.writeFileSync(path, doc.getValue(), NodeC.UTF8);
-		doc.clearHistory();
+		doc.markClean();
 		setChanged(false);
 	}
 	

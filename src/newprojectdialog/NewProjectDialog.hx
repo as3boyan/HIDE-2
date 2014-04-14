@@ -26,7 +26,7 @@ import watchers.LocaleWatcher;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class NewProjectDialog
+class NewProjectDialog
 {
 	static var modalDialog:ModalDialog;
 	

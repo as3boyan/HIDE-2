@@ -18,7 +18,7 @@ import watchers.LocaleWatcher;
 //@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
 //more info about meta tags can be obtained at Haxe website: 
 //http://haxe.org/manual/tips_and_tricks
-@:keepSub @:expose("BootstrapMenu") class BootstrapMenu
+class BootstrapMenu
 {
 	static var menus:StringMap<Menu> = new StringMap();
 	static var menuArray:Array<Menu> = new Array();

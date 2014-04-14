@@ -6,7 +6,6 @@ import core.Splitter;
 import core.WelcomeScreen;
 import dialogs.DialogManager;
 import jQuery.JQuery;
-import about.About;
 import autoformat.HaxePrinterLoader;
 import cm.Editor;
 import cm.Zoom;
@@ -87,7 +86,6 @@ class Main
 			NewProjectDialog.load();
 			MenuCommands.add();
 			Zoom.load();
-			About.addToMenu();
 			FileTree.init();
 			ProjectOptions.create();
 			FileDialog.create();

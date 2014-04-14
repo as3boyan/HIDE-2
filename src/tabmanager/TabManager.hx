@@ -27,7 +27,7 @@ import watchers.LocaleWatcher;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class TabManager
+class TabManager
 {
 	public static var tabs:UListElement;
 	public static var tabMap:TabMap;
@@ -57,9 +57,9 @@ import watchers.LocaleWatcher;
 		
 		tabs.appendChild(tab.getElement());
 		
-		if (ProjectAccess.currentProject.path != null) 
+		if (ProjectAccess.path != null) 
 		{
-			var relativePath = Node.path.relative(ProjectAccess.currentProject.path, path);
+			var relativePath = Node.path.relative(ProjectAccess.path, path);
 			
 			if (ProjectAccess.currentProject.files.indexOf(relativePath) == -1) 
 			{
@@ -177,18 +177,28 @@ import watchers.LocaleWatcher;
 		
 		var extname:String = js.Node.path.extname(name);
 		
-		if (extname == ".hx")
+		switch (extname) 
 		{
-			path = path.substr(0, path.length - name.length) + name.substr(0, 1).toUpperCase() + name.substr(1); // + Utils.capitalize(name)
+			case ".hx":
+				path = path.substr(0, path.length - name.length) + name.substr(0, 1).toUpperCase() + name.substr(1); // + Utils.capitalize(name)
 			
-			var options:NodeFsFileOptions = { };
-			options.encoding = NodeC.UTF8;
-			
-			var pathToTemplate:String = Node.path.join("templates", "New.hx");
-			var templateCode:String = Node.fs.readFileSync(pathToTemplate, options);
-			
-			//author:"testo"
-			code = Mustache.render(templateCode, { name: js.Node.path.basename(name, extname), pack:"", author:""} );
+				var options:NodeFsFileOptions = { };
+				options.encoding = NodeC.UTF8;
+				
+				var pathToTemplate:String = Node.path.join("core", "templates", "New.hx");
+				var templateCode:String = Node.fs.readFileSync(pathToTemplate, options);
+				
+				code = Mustache.render(templateCode, { name: js.Node.path.basename(name, extname), pack:"", author:"" } );
+			case ".hxml":
+				var options:NodeFsFileOptions = { };
+				options.encoding = NodeC.UTF8;
+				
+				var pathToTemplate:String = Node.path.join("core", "templates", "build.hxml");
+				var templateCode:String = Node.fs.readFileSync(pathToTemplate, options);
+				
+				code = templateCode;
+			default:
+				
 		}
 		
 		var doc = new CodeMirror.Doc(code, mode);
@@ -198,7 +208,7 @@ import watchers.LocaleWatcher;
 		
 		checkTabsCount();
 		
-		//FileTree.load();
+		FileTree.load();
 	}
 	
 	private static function checkTabsCount():Void
@@ -241,7 +251,7 @@ import watchers.LocaleWatcher;
 	}
 	
 	public static function closeTab(path:String, ?switchToTab:Bool = true):Void
-	{
+	{		
 		if (isChanged(path)) 
 		{
 			Alertify.confirm(LocaleWatcher.getStringSync("File ") + path +  LocaleWatcher.getStringSync(" was changed. Save it?"), function (e)
@@ -281,7 +291,7 @@ import watchers.LocaleWatcher;
 		{
 			new JQuery("#editor").fadeOut(250);
 			
-			if (ProjectAccess.currentProject.path != null) 
+			if (ProjectAccess.path != null) 
 			{
 				WelcomeScreen.hide();
 			}
@@ -294,9 +304,9 @@ import watchers.LocaleWatcher;
 		}
 		
 		
-		if (ProjectAccess.currentProject.path != null) 
+		if (ProjectAccess.path != null) 
 		{
-			var pathToDocument:String = Node.path.relative(ProjectAccess.currentProject.path, path);
+			var pathToDocument:String = Node.path.relative(ProjectAccess.path, path);
 			ProjectAccess.currentProject.files.remove(pathToDocument);
 		}
 	}
@@ -346,10 +356,12 @@ import watchers.LocaleWatcher;
 	
 	private static function getMode(path:String):String
 	{
-		var mode:String = "haxe";
+		var mode:String = null;
 				
 		switch (js.Node.path.extname(path)) 
 		{
+			case ".hx":
+					mode = "haxe";
 			case ".hxml":
 					mode = "hxml";
 			case ".js":
@@ -391,9 +403,9 @@ import watchers.LocaleWatcher;
 		
 		selectedPath = path;
 		
-		if (ProjectAccess.currentProject.path != null) 
+		if (ProjectAccess.path != null) 
 		{
-			ProjectAccess.currentProject.activeFile = Node.path.relative(ProjectAccess.currentProject.path, selectedPath);
+			ProjectAccess.currentProject.activeFile = Node.path.relative(ProjectAccess.path, selectedPath);
 		}
 		
 		Editor.editor.swapDoc(tabMap.get(selectedPath).doc);
@@ -415,7 +427,7 @@ import watchers.LocaleWatcher;
 	}
 	
 	public static function saveDoc(path:String, ?onComplete:Dynamic):Void
-	{				
+	{
 		if (isChanged(path)) 
 		{
 			var tab:Tab = tabMap.get(path);
@@ -431,9 +443,9 @@ import watchers.LocaleWatcher;
 	public static function isChanged(path:String):Bool
 	{
 		var tab:Tab = tabMap.get(path);
-		var history:Dynamic = tab.doc.historySize();
 		
-		return (history.undo > 0 || history.redo > 0);
+		//tab.doc.changeGeneration()
+		return !tab.doc.isClean();
 	}
 	
 	public static function saveActiveFile(?onComplete:Dynamic):Void

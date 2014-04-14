@@ -4,6 +4,7 @@ import jQuery.JQuery;
 import js.Browser;
 import js.html.DivElement;
 import js.html.KeyboardEvent;
+import js.html.TextAreaElement;
 import js.Node;
 import tabmanager.TabManager;
 
@@ -75,6 +76,17 @@ class ColorPreview
 				untyped new JQuery(".colorPreview").spectrum("hide");
 			}
 		}
+		
+		new JQuery(Browser.document).click(function (e):Void 
+		{
+			if (!Std.is(Browser.document.activeElement, TextAreaElement))
+			{
+				applyChanges = false;
+				new JQuery(preview).fadeOut(250);
+				untyped new JQuery(".colorPreview").spectrum("hide");
+			}
+		}
+		);
 	}
 	
 	public static function update(cm:CodeMirror):Void 

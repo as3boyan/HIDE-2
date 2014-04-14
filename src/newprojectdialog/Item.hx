@@ -4,7 +4,7 @@ package newprojectdialog;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class Item
+class Item
 {
 	public var name:String;
 	public var showCreateDirectoryOption:Bool;

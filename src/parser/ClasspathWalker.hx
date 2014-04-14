@@ -20,9 +20,14 @@ import watchers.LocaleWatcher;
 class ClasspathWalker
 {
 	public static var pathToHaxeStd:String;
+	public static var haxeStdFileList:Array<String>;
+	public static var haxeStdClassList:Array<String>;
 	
 	public static function load():Void 
 	{
+		haxeStdFileList = [];
+		haxeStdClassList = [];
+		
 		var localStorage2 = Browser.getLocalStorage();
 		
 		var paths:Array<String> = [Node.process.env.HAXEPATH, Node.process.env.HAXE_STD_PATH, Node.process.env.HAXE_HOME];
@@ -108,18 +113,26 @@ class ClasspathWalker
 	{
 		ClassParser.classCompletions = new StringMap();
 		ClassParser.filesList = [];
-		ClassParser.classList = [];
 		
-		load();
+		var relativePath:String;
 		
-		if (ProjectAccess.currentProject.path != null) 
+		for (item in haxeStdFileList) 
+		{
+			relativePath = Node.path.relative(ProjectAccess.path, item);
+			
+			ClassParser.filesList.push(relativePath);
+		}
+		
+		ClassParser.classList = haxeStdClassList.copy();
+		
+		if (ProjectAccess.path != null) 
 		{
 			switch (ProjectAccess.currentProject.type) 
 			{
 				case Project.HAXE:
 					getClasspaths(ProjectAccess.currentProject.args);
 				case Project.HXML:
-					var path:String = Node.path.join(ProjectAccess.currentProject.path, ProjectAccess.currentProject.main);
+					var path:String = Node.path.join(ProjectAccess.path, ProjectAccess.currentProject.main);
 					
 					var options:js.Node.NodeFsFileOptions = { };
 					options.encoding = NodeC.UTF8;
@@ -127,7 +140,7 @@ class ClasspathWalker
 					var data:String = Node.fs.readFileSync(path, options);
 					getClasspaths(data.split("\n"));
 				case Project.OPENFL:
-					OpenFLTools.getParams(ProjectAccess.currentProject.path, ProjectAccess.currentProject.openFLTarget, function (stdout:String):Void 
+					OpenFLTools.getParams(ProjectAccess.path, ProjectAccess.currentProject.openFLTarget, function (stdout:String):Void 
 					{
 						getClasspaths(stdout.split("\n"));
 					});
@@ -136,7 +149,7 @@ class ClasspathWalker
 			}
 		}
 		
-		walkProjectFolder(ProjectAccess.currentProject.path);
+		walkProjectFolder(ProjectAccess.path);
 	}
 	
 	static function getClasspaths(data:Array<String>)
@@ -145,7 +158,7 @@ class ClasspathWalker
 		
 		for (arg in parseArg(data, "-cp")) 
 		{
-			var classpath:String = Node.path.resolve(ProjectAccess.currentProject.path, arg);
+			var classpath:String = Node.path.resolve(ProjectAccess.path, arg);
 			classpaths.push(classpath);
 		}
 		
@@ -206,7 +219,7 @@ class ClasspathWalker
 	
 	static function parseClasspath(path:String, ?std:Bool = false):Void
 	{
-		var emitter = Walkdir.walk(path);
+		var emitter = Walkdir.walk(path, {});
 		
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
@@ -215,9 +228,14 @@ class ClasspathWalker
 		{
 			var pathToFile;
 			
-			if (ProjectAccess.currentProject.path != null) 
+			if (std) 
 			{
-				pathToFile = Node.path.relative(ProjectAccess.currentProject.path, path);
+				haxeStdFileList.push(path);
+			}
+
+			if (ProjectAccess.path != null) 
+			{
+				pathToFile = Node.path.relative(ProjectAccess.path, path);
 			}
 			else 
 			{
@@ -235,7 +253,7 @@ class ClasspathWalker
 				{
 					if (error == null) 
 					{
-						ClassParser.processFile(data, path);
+						ClassParser.processFile(data, path, std);
 					}
 				}
 				);
@@ -258,7 +276,7 @@ class ClasspathWalker
 	
 	static function walkProjectFolder(path:String):Void 
 	{
-		var emitter = Walkdir.walk(path);
+		var emitter = Walkdir.walk(path, {});
 		
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
@@ -267,7 +285,7 @@ class ClasspathWalker
 		{
 			if (!StringTools.startsWith(path, ".git")) 
 			{
-				var relativePath = Node.path.relative(ProjectAccess.currentProject.path, path);
+				var relativePath = Node.path.relative(ProjectAccess.path, path);
 				
 				if (ClassParser.filesList.indexOf(relativePath) == -1 && ClassParser.filesList.indexOf(path) == -1) 
 				{

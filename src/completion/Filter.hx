@@ -7,9 +7,39 @@ import core.Completion;
  */
 class Filter
 {
-	public static function filter(completions:Array<Hxml.CompletionData>, word:String):Array<Hxml.CompletionData>
+	public static function filter(completions:Array<Hxml.CompletionData>, word:String, completionType:CompletionType):Array<Hxml.CompletionData>
 	{
 		var list:Array<Hxml.CompletionData> = [];
+		
+		if (completionType == FILELIST) 
+		{
+			var shortPaths = [];
+			var longPaths = [];
+			
+			for (item in completions)
+			{
+				if (item.text.split("\\").length - 1 < 3 && item.text.split("/").length - 1 < 3) 
+				{
+					shortPaths.push(item);
+				}
+				else 
+				{
+					longPaths.push(item);
+				}
+			}
+			
+			completions = [];
+			
+			for (item in shortPaths) 
+			{
+				completions.push(item);
+			}
+			
+			for (item in longPaths) 
+			{
+				completions.push(item);
+			}
+		}
 		
 		if (word != null) 
 		{

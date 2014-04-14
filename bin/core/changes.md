@@ -11,10 +11,15 @@
 * CHANGED: locale files moved to 'locale' folder
 * CHANGED: File->Open... was replaced with File->Open Project...(with file extension filter) and File->Open File
 * CHANGED: Do not add hotkeys for submenu menu items
+* CHANGED: Open File completion: Set higher priority for project files
+* CHANGED: Parse Haxe Std only once on start
+* CHANGED: Set tween duration to 250 ms(previously it were 400 ms)
+* CHANGED: File saving behaviour changed, file saving will not clear undo/redo history for document
 * ADDED: Hxml syntax highlighting mode
 * ADDED: Check default path for Haxe on all platforms
 * ADDED: EReg Preview
 * ADDED: Color Picker
+* ADDED: Watch file tree for changes
 * UPDATED: lime/OpenFL support updated to work with latest versions
 
 0.3.4

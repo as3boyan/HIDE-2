@@ -18,7 +18,7 @@ import pluginloader.PluginManager;
  //Using this API plugins can load JS and CSS scripts in specified order 
  //To use it in plugins you may need to add path to externs for this class, they are located at externs/plugins/hide
 
-@:keepSub @:expose class HIDE
+class HIDE
 {		
 	public static var windows:Array<Window> = [];
 	

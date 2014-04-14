@@ -5,7 +5,7 @@ import js.Node;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class NekoToolsServer
+class NekoToolsServer
 {
 	static var nekoToolsClient:NodeChildProcess;
 	

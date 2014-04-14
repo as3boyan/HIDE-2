@@ -11,6 +11,11 @@ extern class EventEmitter
 {
 	function on(event:String, fn:Dynamic):Void;
 }
+
+typedef Options =
+{
+	@:optional var no_recurse:Bool;
+}
  
 @:native("Walkdir")
 class Walkdir
@@ -21,17 +26,17 @@ class Walkdir
 		walkdir = Node.require('walkdir');
 	}	
 	
-	public static function walk(path:String, ?onItem:String->NodeStat->Void):EventEmitter
+	public static function walk(path:String, options:Options, ?onItem:String->NodeStat->Void):EventEmitter
 	{
 		var emitter:EventEmitter;
 		
 		if (onItem != null) 
 		{
-			emitter = walkdir(path);
+			emitter = walkdir(path, options);
 		}
 		else 
 		{
-			emitter = walkdir(path, onItem);
+			emitter = walkdir(path, options, onItem);
 		}
 		
 		return emitter;

@@ -6,6 +6,7 @@ import js.html.DivElement;
 import js.html.LIElement;
 import js.html.MouseEvent;
 import js.html.UListElement;
+import nodejs.webkit.Shell;
 import watchers.LocaleWatcher;
 
 /**
@@ -35,10 +36,8 @@ class ContextMenu
 		
 		ul.appendChild(createContextMenuItem("New File...", TabManager.createFileInNewTab));
 		
-		var li:LIElement = Browser.document.createLIElement();
-		li.className = "divider";
+		ul.appendChild(createDivider());
 		
-		ul.appendChild(li);
 		ul.appendChild(createContextMenuItem("Close", function ()
 		{
 			TabManager.closeTab(contextMenu.getAttribute("path"));
@@ -54,6 +53,15 @@ class ContextMenu
 		{
 			var path = contextMenu.getAttribute("path");
 			TabManager.closeOthers(path);
+		}
+		));
+		
+		ul.appendChild(createDivider());
+		
+		ul.appendChild(createContextMenuItem("Show Item In Folder", function ()
+		{
+			var path = contextMenu.getAttribute("path");
+			Shell.showItemInFolder(path);
 		}
 		));
 		
@@ -84,6 +92,13 @@ class ContextMenu
 		a.textContent = LocaleWatcher.getStringSync(text);
 		li.appendChild(a);
 		
+		return li;
+	}
+	
+	static function createDivider():LIElement
+	{
+		var li:LIElement = Browser.document.createLIElement();
+		li.className = "divider";
 		return li;
 	}
 }

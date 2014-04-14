@@ -117,7 +117,7 @@ class Editor
 		
 		trace(Editor.editor);
 		  
-		Node.fs.writeFileSync("bindings.txt", value, NodeC.UTF8);
+		Node.fs.writeFileSync(Node.path.join("core", "bindings.txt"), value, NodeC.UTF8);
 		
 		Browser.window.addEventListener("resize", function (e)
 		{
@@ -233,12 +233,15 @@ class Editor
 				}
 			}
 			
-			TabManager.tabMap.get(TabManager.selectedPath).setChanged(true);
+			Helper.debounce("filechange", function ():Void 
+			{
+				var tab = TabManager.tabMap.get(TabManager.selectedPath);
+				//!tab.doc.isClean()
+				tab.setChanged(true);
+			}
+			, 150);
 		}
 		);
-		
-		//var timer = new Timer(100);
-		//timer.run = CodeMirrorEditor.editor.setOption.bind("lint", true);
 		
 		CodeMirror.prototype.centerOnLine = function(line) 
 		{

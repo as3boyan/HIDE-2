@@ -7,7 +7,7 @@ import js.html.TextAreaElement;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class OpenFLTools
+class OpenFLTools
 {	
 	public static function getParams(path:String, target:String, onLoaded:String->Void):Void
 	{

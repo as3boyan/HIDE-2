@@ -19,7 +19,7 @@ typedef Hotkey =
 	var onKeyDown:Dynamic;
 }
  
-@:keepSub @:expose("Hotkeys") class Hotkeys
+class Hotkeys
 {
 	static var hotkeys:Array<Hotkey> = new Array();
 	static var commandMap:StringMap<String> = new StringMap();

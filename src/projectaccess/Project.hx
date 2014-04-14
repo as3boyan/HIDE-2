@@ -5,7 +5,7 @@ package projectaccess;
  * @author AS3Boyan
  */
  
-@:keepSub @:expose class Project
+class Project
 {
 	inline public static var HAXE:Int = 0;
 	inline public static var OPENFL:Int = 1;
@@ -40,18 +40,22 @@ package projectaccess;
 	public var files:Array<String>;
 	public var activeFile:String;
 	
-	public var path:String;
-	
 	public var openFLTarget:String;
 	
 	public var runActionType:Int;
 	public var runActionText:String;
 	public var buildActionCommand:String;
 	
+	public var hiddenItems:Array<String>;
+	public var showHiddenItems:Bool;
+	
 	public function new() 
 	{
 		args = [];
 		files = [];
+		hiddenItems = [];
+		
+		showHiddenItems = false;
 	}
 	
 }

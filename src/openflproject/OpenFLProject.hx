@@ -4,6 +4,7 @@ import filetree.FileTree;
 import js.Browser;
 import js.html.TextAreaElement;
 import newprojectdialog.NewProjectDialog;
+import openproject.OpenProject;
 import projectaccess.Project;
 import projectaccess.ProjectAccess;
 import projectaccess.ProjectOptions;
@@ -103,44 +104,47 @@ class OpenFLProject
 		project.type = Project.OPENFL;
 		//project.target = target;
 		project.openFLTarget = "flash";
-		project.path = pathToProject;
+		ProjectAccess.path = pathToProject;
 		project.buildActionCommand = ["haxelib", "run", "lime", "build", '"%join%(%path%,project.xml)"', project.openFLTarget, "--connect", "5000"].join(" ");
 		project.runActionType = Project.COMMAND;
 		project.runActionText = ["haxelib", "run", "lime", "run", '"%join%(%path%,project.xml)"', project.openFLTarget].join(" ");
 		
 		ProjectAccess.currentProject = project;
 		
-		OpenFLTools.getParams(project.path, project.openFLTarget, function (stdout:String)
+		ProjectAccess.save(function ():Void 
 		{
-			var args:Array<String> = [];
-			
-			var currentLine:String;
-			
-			for (line in stdout.split("\n"))
-			{
-				currentLine = StringTools.trim(line);
-				
-				if (!StringTools.startsWith(currentLine, "#"))
-				{
-					args.push(currentLine);
-				}
-			}
-			
-			project.args = args;
-			ProjectOptions.updateProjectOptions();
-			
-			var path:String = js.Node.path.join(pathToProject, "project.json");
-			Browser.getLocalStorage().setItem("pathToLastProject", path);
-			
-			ProjectAccess.save(function ()
-			{
-				//FileTree.load(project.name, pathToProject);
-			}
-			);
-			
-			Splitter.show();
+			var path:String = js.Node.path.join(pathToProject, "project.hide");
+			OpenProject.openProject(path);
 		}
 		);
+		
+		//OpenFLTools.getParams(pathToProject, project.openFLTarget, function (stdout:String)
+		//{
+			//var args:Array<String> = [];
+			//
+			//var currentLine:String;
+			//
+			//for (line in stdout.split("\n"))
+			//{
+				//currentLine = StringTools.trim(line);
+				//
+				//if (!StringTools.startsWith(currentLine, "#"))
+				//{
+					//args.push(currentLine);
+				//}
+			//}
+			//
+			//project.args = args;
+			//ProjectOptions.updateProjectOptions();
+			//
+			//var path:String = js.Node.path.join(pathToProject, "project.hide");
+			//Browser.getLocalStorage().setItem("pathToLastProject", path);
+			//
+			//ProjectAccess.save(FileTree.load.bind(project.name, pathToProject));
+			//
+			//Splitter.show();
+		//}
+		//);
 	}
 	
 }

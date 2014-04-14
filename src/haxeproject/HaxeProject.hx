@@ -36,7 +36,9 @@ class HaxeProject
 			var options:NodeFsFileOptions = { };
 			options.encoding = NodeC.UTF8;
 			
-			Node.fs.readFile("templates/Main.hx", options, function (error:NodeErr, data:String):Void
+			var path:String = Node.path.join("core", "templates", "Main.hx");
+			
+			Node.fs.readFile(path, options, function (error:NodeErr, data:String):Void
 			{
 				if (error == null) 
 				{
@@ -44,12 +46,15 @@ class HaxeProject
 				}
 				else 
 				{
-					Alertify.error("Can't load template " + "templates/Main.hx");
+					trace(error);
+					Alertify.error("Can't load template " + path);
 				}
 			}
 			);
 			
-			Node.fs.readFile("templates/index.html", options, function (error:NodeErr, data:String):Void
+			path = Node.path.join("core", "templates", "index.html");
+			
+			Node.fs.readFile(path, options, function (error:NodeErr, data:String):Void
 			{
 				if (error == null) 
 				{
@@ -57,7 +62,8 @@ class HaxeProject
 				}
 				else 
 				{
-					Alertify.error("Can't load template " + "templates/index.html");
+					trace(error);
+					Alertify.error("Can't load template " + path);
 				}
 			}
 			);
@@ -106,12 +112,12 @@ class HaxeProject
 			
 			if (data.createDirectory)
 			{
-				pathToProject = js.Node.path.join(pathToProject, data.projectName);
+				pathToProject = Node.path.join(pathToProject, data.projectName);
 			}
 			
 			var pathToMain:String = pathToProject;
 			
-			pathToMain = js.Node.path.join(pathToMain, "src", "Main.hx");
+			pathToMain = Node.path.join(pathToMain, "src", "Main.hx");
 			
 			js.Node.fs.writeFile(pathToMain, code, function (error:js.Node.NodeErr):Void
 			{
@@ -143,7 +149,7 @@ class HaxeProject
 			project.url = data.projectURL;
 			project.type = Project.HAXE;
 			project.target = target;
-			project.path = pathToProject;
+			ProjectAccess.path = pathToProject;
 			project.buildActionCommand = ["haxe", "--connect", "5000", "--cwd", '"%path%"'].join(" ");
 			
 			var pathToBin:String = js.Node.path.join(pathToProject, "bin");
@@ -184,7 +190,7 @@ class HaxeProject
 						args += "-neko " + pathToFile +  "\n";
 						
 						project.runActionType = Project.COMMAND;
-						project.runActionText = "neko " + js.Node.path.join(project.path, pathToFile);
+						project.runActionText = "neko " + pathToFile;
 					case Project.PHP:
 						args += "-php " + "bin/" + project.name + ".php\n";
 					case Project.CPP:
@@ -192,7 +198,7 @@ class HaxeProject
 						args += "-cpp " + pathToFile + "\n";
 						
 						project.runActionType = Project.COMMAND;
-						project.runActionText = js.Node.path.join(project.path, pathToFile);
+						project.runActionText = js.Node.path.join(ProjectAccess.path, pathToFile);
 					case Project.JAVA:
 						args += "-java " + "bin/" + project.name + ".jar\n";
 					case Project.CSHARP:
@@ -206,7 +212,7 @@ class HaxeProject
 				
 				project.args = args.split("\n");
 				
-				var path:String = js.Node.path.join(pathToProject, "project.json");
+				var path:String = js.Node.path.join(pathToProject, "project.hide");
 				Browser.getLocalStorage().setItem("pathToLastProject", path);
 				
 				ProjectAccess.currentProject = project;

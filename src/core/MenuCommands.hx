@@ -5,6 +5,7 @@ import js.Node;
 import menu.BootstrapMenu;
 import newprojectdialog.NewProjectDialog;
 import nodejs.webkit.App;
+import nodejs.webkit.Shell;
 import nodejs.webkit.Window;
 import openproject.OpenProject;
 import tabmanager.TabManager;
@@ -38,13 +39,13 @@ class MenuCommands
 		}
 		, "Ctrl-Shift-0");
 		
-		BootstrapMenu.getMenu("View", 2).addMenuItem("Toggle Fullscreen", 1, function ():Void
+		BootstrapMenu.getMenu("View", 3).addMenuItem("Toggle Fullscreen", 1, function ():Void
 		{
 			window.toggleFullscreen();
 		}
 		, "F11");
 		
-		BootstrapMenu.getMenu("Help").addMenuItem("changelog", 1, TabManager.openFileInNewTab.bind("changes.md"));
+		BootstrapMenu.getMenu("Help").addMenuItem("changelog", 1, TabManager.openFileInNewTab.bind(Node.path.join("core", "changes.md")));
 		
 		BootstrapMenu.getMenu("Developer Tools", 100).addMenuItem("Reload IDE", 1, window.reloadIgnoringCache, "Ctrl-Shift-R");
 
@@ -67,7 +68,10 @@ class MenuCommands
 		
 		BootstrapMenu.getMenu("Developer Tools").addMenuItem("Console", 3, window.showDevTools);
 		
-		BootstrapMenu.getMenu("Help").addMenuItem("Show code editor key bindings", 2, TabManager.openFileInNewTab.bind("bindings.txt"));
+		BootstrapMenu.getMenu("Help").addMenuItem("Show code editor key bindings", 1, TabManager.openFileInNewTab.bind(Node.path.join("core", "bindings.txt")));
+		BootstrapMenu.getMenu("Help").addMenuItem("View HIDE repository on GitHub", 2, Shell.openExternal.bind("https://github.com/as3boyan/HIDE-2"));
+		BootstrapMenu.getMenu("Help").addMenuItem("Report issue/request feature at GitHub issue tracker", 3, Shell.openExternal.bind("https://github.com/as3boyan/HIDE-2/issues/new"));
+		BootstrapMenu.getMenu("Help").addMenuItem("About HIDE...", 4, HIDE.openPageInNewWindow.bind(null, "about.html", {toolbar:false}));
 		
 		//Ctrl-Tab
 		Hotkeys.add("Tab Manager->Show Next Tab", "Ctrl-Tab", null, TabManager.showNextTab);
@@ -102,16 +106,25 @@ class MenuCommands
 		Window.get().on('close', TabManager.saveAll);
 		
 		BootstrapMenu.getMenu("Options").addMenuItem("Open haxelib manager", 1, DialogManager.showHaxelibManagerDialog);
-		BootstrapMenu.getMenu("Options").addMenuItem("Open settings", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","settings.json")));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open settings", 1, TabManager.openFileInNewTab.bind(Node.path.join("core", "config","settings.json")));
 		BootstrapMenu.getMenu("Options").addMenuItem("Open stylesheet", 1, TabManager.openFileInNewTab.bind(SettingsWatcher.settings.theme));
-		BootstrapMenu.getMenu("Options").addMenuItem("Open editor configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","editor.json")));
-		//BootstrapMenu.getMenu("Options").addMenuItem("Open templates folder", 1, FileTree.load.bind("templates", "templates"));
-		BootstrapMenu.getMenu("Options").addMenuItem("Open localization file", 1, TabManager.openFileInNewTab.bind(Node.path.join("locale",SettingsWatcher.settings.locale)));
-		BootstrapMenu.getMenu("Options", 90).addMenuItem("Open hotkey configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("config","hotkeys.json")));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open editor configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("core", "config","editor.json")));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open templates folder", 1, FileTree.load.bind("templates", Node.path.join("core","templates")));
+		BootstrapMenu.getMenu("Options").addMenuItem("Open localization file", 1, TabManager.openFileInNewTab.bind(Node.path.join("core", "locale",SettingsWatcher.settings.locale)));
+		BootstrapMenu.getMenu("Options", 90).addMenuItem("Open hotkey configuration file", 1, TabManager.openFileInNewTab.bind(Node.path.join("core", "config","hotkeys.json")));
 		
-		Hotkeys.add("Code Editor->Go to Line", "Ctrl-G", null, GoToLine.show);
+		BootstrapMenu.getMenu("Edit", 2).addMenuItem("Undo", 1, null);
+		BootstrapMenu.getMenu("Edit").addMenuItem("Redo", 1, null);
+		BootstrapMenu.getMenu("Edit").addSeparator();
+		BootstrapMenu.getMenu("Edit").addMenuItem("Cut", 1, null);
+		BootstrapMenu.getMenu("Edit").addMenuItem("Copy", 1, null);
+		BootstrapMenu.getMenu("Edit").addMenuItem("Paste", 1, null);
+		BootstrapMenu.getMenu("Edit").addSeparator();
+		BootstrapMenu.getMenu("Edit").addMenuItem("Find...", 1, null);
+		BootstrapMenu.getMenu("Edit").addMenuItem("Replace...", 1, null);
 		
-		Hotkeys.add("Completion->Open File", "Ctrl-Shift-O", null, Completion.showFileList);
-		Hotkeys.add("Completion->Show Class List", "Ctrl-Shift-P", null, Completion.showClassList);
+		BootstrapMenu.getMenu("Navigate", 4).addMenuItem("Go to Line", 2, GoToLine.show, "Ctrl-G");
+		BootstrapMenu.getMenu("Navigate").addMenuItem("Open File", 3, Completion.showFileList, "Ctrl-Shift-O");
+		BootstrapMenu.getMenu("Source").addMenuItem("Show Class List", 4, Completion.showClassList, "Ctrl-Shift-P");
 	}
 }

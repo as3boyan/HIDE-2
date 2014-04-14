@@ -25,8 +25,14 @@ class RunProject
 	{
 		BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, runProject, "F5");
 		BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, buildProject, "F8");
-		BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File", 3, setHxmlAsProjectBuildFile);
+		BootstrapMenu.getMenu("Project").addMenuItem("Clean", 3, cleanProject, "Shift-F8");
+		BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File", 4, setHxmlAsProjectBuildFile);
 		BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
+	}
+	
+	static function cleanProject() 
+	{
+		
 	}
 	
 	static function setHxmlAsProjectBuildFile():Void
@@ -37,17 +43,17 @@ class RunProject
 		
 		if (buildHxml) 
 		{
-			var noproject:Bool = ProjectAccess.currentProject.path == null;
+			var noproject:Bool = ProjectAccess.path == null;
 			
 			var project:Project = ProjectAccess.currentProject;
 			project.type = Project.HXML;
 			project.main = Node.path.basename(path);
-			project.path = Node.path.dirname(path);
+			ProjectAccess.path = Node.path.dirname(path);
 			ProjectAccess.save(function ():Void 
 			{
 				if (noproject) 
 				{
-					OpenProject.openProject(Node.path.join(project.path, "project.json"));
+					OpenProject.openProject(Node.path.join(ProjectAccess.path, "project.hide"));
 				}
 			}
 			);
@@ -81,7 +87,7 @@ class RunProject
 						{
 							if (!exists)
 							{
-								path = js.Node.path.join(ProjectAccess.currentProject.path, path);
+								path = js.Node.path.join(ProjectAccess.path, path);
 							}
 							
 							Shell.openItem(path);
@@ -93,7 +99,7 @@ class RunProject
 					
 					if (isValidCommand(command)) 
 					{
-						var params:Array<String> = preprocessCommand(command, ProjectAccess.currentProject.path).split(" ");
+						var params:Array<String> = preprocessCommand(command, ProjectAccess.path).split(" ");
 						
 						var process:String = params.shift();
 						
@@ -151,18 +157,21 @@ class RunProject
 			
 			var data:String = Node.fs.readFileSync(pathToProject, options);
 			project = TJSON.parse(data);
+			
+			pathToProject = Node.path.dirname(pathToProject);
 		}
 		else 
 		{
 			project = ProjectAccess.currentProject;
+			pathToProject = ProjectAccess.path;
 		}
 		
-		build(project, onComplete);
+		build(project, pathToProject, onComplete);
 	}
 	
-	static function build(project:Project, onComplete:Dynamic)
+	static function build(project:Project, pathToProject:String,  onComplete:Dynamic)
 	{
-		if (project.path == null)
+		if (pathToProject == null)
 		{
 			Alertify.error(LocaleWatcher.getStringSync("Please open or create project first!"));
 		}
@@ -183,7 +192,7 @@ class RunProject
 					
 					if (!buildHxml) 
 					{
-						dirname = project.path;
+						dirname = pathToProject;
 						filename = project.main;
 						
 						var options:NodeFsFileOptions = { };
@@ -212,14 +221,14 @@ class RunProject
 				else 
 				{
 					var command:String = project.buildActionCommand;
-					command = preprocessCommand(command, project.path);
+					command = preprocessCommand(command, pathToProject);
 					
 					if (project.type == Project.HAXE)
 					{
 						command = [command].concat(project.args).join(" ");
 					}
 					
-					var params:Array<String> = preprocessCommand(command, project.path).split(" ");
+					var params:Array<String> = preprocessCommand(command, pathToProject).split(" ");
 					var process:String = params.shift();
 					
 					ProcessHelper.runProcessAndPrintOutputToConsole(process, params, onComplete);			

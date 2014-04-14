@@ -114,7 +114,7 @@ class Completion
 				
 		}
 		
-		list = Filter.filter(list, curWord);
+		list = Filter.filter(list, curWord, completionType);
 		
 		var data:Dynamic = { list: list, from: {line:cur.line, ch:start}, to: {line:cur.line, ch:end} };
 		return data;
@@ -124,9 +124,9 @@ class Completion
 	{		
 		var path = completion.text;
 		
-		if (ProjectAccess.currentProject.path != null) 
+		if (ProjectAccess.path != null) 
 		{
-			path = Node.path.resolve(ProjectAccess.currentProject.path, path);
+			path = Node.path.resolve(ProjectAccess.path, path);
 		}
 		
 		TabManager.getCurrentDocument().setValue(backupDocValue);
@@ -169,7 +169,7 @@ class Completion
 	
 	public static function getCompletion(onComplete:Dynamic, ?_pos:Pos)
 	{
-		if (ProjectAccess.currentProject.path != null) 
+		if (ProjectAccess.path != null) 
 		{
 			var projectArguments:Array<String> = ProjectAccess.currentProject.args.copy();
 					
@@ -178,8 +178,8 @@ class Completion
 				projectArguments.push(ProjectAccess.currentProject.main);
 			}
 			
-			projectArguments.push("--display");
 			projectArguments.push("--no-output");
+			projectArguments.push("--display");
 			
 			var cm:CodeMirror = Editor.editor;
 			cur = _pos;
@@ -200,7 +200,7 @@ class Completion
 			
 			Completion.completions = [];
 			
-			ProcessHelper.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.currentProject.path)].concat(projectArguments), null, function (stdout:String, stderr:String)
+			ProcessHelper.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.path)].concat(projectArguments), null, function (stdout:String, stderr:String)
 			{
 				var xml:Xml = Xml.parse(stderr);
 				
@@ -310,7 +310,7 @@ class Completion
 	}
 	
 	public static function showFileList():Void
-	{
+	{		
 		if (isEditorVisible()) 
 		{
 			Editor.regenerateCompletionOnDot = false;

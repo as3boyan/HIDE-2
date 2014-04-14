@@ -5,3 +5,14 @@
 	path = bin/core/includes/alertify.js
 	url = git://github.com/fabien-d/alertify.js
 	branch = 0.3
+[submodule "libs/js/CodeMirror"]
+	path = libs/js/CodeMirror
+	url = https://github.com/marijnh/CodeMirror.git
+[submodule "lib/js/alertify.js"]
+	path = lib/js/alertify.js
+	url = https://github.com/fabien-d/alertify.js
+	branch = 0.3
+[submodule "libs/js/alertify.js"]
+	path = libs/js/alertify.js
+	url = https://github.com/fabien-d/alertify.js
+	branch = 0.3

@@ -28,7 +28,7 @@ interface MenuItem
 //alternatively you can just remove -dce full flag from plugin.hxml
 //more info about meta tags can be obtained at Haxe website: 
 //http://haxe.org/manual/tips_and_tricks
-@:keepSub class MenuButtonItem implements MenuItem
+class MenuButtonItem implements MenuItem
 {	
 	var li:LIElement;
 	public var position:Int;
@@ -90,7 +90,7 @@ interface MenuItem
 }
 
 //@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
-@:keepSub class Separator implements MenuItem
+class Separator implements MenuItem
 {
 	var li:LIElement;
 	
@@ -106,7 +106,7 @@ interface MenuItem
 	}
 }
 
-@:keepSub @:expose("ui.menu.basic.Submenu") class Submenu
+class Submenu
 {
 	var ul:UListElement;
 	var li:LIElement;
@@ -193,7 +193,7 @@ interface MenuItem
  
 //@:expose makes this class available in global scope
 //@:keepSub prevents -dce full from deleting unused functions, so they still can be used in other plugins
-@:keepSub @:expose("ui.menu.basic.Menu") class Menu
+class Menu
 {
 	var li:LIElement;
 	var ul:UListElement;

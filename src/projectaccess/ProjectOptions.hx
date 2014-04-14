@@ -12,7 +12,7 @@ import watchers.LocaleWatcher;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class ProjectOptions
+class ProjectOptions
 {	
 	static var textarea:TextAreaElement;
 	static var projectTargetList:SelectElement;
@@ -87,7 +87,7 @@ import watchers.LocaleWatcher;
 		{
 			ProjectAccess.currentProject.openFLTarget = openFLTargets[openFLTargetList.selectedIndex];
 			
-			var buildParams:Array<String> = ["haxelib", "run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget];
+			var buildParams:Array<String> = ["haxelib", "run", "openfl", "build", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.path, "project.xml")), ProjectAccess.currentProject.openFLTarget];
 			
 			switch (ProjectAccess.currentProject.openFLTarget) 
 			{
@@ -102,7 +102,7 @@ import watchers.LocaleWatcher;
 			trace(buildParams);
 			
 			ProjectAccess.currentProject.runActionType = Project.COMMAND;
-			ProjectAccess.currentProject.runActionText = ["haxelib", "run", "openfl", "run", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.currentProject.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
+			ProjectAccess.currentProject.runActionText = ["haxelib", "run", "openfl", "run", HIDE.surroundWithQuotes(js.Node.path.join(ProjectAccess.path, "project.xml")), ProjectAccess.currentProject.openFLTarget].join(" ");
 			
 			updateProjectOptions();
 		};

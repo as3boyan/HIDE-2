@@ -5,6 +5,7 @@ import core.Splitter;
 import filetree.FileTree;
 import haxe.Serializer;
 import haxe.Unserializer;
+import haxe.xml.Fast;
 import jQuery.JQuery;
 import js.Browser;
 import js.html.TextAreaElement;
@@ -29,7 +30,7 @@ class OpenProject
 		{
 			if (project) 
 			{
-				FileDialog.openFile(parseProject, ".json,.xml,.hxml");
+				FileDialog.openFile(parseProject, ".hide,.lime,.xml,.hxml");
 			}
 			else 
 			{
@@ -66,7 +67,7 @@ class OpenProject
 			
 		switch (filename) 
 		{
-			case "project.json":
+			case "project.hide":
 				var options:NodeFsFileOptions = { };
 				options.encoding = NodeC.UTF8;
 				
@@ -75,11 +76,11 @@ class OpenProject
 					var pathToProject:String = js.Node.path.dirname(path);
 					
 					ProjectAccess.currentProject = parseProjectData(data);
-					ProjectAccess.currentProject.path = pathToProject;
+					ProjectAccess.path = pathToProject;
 					
 					if (ProjectAccess.currentProject.type == Project.HXML) 
 					{
-						TabManager.openFileInNewTab(Node.path.join(ProjectAccess.currentProject.path, ProjectAccess.currentProject.main));
+						TabManager.openFileInNewTab(Node.path.join(ProjectAccess.path, ProjectAccess.currentProject.main));
 					}
 					
 					ClasspathWalker.parseProjectArguments();
@@ -119,58 +120,23 @@ class OpenProject
 						}
 					}
 					
+					if (ProjectAccess.currentProject.hiddenItems == null) 
+					{
+						ProjectAccess.currentProject.hiddenItems = [];
+					}
+					
+					if (ProjectAccess.currentProject.showHiddenItems == null) 
+					{
+						ProjectAccess.currentProject.showHiddenItems = false;
+					}
+					
 					ProjectOptions.updateProjectOptions();
-					//FileTree.load(ProjectAccess.currentProject.name, pathToProject);
+					FileTree.load(ProjectAccess.currentProject.name, pathToProject);
 					
 					Splitter.show();
 					
 					Browser.getLocalStorage().setItem("pathToLastProject", path);
 					RecentProjectsList.add(path);
-				}
-				);
-			case "project.xml", "application.xml":
-				var pathToProject:String = js.Node.path.dirname(path);
-				
-				var project:Project = new Project();
-				project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
-				project.type = Project.OPENFL;
-				project.openFLTarget = "flash";
-				project.path = pathToProject;
-				
-				OpenFLTools.getParams(pathToProject, project.openFLTarget, function (stdout:String)
-				{									
-					var args:Array<String> = [];
-				
-					var currentLine:String;
-					
-					for (line in stdout.split("\n"))
-					{
-						currentLine = StringTools.trim(line);
-						
-						if (!StringTools.startsWith(currentLine, "#"))
-						{
-							args.push(currentLine);
-						}
-					}
-					
-					project.args = args;
-					
-					var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.json");
-					
-					ProjectAccess.currentProject = project;
-					
-					ProjectOptions.updateProjectOptions();
-					
-					ProjectAccess.save(function ()
-					{
-						//FileTree.load(project.name, pathToProject);
-					}
-					);
-					
-					Splitter.show();
-					
-					Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
-					RecentProjectsList.add(pathToProjectHide);
 				}
 				);
 			default:				
@@ -179,38 +145,57 @@ class OpenProject
 				switch (extension) 
 				{
 					case ".hxml":
-						//js.Node.fs.readFile(path, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr, data:String)
-						//{
-							var pathToProject:String = js.Node.path.dirname(path);
-				//
-							var project:Project = new Project();
-							project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
-							project.type = Project.HXML;
-							//project.args = data.split("\n");
-							project.path = pathToProject;
-							project.main = Node.path.basename(path);
-							
-							ProjectAccess.currentProject = project;
-							ProjectOptions.updateProjectOptions();
-							
-							var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.json");
-							
-							ProjectAccess.save(function ()
+						var pathToProject:String = js.Node.path.dirname(path);
+						
+						var project:Project = new Project();
+						project.name = pathToProject.substr(pathToProject.lastIndexOf(js.Node.path.sep));
+						project.type = Project.HXML;
+						//project.args = data.split("\n");
+						ProjectAccess.path = pathToProject;
+						project.main = Node.path.basename(path);
+						
+						ProjectAccess.currentProject = project;
+						ProjectOptions.updateProjectOptions();
+						
+						var pathToProjectHide:String = js.Node.path.join(pathToProject, "project.hide");
+						
+						ProjectAccess.save(function ()
+						{
+							FileTree.load(project.name, pathToProject);
+						}
+						);
+						
+						Splitter.show();
+						
+						Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
+						RecentProjectsList.add(pathToProjectHide);
+					case ".lime", ".xml":
+						var options:NodeFsFileOptions = { };
+						options.encoding = NodeC.UTF8;
+						
+						Node.fs.readFile(path, options, function (error:NodeErr, data:String):Void 
+						{
+							if (error == null) 
 							{
-								//FileTree.load(project.name, pathToProject);
+								var xml:Xml = Xml.parse(data);
+								var fast:Fast = new Fast(xml);
+								
+								if (fast.hasNode.project) 
+								{
+									OpenFL.open(path);
+								}
+								else 
+								{
+									Alertify.error("This is not an OpenFL project. OpenFL project xml should have 'project' node");
+								}
 							}
-							);
-							
-							Splitter.show();
-							
-							Browser.getLocalStorage().setItem("pathToLastProject", pathToProjectHide);
-							RecentProjectsList.add(pathToProjectHide);
-						//}
-						//);
-					//case ".hx":
-						//
-					//case ".xml":
-						//
+							else 
+							{
+								trace(error);
+								Alertify.error("Can't open file: " + path + "\n" + error);
+							}
+						}
+						);
 					default:
 						
 				}
@@ -230,7 +215,7 @@ class OpenProject
 	
 	public static function closeProject():Void
 	{
-		if (ProjectAccess.currentProject.path != null) 
+		if (ProjectAccess.path != null) 
 		{
 			ProjectAccess.save(updateProjectData);
 		}
@@ -242,7 +227,7 @@ class OpenProject
 	
 	static function updateProjectData()
 	{
-		ProjectAccess.currentProject.path = null;
+		ProjectAccess.path = null;
 		Splitter.hide();
 		Browser.getLocalStorage().removeItem("pathToLastProject");
 	}

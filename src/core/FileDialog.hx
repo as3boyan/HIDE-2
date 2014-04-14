@@ -6,7 +6,7 @@ import js.html.InputElement;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class FileDialog
+class FileDialog
 {
 	static var input:InputElement;
 	static var onClick:String->Void;

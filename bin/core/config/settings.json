@@ -1,4 +1,14 @@
 {
+	//Path to theme(relative to "HIDE/core")
 	"theme": "light.css",
-	"locale": "en.json"
+	
+	//Path to locale(relative to "HIDE/core/locale")
+	"locale": "en.json",
+	
+	//Regex for ignored files(uses new EReg(item, ""))
+	"ignore": [
+    	"project.hide",
+        ".git",
+        ".svn",
+	]
 }

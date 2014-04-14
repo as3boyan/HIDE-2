@@ -3,7 +3,7 @@
 -lib tjson
 -lib jQueryExtern
 -main about.Presentation
--js bin/Presentation.js
+-js bin/core/Presentation.js
 -dce full
 -D source-map-content
 -D nodejs

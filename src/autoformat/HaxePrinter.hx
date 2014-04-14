@@ -30,7 +30,7 @@ class HaxePrinter
 		
 		var options:NodeFsFileOptions = { };
 		options.encoding = NodeC.UTF8;
-		printer.config = TJSON.parse(Node.fs.readFileSync(Node.path.join("config", "autoformat.json"), options));
+		printer.config = TJSON.parse(Node.fs.readFileSync(Node.path.join("core", "config", "autoformat.json"), options));
 		return printer.printAST(ast);
 	}
 }

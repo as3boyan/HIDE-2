@@ -9,9 +9,11 @@ import tjson.TJSON;
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class ProjectAccess
+class ProjectAccess
 {
 	public static var currentProject:Project = new Project();
+	
+	public static var path:String;
 	
 	public static function registerSaveOnCloseListener():Void
 	{
@@ -27,9 +29,9 @@ import tjson.TJSON;
 	
 	public static function save(?onComplete:Dynamic, ?sync:Bool = false):Void
 	{		
-		if (ProjectAccess.currentProject.path != null)
+		if (ProjectAccess.path != null)
 		{
-			var pathToProjectHide:String = js.Node.path.join(ProjectAccess.currentProject.path, "project.json");
+			var pathToProjectHide:String = js.Node.path.join(ProjectAccess.path, "project.hide");
 			
 			var data:String = TJSON.encode(ProjectAccess.currentProject, 'fancy');
 			
@@ -58,5 +60,24 @@ import tjson.TJSON;
 	public static function load(path:String, ?onComplete:Dynamic):Void
 	{
 		//trace(js.Node.parse());
+	}
+	
+	public static function isItemInIgnoreList(path:String):Bool
+	{
+		var ignore:Bool = false;
+		
+		if (!ProjectAccess.currentProject.showHiddenItems) 
+		{
+			var relativePath:String = Node.path.relative(ProjectAccess.path, path);
+			
+			trace(relativePath);
+			
+			if (ProjectAccess.currentProject.hiddenItems.indexOf(relativePath) != -1) 
+			{
+				ignore = true;
+			}
+		}
+		
+		return ignore;
 	}
 }

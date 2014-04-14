@@ -50,6 +50,8 @@ typedef DocHistory = {
 	function setValue(value:String):Void;
 	function getSelection(?lineSep:String):String;
 	function markClean():Void;
+	function changeGeneration(?closeEvent:Bool):Int;
+	function isClean(?generation: Int):Bool;
 	function clearHistory():Void;
 	function historySize():Int;
 	var history:DocHistory;

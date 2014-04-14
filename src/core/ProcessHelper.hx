@@ -13,7 +13,7 @@ import tabmanager.TabManager;
  * ...
  * @author 
  */
-@:keepSub @:expose("ProcessHelper") class ProcessHelper
+class ProcessHelper
 {
 	static var processStdout:String;
 	static var processStderr:String;
@@ -59,6 +59,8 @@ import tabmanager.TabManager;
 	{
 		var command:String = processParamsToCommand(process, params);
 		
+		new JQuery("#outputTab").click();
+		
 		var textarea = cast(Browser.document.getElementById("outputTextArea"), TextAreaElement);
 		textarea.value = "Build started\n";
 		textarea.value += command + "\n";
@@ -99,7 +101,7 @@ import tabmanager.TabManager;
 					if (args.length > 3) 
 					{
 						var relativePath:String = args[0];
-						var fullPath:String = Node.path.join(ProjectAccess.currentProject.path, relativePath);
+						var fullPath:String = Node.path.join(ProjectAccess.path, relativePath);
 						
 						var data:Array<HaxeLint.Info> = [];
 						
@@ -260,9 +262,9 @@ import tabmanager.TabManager;
 					//process not found
 				//}
 				
-				trace(error);
-				trace(stdout);
-				trace(stderr);
+				//trace(error);
+				//trace(stdout);
+				//trace(stderr);
 				installed = false;
 			}
 			

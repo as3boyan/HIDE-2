@@ -50,13 +50,13 @@ class ClassParser
 		return ast;
 	}
 	
-	public static function processFile(data:String, path:String):Void 
+	public static function processFile(data:String, path:String, std:Bool):Void 
 	{
 		var ast = parse(data, path);
 		
 		if (ast != null) 
 		{
-			processAst(ast, Node.path.basename(path, ".hx"));
+			processAst(ast, Node.path.basename(path, ".hx"), std);
 		}
 		else 
 		{
@@ -64,12 +64,12 @@ class ClassParser
 		}
 	}
 	
-	static function processAst(ast:{decls:Array<TypeDef>, pack:Array<String>}, mainClass:String):Void
+	static function processAst(ast:{decls:Array<TypeDef>, pack:Array<String>}, mainClass:String, std:Bool):Void
 	{		
-		parseDeclarations(ast, mainClass);
+		parseDeclarations(ast, mainClass, std);
 	}
 	
-	static function parseDeclarations(ast:{decls:Array<TypeDef>, pack:Array<String>}, mainClass:String) 
+	static function parseDeclarations(ast:{decls:Array<TypeDef>, pack:Array<String>}, mainClass:String, std:Bool) 
 	{		
 		for (decl in ast.decls) switch (decl) 
 		{
@@ -77,11 +77,11 @@ class ClassParser
 			case EUsing(path): 
 			case EAbstract(data): 
 				var className:String = resolveClassName(ast.pack, mainClass, data.name);
-				addClassName(className);
+				addClassName(className, std);
 			case EClass(data): 
 				var className:String = resolveClassName(ast.pack, mainClass, data.name);
 				processClass(className, data);
-				addClassName(className);
+				addClassName(className, std);
 				
 				//
 				
@@ -91,10 +91,10 @@ class ClassParser
 				//}
 			case EEnum(data): 
 				var className:String = resolveClassName(ast.pack, mainClass, data.name);
-				addClassName(className);
+				addClassName(className, std);
 			case ETypedef(data): 
 				var className:String = resolveClassName(ast.pack, mainClass, data.name);
-				addClassName(className);
+				addClassName(className, std);
 		}
 	}
 	
@@ -179,8 +179,13 @@ class ClassParser
 		return className;
 	}
 	
-	static function addClassName(name:String):Void 
+	static function addClassName(name:String, std:Bool):Void 
 	{
+		if (std) 
+		{
+			ClasspathWalker.haxeStdClassList.push(name);
+		}
+		
 		if (classList.indexOf(name) == -1)
 		{
 			classList.push(name);

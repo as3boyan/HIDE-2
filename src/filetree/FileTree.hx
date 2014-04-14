@@ -1,4 +1,5 @@
 package filetree;
+import haxe.ds.StringMap.StringMap;
 import jQuery.JQuery;
 import jQuery.JQueryStatic;
 import js.Browser;
@@ -7,29 +8,255 @@ import js.html.DivElement;
 import js.html.LIElement;
 import js.html.MouseEvent;
 import js.html.UListElement;
+import js.Node;
+import js.node.Mv;
+import js.Node.NodeStat;
+import js.node.Remove;
+import js.node.Walkdir;
 import js.node.Watchr;
+import nodejs.webkit.Shell;
+import projectaccess.ProjectAccess;
 import tabmanager.TabManager;
+import watchers.LocaleWatcher;
+import watchers.SettingsWatcher;
+import watchers.Watcher;
 
 /**
  * ...
  * @author AS3Boyan
  */
-@:keepSub @:expose class FileTree
+class FileTree
 {
 	static var lastProjectName:String;
 	static var lastProjectPath:String;
-	public static var treeWell:DivElement;
 	
-	static var clickedItem:Dynamic;
 	static var contextMenu:Dynamic;
+	static var contextMenuCommandsMap:StringMap<Dynamic>;
+	static var watcher:Dynamic;
 	
 	public static function init():Void
-	{
-		clickedItem = null;
+	{		
+		contextMenuCommandsMap = new StringMap();
 		
-		var li:LIElement = Browser.document.createLIElement();
-		li.textContent = "New File...";
-		new JQuery("#filetreemenu").append(li);
+		appendToContextMenu("New File...", function (selectedItem):Void 
+		{
+			var path:String;
+			
+			if (selectedItem.value.type == 'folder') 
+			{
+				path = selectedItem.value.path;
+			}
+			else
+			{
+				path = Node.path.dirname(selectedItem.value.path);
+			}
+			
+			Alertify.prompt(LocaleWatcher.getStringSync("Filename:"), function (e:Bool, str:String)
+			{
+				if (e) 
+				{
+					var pathToFile:String = js.Node.path.join(path, str);
+					TabManager.createFileInNewTab(pathToFile);
+					untyped new JQuery('#filetree').jqxTree('addTo', createFileItem(pathToFile) , selectedItem.element);
+					attachContextMenu();
+				}
+			}, "New.hx");
+		});
+		
+		appendToContextMenu("New Folder...", function (selectedItem):Void 
+		{
+			var path:String;
+			
+			if (selectedItem.value.type == 'folder') 
+			{
+				path = selectedItem.value.path;
+			}
+			else
+			{
+				path = Node.path.dirname(selectedItem.value.path);
+			}
+			
+			Alertify.prompt("Folder name:", function (e, str:String)
+			{
+				if (e) 
+				{
+					var dirname:String = str;
+			
+					if (dirname != null)
+					{
+						Node.fs.mkdir(Node.path.join(path, dirname), function (error:NodeErr):Void
+						{
+							if (error == null) 
+							{
+								untyped new JQuery('#filetree').jqxTree('addTo', { label: str, value: {type: "folder", path: pathToFile, icon: "includes/images/folder.png"} }, selectedItem.element);
+								attachContextMenu();
+							}
+							else 
+							{
+								Alertify.error(error);
+							}
+						});
+					}
+				}
+			}, "New Folder");
+		});
+		
+		appendToContextMenu("Open Item", function (selectedItem):Void 
+		{
+			if (selectedItem.value.type == 'file') 
+			{
+				TabManager.openFileInNewTab(selectedItem.value.path);
+			}
+			else
+			{
+				untyped new JQuery('#filetree').jqxTree('expandItem', selectedItem.element);
+			}
+		});
+		
+		appendToContextMenu("Open using OS", function (selectedItem):Void 
+		{
+			Shell.openItem(selectedItem.value.path);
+		});
+		
+		appendToContextMenu("Show Item In Folder", function (selectedItem):Void 
+		{
+			Shell.showItemInFolder(selectedItem.value.path);
+		});
+		
+		appendToContextMenu("Open Item", function (selectedItem):Void 
+		{
+			if (selectedItem.value.type == 'file') 
+			{
+				TabManager.openFileInNewTab(selectedItem.value.path);
+			}
+			else
+			{
+				untyped new JQuery('#filetree').jqxTree('expandItem', selectedItem.element);
+			}
+		});
+		
+		appendToContextMenu("Rename...", function (selectedItem):Void 
+		{			
+			var path = selectedItem.value.path;
+			
+			Alertify.prompt(LocaleWatcher.getStringSync("Please enter new name for ") + path, function (e, str):Void 
+			{
+				if (e) 
+				{
+					var currentDirectory:String = Node.path.dirname(path);
+					Mv.move(path, Node.path.join(currentDirectory, str), function (error):Void 
+					{
+						if (error == null) 
+						{
+							FileTree.load();
+						}
+						else 
+						{
+							Alertify.error(error);
+						}
+					}
+					);
+				}
+			}
+			, Node.path.basename(path));
+		}
+		);
+		
+		appendToContextMenu("Delete...", function (selectedItem):Void 
+		{
+			var path = selectedItem.value.path;
+			
+			switch (selectedItem.value.type) 
+			{
+				case 'file':
+					Alertify.confirm(LocaleWatcher.getStringSync("Remove file ") + path + " ?", function (e):Void 
+					{
+						if (e) 
+						{
+							Node.fs.unlink(path, function (error:NodeErr):Void 
+							{
+								if (error == null) 
+								{
+									untyped new JQuery('#filetree').jqxTree('removeItem', selectedItem.element);
+									attachContextMenu();
+								}
+								else
+								{
+									Alertify.error(error);
+								}
+							}
+							);
+						}
+					}
+					);
+				case 'folder':
+					Alertify.confirm(LocaleWatcher.getStringSync("Remove folder ") + path + " ?", function (e):Void 
+					{
+						if (e) 
+						{
+							Remove.removeAsync(path, {}, function (error):Void 
+							{
+								if (error == null) 
+								{
+									untyped new JQuery('#filetree').jqxTree('removeItem', selectedItem.element);
+									attachContextMenu();
+								}
+								else 
+								{
+									Alertify.error(error);
+								}
+							}
+							);
+						}
+					}
+					);
+				default:
+					
+			}
+		}
+		);
+		
+		appendToContextMenu("Toggle Hidden Items Visibility", function (selectedItem):Void 
+		{
+			if (ProjectAccess.path != null) 
+			{
+				ProjectAccess.currentProject.showHiddenItems = !ProjectAccess.currentProject.showHiddenItems;
+				Alertify.success(LocaleWatcher.getStringSync("Hidden Items Visible: ") + Std.string(ProjectAccess.currentProject.showHiddenItems));
+				
+				if (!ProjectAccess.currentProject.showHiddenItems) 
+				{
+					Alertify.log("Hidden Items: \n" + Std.string(ProjectAccess.currentProject.hiddenItems));
+				}
+			}
+			
+			FileTree.load();
+		}
+		);
+		
+		appendToContextMenu("Toggle Item Visibility", function (selectedItem):Void 
+		{
+			if (ProjectAccess.path != null) 
+			{
+				var relativePath:String = Node.path.relative(ProjectAccess.path, selectedItem.value.path);
+				
+				if (ProjectAccess.currentProject.hiddenItems.indexOf(relativePath) == -1) 
+				{
+					ProjectAccess.currentProject.hiddenItems.push(relativePath);
+					untyped new JQuery('#filetree').jqxTree('removeItem', selectedItem.element);
+					attachContextMenu();
+				}
+				else 
+				{
+					ProjectAccess.currentProject.hiddenItems.remove(relativePath);
+					FileTree.load();
+				}
+			}
+			else 
+			{
+				untyped new JQuery('#filetree').jqxTree('removeItem', selectedItem.element);
+			}
+		}
+		);
 		
 		contextMenu = untyped new JQuery("#jqxMenu").jqxMenu({ autoOpenPopup: false, mode: 'popup' });
 		
@@ -45,56 +272,43 @@ import tabmanager.TabManager;
 		
 		new JQuery("#jqxMenu").on('itemclick', function (event) 
 		{
-			
 			var item = JQueryStatic.trim(new JQuery(event.args).text());
-			switch (item) {
-				case "New File...":
-					var selectedItem = untyped new JQuery('#filetree').jqxTree('selectedItem');
-					if (selectedItem != null) {
-						untyped new JQuery('#filetree').jqxTree('addTo', { label: 'New File' }, selectedItem.element);
-						attachContextMenu();
-					}
-				case "New Folder...":
-					var selectedItem = untyped new JQuery('#filetree').jqxTree('selectedItem');
-					if (selectedItem != null) {
-						untyped new JQuery('#filetree').jqxTree('addTo', { label: 'New Folder' }, selectedItem.element);
-						attachContextMenu();
-					}
-				case "Remove Item":
-					var selectedItem = untyped new JQuery('#filetree').jqxTree('selectedItem');
-					if (selectedItem != null) {
-						untyped new JQuery('#filetree').jqxTree('removeItem', selectedItem.element);
-						attachContextMenu();
-					}
-			}
+			contextMenuCommandsMap.get(item)();
 		}
 		);
 		
-		//<div id="tree_well" class="well" style="overflow: auto; padding: 0; margin: 0; width: 100%; height: 100%; font-size: 10pt; line-height: 1;">
-			//<ul id="tree" class="nav nav-list" style="padding: 5px 0px;">
-			//</ul>
-		//</div>
+		new JQuery('#filetree').dblclick(function (event):Void 
+		{
+			var item = untyped new JQuery('#filetree').jqxTree('getSelectedItem');
+			
+			if (item.value.type == 'file') 
+			{
+				TabManager.openFileInNewTab(item.value.path);
+			}
+		}
+		);
+	}
+	
+	static function appendToContextMenu(name:String, onClick:Dynamic)
+	{
+		var li:LIElement = Browser.document.createLIElement();
+		li.textContent = name;
+		new JQuery("#filetreemenu").append(li);
 		
-		//treeWell = Browser.document.createDivElement();
-		//treeWell.id = "tree-well";
-		//treeWell.className = "well";
-		//
-		//var tree:UListElement = Browser.document.createUListElement();
-		//tree.className = "nav nav-list";
-		//tree.id = "tree";
-		//treeWell.appendChild(tree);
-		//
-		//new jQuery.JQuery("#filetree").append(treeWell);
-		//
-		//load("HIDE", "../");
-		//
-		//ContextMenu.createContextMenu();
+		contextMenuCommandsMap.set(name, function ():Void 
+		{
+			var selectedItem = untyped new JQuery('#filetree').jqxTree('getSelectedItem');
+			if (selectedItem != null) 
+			{
+				onClick(selectedItem);
+			}
+		});
 	}
 	
 	static function attachContextMenu() 
 	{
 		// open the context menu when the user presses the mouse right button.
-		new JQuery("#filetree li").on('mousedown', function (event) {
+		new JQuery("#filetree li").on('mousedown', function (event) {			
 			var target = new JQuery(event.target).parents('li:first')[0];
 			var rightClick = isRightClick(event);
 			if (rightClick && target != null) 
@@ -133,153 +347,126 @@ import tabmanager.TabManager;
 			path = lastProjectPath;
 		}
 		
-		var config:Config = { };
+		readDirItems(path, function (source):Void 
+		{
+			source.expanded = true;
+			untyped new JQuery('#filetree').jqxTree( { source: [source] } );
+			attachContextMenu();
+			
+			//var items = untyped new JQuery("#filetree").jqxTree('getItems');
+			//trace(items);
+		}, true);
 		
+		if (watcher != null) 
+		{
+			watcher.close();
+			watcher = null;
+		}
 		
-		Watchr.watch(config);
+		var config:Config = {
+			path: path,
+			listener:
+				function (changeType, filePath, fileCurrentStat, filePreviousStat):Void 
+				{
+					switch (changeType) 
+					{
+						case 'create', 'delete':
+							load();
+						default:
+							
+					}
+				}
+		};
 		
-		//var tree:UListElement = cast(Browser.document.getElementById("tree"), UListElement);
-		//
-		//new JQuery(tree).children().remove();
-		//
-		//var rootTreeElement:LIElement = createDirectoryElement(projectName, path);		
-		//
-		//tree.appendChild(rootTreeElement);
-		//
-		//readDir(path, rootTreeElement);
-		//
+		config.interval = 3000;
+		
+		watcher = Watchr.watch(config);
 		
 		lastProjectName = projectName;
 		lastProjectPath = path;
 	}
 	
-	private static function createDirectoryElement(text:String, path:String):LIElement
-	{
-		var directoryElement:LIElement = Browser.document.createLIElement();
+	static function readDirItems(path:String, ?onComplete:Dynamic->Void, ?root:Bool = false)
+	{		
+		var items:Array<Dynamic> = [];
+		var files:Array<Dynamic> = [];
 		
-		var a:AnchorElement = Browser.document.createAnchorElement();
-		a.className = "tree-toggler nav-header";
-		a.href = "#";
-		a.setAttribute("path", path);
-		a.setAttribute("itemType", "folder");
+		var options:Options = {};
+		options.no_recurse = true;
 		
-		var span = Browser.document.createSpanElement();
-		span.className = "glyphicon glyphicon-folder-open";
-		span.setAttribute("path", path);
-		span.setAttribute("itemType", "folder");
-		a.appendChild(span);
+		var emitter = Walkdir.walk(path, options);
 		
-		span = Browser.document.createSpanElement();
-		span.textContent = text;
-		span.style.marginLeft = "5px";
-		span.setAttribute("path", path);
-		span.setAttribute("itemType", "folder");
-		a.appendChild(span);
-		
-		//var textNode = Browser.document.createTextNode(text);
-		//a.appendChild(textNode);
-		
-		a.onclick = function (e:MouseEvent):Void
+		emitter.on("file", function (pathToFile:String, stat:NodeStat):Void 
 		{
-			new JQuery(directoryElement).children('ul.tree').toggle(300);
-			//Main.resize();
-		};
-		
-		//var label:LabelElement = Browser.document.createLabelElement();
-		//label.className = "tree-toggler nav-header";
-		//label.textContent = text;
-		
-		directoryElement.appendChild(a);
-		
-		var ul:UListElement = Browser.document.createUListElement();
-		ul.className = "nav nav-list tree";
-		
-		directoryElement.appendChild(ul);
-		
-		return directoryElement;
-	}
-	
-	private static function readDir(path:String, topElement:LIElement):Void
-	{
-		js.Node.fs.readdir(path, function (error:js.Node.NodeErr, files:Array<String>):Void
-		{			
-			if (error == null && files != null)
+			if (!SettingsWatcher.isItemInIgnoreList(pathToFile) && !ProjectAccess.isItemInIgnoreList(pathToFile)) 
 			{
-				var foldersCount:Int = 0;
+				files.push(createFileItem(pathToFile));
+			}
+		}
+		);
+		
+		var folders:Int = 0;
+		var end:Bool = false;
+		
+		emitter.on("directory", function (pathToDirectory:String, stat:NodeStat):Void 
+		{
+			if (!SettingsWatcher.isItemInIgnoreList(pathToDirectory) && !ProjectAccess.isItemInIgnoreList(pathToDirectory)) 
+			{
+				folders++;
 			
-				for (file in files)
+				readDirItems(pathToDirectory, function (source:Dynamic):Void 
 				{
-					var filePath:String = js.Node.path.join(path, file);
+					folders--;
 					
-					js.Node.fs.stat(filePath, function (error:js.Node.NodeErr, stat:js.Node.NodeStat)
-					{					
-						if (stat.isFile())
-						{
-							var li:LIElement = Browser.document.createLIElement();
-							
-							var a:AnchorElement = Browser.document.createAnchorElement();
-							a.href = "#";
-							a.textContent = file;
-							a.title = filePath;
-							a.setAttribute("path", filePath);
-							a.setAttribute("itemType", "file");
-							a.onclick = function (e):Void
-							{
-								TabManager.openFileInNewTab(filePath);
-							};
-							
-							if (StringTools.endsWith(file, ".hx"))
-							{
-								a.style.fontWeight = "bold";
-							}
-							else if (StringTools.endsWith(file, ".hxml"))
-							{
-								a.style.fontWeight = "bold";
-								a.style.color = "gray";
-							}
-							else
-							{
-								a.style.color = "gray";
-							}
-							
-							li.appendChild(a);
-							
-							var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
-							ul.appendChild(li);
-						}
-						else
-						{
-							if (!StringTools.startsWith(file, "."))
-							{
-								var ul:UListElement = cast(topElement.getElementsByTagName("ul")[0], UListElement);
-								
-								var directoryElement:LIElement = createDirectoryElement(file, filePath);
-								
-								//Lazy loading
-								directoryElement.onclick = function (e):Void
-								{
-									if (directoryElement.getElementsByTagName("ul")[0].childNodes.length == 0)
-									{
-										readDir(filePath, directoryElement);
-										e.stopPropagation();
-										e.preventDefault();
-										directoryElement.onclick = null;
-									}
-								}
-								
-								ul.appendChild(directoryElement);
-								ul.insertBefore(directoryElement, ul.childNodes[foldersCount]);
-								foldersCount++;
-							}
-						}
+					items.push(source);
+					
+					if (folders == 0) 
+					{
+						items = items.concat(files);
+						
+						onComplete({label:Node.path.basename(path), items: items, value: {path: path, type: "folder"}, icon: "includes/images/folder.png"});
 					}
-					);
 				}
+				);
+			}
+		}
+		);
+		
+		emitter.on("end", function ():Void 
+		{
+			end = true;
+			
+			if (folders == 0) 
+			{
+				items = items.concat(files);
 				
-				new JQuery(topElement).children('ul.tree').show(300);
+				onComplete({label:Node.path.basename(path), items: items, value: {path: path, type: "folder"}, icon: "includes/images/folder.png"});
 			}
 		}
 		);
 	}
 	
+	static function createFileItem(path:String):Dynamic
+	{
+		var basename:String = Node.path.basename(path);
+		var extname:String = Node.path.extname(basename);
+		
+		var data:Dynamic = { label: basename, value: {path: path, type: "file"} };
+		
+		switch (extname) 
+		{
+			case ".pdf":
+				data.icon = "includes/images/page_white_acrobat.png";
+			case ".swf":
+				data.icon = "includes/images/page_white_flash.png";
+			case ".jpg", ".jpeg", ".png", ".gif", ".tga":
+				data.icon = "includes/images/photo.png";
+			case ".html":
+				data.icon = "includes/images/html.png";
+			default:
+				
+		}
+		
+		return data;
+	}
 }
