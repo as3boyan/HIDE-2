@@ -21,21 +21,12 @@ class RunProject
 {	
 	static var runProcess:NodeChildProcess;
 	
-	public static function load():Void
-	{
-		BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, runProject, "F5");
-		BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, buildProject, "F8");
-		BootstrapMenu.getMenu("Project").addMenuItem("Clean", 3, cleanProject, "Shift-F8");
-		BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File", 4, setHxmlAsProjectBuildFile);
-		BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
-	}
-	
-	static function cleanProject() 
+	public static function cleanProject() 
 	{
 		
 	}
 	
-	static function setHxmlAsProjectBuildFile():Void
+	public static function setHxmlAsProjectBuildFile():Void
 	{
 		var path:String = TabManager.getCurrentDocumentPath();
 		var extname:String = js.Node.path.extname(path);
@@ -65,7 +56,7 @@ class RunProject
 		}
 	}
 	
-	static function runProject():Void
+	public static function runProject():Void
 	{		
 		buildProject(null, function ()
 		{			

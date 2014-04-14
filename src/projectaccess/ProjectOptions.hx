@@ -164,7 +164,7 @@ class ProjectOptions
 		page.appendChild(runActionTextAreaDescription);
 		page.appendChild(actionTextArea);
 		
-		new jQuery.JQuery("#options").append(page);
+		//new jQuery.JQuery("#options").append(page);
 	}
 	
 	public static function getProjectArguments():String

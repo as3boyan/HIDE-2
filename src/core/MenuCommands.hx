@@ -126,5 +126,12 @@ class MenuCommands
 		BootstrapMenu.getMenu("Navigate", 4).addMenuItem("Go to Line", 2, GoToLine.show, "Ctrl-G");
 		BootstrapMenu.getMenu("Navigate").addMenuItem("Open File", 3, Completion.showFileList, "Ctrl-Shift-O");
 		BootstrapMenu.getMenu("Source").addMenuItem("Show Class List", 4, Completion.showClassList, "Ctrl-Shift-P");
+		
+		BootstrapMenu.getMenu("Project", 80).addMenuItem("Run", 1, RunProject.runProject, "F5");
+		BootstrapMenu.getMenu("Project").addMenuItem("Build", 2, RunProject.buildProject, "F8");
+		BootstrapMenu.getMenu("Project").addMenuItem("Clean", 3, RunProject.cleanProject, "Shift-F8");
+		BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File", 4, RunProject.setHxmlAsProjectBuildFile);
+		BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
+		BootstrapMenu.getMenu("Project").addMenuItem("Project Options...", 5, null);
 	}
 }

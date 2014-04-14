@@ -322,10 +322,12 @@ class FileTree
 						if (error == null) 
 						{
 							Alertify.success("File were successfully moved to " + newPath);
+							selectedItem.value.path = newPath;
 						}
 						else 
 						{
 							Alertify.error("Can't move file from " + previousPath + " to " + newPath);
+							FileTree.load();
 						}
 					}
 					);

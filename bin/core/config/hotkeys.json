@@ -53,4 +53,6 @@
     ,"Navigate->Go to Line" : "Ctrl-G"
     ,"Navigate->Open File" : "Ctrl-Shift-O"
     ,"Project->Clean" : "Shift-F8"
+    ,"Project->Project Options" : ""
+    ,"Project->Project Options..." : ""
 }

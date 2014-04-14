@@ -128,6 +128,9 @@ get list of haxelibs(using haxelib list) and provide autocompletion for "-lib |"
 * Add current HIDE version(from haxelib.json) to issue reporter
 
 ###Important
+* Custom hxml, build and run commands for each target
+* Fix broken completion(watch 'project.xml' for changes, get compiler arguments from OpenFL display)
+* Fix code editor visibility when user clicks on file tree item
 * Fix for building *.hxml with -cmd arguments(test https://github.com/Justinfront/Jigsawx)
 * Fix OpenFL projects(check webserver)
 * Parse code with hxparse(classes on path)

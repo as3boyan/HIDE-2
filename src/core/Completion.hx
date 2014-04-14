@@ -200,7 +200,9 @@ class Completion
 			
 			Completion.completions = [];
 			
-			ProcessHelper.runProcess("haxe", ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.path)].concat(projectArguments), null, function (stdout:String, stderr:String)
+			var params = ["--connect", "5000", "--cwd", HIDE.surroundWithQuotes(ProjectAccess.path)].concat(projectArguments);
+			
+			ProcessHelper.runProcess("haxe", params, null, function (stdout:String, stderr:String)
 			{
 				var xml:Xml = Xml.parse(stderr);
 				

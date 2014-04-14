@@ -96,8 +96,6 @@ class Main
 			
 			HaxePrinterLoader.load();
 			
-			RunProject.load();
-			
 			ProjectAccess.registerSaveOnCloseListener();
 			
 			HaxeProject.load();

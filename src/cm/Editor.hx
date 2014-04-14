@@ -233,13 +233,13 @@ class Editor
 				}
 			}
 			
-			Helper.debounce("filechange", function ():Void 
-			{
+			//Helper.debounce("filechange", function ():Void 
+			//{
 				var tab = TabManager.tabMap.get(TabManager.selectedPath);
 				//!tab.doc.isClean()
 				tab.setChanged(true);
-			}
-			, 150);
+			//}
+			//, 150);
 		}
 		);
 		

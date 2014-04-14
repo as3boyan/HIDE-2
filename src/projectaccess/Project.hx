@@ -36,6 +36,7 @@ class Project
 	public var url:String;
 	
 	public var args:Array<String>;
+	public var targetData:Array<{hxml:String, runActionType:Int, runActionText:String}>;
 	
 	public var files:Array<String>;
 	public var activeFile:String;
@@ -54,6 +55,7 @@ class Project
 		args = [];
 		files = [];
 		hiddenItems = [];
+		targetData = [];
 		
 		showHiddenItems = false;
 	}

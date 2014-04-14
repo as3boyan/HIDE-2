@@ -307,7 +307,6 @@ Main.main = function() {
 		cm.Editor.load();
 		core.Completion.registerHelper();
 		autoformat.HaxePrinterLoader.load();
-		core.RunProject.load();
 		projectaccess.ProjectAccess.registerSaveOnCloseListener();
 		haxeproject.HaxeProject.load();
 		openflproject.OpenFLProject.load();
@@ -1154,10 +1153,8 @@ cm.Editor.load = function() {
 			var data1 = cm3.getLine(cursor1.line);
 			if(data1.charAt(cursor1.ch - 1) == "-") core.Completion.showHxmlCompletion();
 		}
-		core.Helper.debounce("filechange",function() {
-			var tab = tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath);
-			tab.setChanged(true);
-		},150);
+		var tab = tabmanager.TabManager.tabMap.get(tabmanager.TabManager.selectedPath);
+		tab.setChanged(true);
 	});
 	CodeMirror.prototype.centerOnLine = function(line) {
 		 var h = this.getScrollInfo().clientHeight;  var coords = this.charCoords({line: line, ch: 0}, 'local'); this.scrollTo(null, (coords.top + coords.bottom - h) / 2); ;
@@ -1547,7 +1544,8 @@ core.Completion.getCompletion = function(onComplete,_pos) {
 		if(core.Completion.curWord != null) core.Completion.cur = { line : core.Completion.cur.line, ch : core.Completion.start};
 		projectArguments.push(tabmanager.TabManager.getCurrentDocumentPath() + "@" + Std.string(cm1.indexFromPos(core.Completion.cur)));
 		core.Completion.completions = [];
-		core.ProcessHelper.runProcess("haxe",["--connect","5000","--cwd",HIDE.surroundWithQuotes(projectaccess.ProjectAccess.path)].concat(projectArguments),null,function(stdout,stderr) {
+		var params = ["--connect","5000","--cwd",HIDE.surroundWithQuotes(projectaccess.ProjectAccess.path)].concat(projectArguments);
+		core.ProcessHelper.runProcess("haxe",params,null,function(stdout,stderr) {
 			var xml = Xml.parse(stderr);
 			var fast = new haxe.xml.Fast(xml);
 			if(fast.hasNode.resolve("list")) {
@@ -2571,6 +2569,12 @@ core.MenuCommands.add = function() {
 	menu.BootstrapMenu.getMenu("Navigate",4).addMenuItem("Go to Line",2,core.GoToLine.show,"Ctrl-G");
 	menu.BootstrapMenu.getMenu("Navigate").addMenuItem("Open File",3,core.Completion.showFileList,"Ctrl-Shift-O");
 	menu.BootstrapMenu.getMenu("Source").addMenuItem("Show Class List",4,core.Completion.showClassList,"Ctrl-Shift-P");
+	menu.BootstrapMenu.getMenu("Project",80).addMenuItem("Run",1,core.RunProject.runProject,"F5");
+	menu.BootstrapMenu.getMenu("Project").addMenuItem("Build",2,core.RunProject.buildProject,"F8");
+	menu.BootstrapMenu.getMenu("Project").addMenuItem("Clean",3,core.RunProject.cleanProject,"Shift-F8");
+	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File",4,core.RunProject.setHxmlAsProjectBuildFile);
+	menu.BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
+	menu.BootstrapMenu.getMenu("Project").addMenuItem("Project Options...",5,null);
 };
 var nodejs = {};
 nodejs.webkit = {};
@@ -2883,13 +2887,6 @@ core.RecentProjectsList.updateRecentFileMenu = function() {
 core.RunProject = function() { };
 $hxClasses["core.RunProject"] = core.RunProject;
 core.RunProject.__name__ = ["core","RunProject"];
-core.RunProject.load = function() {
-	menu.BootstrapMenu.getMenu("Project",80).addMenuItem("Run",1,core.RunProject.runProject,"F5");
-	menu.BootstrapMenu.getMenu("Project").addMenuItem("Build",2,core.RunProject.buildProject,"F8");
-	menu.BootstrapMenu.getMenu("Project").addMenuItem("Clean",3,core.RunProject.cleanProject,"Shift-F8");
-	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File",4,core.RunProject.setHxmlAsProjectBuildFile);
-	menu.BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
-};
 core.RunProject.cleanProject = function() {
 };
 core.RunProject.setHxmlAsProjectBuildFile = function() {
@@ -3415,7 +3412,13 @@ filetree.FileTree.init = function() {
 			var previousPath = selectedItem10.value.path;
 			var newPath = js.Node.require("path").join(topDirectory,path4,selectedItem10.label);
 			js.node.Mv.move(previousPath,newPath,function(error4) {
-				if(error4 == null) Alertify.success("File were successfully moved to " + newPath); else Alertify.error("Can't move file from " + previousPath + " to " + newPath);
+				if(error4 == null) {
+					Alertify.success("File were successfully moved to " + newPath);
+					selectedItem10.value.path = newPath;
+				} else {
+					Alertify.error("Can't move file from " + previousPath + " to " + newPath);
+					filetree.FileTree.load();
+				}
 			});
 		}
 	});
@@ -13421,6 +13424,7 @@ projectaccess.Project = function() {
 	this.args = [];
 	this.files = [];
 	this.hiddenItems = [];
+	this.targetData = [];
 	this.showHiddenItems = false;
 };
 $hxClasses["projectaccess.Project"] = projectaccess.Project;
@@ -13435,6 +13439,7 @@ projectaccess.Project.prototype = {
 	,license: null
 	,url: null
 	,args: null
+	,targetData: null
 	,files: null
 	,activeFile: null
 	,openFLTarget: null
@@ -13601,7 +13606,6 @@ projectaccess.ProjectOptions.create = function() {
 	page.appendChild(projectaccess.ProjectOptions.runActionList);
 	page.appendChild(projectaccess.ProjectOptions.runActionTextAreaDescription);
 	page.appendChild(projectaccess.ProjectOptions.actionTextArea);
-	new $("#options").append(page);
 };
 projectaccess.ProjectOptions.update = function(_) {
 	if(projectaccess.ProjectOptions.projectTargetList.selectedIndex == 3) {

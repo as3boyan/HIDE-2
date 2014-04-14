@@ -20,6 +20,7 @@
 * ADDED: EReg Preview
 * ADDED: Color Picker
 * ADDED: Watch file tree for changes
+* ADDED: File Tree drag 'n' drop support for files and folders
 * UPDATED: lime/OpenFL support updated to work with latest versions
 
 0.3.4
