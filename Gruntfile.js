@@ -75,6 +75,7 @@ module.exports = function(grunt) {
 				'bin/core/includes/css/main.css': 
 					[
 					'libs/css/*',
+					'!libs/css/HIDE.css',
 					'libs/js/CodeMirror/lib/codemirror.css',
 					'libs/js/CodeMirror/theme/*',
 					'libs/js/CodeMirror/addon/fold/foldgutter.css',
@@ -83,6 +84,7 @@ module.exports = function(grunt) {
 					'libs/js/CodeMirror/addon/lint/lint.css',
 					'libs/js/alertify.js/themes/alertify.core.css',
 					'libs/js/alertify.js/themes/alertify.default.css',
+					'libs/css/HIDE.css',
 					],
 			}
 		},

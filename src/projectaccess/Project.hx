@@ -5,6 +5,12 @@ package projectaccess;
  * @author AS3Boyan
  */
  
+typedef TargetData = {
+	@:optional var pathToHxml:String;
+	@:optional var runActionType:Int;
+	@:optional var runActionText:String;
+} 
+ 
 class Project
 {
 	inline public static var HAXE:Int = 0;
@@ -36,7 +42,7 @@ class Project
 	public var url:String;
 	
 	public var args:Array<String>;
-	public var targetData:Array<{hxml:String, runActionType:Int, runActionText:String}>;
+	public var targetData:Array<TargetData>;
 	
 	public var files:Array<String>;
 	public var activeFile:String;

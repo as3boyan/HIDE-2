@@ -1,5 +1,6 @@
 package core;
 import dialogs.DialogManager;
+import dialogs.ProjectOptionsDialog;
 import filetree.FileTree;
 import js.Node;
 import menu.BootstrapMenu;
@@ -132,6 +133,6 @@ class MenuCommands
 		BootstrapMenu.getMenu("Project").addMenuItem("Clean", 3, RunProject.cleanProject, "Shift-F8");
 		BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File", 4, RunProject.setHxmlAsProjectBuildFile);
 		BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
-		BootstrapMenu.getMenu("Project").addMenuItem("Project Options...", 5, null);
+		BootstrapMenu.getMenu("Project").addMenuItem("Project Options...", 5, DialogManager.showProjectOptions);
 	}
 }

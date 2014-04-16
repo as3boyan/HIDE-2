@@ -293,7 +293,6 @@ Main.main = function() {
 	window.addEventListener("load",function(e) {
 		core.Splitter.load();
 		watchers.SettingsWatcher.load();
-		dialogs.DialogManager.load();
 		core.Utils.prepare();
 		menu.BootstrapMenu.createMenuBar();
 		newprojectdialog.NewProjectDialog.load();
@@ -301,6 +300,7 @@ Main.main = function() {
 		cm.Zoom.load();
 		filetree.FileTree.init();
 		projectaccess.ProjectOptions.create();
+		dialogs.DialogManager.load();
 		core.FileDialog.create();
 		tabmanager.TabManager.load();
 		core.HaxeLint.load();
@@ -2574,7 +2574,7 @@ core.MenuCommands.add = function() {
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Clean",3,core.RunProject.cleanProject,"Shift-F8");
 	menu.BootstrapMenu.getMenu("Project").addMenuItem("Set This Hxml As Project Build File",4,core.RunProject.setHxmlAsProjectBuildFile);
 	menu.BootstrapMenu.getMenu("Project").addSubmenu("Build Recent Project");
-	menu.BootstrapMenu.getMenu("Project").addMenuItem("Project Options...",5,null);
+	menu.BootstrapMenu.getMenu("Project").addMenuItem("Project Options...",5,dialogs.DialogManager.showProjectOptions);
 };
 var nodejs = {};
 nodejs.webkit = {};
@@ -3236,6 +3236,7 @@ dialogs.DialogManager.__name__ = ["dialogs","DialogManager"];
 dialogs.DialogManager.load = function() {
 	dialogs.DialogManager.browseFolderDialog = new dialogs.BrowseFolderDialog();
 	dialogs.DialogManager.haxelibManagerDialog = new dialogs.HaxelibManagerDialog();
+	dialogs.DialogManager.projectOptionsDialog = new dialogs.ProjectOptionsDialog();
 };
 dialogs.DialogManager.showBrowseFolderDialog = function(title,onComplete,defaultValue) {
 	if(defaultValue == null) defaultValue = "";
@@ -3247,30 +3248,55 @@ dialogs.DialogManager.showBrowseFolderDialog = function(title,onComplete,default
 dialogs.DialogManager.showHaxelibManagerDialog = function() {
 	dialogs.DialogManager.haxelibManagerDialog.show();
 };
+dialogs.DialogManager.showProjectOptions = function() {
+	dialogs.DialogManager.projectOptionsDialog.show();
+};
 dialogs.DialogManager.hide = function() {
 	dialogs.DialogManager.browseFolderDialog.hide();
 	dialogs.DialogManager.haxelibManagerDialog.hide();
 };
 dialogs.HaxelibManagerDialog = function() {
+	var _g1 = this;
 	dialogs.ModalDialog.call(this,"haxelib manager");
 	var inputGroupButton = new bootstrap.InputGroupButton("Search");
 	this.getBody().appendChild(inputGroupButton.getElement());
-	var listGroup = new bootstrap.ListGroup();
+	this.listGroup = new bootstrap.ListGroup();
+	this.listGroup.getElement().id = "haxelibsList";
 	core.HaxeHelper.getHaxelibList(function(data) {
 		var _g = 0;
 		while(_g < data.length) {
 			var item = data[_g];
 			++_g;
-			listGroup.addItem(item,"");
+			_g1.listGroup.addItem(item,"");
 		}
 	});
-	this.getBody().appendChild(listGroup.getElement());
+	this.getBody().appendChild(this.listGroup.getElement());
+	window.addEventListener("resize",function(e) {
+		_g1.updateSize();
+	});
+	this.getFooter().appendChild(bootstrap.ButtonManager.createButton("OK",false,true,true));
+	this.updateSize();
 };
 $hxClasses["dialogs.HaxelibManagerDialog"] = dialogs.HaxelibManagerDialog;
 dialogs.HaxelibManagerDialog.__name__ = ["dialogs","HaxelibManagerDialog"];
 dialogs.HaxelibManagerDialog.__super__ = dialogs.ModalDialog;
 dialogs.HaxelibManagerDialog.prototype = $extend(dialogs.ModalDialog.prototype,{
-	__class__: dialogs.HaxelibManagerDialog
+	listGroup: null
+	,updateSize: function() {
+		this.listGroup.getElement().style.height = window.innerHeight / 2 + "px";
+	}
+	,__class__: dialogs.HaxelibManagerDialog
+});
+dialogs.ProjectOptionsDialog = function() {
+	dialogs.ModalDialog.call(this,"Project Options");
+	this.getBody().appendChild(projectaccess.ProjectOptions.page);
+	this.getFooter().appendChild(bootstrap.ButtonManager.createButton("OK",false,true,true));
+};
+$hxClasses["dialogs.ProjectOptionsDialog"] = dialogs.ProjectOptionsDialog;
+dialogs.ProjectOptionsDialog.__name__ = ["dialogs","ProjectOptionsDialog"];
+dialogs.ProjectOptionsDialog.__super__ = dialogs.ModalDialog;
+dialogs.ProjectOptionsDialog.prototype = $extend(dialogs.ModalDialog.prototype,{
+	__class__: dialogs.ProjectOptionsDialog
 });
 var filetree = {};
 filetree.FileTree = function() { };
@@ -11592,61 +11618,58 @@ haxeproject.HaxeProject.createHaxeProject = function(data,target) {
 		project.target = target;
 		projectaccess.ProjectAccess.path = pathToProject;
 		project.buildActionCommand = ["haxe","--connect","5000","--cwd","\"%path%\""].join(" ");
-		var pathToBin = js.Node.require("path").join(pathToProject,"bin");
-		js.Node.require("fs").mkdir(pathToBin,null,function(error1) {
-			var args = "-cp src\n-main Main\n";
-			var _g = project.target;
-			switch(_g) {
+		var filenames = ["flash","javascript","neko","php","cpp","java","csharp"];
+		var _g1 = 0;
+		var _g = filenames.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var targetData = { };
+			targetData.pathToHxml = filenames[i] + ".hxml";
+			var options = { };
+			options.encoding = "utf8";
+			var templateCode = js.Node.require("fs").readFileSync(js.Node.require("path").join("templates","project",targetData.pathToHxml),options);
+			var pathToFile;
+			switch(i) {
 			case 0:
-				var pathToFile = "bin/" + project.name + ".swf";
-				args += "-swf " + pathToFile + "\n";
-				project.runActionType = 1;
-				project.runActionText = pathToFile;
+				pathToFile = "bin/" + project.name + ".swf";
+				targetData.runActionType = 1;
+				targetData.runActionText = pathToFile;
 				break;
 			case 1:
-				var pathToFile1 = "bin/" + project.name + ".js";
-				args += "-js " + pathToFile1 + "\n";
+				pathToFile = "bin/" + project.name + ".js";
 				var updatedPageCode = mustache.Mustache.render(haxeproject.HaxeProject.indexPageCode,{ title : project.name, script : project.name + ".js"});
-				var pathToWebPage = js.Node.require("path").join(pathToBin,"index.html");
-				js.Node.require("fs").writeFile(pathToWebPage,updatedPageCode,"utf8",function(error2) {
+				var pathToWebPage = js.Node.require("path").join(pathToProject,"bin","index.html");
+				js.Node.require("fs").writeFile(pathToWebPage,updatedPageCode,"utf8",function(error1) {
 				});
-				project.runActionType = 1;
-				project.runActionText = js.Node.require("path").join("bin","index.html");
+				targetData.runActionType = 1;
+				targetData.runActionText = js.Node.require("path").join("bin","index.html");
 				break;
 			case 6:
-				var pathToFile2 = "bin/" + project.name + ".n";
-				args += "-neko " + pathToFile2 + "\n";
-				project.runActionType = 2;
-				project.runActionText = "neko " + pathToFile2;
+				pathToFile = "bin/" + project.name + ".n";
+				targetData.runActionType = 2;
+				targetData.runActionText = "neko " + pathToFile;
 				break;
 			case 2:
-				args += "-php " + "bin/" + project.name + ".php\n";
+				pathToFile = "bin/" + project.name + ".php";
 				break;
 			case 3:
-				var pathToFile3 = "bin/" + project.name + ".exe";
-				args += "-cpp " + pathToFile3 + "\n";
-				project.runActionType = 2;
-				project.runActionText = js.Node.require("path").join(projectaccess.ProjectAccess.path,pathToFile3);
+				pathToFile = "bin/" + project.name + ".exe";
+				targetData.runActionType = 2;
+				targetData.runActionText = pathToFile;
 				break;
 			case 4:
-				args += "-java " + "bin/" + project.name + ".jar\n";
+				pathToFile = "bin/" + project.name + ".jar";
 				break;
 			case 5:
-				args += "-cs " + "bin/" + project.name + ".exe\n";
+				pathToFile = "bin/" + project.name + ".exe";
 				break;
 			default:
+				throw "Path to file is null";
 			}
-			args += "-debug\n -dce full";
-			project.args = args.split("\n");
-			var path = js.Node.require("path").join(pathToProject,"project.hide");
-			js.Browser.getLocalStorage().setItem("pathToLastProject",path);
-			projectaccess.ProjectAccess.currentProject = project;
-			projectaccess.ProjectAccess.save((function(f,a1) {
-				return function() {
-					return f(a1);
-				};
-			})(openproject.OpenProject.openProject,path));
-		});
+			templateCode = mustache.Mustache.render(templateCode,{ file : pathToFile});
+			js.Node.require("fs").writeFileSync(targetData.pathToHxml,templateCode,"utf8");
+			project.targetData.push(targetData);
+		}
 	});
 };
 hxparse.NoMatch = function(pos,token) {
@@ -13483,9 +13506,8 @@ projectaccess.ProjectOptions = function() { };
 $hxClasses["projectaccess.ProjectOptions"] = projectaccess.ProjectOptions;
 projectaccess.ProjectOptions.__name__ = ["projectaccess","ProjectOptions"];
 projectaccess.ProjectOptions.create = function() {
-	var page;
 	var _this = window.document;
-	page = _this.createElement("div");
+	projectaccess.ProjectOptions.page = _this.createElement("div");
 	var _this1 = window.document;
 	projectaccess.ProjectOptions.projectOptionsText = _this1.createElement("p");
 	projectaccess.ProjectOptions.projectOptionsText.id = "project-options-text";
@@ -13505,7 +13527,7 @@ projectaccess.ProjectOptions.create = function() {
 	projectaccess.ProjectOptions.projectTargetText.textContent = watchers.LocaleWatcher.getStringSync("Project target:");
 	projectaccess.ProjectOptions.projectTargetText.setAttribute("localeString","Project target:");
 	projectaccess.ProjectOptions.projectTargetText.className = "custom-font-size";
-	page.appendChild(projectaccess.ProjectOptions.projectTargetText);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.projectTargetText);
 	var _this4 = window.document;
 	projectaccess.ProjectOptions.projectTargetList = _this4.createElement("select");
 	projectaccess.ProjectOptions.projectTargetList.id = "project-options-project-target";
@@ -13595,17 +13617,17 @@ projectaccess.ProjectOptions.create = function() {
 		projectaccess.ProjectAccess.currentProject.buildActionCommand = projectaccess.ProjectOptions.buildActionTextArea.value;
 		projectaccess.ProjectAccess.save();
 	};
-	page.appendChild(projectaccess.ProjectOptions.projectTargetList);
-	page.appendChild(projectaccess.ProjectOptions.buildActionDescription);
-	page.appendChild(projectaccess.ProjectOptions.buildActionTextArea);
-	page.appendChild(projectaccess.ProjectOptions.projectOptionsText);
-	page.appendChild(projectaccess.ProjectOptions.textarea);
-	page.appendChild(projectaccess.ProjectOptions.openFLTargetText);
-	page.appendChild(projectaccess.ProjectOptions.openFLTargetList);
-	page.appendChild(projectaccess.ProjectOptions.runActionDescription);
-	page.appendChild(projectaccess.ProjectOptions.runActionList);
-	page.appendChild(projectaccess.ProjectOptions.runActionTextAreaDescription);
-	page.appendChild(projectaccess.ProjectOptions.actionTextArea);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.projectTargetList);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.buildActionDescription);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.buildActionTextArea);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.projectOptionsText);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.textarea);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.openFLTargetText);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.openFLTargetList);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.runActionDescription);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.runActionList);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.runActionTextAreaDescription);
+	projectaccess.ProjectOptions.page.appendChild(projectaccess.ProjectOptions.actionTextArea);
 };
 projectaccess.ProjectOptions.update = function(_) {
 	if(projectaccess.ProjectOptions.projectTargetList.selectedIndex == 3) {

@@ -1,4 +1,5 @@
 package dialogs;
+import bootstrap.ButtonManager;
 import bootstrap.InputGroupButton;
 import bootstrap.ListGroup;
 import core.HaxeHelper;
@@ -12,6 +13,7 @@ import js.html.Event;
  */
 class HaxelibManagerDialog extends ModalDialog
 {
+	var listGroup:ListGroup;
 
 	public function new() 
 	{
@@ -21,7 +23,8 @@ class HaxelibManagerDialog extends ModalDialog
 		
 		getBody().appendChild(inputGroupButton.getElement());
 		
-		var listGroup = new ListGroup();
+		listGroup = new ListGroup();
+		listGroup.getElement().id = "haxelibsList";
 		
 		HaxeHelper.getHaxelibList(function (data:Array<String>):Void 
 		{
@@ -34,11 +37,20 @@ class HaxelibManagerDialog extends ModalDialog
 		
 		getBody().appendChild(listGroup.getElement());
 		
-		//Browser.window.addEventListener("resize", function (e:Event):Void 
-		//{
-			//listGroup.getElement().style.height = Browser.window.innerHeight / 2 + "px";
-		//}
-		//);
+		Browser.window.addEventListener("resize", function (e:Event):Void 
+		{
+			updateSize();
+		}
+		);
+		
+		getFooter().appendChild(ButtonManager.createButton("OK", false, true, true));
+		
+		updateSize();
+	}
+	
+	function updateSize():Void 
+	{
+		listGroup.getElement().style.height = Browser.window.innerHeight / 2 + "px";
 	}
 	
 }

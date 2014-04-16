@@ -14,6 +14,8 @@ import watchers.LocaleWatcher;
  */
 class ProjectOptions
 {	
+	public static var page:DivElement;
+	
 	static var textarea:TextAreaElement;
 	static var projectTargetList:SelectElement;
 	static var projectTargetText:ParagraphElement;
@@ -25,12 +27,12 @@ class ProjectOptions
 	static var actionTextArea:TextAreaElement;
 	static var runActionList:SelectElement;
 	static var runActionTextAreaDescription:ParagraphElement;
-	static private var buildActionDescription:ParagraphElement;
-	static private var runActionDescription:ParagraphElement;
+	static var buildActionDescription:ParagraphElement;
+	static var runActionDescription:ParagraphElement;
 	
 	public static function create():Void
 	{
-		var page:DivElement = Browser.document.createDivElement();
+		page = Browser.document.createDivElement();
 		
 		projectOptionsText = Browser.document.createParagraphElement();
 		projectOptionsText.id = "project-options-text";

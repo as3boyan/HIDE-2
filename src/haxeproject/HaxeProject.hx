@@ -152,73 +152,135 @@ class HaxeProject
 			ProjectAccess.path = pathToProject;
 			project.buildActionCommand = ["haxe", "--connect", "5000", "--cwd", '"%path%"'].join(" ");
 			
-			var pathToBin:String = js.Node.path.join(pathToProject, "bin");
+			var filenames = ["flash", "javascript", "neko", "php", "cpp", "java", "csharp"];
 			
-			js.Node.fs.mkdir(pathToBin, function (error):Void
+			for (i in 0...filenames.length) 
 			{
-				var args:String = "-cp src\n-main Main\n"; 
-			
-				switch (project.target) 
+				var targetData:TargetData = { };
+				targetData.pathToHxml = filenames[i] + ".hxml";
+				
+				var options:NodeFsFileOptions = { };
+				options.encoding = NodeC.UTF8;
+				
+				var templateCode:String = Node.fs.readFileSync(Node.path.join("templates", "project", targetData.pathToHxml), options);
+				
+				var pathToFile:String;
+				
+				switch (i) 
 				{
 					case Project.FLASH:
-						var pathToFile:String = "bin/" + project.name + ".swf";
-						
-						args += "-swf " + pathToFile + "\n";
-						
-						project.runActionType = Project.FILE;
-						project.runActionText = pathToFile;
+						pathToFile = "bin/" + project.name + ".swf";
+						targetData.runActionType = Project.FILE;
+						targetData.runActionText = pathToFile;
 					case Project.JAVASCRIPT:
-						var pathToFile:String = "bin/" +  project.name + ".js";
-						
-						args += "-js " + pathToFile + "\n";
+						pathToFile = "bin/" +  project.name + ".js";
 						
 						var updatedPageCode:String = Mustache.render(indexPageCode, { title: project.name, script: project.name + ".js" } );
 						
-						var pathToWebPage:String = js.Node.path.join(pathToBin, "index.html");
+						var pathToWebPage:String = Node.path.join(pathToProject, "bin", "index.html");
 						
-						js.Node.fs.writeFile(pathToWebPage, updatedPageCode, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+						Node.fs.writeFile(pathToWebPage, updatedPageCode, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
 						{
 							
 						}
 						);
 						
-						project.runActionType = Project.FILE;
-						project.runActionText = js.Node.path.join("bin", "index.html");
+						targetData.runActionType = Project.FILE;
+						targetData.runActionText = Node.path.join("bin", "index.html");
 					case Project.NEKO:
-						var pathToFile:String  = "bin/" + project.name + ".n";
+						pathToFile  = "bin/" + project.name + ".n";
 						
-						args += "-neko " + pathToFile +  "\n";
-						
-						project.runActionType = Project.COMMAND;
-						project.runActionText = "neko " + pathToFile;
+						targetData.runActionType = Project.COMMAND;
+						targetData.runActionText = "neko " + pathToFile;
 					case Project.PHP:
-						args += "-php " + "bin/" + project.name + ".php\n";
+						pathToFile = "bin/" + project.name + ".php";
 					case Project.CPP:
-						var pathToFile:String = "bin/" + project.name + ".exe";
-						args += "-cpp " + pathToFile + "\n";
+						pathToFile = "bin/" + project.name + ".exe";
 						
-						project.runActionType = Project.COMMAND;
-						project.runActionText = js.Node.path.join(ProjectAccess.path, pathToFile);
+						targetData.runActionType = Project.COMMAND;
+						targetData.runActionText = pathToFile;
 					case Project.JAVA:
-						args += "-java " + "bin/" + project.name + ".jar\n";
+						pathToFile = "bin/" + project.name + ".jar";
 					case Project.CSHARP:
-						args += "-cs " + "bin/" + project.name + ".exe\n";
+						pathToFile = "bin/" + project.name + ".exe";
 						
 					default:
-						
+						throw "Path to file is null";
 				}
 				
-				args += "-debug\n -dce full";
+				templateCode = Mustache.render(templateCode, { file: pathToFile } );
+				Node.fs.writeFileSync(targetData.pathToHxml, templateCode, NodeC.UTF8);
 				
-				project.args = args.split("\n");
-				
-				var path:String = js.Node.path.join(pathToProject, "project.hide");
-				Browser.getLocalStorage().setItem("pathToLastProject", path);
-				
-				ProjectAccess.currentProject = project;
-				
-				ProjectAccess.save(OpenProject.openProject.bind(path));
-			});
+				project.targetData.push(targetData);
+			}
+			
+			//var pathToBin:String = js.Node.path.join(pathToProject, "bin");
+			//
+			//js.Node.fs.mkdir(pathToBin, function (error):Void
+			//{
+				//var args:String = "-cp src\n-main Main\n"; 
+			//
+				//switch (project.target) 
+				//{
+					//case Project.FLASH:
+						//var pathToFile:String = "bin/" + project.name + ".swf";
+						//
+						//args += "-swf " + pathToFile + "\n";
+						//
+						//project.runActionType = Project.FILE;
+						//project.runActionText = pathToFile;
+					//case Project.JAVASCRIPT:
+						//var pathToFile:String = "bin/" +  project.name + ".js";
+						//
+						//args += "-js " + pathToFile + "\n";
+						//
+						//var updatedPageCode:String = Mustache.render(indexPageCode, { title: project.name, script: project.name + ".js" } );
+						//
+						//var pathToWebPage:String = js.Node.path.join(pathToBin, "index.html");
+						//
+						//js.Node.fs.writeFile(pathToWebPage, updatedPageCode, js.Node.NodeC.UTF8, function (error:js.Node.NodeErr):Void
+						//{
+							//
+						//}
+						//);
+						//
+						//project.runActionType = Project.FILE;
+						//project.runActionText = js.Node.path.join("bin", "index.html");
+					//case Project.NEKO:
+						//var pathToFile:String  = "bin/" + project.name + ".n";
+						//
+						//args += "-neko " + pathToFile +  "\n";
+						//
+						//project.runActionType = Project.COMMAND;
+						//project.runActionText = "neko " + pathToFile;
+					//case Project.PHP:
+						//args += "-php " + "bin/" + project.name + ".php\n";
+					//case Project.CPP:
+						//var pathToFile:String = "bin/" + project.name + ".exe";
+						//args += "-cpp " + pathToFile + "\n";
+						//
+						//project.runActionType = Project.COMMAND;
+						//project.runActionText = js.Node.path.join(ProjectAccess.path, pathToFile);
+					//case Project.JAVA:
+						//args += "-java " + "bin/" + project.name + ".jar\n";
+					//case Project.CSHARP:
+						//args += "-cs " + "bin/" + project.name + ".exe\n";
+						//
+					//default:
+						//
+				//}
+				//
+				//args += "-debug\n -dce full";
+				//
+				//project.args = args.split("\n");
+				//
+				//var path:String = js.Node.path.join(pathToProject, "project.hide");
+				//Browser.getLocalStorage().setItem("pathToLastProject", path);
+				//
+				//ProjectAccess.currentProject = project;
+				//
+				//ProjectAccess.save(OpenProject.openProject.bind(path));
+			//});
 		}
 		);
 	}

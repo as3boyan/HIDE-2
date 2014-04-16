@@ -79,7 +79,6 @@ class Main
 			Splitter.load();
 			
 			SettingsWatcher.load();
-			DialogManager.load();
 			
 			Utils.prepare();
 			BootstrapMenu.createMenuBar();
@@ -88,6 +87,7 @@ class Main
 			Zoom.load();
 			FileTree.init();
 			ProjectOptions.create();
+			DialogManager.load();
 			FileDialog.create();
 			TabManager.load();
 			HaxeLint.load();

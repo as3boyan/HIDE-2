@@ -8,11 +8,13 @@ class DialogManager
 {
 	static var browseFolderDialog:BrowseFolderDialog;
 	static var haxelibManagerDialog:HaxelibManagerDialog;
+	static var projectOptionsDialog:ProjectOptionsDialog;
 	
 	public static function load():Void
 	{
 		browseFolderDialog =  new BrowseFolderDialog();
 		haxelibManagerDialog = new HaxelibManagerDialog();
+		projectOptionsDialog = new ProjectOptionsDialog();
 	}
 	
 	public static function showBrowseFolderDialog(title:String, onComplete:String->Void, ?defaultValue:String = ""):Void
@@ -26,6 +28,11 @@ class DialogManager
 	public static function showHaxelibManagerDialog()
 	{
 		haxelibManagerDialog.show();
+	}
+	
+	public static function showProjectOptions()
+	{
+		projectOptionsDialog.show();
 	}
 	
 	public static function hide():Void 
