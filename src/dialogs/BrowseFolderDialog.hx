@@ -19,7 +19,7 @@ class BrowseFolderDialog extends ModalDialog
 	{
 		super(title);
 		
-		var inputGroupButton = new InputGroupButton("Browse");
+		var inputGroupButton = new InputGroupButton("Browse...");
 		
 		input = inputGroupButton.getInput();
 		

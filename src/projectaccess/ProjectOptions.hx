@@ -1,4 +1,6 @@
 package projectaccess;
+import bootstrap.InputGroupButton;
+import core.FileDialog;
 import haxe.ds.ArraySort;
 import js.Browser;
 import js.html.DivElement;
@@ -6,6 +8,7 @@ import js.html.OptionElement;
 import js.html.ParagraphElement;
 import js.html.SelectElement;
 import js.html.TextAreaElement;
+import projectaccess.Project.TargetData;
 import watchers.LocaleWatcher;
 
 /**
@@ -16,10 +19,10 @@ class ProjectOptions
 {	
 	public static var page:DivElement;
 	
-	static var textarea:TextAreaElement;
+	//static var textarea:TextAreaElement;
 	static var projectTargetList:SelectElement;
 	static var projectTargetText:ParagraphElement;
-	static var projectOptionsText:ParagraphElement;
+	//static var projectOptionsText:ParagraphElement;
 	static var openFLTargetList:SelectElement;
 	static var openFLTargetText:ParagraphElement;
 	static var openFLTargets:Array<String>;
@@ -34,21 +37,41 @@ class ProjectOptions
 	{
 		page = Browser.document.createDivElement();
 		
-		projectOptionsText = Browser.document.createParagraphElement();
-		projectOptionsText.id = "project-options-text";
-		projectOptionsText.className = "custom-font-size";
-		projectOptionsText.textContent = LocaleWatcher.getStringSync("Project arguments:");
-		projectOptionsText.setAttribute("localeString", "Project arguments:");
+		//projectOptionsText = Browser.document.createParagraphElement();
+		//projectOptionsText.id = "project-options-text";
+		//projectOptionsText.className = "custom-font-size";
+		//projectOptionsText.textContent = LocaleWatcher.getStringSync("Project arguments:");
+		//projectOptionsText.setAttribute("localeString", "Project arguments:");
+		//
+		//textarea = Browser.document.createTextAreaElement();
+		//textarea.id = "project-options-textarea";
+		//textarea.className = "custom-font-size";
+		//textarea.onchange = function (e)
+		//{
+			//ProjectAccess.currentProject.args = textarea.value.split("\n");
+			//ProjectAccess.save();
+		//};
 		
-		textarea = Browser.document.createTextAreaElement();
-		textarea.id = "project-options-textarea";
-		textarea.className = "custom-font-size";
-		textarea.onchange = function (e)
+		var pathToHxmlDescription = Browser.document.createParagraphElement();
+		pathToHxmlDescription.textContent = LocaleWatcher.getStringSync("Path to Hxml:");
+		pathToHxmlDescription.setAttribute("localeString", "Path to Hxml:");
+		pathToHxmlDescription.className = "custom-font-size";
+		
+		var inputGroupButton = new InputGroupButton("Browse...");
+		
+		var input = inputGroupButton.getInput();
+		
+		var browseButton = inputGroupButton.getButton();
+		
+		browseButton.onclick = function (e):Void 
 		{
-			ProjectAccess.currentProject.args = textarea.value.split("\n");
-			ProjectAccess.save();
+			FileDialog.openFile(function (path:String):Void 
+			{
+				input.value = path;
+			}
+			, ".hxml");
 		};
-		
+				
 		projectTargetText = Browser.document.createParagraphElement();
 		projectTargetText.textContent = LocaleWatcher.getStringSync("Project target:");
 		projectTargetText.setAttribute("localeString", "Project target:");
@@ -74,9 +97,48 @@ class ProjectOptions
 		{
 			projectTargetList.appendChild(createListItem(target));
 		}
-		
+			
 		//projectTargetList.disabled = true;
-		projectTargetList.onchange = update;
+		projectTargetList.onchange = function (e):Void 
+		{
+			var project = ProjectAccess.currentProject;
+			
+			switch (projectTargetList.value) 
+			{
+				case "Flash":
+					project.target = Project.FLASH;
+				case "JavaScript":
+					project.target = Project.JAVASCRIPT;
+				case "Neko":
+					project.target = Project.NEKO;
+				case "OpenFL":
+					project.target = Project.OPENFL;
+				case "PHP":
+					project.target = Project.PHP;
+				case "C++":
+					project.target = Project.CPP;
+				case "Java":
+					project.target = Project.JAVA;
+				case "C#":
+					project.target = Project.CSHARP;
+				default:
+					throw "Unknown target";
+			}
+			
+			//switch (project.type) 
+			//{
+				//case Project.HAXE:
+					//var targetData:TargetData = project.targetData[project.target];
+					//
+					//runActionType = targetData.runActionType;
+					//runActionText = targetData.runActionText;
+				//default:
+					//runActionType = project.runActionType;
+					//runActionText = project.runActionText;
+			//}
+			
+			updateProjectOptions();
+		};
 		
 		openFLTargets = ["flash", "html5", "neko", "android", "blackberry", "emscripten", "webos", "tizen", "ios", "windows", "mac", "linux"];
 		
@@ -157,8 +219,10 @@ class ProjectOptions
 		page.appendChild(projectTargetList);
 		page.appendChild(buildActionDescription);
 		page.appendChild(buildActionTextArea);
-		page.appendChild(projectOptionsText);
-		page.appendChild(textarea);
+		page.appendChild(pathToHxmlDescription);
+		page.appendChild(inputGroupButton.getElement());
+		//page.appendChild(projectOptionsText);
+		//page.appendChild(textarea);
 		page.appendChild(openFLTargetText);
 		page.appendChild(openFLTargetList);
 		page.appendChild(runActionDescription);
@@ -169,10 +233,10 @@ class ProjectOptions
 		//new jQuery.JQuery("#options").append(page);
 	}
 	
-	public static function getProjectArguments():String
-	{
-		return textarea.value;
-	}
+	//public static function getProjectArguments():String
+	//{
+		//return textarea.value;
+	//}
 	
 	private static function update(_):Void
 	{
@@ -180,23 +244,23 @@ class ProjectOptions
 		{
 			openFLTargetList.style.display = "";
 			openFLTargetText.style.display = "";
-			textarea.style.display = "none";
-			projectOptionsText.style.display = "none";
+			//textarea.style.display = "none";
+			//projectOptionsText.style.display = "none";
 		}
-		else 
+		else
 		{
 			openFLTargetList.style.display = "none";
 			openFLTargetText.style.display = "none";
-			textarea.style.display = "";
-			projectOptionsText.style.display = "";
+			//textarea.style.display = "";
+			//projectOptionsText.style.display = "";
 		}
 		
 		if (ProjectAccess.currentProject.type == Project.HXML) 
 		{
 			openFLTargetList.style.display = "none";
 			openFLTargetText.style.display = "none";
-			textarea.style.display = "none";
-			projectOptionsText.style.display = "none";
+			//textarea.style.display = "none";
+			//projectOptionsText.style.display = "none";
 			
 			buildActionTextArea.style.display = "none";
 			buildActionDescription.style.display = "none";
@@ -219,17 +283,19 @@ class ProjectOptions
 			actionTextArea.style.display = "";
 		}
 		
+		var project = ProjectAccess.currentProject;
+		
 		switch (runActionList.selectedIndex) 
 		{
 			case 0:
 				runActionTextAreaDescription.innerText = LocaleWatcher.getStringSync("URL: ");
-				ProjectAccess.currentProject.runActionType = Project.URL;
+				project.runActionType = Project.URL;
 			case 1:
 				runActionTextAreaDescription.innerText = LocaleWatcher.getStringSync("Path: ");
-				ProjectAccess.currentProject.runActionType = Project.FILE;
+				project.runActionType = Project.FILE;
 			case 2:
 				runActionTextAreaDescription.innerText = LocaleWatcher.getStringSync("Command: ");
-				ProjectAccess.currentProject.runActionType = Project.COMMAND;
+				project.runActionType = Project.COMMAND;
 				
 			default:
 				
@@ -240,11 +306,28 @@ class ProjectOptions
 	
 	public static function updateProjectOptions():Void
 	{		
-		if (ProjectAccess.currentProject.type == Project.OPENFL)
+		var project = ProjectAccess.currentProject;
+		
+		var runActionType;
+		var runActionText;
+		
+		switch (project.type) 
+		{
+			case Project.HAXE:
+				var targetData:TargetData = project.targetData[project.target];
+				
+				runActionType = targetData.runActionType;
+				runActionText = targetData.runActionText;
+			default:
+				runActionType = project.runActionType;
+				runActionText = project.runActionText;
+		}
+		
+		if (project.type == Project.OPENFL)
 		{
 			projectTargetList.selectedIndex = 3;
 			
-			var i:Int = Lambda.indexOf(openFLTargets, ProjectAccess.currentProject.openFLTarget);
+			var i:Int = Lambda.indexOf(openFLTargets, project.openFLTarget);
 			if (i != -1)
 			{
 				openFLTargetList.selectedIndex = i;
@@ -256,7 +339,7 @@ class ProjectOptions
 		}
 		else 
 		{			
-			switch (ProjectAccess.currentProject.target) 
+			switch (project.target) 
 			{
 				case Project.FLASH:
 					projectTargetList.selectedIndex = 0;
@@ -276,12 +359,12 @@ class ProjectOptions
 					
 			}
 			
-			textarea.value = ProjectAccess.currentProject.args.join("\n");
+			//textarea.value = ProjectAccess.currentProject.args.join("\n");
 		}
 		
-		buildActionTextArea.value = ProjectAccess.currentProject.buildActionCommand;
+		buildActionTextArea.value = project.buildActionCommand;
 		
-		switch (ProjectAccess.currentProject.runActionType) 
+		switch (runActionType) 
 		{
 			case Project.URL:
 				runActionList.selectedIndex = 0;
@@ -293,7 +376,6 @@ class ProjectOptions
 				
 		}
 		
-		var runActionText:String = ProjectAccess.currentProject.runActionText;
 		if (runActionText == null) 
 		{
 			runActionText = "";

@@ -19,11 +19,11 @@ class Project
 	
 	inline public static var FLASH:Int = 0;
 	inline public static var JAVASCRIPT:Int = 1;
-	inline public static var PHP:Int = 2;
-	inline public static var CPP:Int = 3;
-	inline public static var JAVA:Int = 4;
-	inline public static var CSHARP:Int = 5;
-	inline public static var NEKO:Int = 6;
+	inline public static var NEKO:Int = 2;
+	inline public static var PHP:Int = 3;
+	inline public static var CPP:Int = 4;
+	inline public static var JAVA:Int = 5;
+	inline public static var CSHARP:Int = 6;
 	
 	inline public static var URL:Int = 0;
 	inline public static var FILE:Int = 1;

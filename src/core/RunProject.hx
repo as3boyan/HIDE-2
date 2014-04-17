@@ -1,4 +1,5 @@
 package core;
+import build.Hxml;
 import cm.Editor;
 import js.Browser;
 import js.html.TextAreaElement;
@@ -30,9 +31,9 @@ class RunProject
 	{
 		var path:String = TabManager.getCurrentDocumentPath();
 		var extname:String = js.Node.path.extname(path);
-		var buildHxml:Bool = (extname == ".hxml");
+		var isHxml:Bool = (extname == ".hxml");
 		
-		if (buildHxml) 
+		if (isHxml) 
 		{
 			var noproject:Bool = ProjectAccess.path == null;
 			
@@ -59,18 +60,35 @@ class RunProject
 	public static function runProject():Void
 	{		
 		buildProject(null, function ()
-		{			
-			switch (ProjectAccess.currentProject.runActionType) 
+		{
+			var project = ProjectAccess.currentProject;
+			
+			var runActionType;
+			var runActionText;
+			
+			switch (project.type) 
+			{
+				case Project.HAXE:
+					var targetData:TargetData = project.targetData[project.target];
+					
+					runActionType = targetData.runActionType;
+					runActionText = targetData.runActionText;
+				default:
+					runActionType = project.runActionType;
+					runActionText = project.runActionText;
+			}
+			
+			switch (runActionType) 
 			{
 				case Project.URL:
-					var url:String = ProjectAccess.currentProject.runActionText;
+					var url:String = runActionText;
 					
 					if (isValidCommand(url)) 
 					{
 						Shell.openExternal(url);
 					}
 				case Project.FILE:
-					var path:String = ProjectAccess.currentProject.runActionText;
+					var path:String = runActionText;
 					
 					if (isValidCommand(path)) 
 					{
@@ -86,7 +104,7 @@ class RunProject
 						);
 					}
 				case Project.COMMAND:
-					var command:String = ProjectAccess.currentProject.runActionText;
+					var command:String = runActionText;
 					
 					if (isValidCommand(command)) 
 					{
@@ -157,10 +175,10 @@ class RunProject
 			pathToProject = ProjectAccess.path;
 		}
 		
-		build(project, pathToProject, onComplete);
+		buildSpecifiedProject(project, pathToProject, onComplete);
 	}
 	
-	static function build(project:Project, pathToProject:String,  onComplete:Dynamic)
+	static function buildSpecifiedProject(project:Project, pathToProject:String,  onComplete:Dynamic)
 	{
 		if (pathToProject == null)
 		{
@@ -177,14 +195,23 @@ class RunProject
 				var dirname:String = Node.path.dirname(path);
 				var filename:String = Node.path.basename(path);
 				
-				if (buildHxml || project.type == Project.HXML) 
+				if (buildHxml || project.type == Project.HXML || project.type == Project.HAXE)
 				{
 					var hxmlData:String;
 					
 					if (!buildHxml) 
 					{
 						dirname = pathToProject;
-						filename = project.main;
+						
+						switch (project.type) 
+						{
+							case Project.HXML:
+								filename = project.main;
+							case Project.HAXE:
+								filename = project.targetData[project.target].pathToHxml;
+							default:
+								
+						}
 						
 						var options:NodeFsFileOptions = { };
 						options.encoding = NodeC.UTF8;
@@ -194,7 +221,7 @@ class RunProject
 							if (err == null) 
 							{
 								hxmlData = data;
-								checkHxml(dirname, filename, hxmlData, onComplete);
+								Hxml.checkHxml(dirname, filename, hxmlData, onComplete);
 							}
 							else 
 							{
@@ -206,18 +233,18 @@ class RunProject
 					else 
 					{
 						hxmlData = Editor.editor.getValue();	
-						checkHxml(dirname, filename, hxmlData, onComplete);
+						Hxml.checkHxml(dirname, filename, hxmlData, onComplete);
 					}
 				}
-				else 
+				else
 				{
 					var command:String = project.buildActionCommand;
 					command = preprocessCommand(command, pathToProject);
 					
-					if (project.type == Project.HAXE)
-					{
-						command = [command].concat(project.args).join(" ");
-					}
+					//if (project.type == Project.HAXE)
+					//{
+						//command = [command].concat(project.args).join(" ");
+					//}
 					
 					var params:Array<String> = preprocessCommand(command, pathToProject).split(" ");
 					var process:String = params.shift();
@@ -229,58 +256,7 @@ class RunProject
 		}
 	}
 	
-	static function checkHxml(dirname:String, filename:String, hxmlData:String, ?onComplete:Dynamic)
-	{
-		var useCompilationServer:Bool = true;
-		var startCommandLine:Bool = false;
-		
-		if (hxmlData != null) 
-		{
-			if (hxmlData.indexOf("-cmd") != -1) 
-			{
-				startCommandLine = true;
-			}
-			
-			if (hxmlData.indexOf("-cpp") != -1) 
-			{
-				useCompilationServer = false;
-			}
-			
-		}
-		
-		buildHxml(dirname, filename, useCompilationServer, startCommandLine, onComplete);
-	}
-	
-	private static function buildHxml(dirname:String, filename:String, ?useCompilationServer:Bool = true, ?startCommandLine:Bool = false, ?onComplete:Dynamic)
-	{
-		var params:Array<String> = [];
-		
-		if (startCommandLine) 
-		{
-			switch (Utils.os) 
-			{
-				case Utils.WINDOWS:
-					params.push("start");
-				default:
-					params.push("bash");
-			}
-		}
-		
-		params = params.concat(["haxe", "--cwd", dirname]);
-		
-		if (useCompilationServer)
-		{
-			params = params.concat(["--connect", "5000"]);
-		}
-		
-		params.push(filename);
-		
-		var process:String = params.shift();
-		
-		ProcessHelper.runProcessAndPrintOutputToConsole(process, params, onComplete);
-	}
-	
-	private static function preprocessCommand(command:String, path:String):String
+	static function preprocessCommand(command:String, path:String):String
 	{
 		var processedCommand:String = command;
 		
