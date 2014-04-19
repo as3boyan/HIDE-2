@@ -1,4 +1,5 @@
 package projectaccess;
+import bootstrap.ButtonManager;
 import bootstrap.InputGroupButton;
 import core.FileDialog;
 import haxe.ds.ArraySort;
@@ -8,7 +9,9 @@ import js.html.OptionElement;
 import js.html.ParagraphElement;
 import js.html.SelectElement;
 import js.html.TextAreaElement;
+import js.Node;
 import projectaccess.Project.TargetData;
+import tabmanager.TabManager;
 import watchers.LocaleWatcher;
 
 /**
@@ -32,6 +35,9 @@ class ProjectOptions
 	static var runActionTextAreaDescription:ParagraphElement;
 	static var buildActionDescription:ParagraphElement;
 	static var runActionDescription:ParagraphElement;
+	static private var pathToHxmlDescription;
+	static private var inputGroupButton:bootstrap.InputGroupButton;
+	static private var input;
 	
 	public static function create():Void
 	{
@@ -52,14 +58,14 @@ class ProjectOptions
 			//ProjectAccess.save();
 		//};
 		
-		var pathToHxmlDescription = Browser.document.createParagraphElement();
+		pathToHxmlDescription = Browser.document.createParagraphElement();
 		pathToHxmlDescription.textContent = LocaleWatcher.getStringSync("Path to Hxml:");
 		pathToHxmlDescription.setAttribute("localeString", "Path to Hxml:");
 		pathToHxmlDescription.className = "custom-font-size";
 		
-		var inputGroupButton = new InputGroupButton("Browse...");
+		inputGroupButton = new InputGroupButton("Browse...");
 		
-		var input = inputGroupButton.getInput();
+		input = inputGroupButton.getInput();
 		
 		var browseButton = inputGroupButton.getButton();
 		
@@ -68,10 +74,21 @@ class ProjectOptions
 			FileDialog.openFile(function (path:String):Void 
 			{
 				input.value = path;
+				
+				var project = ProjectAccess.currentProject;
+				project.targetData[project.target].pathToHxml = input.value;
 			}
 			, ".hxml");
 		};
-				
+		
+		var editButton = ButtonManager.createButton("Edit", false, true);
+		editButton.onclick = function (e):Void 
+		{
+			TabManager.openFileInNewTab(Node.path.resolve(ProjectAccess.path, input.value));
+		};
+		
+		inputGroupButton.getSpan().appendChild(editButton);
+		
 		projectTargetText = Browser.document.createParagraphElement();
 		projectTargetText.textContent = LocaleWatcher.getStringSync("Project target:");
 		projectTargetText.setAttribute("localeString", "Project target:");

@@ -25,6 +25,11 @@ class InputGroupButton extends InputGroup
 		inputGroup.appendChild(span);
 	}
 	
+	public function getSpan():SpanElement
+	{
+		return span;
+	}
+	
 	public function getButton():ButtonElement
 	{
 		return button;

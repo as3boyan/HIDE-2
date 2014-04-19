@@ -215,7 +215,7 @@ class TabManager
 	{			
 		if (Browser.document.getElementById("editor").style.display == "none" && tabMap.getTabs().length > 0)
 		{
-			new JQuery("#editor").fadeIn(250);
+			new JQuery("#editor").show(0);
 			
 			WelcomeScreen.hide();
 			
@@ -289,7 +289,7 @@ class TabManager
 		}
 		else 
 		{
-			new JQuery("#editor").fadeOut(250);
+			new JQuery("#editor").hide(0);
 			
 			if (ProjectAccess.path != null) 
 			{

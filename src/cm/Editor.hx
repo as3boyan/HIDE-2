@@ -63,7 +63,7 @@ class Editor
 		
 		editor = CodeMirror.fromTextArea(Browser.document.getElementById("code"), options);
 		
-		new JQuery("#editor").hide(250);
+		new JQuery("#editor").hide(0);
 		
 		loadThemes([
 		"3024-day",

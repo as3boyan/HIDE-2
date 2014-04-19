@@ -1,4 +1,5 @@
 package core;
+import build.CommandPreprocessor;
 import build.Hxml;
 import cm.Editor;
 import js.Browser;
@@ -106,9 +107,9 @@ class RunProject
 				case Project.COMMAND:
 					var command:String = runActionText;
 					
-					if (isValidCommand(command)) 
+					if (isValidCommand(command))
 					{
-						var params:Array<String> = preprocessCommand(command, ProjectAccess.path).split(" ");
+						var params:Array<String> = CommandPreprocessor.preprocess(command, ProjectAccess.path).split(" ");
 						
 						var process:String = params.shift();
 						
@@ -239,14 +240,14 @@ class RunProject
 				else
 				{
 					var command:String = project.buildActionCommand;
-					command = preprocessCommand(command, pathToProject);
+					command = CommandPreprocessor.preprocess(command, pathToProject);
 					
 					//if (project.type == Project.HAXE)
 					//{
 						//command = [command].concat(project.args).join(" ");
 					//}
 					
-					var params:Array<String> = preprocessCommand(command, pathToProject).split(" ");
+					var params:Array<String> = CommandPreprocessor.preprocess(command, pathToProject).split(" ");
 					var process:String = params.shift();
 					
 					ProcessHelper.runProcessAndPrintOutputToConsole(process, params, onComplete);			
@@ -256,22 +257,5 @@ class RunProject
 		}
 	}
 	
-	static function preprocessCommand(command:String, path:String):String
-	{
-		var processedCommand:String = command;
-		
-		processedCommand = StringTools.replace(processedCommand, "%path%", path);
-		
-		var ereg:EReg = ~/%join%[(](.+)[)]/;
-		
-		if (ereg.match(processedCommand))
-		{
-			var matchedString:String = ereg.matched(1);
-			var arguments = matchedString.split(",");
-			
-			processedCommand = StringTools.replace(processedCommand, ereg.matched(0), js.Node.path.join(arguments[0], arguments[1]));
-		}
-		
-		return processedCommand;
-	}
+	
 }
